@@ -1,27 +1,19 @@
 [
   {
-    "listing": "/posts_zh.html",
+    "listing": "/posts.html",
     "items": [
-      "/posts_ch/扩散模型简介.html",
-      "/posts_ch/你好-开始使用.html"
+      "/posts/optimization-notes.html",
+      "/posts/bayesian-inference-primer.html",
+      "/posts/math-and-code-demo.html",
+      "/posts/hello-quarto.html"
     ]
   },
   {
-    "listing": "/home.html",
+    "listing": "/index.html",
     "items": [
       "/posts_en/bayesian-inference-primer.html",
       "/posts_en/diffusion-models-intro.html",
       "/posts_en/optimization-notes.html",
-      "/posts_en/math-and-code-demo.html",
-      "/posts_en/hello-quarto.html"
-    ]
-  },
-  {
-    "listing": "/posts_en.html",
-    "items": [
-      "/posts_en/optimization-notes.html",
-      "/posts_en/diffusion-models-intro.html",
-      "/posts_en/bayesian-inference-primer.html",
       "/posts_en/math-and-code-demo.html",
       "/posts_en/hello-quarto.html"
     ]
@@ -39,7 +31,17 @@
     ]
   },
   {
-    "listing": "/index.html",
+    "listing": "/posts_en.html",
+    "items": [
+      "/posts_en/optimization-notes.html",
+      "/posts_en/diffusion-models-intro.html",
+      "/posts_en/bayesian-inference-primer.html",
+      "/posts_en/math-and-code-demo.html",
+      "/posts_en/hello-quarto.html"
+    ]
+  },
+  {
+    "listing": "/home.html",
     "items": [
       "/posts_en/bayesian-inference-primer.html",
       "/posts_en/diffusion-models-intro.html",
@@ -49,12 +51,10 @@
     ]
   },
   {
-    "listing": "/posts.html",
+    "listing": "/posts_zh.html",
     "items": [
-      "/posts/optimization-notes.html",
-      "/posts/bayesian-inference-primer.html",
-      "/posts/math-and-code-demo.html",
-      "/posts/hello-quarto.html"
+      "/posts_ch/扩散模型简介.html",
+      "/posts_ch/你好-开始使用.html"
     ]
   }
 ]
