@@ -32,5 +32,14 @@
       "/posts_en/math-and-code-demo.html",
       "/posts_en/hello-quarto.html"
     ]
+  },
+  {
+    "listing": "/posts.html",
+    "items": [
+      "/posts/bayesian-inference-primer.html",
+      "/posts/optimization-notes.html",
+      "/posts/math-and-code-demo.html",
+      "/posts/hello-quarto.html"
+    ]
   }
 ]

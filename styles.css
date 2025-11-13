@@ -171,3 +171,11 @@ html, body {
 .quarto-light .quarto-title-block p,
 .quarto-light .quarto-title-block .quarto-title-meta,
 .quarto-light .quarto-title-block .quarto-title-meta * { color: #374151 !important; }
+
+/* Widen main content area ~15% on large screens */
+@media (min-width: 1200px) {
+  .page-columns .content,
+  main.content#quarto-document-content {
+    max-width: 75rem !important;
+  }
+}

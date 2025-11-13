@@ -12,6 +12,9 @@
     "tags.qmd": [
       "posts_en",
       "posts_ch"
+    ],
+    "posts.qmd": [
+      "posts"
     ]
   }
 }

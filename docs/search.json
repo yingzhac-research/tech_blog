@@ -187,5 +187,138 @@
     "title": "你好，开始使用 Quarto",
     "section": "3 小结",
     "text": "3 小结\n中文文章放在 posts_ch/；英文文章放在 posts_en/。其它页面（首页、关于、标签）统一保持英文。"
+  },
+  {
+    "objectID": "posts.html",
+    "href": "posts.html",
+    "title": "Posts",
+    "section": "",
+    "text": "Browse all posts below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html",
+    "href": "posts/math-and-code-demo.html",
+    "title": "Math and Code Demo",
+    "section": "",
+    "text": "This is a sample technical post. It demonstrates: - syntax-highlighted code blocks - inline and block math (LaTeX/MathJax) - an illustrative figure with a caption\nYou can use the same structure for more serious technical writing and export the same .qmd to PDF."
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html#code-example",
+    "href": "posts/math-and-code-demo.html#code-example",
+    "title": "Math and Code Demo",
+    "section": "1 Code Example",
+    "text": "1 Code Example\nBelow is a small Python snippet showing a Stable Softplus implementation (for numerical stability) and a simple mean-squared-error:\nimport math\n\ndef softplus(x: float) -&gt; float:\n    # Stable softplus: log(1 + exp(x))\n    if x &gt; 20:\n        return x  # exp(x) would overflow; asymptotically ~ x\n    return math.log1p(math.exp(x))\n\ndef mse(y_true, y_pred):\n    n = len(y_true)\n    return sum((a - b)**2 for a, b in zip(y_true, y_pred)) / n\n\nprint(softplus(0.0))\nprint(mse([1, 2, 3], [1.1, 2.2, 2.9]))"
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html#inline-math",
+    "href": "posts/math-and-code-demo.html#inline-math",
+    "title": "Math and Code Demo",
+    "section": "2 Inline Math",
+    "text": "2 Inline Math\nWe denote a model’s parameters by \\(\\theta\\) and a dataset by \\(\\mathcal{D}\\). A typical objective may minimize a loss \\(\\mathcal{L}(\\theta)\\) with gradient \\(\\nabla_\\theta \\, \\mathcal{L}(\\theta)\\)."
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html#block-math",
+    "href": "posts/math-and-code-demo.html#block-math",
+    "title": "Math and Code Demo",
+    "section": "3 Block Math",
+    "text": "3 Block Math\nFor example, the mean squared error (MSE) for targets \\(y_i\\) and predictions \\(\\hat y_i\\) is\n\\[\n\\mathcal{L}(\\theta)\n\\;=\\; \\frac{1}{N} \\sum_{i=1}^{N} \\bigl(y_i - \\hat y_i\\bigr)^2\n\\,.\n\\]\nAlternatively, a negative log-likelihood (NLL) under a Gaussian assumption (\\(\\sigma^2\\) fixed) is\n\\[\n\\mathcal{L}(\\theta)\n\\;=\\; \\frac{1}{2\\sigma^2} \\sum_{i=1}^{N} \\bigl(y_i - \\hat y_i\\bigr)^2\n\\;+\\; \\text{const}.\n\\]"
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html#figure-with-caption",
+    "href": "posts/math-and-code-demo.html#figure-with-caption",
+    "title": "Math and Code Demo",
+    "section": "4 Figure with Caption",
+    "text": "4 Figure with Caption\nHere is a placeholder image with a caption and constrained width:\n\n\n\nA demo figure with a placeholder image."
+  },
+  {
+    "objectID": "posts/math-and-code-demo.html#summary",
+    "href": "posts/math-and-code-demo.html#summary",
+    "title": "Math and Code Demo",
+    "section": "5 Summary",
+    "text": "5 Summary\nThis post shows how to combine code, math, and figures in a single .qmd. The same source can be rendered to HTML for the blog and exported to PDF (via quarto render post.qmd --to pdf) as a chapter draft or paper section."
+  },
+  {
+    "objectID": "posts/bayesian-inference-primer.html",
+    "href": "posts/bayesian-inference-primer.html",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "",
+    "text": "We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be \\(y_1,\\dots,y_n \\in \\{0,1\\}\\) with \\(y_i \\sim \\operatorname{Bernoulli}(p)\\) and prior \\(p \\sim \\operatorname{Beta}(\\alpha,\\beta)\\)."
+  },
+  {
+    "objectID": "posts/bayesian-inference-primer.html#bayes-rule-and-likelihood",
+    "href": "posts/bayesian-inference-primer.html#bayes-rule-and-likelihood",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "1 Bayes’ Rule and Likelihood",
+    "text": "1 Bayes’ Rule and Likelihood\nBayes’ rule states \\(p(p\\mid y) \\propto p(y\\mid p)\\,p(p)\\). For \\(k = \\sum_i y_i\\), the likelihood is\n\\[\np(y\\mid p) \\;=\\; p^{k}(1-p)^{n-k}.\n\\]"
+  },
+  {
+    "objectID": "posts/bayesian-inference-primer.html#posterior-and-moments",
+    "href": "posts/bayesian-inference-primer.html#posterior-and-moments",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "2 Posterior and Moments",
+    "text": "2 Posterior and Moments\nUsing Beta–Binomial conjugacy, the posterior is\n\\[\np(p\\mid y) \\;=\\; \\operatorname{Beta}(\\alpha + k,\\; \\beta + n - k),\n\\]\nwith posterior mean\n\\[\n\\mathbb{E}[p\\mid y] \\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]\nThe posterior predictive for a new label \\(\\tilde y\\) has\n\\[\n\\Pr(\\tilde y = 1 \\mid y) \\;=\\; \\mathbb{E}[p\\mid y]\n\\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]"
+  },
+  {
+    "objectID": "posts/bayesian-inference-primer.html#minimal-code-example",
+    "href": "posts/bayesian-inference-primer.html#minimal-code-example",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "3 Minimal Code Example",
+    "text": "3 Minimal Code Example\ndef beta_binomial_posterior(alpha, beta, k, n):\n    post_a = alpha + k\n    post_b = beta + (n - k)\n    mean = post_a / (post_a + post_b)\n    return post_a, post_b, mean\n\n# Example: prior Beta(1, 1), observations with k=7 successes out of n=10\npa, pb, pm = beta_binomial_posterior(1.0, 1.0, k=7, n=10)\nprint(f\"Posterior: Beta({pa:.1f}, {pb:.1f})  mean={pm:.3f}\")"
+  },
+  {
+    "objectID": "posts/bayesian-inference-primer.html#summary",
+    "href": "posts/bayesian-inference-primer.html#summary",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "4 Summary",
+    "text": "4 Summary\nThis compact primer uses inline math (e.g., \\(k, n, \\alpha, \\beta\\)) and block equations for conjugacy. The same .qmd can be rendered to HTML and exported to PDF."
+  },
+  {
+    "objectID": "posts/hello-quarto.html",
+    "href": "posts/hello-quarto.html",
+    "title": "Hello Quarto",
+    "section": "",
+    "text": "Welcome! This is a minimal post to confirm that listings, styling, and navigation work as expected.\nSome inline code like print(\"hello\") should be easy to read in dark mode.\ndef greet(name: str) -&gt; str:\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Quarto\"))\nThat’s all for now — more technical posts coming soon."
+  },
+  {
+    "objectID": "posts/optimization-notes.html",
+    "href": "posts/optimization-notes.html",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "",
+    "text": "These short notes demonstrate LaTeX in Quarto for optimization topics. We use inline math like \\(\\eta\\) (step size) and \\(\\nabla f(x)\\) (gradient), and block equations for key identities."
+  },
+  {
+    "objectID": "posts/optimization-notes.html#gradient-descent",
+    "href": "posts/optimization-notes.html#gradient-descent",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "1 Gradient Descent",
+    "text": "1 Gradient Descent\nThe basic update with learning rate \\(\\eta &gt; 0\\) is\n\\[\n\\mathbf{x}_{t+1}\n\\;=\\; \\mathbf{x}_t\n\\;-\\; \\eta\\, \\nabla f(\\mathbf{x}_t).\n\\]\nUnder \\(L\\)-smoothness, we have the upper bound\n\\[\nf(\\mathbf{y}) \\;\\le\\; f(\\mathbf{x})\n\\;+\\; \\langle \\nabla f(\\mathbf{x}),\n\\, \\mathbf{y} - \\mathbf{x} \\rangle\n\\;+\\; \\frac{L}{2} \\lVert \\mathbf{y} - \\mathbf{x} \\rVert^2.\n\\]"
+  },
+  {
+    "objectID": "posts/optimization-notes.html#convexity",
+    "href": "posts/optimization-notes.html#convexity",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "2 Convexity",
+    "text": "2 Convexity\nA function \\(f\\) is convex if for any \\(\\theta \\in [0,1]\\) and any \\(\\mathbf{x},\\mathbf{y}\\),\n\\[\nf\\bigl(\\theta \\mathbf{x} + (1-\\theta)\\mathbf{y}\\bigr)\n\\;\\le\\; \\theta f(\\mathbf{x}) + (1-\\theta) f(\\mathbf{y}).\n\\]\nFor \\(\\mu\\)-strongly convex functions, gradient descent with small enough \\(\\eta\\) converges linearly."
+  },
+  {
+    "objectID": "posts/optimization-notes.html#ridge-regression-closed-form",
+    "href": "posts/optimization-notes.html#ridge-regression-closed-form",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "3 Ridge Regression (Closed Form)",
+    "text": "3 Ridge Regression (Closed Form)\nWith features \\(\\mathbf{X} \\in \\mathbb{R}^{n\\times d}\\) and targets \\(\\mathbf{y} \\in \\mathbb{R}^{n}\\), the ridge solution is\n\\[\n\\mathbf{w}^{\\star}\n\\;=\\; (\\mathbf{X}^\\top \\mathbf{X} + \\lambda \\mathbf{I})^{-1} \\mathbf{X}^\\top \\mathbf{y}.\n\\]"
+  },
+  {
+    "objectID": "posts/optimization-notes.html#minimal-code-example",
+    "href": "posts/optimization-notes.html#minimal-code-example",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "4 Minimal Code Example",
+    "text": "4 Minimal Code Example\nBelow is a tiny gradient-descent loop for a 1D convex function \\(f(x) = (x-3)^2 + 1\\) with \\(\\nabla f(x) = 2(x-3)\\):\ndef f(x):\n    return (x - 3.0)**2 + 1.0\n\ndef grad_f(x):\n    return 2.0 * (x - 3.0)\n\nx, eta = 0.0, 0.1\nfor t in range(20):\n    x = x - eta * grad_f(x)\n    if t % 5 == 0:\n        print(f\"iter={t:02d}, x={x:.4f}, f(x)={f(x):.5f}\")"
+  },
+  {
+    "objectID": "posts/optimization-notes.html#summary",
+    "href": "posts/optimization-notes.html#summary",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "5 Summary",
+    "text": "5 Summary\nWe used inline math (e.g., \\(\\eta\\), \\(\\nabla f\\)) and block equations to express standard optimization results, suitable for export to PDF."
   }
 ]
