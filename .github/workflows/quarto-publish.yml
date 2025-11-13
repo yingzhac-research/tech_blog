@@ -27,6 +27,13 @@ jobs:
       - name: Render Quarto site
         run: quarto render
 
+      - name: Add cache-busting files
+        run: |
+          # Ensure .nojekyll exists to prevent Jekyll processing by GitHub Pages
+          touch docs/.nojekyll
+          # Add timestamp to force CDN cache invalidation
+          echo "Build: $(date -u +%Y%m%d%H%M%S)" > docs/.buildinfo
+
       - name: Commit and push rendered files
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
