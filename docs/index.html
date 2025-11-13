@@ -565,9 +565,10 @@ Nov 11, 2025
 </script>
 
 <script>
-// Cache-bust: ensure every page URL carries ?v=<version>, and rewrite internal links
+// Cache-bust: ensure page URLs carry a version param and every internal click appends a fresh version
 (function() {
-  function buildVersion() {
+  function buildStaticVersion() {
+    // Fallback version key (not used for clicks anymore but used for initial URL normalization)
     var el = document.querySelector('link#quarto-bootstrap');
     if (el && el.getAttribute('href')) {
       var href = el.getAttribute('href');
@@ -590,12 +591,15 @@ Nov 11, 2025
     u.searchParams.set('v', v);
     return u.toString();
   }
+  function isInternal(href) {
+    if (!href || href.startsWith('#')) return false;
+    if (/^https?:\/\//i.test(href)) return false;
+    return true;
+  }
   function rewriteInternalLinks(v) {
-    var links = document.querySelectorAll('a[href]');
-    links.forEach(function(a){
+    document.querySelectorAll('a[href]').forEach(function(a){
       var href = a.getAttribute('href') || '';
-      if (!href || href.startsWith('#')) return;
-      if (/^https?:\/\//i.test(href)) return; // external
+      if (!isInternal(href)) return;
       a.setAttribute('href', withVersionRel(href, v));
     });
   }
@@ -606,10 +610,43 @@ Nov 11, 2025
       window.location.replace(target);
     }
   }
+  function enableClickAppender() {
+    // On every internal click, append a fresh timestamp version to guarantee a fresh fetch
+    document.addEventListener('click', function(e){
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      if (!isInternal(href)) return;
+      // Mutate destination with a unique version for this click
+      var fresh = String(Date.now());
+      a.setAttribute('href', withVersionRel(href, fresh));
+    }, true);
+  }
+  function observeDynamicLinks(v) {
+    // Listings and other widgets add links after DOMContentLoaded; observe and rewrite
+    var obs = new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        m.addedNodes && m.addedNodes.forEach(function(node){
+          if (node.nodeType !== 1) return;
+          if (node.matches && node.matches('a[href]')) {
+            var href = node.getAttribute('href') || '';
+            if (isInternal(href)) node.setAttribute('href', withVersionRel(href, v));
+          }
+          node.querySelectorAll && node.querySelectorAll('a[href]').forEach(function(a){
+            var href = a.getAttribute('href') || '';
+            if (isInternal(href)) a.setAttribute('href', withVersionRel(href, v));
+          });
+        });
+      });
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
   document.addEventListener('DOMContentLoaded', function(){
-    var v = buildVersion();
-    rewriteInternalLinks(v);
-    ensureUrlHasVersion(v);
+    var staticV = buildStaticVersion();
+    rewriteInternalLinks(staticV);
+    observeDynamicLinks(staticV);
+    enableClickAppender();
+    ensureUrlHasVersion(staticV);
   });
 })();
 </script>
