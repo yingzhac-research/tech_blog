@@ -22,8 +22,12 @@ format:
       light: flatly
       dark: darkly
     css: styles.css
-    include-in-header: _includes/dark-default.html
-    include-after-body: _includes/lang-toggle.html
+    include-in-header:
+      - _includes/dark-default.html
+      - _includes/nocache.html
+    include-after-body:
+      - _includes/lang-toggle.html
+      - _includes/cache-bust.html
     code-copy: true
     toc: true
     toc-depth: 3
