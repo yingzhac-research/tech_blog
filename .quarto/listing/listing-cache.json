@@ -3,6 +3,9 @@
     "index.qmd": [
       "posts_en/*.qmd"
     ],
+    "posts.qmd": [
+      "posts"
+    ],
     "posts_en.qmd": [
       "posts_en"
     ],
@@ -12,9 +15,6 @@
     "tags.qmd": [
       "posts_en",
       "posts_ch"
-    ],
-    "posts.qmd": [
-      "posts"
     ]
   }
 }

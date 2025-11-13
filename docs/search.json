@@ -1,33 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Tech Notes",
-    "section": "",
-    "text": "Welcome to Tech Notes — a concise, dark-themed space for technical writing and research notes. 这里会记录与 AI、机器学习、数据科学、物理与量化相关的技术随笔与草稿。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "This is a placeholder About page.\nI write about AI/ML, Data Science, Physics, and Quant topics — mixing practical engineering notes with research-oriented drafts. The site is built with Quarto and styled for comfortable reading with a dark theme.\nIf you find something useful or spot an error, feel free to reach out or open an issue once this site is on GitHub."
-  },
-  {
-    "objectID": "posts_en.html",
-    "href": "posts_en.html",
-    "title": "Posts (EN)",
-    "section": "",
-    "text": "Browse English posts below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\n\nbayes\n\nprobability\n\nmath\n\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\n\noptimization\n\nmath\n\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\n\ndemo\n\nmath\n\ncode\n\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\n\nsetup\n\nintro\n\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "posts_zh.html",
-    "href": "posts_zh.html",
-    "title": "Posts (中文)",
-    "section": "",
-    "text": "浏览中文文章。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n你好，开始使用 Quarto\n\n\n\ndemo\n\ntutorial\n\ncn\n\n\n\n一篇中文示例文章，用于验证中英文分栏与标签。\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\nNo matching items"
-  },
-  {
     "objectID": "tags.html",
     "href": "tags.html",
     "title": "Tags",
@@ -35,46 +7,11 @@
     "text": "Browse by tag/category. Click a tag above to filter posts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\n\nbayes\n\nprobability\n\nmath\n\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\n\noptimization\n\nmath\n\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\n你好，开始使用 Quarto\n\n\n\ndemo\n\ntutorial\n\ncn\n\n\n\n一篇中文示例文章，用于验证中英文分栏与标签。\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\n\ndemo\n\nmath\n\ncode\n\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\n\nsetup\n\nintro\n\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts_en/bayesian-inference-primer.html",
-    "href": "posts_en/bayesian-inference-primer.html",
-    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "objectID": "posts_en.html",
+    "href": "posts_en.html",
+    "title": "Posts (EN)",
     "section": "",
-    "text": "We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be \\(y_1,\\dots,y_n \\in \\{0,1\\}\\) with \\(y_i \\sim \\operatorname{Bernoulli}(p)\\) and prior \\(p \\sim \\operatorname{Beta}(\\alpha,\\beta)\\)."
-  },
-  {
-    "objectID": "posts_en/bayesian-inference-primer.html#bayes-rule-and-likelihood",
-    "href": "posts_en/bayesian-inference-primer.html#bayes-rule-and-likelihood",
-    "title": "Bayesian Inference Primer — Beta–Binomial",
-    "section": "1 Bayes’ Rule and Likelihood",
-    "text": "1 Bayes’ Rule and Likelihood\nBayes’ rule states \\(p(p\\mid y) \\propto p(y\\mid p)\\,p(p)\\). For \\(k = \\sum_i y_i\\), the likelihood is\n\\[\np(y\\mid p) \\;=\\; p^{k}(1-p)^{n-k}.\n\\]"
-  },
-  {
-    "objectID": "posts_en/bayesian-inference-primer.html#posterior-and-moments",
-    "href": "posts_en/bayesian-inference-primer.html#posterior-and-moments",
-    "title": "Bayesian Inference Primer — Beta–Binomial",
-    "section": "2 Posterior and Moments",
-    "text": "2 Posterior and Moments\nUsing Beta–Binomial conjugacy, the posterior is\n\\[\np(p\\mid y) \\;=\\; \\operatorname{Beta}(\\alpha + k,\\; \\beta + n - k),\n\\]\nwith posterior mean\n\\[\n\\mathbb{E}[p\\mid y] \\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]\nThe posterior predictive for a new label \\(\\tilde y\\) has\n\\[\n\\Pr(\\tilde y = 1 \\mid y) \\;=\\; \\mathbb{E}[p\\mid y]\n\\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]"
-  },
-  {
-    "objectID": "posts_en/bayesian-inference-primer.html#minimal-code-example",
-    "href": "posts_en/bayesian-inference-primer.html#minimal-code-example",
-    "title": "Bayesian Inference Primer — Beta–Binomial",
-    "section": "3 Minimal Code Example",
-    "text": "3 Minimal Code Example\ndef beta_binomial_posterior(alpha, beta, k, n):\n    post_a = alpha + k\n    post_b = beta + (n - k)\n    mean = post_a / (post_a + post_b)\n    return post_a, post_b, mean\n\n# Example: prior Beta(1, 1), observations with k=7 successes out of n=10\npa, pb, pm = beta_binomial_posterior(1.0, 1.0, k=7, n=10)\nprint(f\"Posterior: Beta({pa:.1f}, {pb:.1f})  mean={pm:.3f}\")"
-  },
-  {
-    "objectID": "posts_en/bayesian-inference-primer.html#summary",
-    "href": "posts_en/bayesian-inference-primer.html#summary",
-    "title": "Bayesian Inference Primer — Beta–Binomial",
-    "section": "4 Summary",
-    "text": "4 Summary\nThis compact primer uses inline math (e.g., \\(k, n, \\alpha, \\beta\\)) and block equations for conjugacy. The same .qmd can be rendered to HTML and exported to PDF."
-  },
-  {
-    "objectID": "posts_en/hello-quarto.html",
-    "href": "posts_en/hello-quarto.html",
-    "title": "Hello Quarto",
-    "section": "",
-    "text": "Welcome! This is a minimal post to confirm that listings, styling, and navigation work as expected.\nSome inline code like print(\"hello\") should be easy to read in dark mode.\ndef greet(name: str) -&gt; str:\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Quarto\"))\nThat’s all for now — more technical posts coming soon."
+    "text": "Browse English posts below.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\n\nbayes\n\nprobability\n\nmath\n\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\n\noptimization\n\nmath\n\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\n\ndemo\n\nmath\n\ncode\n\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\n\nsetup\n\nintro\n\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts_en/math-and-code-demo.html",
@@ -119,74 +56,39 @@
     "text": "5 Summary\nThis post shows how to combine code, math, and figures in a single .qmd. The same source can be rendered to HTML for the blog and exported to PDF (via quarto render post.qmd --to pdf) as a chapter draft or paper section."
   },
   {
-    "objectID": "posts_en/optimization-notes.html",
-    "href": "posts_en/optimization-notes.html",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "objectID": "posts_en/bayesian-inference-primer.html",
+    "href": "posts_en/bayesian-inference-primer.html",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
     "section": "",
-    "text": "These short notes demonstrate LaTeX in Quarto for optimization topics. We use inline math like \\(\\eta\\) (step size) and \\(\\nabla f(x)\\) (gradient), and block equations for key identities."
+    "text": "We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be \\(y_1,\\dots,y_n \\in \\{0,1\\}\\) with \\(y_i \\sim \\operatorname{Bernoulli}(p)\\) and prior \\(p \\sim \\operatorname{Beta}(\\alpha,\\beta)\\)."
   },
   {
-    "objectID": "posts_en/optimization-notes.html#gradient-descent",
-    "href": "posts_en/optimization-notes.html#gradient-descent",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
-    "section": "1 Gradient Descent",
-    "text": "1 Gradient Descent\nThe basic update with learning rate \\(\\eta &gt; 0\\) is\n\\[\n\\mathbf{x}_{t+1}\n\\;=\\; \\mathbf{x}_t\n\\;-\\; \\eta\\, \\nabla f(\\mathbf{x}_t).\n\\]\nUnder \\(L\\)-smoothness, we have the upper bound\n\\[\nf(\\mathbf{y}) \\;\\le\\; f(\\mathbf{x})\n\\;+\\; \\langle \\nabla f(\\mathbf{x}),\n\\, \\mathbf{y} - \\mathbf{x} \\rangle\n\\;+\\; \\frac{L}{2} \\lVert \\mathbf{y} - \\mathbf{x} \\rVert^2.\n\\]"
+    "objectID": "posts_en/bayesian-inference-primer.html#bayes-rule-and-likelihood",
+    "href": "posts_en/bayesian-inference-primer.html#bayes-rule-and-likelihood",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "1 Bayes’ Rule and Likelihood",
+    "text": "1 Bayes’ Rule and Likelihood\nBayes’ rule states \\(p(p\\mid y) \\propto p(y\\mid p)\\,p(p)\\). For \\(k = \\sum_i y_i\\), the likelihood is\n\\[\np(y\\mid p) \\;=\\; p^{k}(1-p)^{n-k}.\n\\]"
   },
   {
-    "objectID": "posts_en/optimization-notes.html#convexity",
-    "href": "posts_en/optimization-notes.html#convexity",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
-    "section": "2 Convexity",
-    "text": "2 Convexity\nA function \\(f\\) is convex if for any \\(\\theta \\in [0,1]\\) and any \\(\\mathbf{x},\\mathbf{y}\\),\n\\[\nf\\bigl(\\theta \\mathbf{x} + (1-\\theta)\\mathbf{y}\\bigr)\n\\;\\le\\; \\theta f(\\mathbf{x}) + (1-\\theta) f(\\mathbf{y}).\n\\]\nFor \\(\\mu\\)-strongly convex functions, gradient descent with small enough \\(\\eta\\) converges linearly."
+    "objectID": "posts_en/bayesian-inference-primer.html#posterior-and-moments",
+    "href": "posts_en/bayesian-inference-primer.html#posterior-and-moments",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "2 Posterior and Moments",
+    "text": "2 Posterior and Moments\nUsing Beta–Binomial conjugacy, the posterior is\n\\[\np(p\\mid y) \\;=\\; \\operatorname{Beta}(\\alpha + k,\\; \\beta + n - k),\n\\]\nwith posterior mean\n\\[\n\\mathbb{E}[p\\mid y] \\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]\nThe posterior predictive for a new label \\(\\tilde y\\) has\n\\[\n\\Pr(\\tilde y = 1 \\mid y) \\;=\\; \\mathbb{E}[p\\mid y]\n\\;=\\; \\frac{\\alpha + k}{\\alpha + \\beta + n}.\n\\]"
   },
   {
-    "objectID": "posts_en/optimization-notes.html#ridge-regression-closed-form",
-    "href": "posts_en/optimization-notes.html#ridge-regression-closed-form",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
-    "section": "3 Ridge Regression (Closed Form)",
-    "text": "3 Ridge Regression (Closed Form)\nWith features \\(\\mathbf{X} \\in \\mathbb{R}^{n\\times d}\\) and targets \\(\\mathbf{y} \\in \\mathbb{R}^{n}\\), the ridge solution is\n\\[\n\\mathbf{w}^{\\star}\n\\;=\\; (\\mathbf{X}^\\top \\mathbf{X} + \\lambda \\mathbf{I})^{-1} \\mathbf{X}^\\top \\mathbf{y}.\n\\]"
+    "objectID": "posts_en/bayesian-inference-primer.html#minimal-code-example",
+    "href": "posts_en/bayesian-inference-primer.html#minimal-code-example",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "3 Minimal Code Example",
+    "text": "3 Minimal Code Example\ndef beta_binomial_posterior(alpha, beta, k, n):\n    post_a = alpha + k\n    post_b = beta + (n - k)\n    mean = post_a / (post_a + post_b)\n    return post_a, post_b, mean\n\n# Example: prior Beta(1, 1), observations with k=7 successes out of n=10\npa, pb, pm = beta_binomial_posterior(1.0, 1.0, k=7, n=10)\nprint(f\"Posterior: Beta({pa:.1f}, {pb:.1f})  mean={pm:.3f}\")"
   },
   {
-    "objectID": "posts_en/optimization-notes.html#minimal-code-example",
-    "href": "posts_en/optimization-notes.html#minimal-code-example",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
-    "section": "4 Minimal Code Example",
-    "text": "4 Minimal Code Example\nBelow is a tiny gradient-descent loop for a 1D convex function \\(f(x) = (x-3)^2 + 1\\) with \\(\\nabla f(x) = 2(x-3)\\):\ndef f(x):\n    return (x - 3.0)**2 + 1.0\n\ndef grad_f(x):\n    return 2.0 * (x - 3.0)\n\nx, eta = 0.0, 0.1\nfor t in range(20):\n    x = x - eta * grad_f(x)\n    if t % 5 == 0:\n        print(f\"iter={t:02d}, x={x:.4f}, f(x)={f(x):.5f}\")"
-  },
-  {
-    "objectID": "posts_en/optimization-notes.html#summary",
-    "href": "posts_en/optimization-notes.html#summary",
-    "title": "Optimization Notes — Gradient Descent and Convexity",
-    "section": "5 Summary",
-    "text": "5 Summary\nWe used inline math (e.g., \\(\\eta\\), \\(\\nabla f\\)) and block equations to express standard optimization results, suitable for export to PDF."
-  },
-  {
-    "objectID": "posts_ch/你好-开始使用.html",
-    "href": "posts_ch/你好-开始使用.html",
-    "title": "你好，开始使用 Quarto",
-    "section": "",
-    "text": "这是中文示例文章，用来测试在 posts_ch/ 下的中文文章列表、标签以及数学公式/代码高亮。"
-  },
-  {
-    "objectID": "posts_ch/你好-开始使用.html#代码示例",
-    "href": "posts_ch/你好-开始使用.html#代码示例",
-    "title": "你好，开始使用 Quarto",
-    "section": "1 代码示例",
-    "text": "1 代码示例\ndef add(a, b):\n    return a + b\n\nprint(add(2, 3))"
-  },
-  {
-    "objectID": "posts_ch/你好-开始使用.html#行间公式",
-    "href": "posts_ch/你好-开始使用.html#行间公式",
-    "title": "你好，开始使用 Quarto",
-    "section": "2 行间公式",
-    "text": "2 行间公式\n\\[\n\\mathcal{L}(\\theta)\n= -\\sum_i \\log p(y_i \\mid x_i, \\theta)\n\\]"
-  },
-  {
-    "objectID": "posts_ch/你好-开始使用.html#小结",
-    "href": "posts_ch/你好-开始使用.html#小结",
-    "title": "你好，开始使用 Quarto",
-    "section": "3 小结",
-    "text": "3 小结\n中文文章放在 posts_ch/；英文文章放在 posts_en/。其它页面（首页、关于、标签）统一保持英文。"
+    "objectID": "posts_en/bayesian-inference-primer.html#summary",
+    "href": "posts_en/bayesian-inference-primer.html#summary",
+    "title": "Bayesian Inference Primer — Beta–Binomial",
+    "section": "4 Summary",
+    "text": "4 Summary\nThis compact primer uses inline math (e.g., \\(k, n, \\alpha, \\beta\\)) and block equations for conjugacy. The same .qmd can be rendered to HTML and exported to PDF."
   },
   {
     "objectID": "posts.html",
@@ -273,6 +175,20 @@
     "text": "4 Summary\nThis compact primer uses inline math (e.g., \\(k, n, \\alpha, \\beta\\)) and block equations for conjugacy. The same .qmd can be rendered to HTML and exported to PDF."
   },
   {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This is a placeholder About page.\nI write about AI/ML, Data Science, Physics, and Quant topics — mixing practical engineering notes with research-oriented drafts. The site is built with Quarto and styled for comfortable reading with a dark theme.\nIf you find something useful or spot an error, feel free to reach out or open an issue once this site is on GitHub."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Tech Notes",
+    "section": "",
+    "text": "Welcome to Tech Notes — a concise, dark-themed space for technical writing and research notes. 这里会记录与 AI、机器学习、数据科学、物理与量化相关的技术随笔与草稿。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
+  },
+  {
     "objectID": "posts/hello-quarto.html",
     "href": "posts/hello-quarto.html",
     "title": "Hello Quarto",
@@ -320,5 +236,89 @@
     "title": "Optimization Notes — Gradient Descent and Convexity",
     "section": "5 Summary",
     "text": "5 Summary\nWe used inline math (e.g., \\(\\eta\\), \\(\\nabla f\\)) and block equations to express standard optimization results, suitable for export to PDF."
+  },
+  {
+    "objectID": "posts_ch/你好-开始使用.html",
+    "href": "posts_ch/你好-开始使用.html",
+    "title": "你好，开始使用 Quarto",
+    "section": "",
+    "text": "这是中文示例文章，用来测试在 posts_ch/ 下的中文文章列表、标签以及数学公式/代码高亮。"
+  },
+  {
+    "objectID": "posts_ch/你好-开始使用.html#代码示例",
+    "href": "posts_ch/你好-开始使用.html#代码示例",
+    "title": "你好，开始使用 Quarto",
+    "section": "1 代码示例",
+    "text": "1 代码示例\ndef add(a, b):\n    return a + b\n\nprint(add(2, 3))"
+  },
+  {
+    "objectID": "posts_ch/你好-开始使用.html#行间公式",
+    "href": "posts_ch/你好-开始使用.html#行间公式",
+    "title": "你好，开始使用 Quarto",
+    "section": "2 行间公式",
+    "text": "2 行间公式\n\\[\n\\mathcal{L}(\\theta)\n= -\\sum_i \\log p(y_i \\mid x_i, \\theta)\n\\]"
+  },
+  {
+    "objectID": "posts_ch/你好-开始使用.html#小结",
+    "href": "posts_ch/你好-开始使用.html#小结",
+    "title": "你好，开始使用 Quarto",
+    "section": "3 小结",
+    "text": "3 小结\n中文文章放在 posts_ch/；英文文章放在 posts_en/。其它页面（首页、关于、标签）统一保持英文。"
+  },
+  {
+    "objectID": "posts_en/hello-quarto.html",
+    "href": "posts_en/hello-quarto.html",
+    "title": "Hello Quarto",
+    "section": "",
+    "text": "Welcome! This is a minimal post to confirm that listings, styling, and navigation work as expected.\nSome inline code like print(\"hello\") should be easy to read in dark mode.\ndef greet(name: str) -&gt; str:\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Quarto\"))\nThat’s all for now — more technical posts coming soon."
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html",
+    "href": "posts_en/optimization-notes.html",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "",
+    "text": "These short notes demonstrate LaTeX in Quarto for optimization topics. We use inline math like \\(\\eta\\) (step size) and \\(\\nabla f(x)\\) (gradient), and block equations for key identities."
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html#gradient-descent",
+    "href": "posts_en/optimization-notes.html#gradient-descent",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "1 Gradient Descent",
+    "text": "1 Gradient Descent\nThe basic update with learning rate \\(\\eta &gt; 0\\) is\n\\[\n\\mathbf{x}_{t+1}\n\\;=\\; \\mathbf{x}_t\n\\;-\\; \\eta\\, \\nabla f(\\mathbf{x}_t).\n\\]\nUnder \\(L\\)-smoothness, we have the upper bound\n\\[\nf(\\mathbf{y}) \\;\\le\\; f(\\mathbf{x})\n\\;+\\; \\langle \\nabla f(\\mathbf{x}),\n\\, \\mathbf{y} - \\mathbf{x} \\rangle\n\\;+\\; \\frac{L}{2} \\lVert \\mathbf{y} - \\mathbf{x} \\rVert^2.\n\\]"
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html#convexity",
+    "href": "posts_en/optimization-notes.html#convexity",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "2 Convexity",
+    "text": "2 Convexity\nA function \\(f\\) is convex if for any \\(\\theta \\in [0,1]\\) and any \\(\\mathbf{x},\\mathbf{y}\\),\n\\[\nf\\bigl(\\theta \\mathbf{x} + (1-\\theta)\\mathbf{y}\\bigr)\n\\;\\le\\; \\theta f(\\mathbf{x}) + (1-\\theta) f(\\mathbf{y}).\n\\]\nFor \\(\\mu\\)-strongly convex functions, gradient descent with small enough \\(\\eta\\) converges linearly."
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html#ridge-regression-closed-form",
+    "href": "posts_en/optimization-notes.html#ridge-regression-closed-form",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "3 Ridge Regression (Closed Form)",
+    "text": "3 Ridge Regression (Closed Form)\nWith features \\(\\mathbf{X} \\in \\mathbb{R}^{n\\times d}\\) and targets \\(\\mathbf{y} \\in \\mathbb{R}^{n}\\), the ridge solution is\n\\[\n\\mathbf{w}^{\\star}\n\\;=\\; (\\mathbf{X}^\\top \\mathbf{X} + \\lambda \\mathbf{I})^{-1} \\mathbf{X}^\\top \\mathbf{y}.\n\\]"
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html#minimal-code-example",
+    "href": "posts_en/optimization-notes.html#minimal-code-example",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "4 Minimal Code Example",
+    "text": "4 Minimal Code Example\nBelow is a tiny gradient-descent loop for a 1D convex function \\(f(x) = (x-3)^2 + 1\\) with \\(\\nabla f(x) = 2(x-3)\\):\ndef f(x):\n    return (x - 3.0)**2 + 1.0\n\ndef grad_f(x):\n    return 2.0 * (x - 3.0)\n\nx, eta = 0.0, 0.1\nfor t in range(20):\n    x = x - eta * grad_f(x)\n    if t % 5 == 0:\n        print(f\"iter={t:02d}, x={x:.4f}, f(x)={f(x):.5f}\")"
+  },
+  {
+    "objectID": "posts_en/optimization-notes.html#summary",
+    "href": "posts_en/optimization-notes.html#summary",
+    "title": "Optimization Notes — Gradient Descent and Convexity",
+    "section": "5 Summary",
+    "text": "5 Summary\nWe used inline math (e.g., \\(\\eta\\), \\(\\nabla f\\)) and block equations to express standard optimization results, suitable for export to PDF."
+  },
+  {
+    "objectID": "posts_zh.html",
+    "href": "posts_zh.html",
+    "title": "Posts (中文)",
+    "section": "",
+    "text": "浏览中文文章。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n你好，开始使用 Quarto\n\n\n\ndemo\n\ntutorial\n\ncn\n\n\n\n一篇中文示例文章，用于验证中英文分栏与标签。\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\nNo matching items"
   }
 ]

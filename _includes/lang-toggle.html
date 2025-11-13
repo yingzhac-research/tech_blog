@@ -1,61 +1,64 @@
-<script>
-// Simple EN / 中文 language toggle for posts
+﻿<script>
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
 (function() {
   const KEY = 'siteLang'; // 'en' | 'zh'
   const defaultLang = 'en';
-  function currentLang() {
-    try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; }
+  const POSTS_EN = 'posts_en.html';
+  const POSTS_ZH = 'posts_zh.html';
+  const TAGS = 'tags.html';
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+  function offset() {
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+    return off;
   }
-  function setLang(v) {
-    try { localStorage.setItem(KEY, v); } catch(e) {}
-  }
-  function goToLang(v) {
-    // Determine target for posts and tags
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+  function goToLang(lang) {
+    const off = offset();
     const path = window.location.pathname;
-    const base = path.replace(/\/[^\/]*$/, '/');
-    // Known page targets
-    const targets = {
-      posts: v === 'zh' ? 'posts_zh.html' : 'posts_en.html',
-      tags: 'tags.html'
-    };
-    // If we are on posts_en/posts_zh, swap; otherwise default to posts page
-    if (path.endsWith('posts_en.html') || path.endsWith('posts_zh.html')) {
-      window.location.href = base + targets.posts;
-    } else if (path.endsWith('tags.html')) {
-      // tags is language-agnostic
-      window.location.href = base + targets.tags;
+    setLang(lang);
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+      window.location.href = off + TAGS;
     } else {
-      // from any other page go to posts of chosen language
-      window.location.href = base + targets.posts;
+      window.location.href = off + targetFor(lang);
     }
+  }
+  function updateNavbarPostsLink() {
+    const off = offset();
+    const href = off + targetFor(currentLang());
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+    links.forEach((a) => {
+      const h = a.getAttribute('href') || '';
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+    });
   }
   function mountToggle() {
     const tools = document.querySelector('.quarto-navbar-tools');
     if (!tools) return;
-    // Create wrapper
     const wrapper = document.createElement('div');
     wrapper.style.display = 'inline-flex';
     wrapper.style.alignItems = 'center';
     wrapper.style.gap = '0.35rem';
     wrapper.style.marginLeft = '0.35rem';
-    // EN button
+
     const en = document.createElement('a');
     en.href = '';
     en.textContent = 'EN';
     en.className = 'quarto-navigation-tool px-1';
-    en.onclick = function(){ setLang('en'); goToLang('en'); return false; };
-    // Separator
+    en.onclick = function(){ goToLang('en'); return false; };
+
     const sep = document.createElement('span');
     sep.textContent = '|';
     sep.style.opacity = '0.6';
-    // ZH button
+
     const zh = document.createElement('a');
     zh.href = '';
     zh.textContent = '中文';
     zh.className = 'quarto-navigation-tool px-1';
-    zh.onclick = function(){ setLang('zh'); goToLang('zh'); return false; };
+    zh.onclick = function(){ goToLang('zh'); return false; };
 
-    // Active styling
     const lang = currentLang();
     (lang === 'en' ? en : zh).style.fontWeight = '700';
 
@@ -63,6 +66,7 @@
     wrapper.appendChild(sep);
     wrapper.appendChild(zh);
     tools.appendChild(wrapper);
+    updateNavbarPostsLink();
   }
   document.addEventListener('DOMContentLoaded', mountToggle);
 })();

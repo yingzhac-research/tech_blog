@@ -1,0 +1,70 @@
+﻿<script>
+// Simple EN / ä¸­æ–‡ language toggle for posts
+(function() {
+  const KEY = 'siteLang'; // 'en' | 'zh'
+  const defaultLang = 'en';
+  function currentLang() {
+    try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; }
+  }
+  function setLang(v) {
+    try { localStorage.setItem(KEY, v); } catch(e) {}
+  }
+  function goToLang(v) {
+    // Determine target for posts and tags
+    const path = window.location.pathname;
+    const base = path.replace(/\/[^\/]*$/, '/');
+    // Known page targets
+    const targets = {
+      posts: v === 'zh' ? 'posts_zh.html' : 'posts_en.html',
+      tags: 'tags.html'
+    };
+    // If we are on posts_en/posts_zh, swap; otherwise default to posts page
+    if (path.endsWith('posts_en.html') || path.endsWith('posts_zh.html')) {
+      window.location.href = base + targets.posts;
+    } else if (path.endsWith('tags.html')) {
+      // tags is language-agnostic
+      window.location.href = base + targets.tags;
+    } else {
+      // from any other page go to posts of chosen language
+      window.location.href = base + targets.posts;
+    }
+  }
+  function mountToggle() {
+    const tools = document.querySelector('.quarto-navbar-tools');
+    if (!tools) return;
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.gap = '0.35rem';
+    wrapper.style.marginLeft = '0.35rem';
+    // EN button
+    const en = document.createElement('a');
+    en.href = '';
+    en.textContent = 'EN';
+    en.className = 'quarto-navigation-tool px-1';
+    en.onclick = function(){ setLang('en'); goToLang('en'); return false; };
+    // Separator
+    const sep = document.createElement('span');
+    sep.textContent = '|';
+    sep.style.opacity = '0.6';
+    // ZH button
+    const zh = document.createElement('a');
+    zh.href = '';
+    zh.textContent = 'ä¸­æ–‡';
+    zh.className = 'quarto-navigation-tool px-1';
+    zh.onclick = function(){ setLang('zh'); goToLang('zh'); return false; };
+
+    // Active styling
+    const lang = currentLang();
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+    wrapper.appendChild(en);
+    wrapper.appendChild(sep);
+    wrapper.appendChild(zh);
+    tools.appendChild(wrapper);
+  }
+  document.addEventListener('DOMContentLoaded', mountToggle);
+})();
+</script>
+
