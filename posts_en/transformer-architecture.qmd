@@ -1,0 +1,75 @@
+---
+title: "Transformer Architecture — Self-Attention and Beyond"
+description: Understanding the Transformer model with multi-head attention and positional encoding.
+date: 2025-11-13
+categories: [deep-learning, nlp, transformers]
+---
+
+The Transformer architecture revolutionized natural language processing and has become the foundation for modern large language models. This post explores its key mechanisms.
+
+## Self-Attention Mechanism
+
+The core innovation is **scaled dot-product attention**. Given queries $\mathbf{Q}$, keys $\mathbf{K}$, and values $\mathbf{V}$:
+
+$$
+\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V},
+$$
+
+where $d_k$ is the key dimension. The scaling factor $\sqrt{d_k}$ prevents gradient vanishing when $d_k$ is large.
+
+## Multi-Head Attention
+
+Instead of single attention, we use multiple parallel attention "heads":
+
+$$
+\text{MultiHead}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)\mathbf{W}^O,
+$$
+
+where each head is computed as:
+
+$$
+\text{head}_i = \text{Attention}(\mathbf{Q}\mathbf{W}_i^Q, \mathbf{K}\mathbf{W}_i^K, \mathbf{V}\mathbf{W}_i^V).
+$$
+
+The projection matrices $\mathbf{W}_i^Q, \mathbf{W}_i^K, \mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_k}$ allow each head to focus on different representation subspaces.
+
+## Positional Encoding
+
+Since Transformers have no inherent notion of sequence order, we add positional encodings:
+
+$$
+\begin{aligned}
+PE_{(pos, 2i)} &= \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right), \\
+PE_{(pos, 2i+1)} &= \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right).
+\end{aligned}
+$$
+
+This sinusoidal encoding allows the model to learn relative positions.
+
+## Feed-Forward Networks
+
+Each Transformer block includes a position-wise feed-forward network:
+
+$$
+\text{FFN}(\mathbf{x}) = \max(0, \mathbf{x}\mathbf{W}_1 + \mathbf{b}_1)\mathbf{W}_2 + \mathbf{b}_2,
+$$
+
+applied identically to each position. Typically, the hidden dimension is $4 \times d_{\text{model}}$.
+
+## Layer Normalization and Residuals
+
+Each sub-layer uses residual connections followed by layer normalization:
+
+$$
+\text{LayerNorm}(\mathbf{x} + \text{Sublayer}(\mathbf{x})).
+$$
+
+This stabilizes training and enables very deep networks.
+
+## Key Advantages
+
+- **Parallelization**: Unlike RNNs, all positions are processed simultaneously.
+- **Long-range dependencies**: Direct connections between all positions via attention.
+- **Flexible**: Scales to billions of parameters (GPT, BERT, etc.).
+
+The Transformer's elegant design has become the dominant architecture for sequence modeling, powering everything from machine translation to large language models.

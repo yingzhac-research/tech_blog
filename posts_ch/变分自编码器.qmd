@@ -1,0 +1,82 @@
+---
+title: "变分自编码器 (VAE) 简介"
+description: 变分自编码器的数学原理、ELBO 推导和重参数化技巧。
+date: 2025-11-13
+categories: [深度学习, 生成模型, 概率模型]
+---
+
+变分自编码器（Variational Autoencoder, VAE）是一种生成模型，结合了变分推断和深度学习，能够学习数据的潜在表示并生成新样本。
+
+## 模型结构
+
+VAE 包含两个神经网络：
+
+- **编码器** $q_\phi(\mathbf{z} \mid \mathbf{x})$：将输入 $\mathbf{x}$ 映射到潜在变量 $\mathbf{z}$ 的后验分布
+- **解码器** $p_\theta(\mathbf{x} \mid \mathbf{z})$：从潜在变量 $\mathbf{z}$ 重构输入 $\mathbf{x}$
+
+目标是最大化边缘似然 $p_\theta(\mathbf{x}) = \int p_\theta(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z}) \, d\mathbf{z}$。
+
+## 变分下界 (ELBO)
+
+由于直接优化边缘似然困难，我们最大化证据下界（Evidence Lower Bound, ELBO）：
+
+$$
+\mathcal{L}(\theta, \phi; \mathbf{x}) = \mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})} \left[ \log p_\theta(\mathbf{x} \mid \mathbf{z}) \right] - D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})),
+$$
+
+其中：
+- 第一项是**重构误差**：衡量解码器重建输入的能力
+- 第二项是 **KL 散度**：正则化项，使后验接近先验 $p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})$
+
+## ELBO 推导
+
+通过 Jensen 不等式，我们有：
+
+$$
+\log p_\theta(\mathbf{x}) \geq \mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})} \left[ \log \frac{p_\theta(\mathbf{x}, \mathbf{z})}{q_\phi(\mathbf{z} \mid \mathbf{x})} \right] = \mathcal{L}(\theta, \phi; \mathbf{x}).
+$$
+
+展开可得：
+
+$$
+\mathcal{L} = \mathbb{E}_{q_\phi} [\log p_\theta(\mathbf{x} \mid \mathbf{z})] - D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})).
+$$
+
+## 重参数化技巧
+
+为了通过梯度下降优化 ELBO，我们需要对随机变量 $\mathbf{z} \sim q_\phi(\mathbf{z} \mid \mathbf{x})$ 求导。重参数化技巧将采样过程改写为确定性函数加噪声：
+
+假设 $q_\phi(\mathbf{z} \mid \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}), \boldsymbol{\sigma}_\phi^2(\mathbf{x}))$，则：
+
+$$
+\mathbf{z} = \boldsymbol{\mu}_\phi(\mathbf{x}) + \boldsymbol{\sigma}_\phi(\mathbf{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}),
+$$
+
+其中 $\odot$ 表示逐元素乘法。这样梯度可以通过 $\boldsymbol{\mu}_\phi$ 和 $\boldsymbol{\sigma}_\phi$ 反向传播。
+
+## KL 散度闭式解
+
+当先验和后验都是高斯分布时，KL 散度有闭式解：
+
+$$
+D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})) = \frac{1}{2} \sum_{j=1}^J \left( \mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1 \right),
+$$
+
+其中 $J$ 是潜在维度。
+
+## 训练过程
+
+1. 从训练数据中采样 $\mathbf{x}$
+2. 编码器输出 $\boldsymbol{\mu}_\phi(\mathbf{x})$ 和 $\boldsymbol{\sigma}_\phi(\mathbf{x})$
+3. 使用重参数化采样 $\mathbf{z}$
+4. 解码器重构 $\hat{\mathbf{x}} = \text{Decoder}_\theta(\mathbf{z})$
+5. 计算 ELBO 并反向传播
+
+## 应用场景
+
+- **图像生成**：学习图像的潜在表示并生成新图像
+- **数据压缩**：潜在空间提供紧凑的数据表示
+- **异常检测**：重构误差高的样本可能是异常值
+- **半监督学习**：结合标签信息改进表示学习
+
+VAE 为概率生成模型提供了可扩展的训练框架，是深度生成模型的重要里程碑。
