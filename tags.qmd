@@ -1,0 +1,13 @@
+---
+title: Tags
+listing:
+  contents:
+    - posts_en
+    - posts_ch
+  sort: "date desc"
+  type: default
+  categories: true
+  feed: false
+---
+
+Browse by tag/category. Click a tag above to filter posts.

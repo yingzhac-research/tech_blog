@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes.">
 
-<title>Tech Notes</title>
+<title>Posts (EN) – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -85,9 +84,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -329,11 +328,11 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./posts_en.html"> 
+    <a class="nav-link active" href="./posts_en.html" aria-current="page"> 
 <span class="menu-text">Posts</span></a>
   </li>  
   <li class="nav-item">
@@ -356,23 +355,18 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    </div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="YmF5ZXM=">bayes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29kZQ==">code <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW50cm8=">intro <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWF0aA==">math <span class="quarto-category-count">(3)</span></div><div class="category" data-category="b3B0aW1pemF0aW9u">optimization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHJvYmFiaWxpdHk=">probability <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c2V0dXA=">setup <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Tech Notes</h1>
+<h1 class="title">Posts (EN)</h1>
 </div>
 
-<div>
-  <div class="description">
-    A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes.
-  </div>
-</div>
 
 
 <div class="quarto-title-meta">
@@ -387,7 +381,7 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to Tech Notes — a concise, dark-themed space for technical writing and research notes. 这里会记录与 AI、机器学习、数据科学、物理与量化相关的技术随笔与草稿。</p>
+<p>Browse English posts below.</p>
 
 
 
@@ -404,6 +398,15 @@ window.Quarto = {
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/bayesian-inference-primer.html" class="no-external">Bayesian Inference Primer — Beta–Binomial</a>
 </h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('YmF5ZXM='); return false;">bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cHJvYmFiaWxpdHk='); return false;">probability</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+</div>
 <div class="delink listing-description"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
 <p>LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.</p>
 </a></div>
@@ -426,6 +429,13 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
 </h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('b3B0aW1pemF0aW9u'); return false;">optimization</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+</div>
 <div class="delink listing-description"><a href="./posts_en/optimization-notes.html" class="no-external">
 <p>Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.</p>
 </a></div>
@@ -448,6 +458,15 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
 </h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVtbw=='); return false;">demo</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Y29kZQ=='); return false;">code</div>
+
+</div>
 <div class="delink listing-description"><a href="./posts_en/math-and-code-demo.html" class="no-external">
 <p>A sample technical post demonstrating code blocks, math, and figures.</p>
 </a></div>
@@ -470,6 +489,13 @@ Nov 12, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
 </h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('c2V0dXA='); return false;">setup</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('aW50cm8='); return false;">intro</div>
+
+</div>
 <div class="delink listing-description"><a href="./posts_en/hello-quarto.html" class="no-external">
 <p>A short hello-world style post to verify site structure and formatting.</p>
 </a></div>

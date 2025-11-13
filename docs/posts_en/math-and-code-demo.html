@@ -74,14 +74,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-2acbb772fc6a32f99f954a6105f09bae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-207839832685c21753266e5d61b89453.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-2acbb772fc6a32f99f954a6105f09bae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,6 +109,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script>
+// Default to dark scheme on first visit (no prior preference stored)
+try {
+  var key = 'quarto-color-scheme';
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+    window.localStorage.setItem(key, 'alternate');
+  }
+} catch (e) {
+  // ignore storage errors (privacy mode, etc.)
+}
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -143,7 +154,7 @@ window.Quarto = {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -285,8 +296,10 @@ window.Quarto = {
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = true;
+    const authorPrefersDark = false;
     const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
@@ -325,8 +338,12 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../posts.html"> 
+    <a class="nav-link" href="../posts_en.html"> 
 <span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tags.html"> 
+<span class="menu-text">Tags</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../about.html"> 
@@ -453,6 +470,75 @@ window.Quarto = {
 </section>
 
 </main> <!-- /main -->
+<script>
+// Simple EN / 中文 language toggle for posts
+(function() {
+  const KEY = 'siteLang'; // 'en' | 'zh'
+  const defaultLang = 'en';
+  function currentLang() {
+    try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; }
+  }
+  function setLang(v) {
+    try { localStorage.setItem(KEY, v); } catch(e) {}
+  }
+  function goToLang(v) {
+    // Determine target for posts and tags
+    const path = window.location.pathname;
+    const base = path.replace(/\/[^\/]*$/, '/');
+    // Known page targets
+    const targets = {
+      posts: v === 'zh' ? 'posts_zh.html' : 'posts_en.html',
+      tags: 'tags.html'
+    };
+    // If we are on posts_en/posts_zh, swap; otherwise default to posts page
+    if (path.endsWith('posts_en.html') || path.endsWith('posts_zh.html')) {
+      window.location.href = base + targets.posts;
+    } else if (path.endsWith('tags.html')) {
+      // tags is language-agnostic
+      window.location.href = base + targets.tags;
+    } else {
+      // from any other page go to posts of chosen language
+      window.location.href = base + targets.posts;
+    }
+  }
+  function mountToggle() {
+    const tools = document.querySelector('.quarto-navbar-tools');
+    if (!tools) return;
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.gap = '0.35rem';
+    wrapper.style.marginLeft = '0.35rem';
+    // EN button
+    const en = document.createElement('a');
+    en.href = '';
+    en.textContent = 'EN';
+    en.className = 'quarto-navigation-tool px-1';
+    en.onclick = function(){ setLang('en'); goToLang('en'); return false; };
+    // Separator
+    const sep = document.createElement('span');
+    sep.textContent = '|';
+    sep.style.opacity = '0.6';
+    // ZH button
+    const zh = document.createElement('a');
+    zh.href = '';
+    zh.textContent = '中文';
+    zh.className = 'quarto-navigation-tool px-1';
+    zh.onclick = function(){ setLang('zh'); goToLang('zh'); return false; };
+
+    // Active styling
+    const lang = currentLang();
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+    wrapper.appendChild(en);
+    wrapper.appendChild(sep);
+    wrapper.appendChild(zh);
+    tools.appendChild(wrapper);
+  }
+  document.addEventListener('DOMContentLoaded', mountToggle);
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

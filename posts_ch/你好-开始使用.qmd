@@ -1,0 +1,29 @@
+---
+title: 你好，开始使用 Quarto
+description: 一篇中文示例文章，用于验证中英文分栏与标签。
+date: 2025-11-13
+categories: [demo, tutorial, cn]
+---
+
+这是中文示例文章，用来测试在 `posts_ch/` 下的中文文章列表、标签以及数学公式/代码高亮。
+
+## 代码示例
+
+```python
+def add(a, b):
+    return a + b
+
+print(add(2, 3))
+```
+
+## 行间公式
+
+$$
+\mathcal{L}(\theta) 
+= -\sum_i \log p(y_i \mid x_i, \theta)
+$$
+
+## 小结
+
+中文文章放在 `posts_ch/`；英文文章放在 `posts_en/`。其它页面（首页、关于、标签）统一保持英文。
+

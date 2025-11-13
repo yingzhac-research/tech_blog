@@ -6,9 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes.">
+<meta name="dcterms.date" content="2025-11-13">
+<meta name="description" content="Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.">
 
-<title>Tech Notes</title>
+<title>Optimization Notes — Gradient Descent and Convexity – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,33 +22,66 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,35 +109,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script>
 // Default to dark scheme on first visit (no prior preference stored)
 try {
@@ -146,7 +151,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -318,7 +323,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Tech Notes</span>
     </a>
   </div>
@@ -329,19 +334,19 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./posts_en.html"> 
+    <a class="nav-link" href="../posts_en.html"> 
 <span class="menu-text">Posts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./tags.html"> 
+    <a class="nav-link" href="../tags.html"> 
 <span class="menu-text">Tags</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -356,8 +361,18 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#gradient-descent" id="toc-gradient-descent" class="nav-link active" data-scroll-target="#gradient-descent"><span class="header-section-number">1</span> Gradient Descent</a></li>
+  <li><a href="#convexity" id="toc-convexity" class="nav-link" data-scroll-target="#convexity"><span class="header-section-number">2</span> Convexity</a></li>
+  <li><a href="#ridge-regression-closed-form" id="toc-ridge-regression-closed-form" class="nav-link" data-scroll-target="#ridge-regression-closed-form"><span class="header-section-number">3</span> Ridge Regression (Closed Form)</a></li>
+  <li><a href="#minimal-code-example" id="toc-minimal-code-example" class="nav-link" data-scroll-target="#minimal-code-example"><span class="header-section-number">4</span> Minimal Code Example</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">5</span> Summary</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -365,12 +380,16 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Tech Notes</h1>
-</div>
+<h1 class="title">Optimization Notes — Gradient Descent and Convexity</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">optimization</div>
+    <div class="quarto-category">math</div>
+  </div>
+  </div>
 
 <div>
   <div class="description">
-    A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes.
+    Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.
   </div>
 </div>
 
@@ -378,6 +397,12 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 13, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -387,104 +412,63 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to Tech Notes — a concise, dark-themed space for technical writing and research notes. 这里会记录与 AI、机器学习、数据科学、物理与量化相关的技术随笔与草稿。</p>
+<p>These short notes demonstrate LaTeX in Quarto for optimization topics. We use inline math like <span class="math inline">\(\eta\)</span> (step size) and <span class="math inline">\(\nabla f(x)\)</span> (gradient), and block equations for key identities.</p>
+<section id="gradient-descent" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="gradient-descent"><span class="header-section-number">1</span> Gradient Descent</h2>
+<p>The basic update with learning rate <span class="math inline">\(\eta &gt; 0\)</span> is</p>
+<p><span class="math display">\[
+\mathbf{x}_{t+1}
+\;=\; \mathbf{x}_t
+\;-\; \eta\, \nabla f(\mathbf{x}_t).
+\]</span></p>
+<p>Under <span class="math inline">\(L\)</span>-smoothness, we have the upper bound</p>
+<p><span class="math display">\[
+f(\mathbf{y}) \;\le\; f(\mathbf{x})
+\;+\; \langle \nabla f(\mathbf{x}),
+\, \mathbf{y} - \mathbf{x} \rangle
+\;+\; \frac{L}{2} \lVert \mathbf{y} - \mathbf{x} \rVert^2.
+\]</span></p>
+</section>
+<section id="convexity" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="convexity"><span class="header-section-number">2</span> Convexity</h2>
+<p>A function <span class="math inline">\(f\)</span> is convex if for any <span class="math inline">\(\theta \in [0,1]\)</span> and any <span class="math inline">\(\mathbf{x},\mathbf{y}\)</span>,</p>
+<p><span class="math display">\[
+f\bigl(\theta \mathbf{x} + (1-\theta)\mathbf{y}\bigr)
+\;\le\; \theta f(\mathbf{x}) + (1-\theta) f(\mathbf{y}).
+\]</span></p>
+<p>For <span class="math inline">\(\mu\)</span>-strongly convex functions, gradient descent with small enough <span class="math inline">\(\eta\)</span> converges linearly.</p>
+</section>
+<section id="ridge-regression-closed-form" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="ridge-regression-closed-form"><span class="header-section-number">3</span> Ridge Regression (Closed Form)</h2>
+<p>With features <span class="math inline">\(\mathbf{X} \in \mathbb{R}^{n\times d}\)</span> and targets <span class="math inline">\(\mathbf{y} \in \mathbb{R}^{n}\)</span>, the ridge solution is</p>
+<p><span class="math display">\[
+\mathbf{w}^{\star}
+\;=\; (\mathbf{X}^\top \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^\top \mathbf{y}.
+\]</span></p>
+</section>
+<section id="minimal-code-example" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="minimal-code-example"><span class="header-section-number">4</span> Minimal Code Example</h2>
+<p>Below is a tiny gradient-descent loop for a 1D convex function <span class="math inline">\(f(x) = (x-3)^2 + 1\)</span> with <span class="math inline">\(\nabla f(x) = 2(x-3)\)</span>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (x <span class="op">-</span> <span class="fl">3.0</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="fl">1.0</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_f(x):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">2.0</span> <span class="op">*</span> (x <span class="op">-</span> <span class="fl">3.0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>x, eta <span class="op">=</span> <span class="fl">0.0</span>, <span class="fl">0.1</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x <span class="op">-</span> eta <span class="op">*</span> grad_f(x)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"iter=</span><span class="sc">{</span>t<span class="sc">:02d}</span><span class="ss">, x=</span><span class="sc">{</span>x<span class="sc">:.4f}</span><span class="ss">, f(x)=</span><span class="sc">{</span>f(x)<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="summary" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="summary"><span class="header-section-number">5</span> Summary</h2>
+<p>We used inline math (e.g., <span class="math inline">\(\eta\)</span>, <span class="math inline">\(\nabla f\)</span>) and block equations to express standard optimization results, suitable for export to PDF.</p>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="YmF5ZXMlMkNwcm9iYWJpbGl0eSUyQ21hdGg=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763024825214" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="191">
-<div class="thumbnail"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">Bayesian Inference Primer — Beta–Binomial</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<p>LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763024796350" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
-<div class="thumbnail"><a href="./posts_en/optimization-notes.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/optimization-notes.html" class="no-external">
-<p>Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/optimization-notes.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762923600000" data-listing-file-modified-sort="1763024748475" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
-<div class="thumbnail"><a href="./posts_en/math-and-code-demo.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/math-and-code-demo.html" class="no-external">
-<p>A sample technical post demonstrating code blocks, math, and figures.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">
-<div class="listing-date">
-Nov 12, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762837200000" data-listing-file-modified-sort="1763024731191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
-<div class="thumbnail"><a href="./posts_en/hello-quarto.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/hello-quarto.html" class="no-external">
-<p>A short hello-world style post to verify site structure and formatting.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/hello-quarto.html" class="no-external">
-<div class="listing-date">
-Nov 11, 2025
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script>
 // Simple EN / 中文 language toggle for posts
 (function() {

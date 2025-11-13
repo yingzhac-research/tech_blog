@@ -3,7 +3,7 @@ title: Tech Notes
 description: "A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes."
 listing:
   contents:
-    - posts/*.qmd
+    - posts_en/*.qmd
   sort: "date desc"
   type: default
   feed: false

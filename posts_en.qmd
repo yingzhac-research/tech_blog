@@ -1,0 +1,12 @@
+---
+title: Posts (EN)
+listing:
+  contents: posts_en
+  sort: "date desc"
+  type: default
+  categories: true
+  feed: false
+---
+
+Browse English posts below.
+

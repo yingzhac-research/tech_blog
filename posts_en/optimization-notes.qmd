@@ -1,0 +1,70 @@
+---
+title: "Optimization Notes — Gradient Descent and Convexity"
+description: Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.
+date: 2025-11-13
+categories: [optimization, math]
+---
+
+These short notes demonstrate LaTeX in Quarto for optimization topics. We use inline math like $\eta$ (step size) and $\nabla f(x)$ (gradient), and block equations for key identities.
+
+## Gradient Descent
+
+The basic update with learning rate $\eta > 0$ is
+
+$$
+\mathbf{x}_{t+1} 
+\;=\; \mathbf{x}_t 
+\;-\; \eta\, \nabla f(\mathbf{x}_t).
+$$
+
+Under $L$-smoothness, we have the upper bound
+
+$$
+f(\mathbf{y}) \;\le\; f(\mathbf{x}) 
+\;+\; \langle \nabla f(\mathbf{x}), 
+\, \mathbf{y} - \mathbf{x} \rangle 
+\;+\; \frac{L}{2} \lVert \mathbf{y} - \mathbf{x} \rVert^2.
+$$
+
+## Convexity
+
+A function $f$ is convex if for any $\theta \in [0,1]$ and any $\mathbf{x},\mathbf{y}$,
+
+$$
+f\bigl(\theta \mathbf{x} + (1-\theta)\mathbf{y}\bigr)
+\;\le\; \theta f(\mathbf{x}) + (1-\theta) f(\mathbf{y}).
+$$
+
+For $\mu$-strongly convex functions, gradient descent with small enough $\eta$ converges linearly.
+
+## Ridge Regression (Closed Form)
+
+With features $\mathbf{X} \in \mathbb{R}^{n\times d}$ and targets $\mathbf{y} \in \mathbb{R}^{n}$, the ridge solution is
+
+$$
+\mathbf{w}^{\star} 
+\;=\; (\mathbf{X}^\top \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^\top \mathbf{y}.
+$$
+
+## Minimal Code Example
+
+Below is a tiny gradient-descent loop for a 1D convex function $f(x) = (x-3)^2 + 1$ with $\nabla f(x) = 2(x-3)$:
+
+```python
+def f(x):
+    return (x - 3.0)**2 + 1.0
+
+def grad_f(x):
+    return 2.0 * (x - 3.0)
+
+x, eta = 0.0, 0.1
+for t in range(20):
+    x = x - eta * grad_f(x)
+    if t % 5 == 0:
+        print(f"iter={t:02d}, x={x:.4f}, f(x)={f(x):.5f}")
+```
+
+## Summary
+
+We used inline math (e.g., $\eta$, $\nabla f$) and block equations to express standard optimization results, suitable for export to PDF.
+

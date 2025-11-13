@@ -1,0 +1,20 @@
+---
+title: Hello Quarto
+description: A short hello-world style post to verify site structure and formatting.
+date: 2025-11-11
+categories: [setup, intro]
+---
+
+Welcome! This is a minimal post to confirm that listings, styling, and navigation work as expected.
+
+Some inline code like `print("hello")` should be easy to read in dark mode.
+
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}!"
+
+print(greet("Quarto"))
+```
+
+That’s all for now — more technical posts coming soon.
+

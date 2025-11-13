@@ -9,7 +9,9 @@ website:
       - text: Home
         href: index.qmd
       - text: Posts
-        href: posts.qmd
+        href: posts_en.qmd
+      - text: Tags
+        href: tags.qmd
       - text: About
         href: about.qmd
   page-navigation: true
@@ -17,13 +19,18 @@ website:
 format:
   html:
     theme:
+      light: flatly
       dark: darkly
     css: styles.css
+    include-in-header: _includes/dark-default.html
+    include-after-body: _includes/lang-toggle.html
     code-copy: true
     toc: true
     toc-depth: 3
     number-sections: true
-    highlight-style: monokai
+    highlight-style:
+      light: github
+      dark: monokai
 
 execute:
   warning: false

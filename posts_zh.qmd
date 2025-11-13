@@ -1,0 +1,12 @@
+---
+title: Posts (中文)
+listing:
+  contents: posts_ch
+  sort: "date desc"
+  type: default
+  categories: true
+  feed: false
+---
+
+浏览中文文章。
+

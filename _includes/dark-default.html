@@ -1,0 +1,11 @@
+<script>
+// Default to dark scheme on first visit (no prior preference stored)
+try {
+  var key = 'quarto-color-scheme';
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+    window.localStorage.setItem(key, 'alternate');
+  }
+} catch (e) {
+  // ignore storage errors (privacy mode, etc.)
+}
+</script>

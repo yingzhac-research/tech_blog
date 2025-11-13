@@ -1,10 +1,17 @@
 {
   "listingMap": {
     "index.qmd": [
-      "posts/*.qmd"
+      "posts_en/*.qmd"
     ],
-    "posts.qmd": [
-      "posts"
+    "posts_en.qmd": [
+      "posts_en"
+    ],
+    "posts_zh.qmd": [
+      "posts_ch"
+    ],
+    "tags.qmd": [
+      "posts_en",
+      "posts_ch"
     ]
   }
 }

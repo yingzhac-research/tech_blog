@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-11-13">
-<meta name="description" content="LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.">
 
-<title>Bayesian Inference Primer — Beta–Binomial – Tech Notes</title>
+<title>Tags – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,66 +20,33 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-2acbb772fc6a32f99f954a6105f09bae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-207839832685c21753266e5d61b89453.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-2acbb772fc6a32f99f954a6105f09bae.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,6 +74,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+<script>
+// Default to dark scheme on first visit (no prior preference stored)
+try {
+  var key = 'quarto-color-scheme';
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+    window.localStorage.setItem(key, 'alternate');
+  }
+} catch (e) {
+  // ignore storage errors (privacy mode, etc.)
+}
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -140,10 +145,10 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -285,8 +290,10 @@ window.Quarto = {
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = true;
+    const authorPrefersDark = false;
     const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
@@ -310,7 +317,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Tech Notes</span>
     </a>
   </div>
@@ -321,15 +328,19 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../posts.html"> 
+    <a class="nav-link" href="./posts_en.html"> 
 <span class="menu-text">Posts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../about.html"> 
+    <a class="nav-link active" href="./tags.html" aria-current="page"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -345,47 +356,22 @@ window.Quarto = {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#bayes-rule-and-likelihood" id="toc-bayes-rule-and-likelihood" class="nav-link active" data-scroll-target="#bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</a></li>
-  <li><a href="#posterior-and-moments" id="toc-posterior-and-moments" class="nav-link" data-scroll-target="#posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</a></li>
-  <li><a href="#minimal-code-example" id="toc-minimal-code-example" class="nav-link" data-scroll-target="#minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">4</span> Summary</a></li>
-  </ul>
-</nav>
-    </div>
+        
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(5)</span></div><div class="category" data-category="YmF5ZXM=">bayes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y24=">cn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29kZQ==">code <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(2)</span></div><div class="category" data-category="aW50cm8=">intro <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWF0aA==">math <span class="quarto-category-count">(3)</span></div><div class="category" data-category="b3B0aW1pemF0aW9u">optimization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHJvYmFiaWxpdHk=">probability <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c2V0dXA=">setup <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bayesian Inference Primer — Beta–Binomial</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">bayes</div>
-    <div class="quarto-category">probability</div>
-    <div class="quarto-category">math</div>
-  </div>
-  </div>
-
-<div>
-  <div class="description">
-    LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.
-  </div>
+<h1 class="title">Tags</h1>
 </div>
+
 
 
 <div class="quarto-title-meta">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">November 13, 2025</p>
-    </div>
-  </div>
   
     
   </div>
@@ -395,50 +381,236 @@ window.Quarto = {
 </header>
 
 
-<p>We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be <span class="math inline">\(y_1,\dots,y_n \in \{0,1\}\)</span> with <span class="math inline">\(y_i \sim \operatorname{Bernoulli}(p)\)</span> and prior <span class="math inline">\(p \sim \operatorname{Beta}(\alpha,\beta)\)</span>.</p>
-<section id="bayes-rule-and-likelihood" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</h2>
-<p>Bayes’ rule states <span class="math inline">\(p(p\mid y) \propto p(y\mid p)\,p(p)\)</span>. For <span class="math inline">\(k = \sum_i y_i\)</span>, the likelihood is</p>
-<p><span class="math display">\[
-p(y\mid p) \;=\; p^{k}(1-p)^{n-k}.
-\]</span></p>
-</section>
-<section id="posterior-and-moments" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</h2>
-<p>Using Beta–Binomial conjugacy, the posterior is</p>
-<p><span class="math display">\[
-p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
-\]</span></p>
-<p>with posterior mean</p>
-<p><span class="math display">\[
-\mathbb{E}[p\mid y] \;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
-<p>The posterior predictive for a new label <span class="math inline">\(\tilde y\)</span> has</p>
-<p><span class="math display">\[
-\Pr(\tilde y = 1 \mid y) \;=\; \mathbb{E}[p\mid y]
-\;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
-</section>
-<section id="minimal-code-example" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> beta_binomial_posterior(alpha, beta, k, n):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    post_a <span class="op">=</span> alpha <span class="op">+</span> k</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    post_b <span class="op">=</span> beta <span class="op">+</span> (n <span class="op">-</span> k)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> post_a <span class="op">/</span> (post_a <span class="op">+</span> post_b)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> post_a, post_b, mean</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: prior Beta(1, 1), observations with k=7 successes out of n=10</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pa, pb, pm <span class="op">=</span> beta_binomial_posterior(<span class="fl">1.0</span>, <span class="fl">1.0</span>, k<span class="op">=</span><span class="dv">7</span>, n<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Posterior: Beta(</span><span class="sc">{</span>pa<span class="sc">:.1f}</span><span class="ss">, </span><span class="sc">{</span>pb<span class="sc">:.1f}</span><span class="ss">)  mean=</span><span class="sc">{</span>pm<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="summary" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="summary"><span class="header-section-number">4</span> Summary</h2>
-<p>This compact primer uses inline math (e.g., <span class="math inline">\(k, n, \alpha, \beta\)</span>) and block equations for conjugacy. The same <code>.qmd</code> can be rendered to HTML and exported to PDF.</p>
+<p>Browse by tag/category. Click a tag above to filter posts.</p>
 
 
-</section>
 
-</main> <!-- /main -->
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="YmF5ZXMlMkNwcm9iYWJpbGl0eSUyQ21hdGg=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763024825214" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="191">
+<div class="thumbnail"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_en/bayesian-inference-primer.html" class="no-external">Bayesian Inference Primer — Beta–Binomial</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('YmF5ZXM='); return false;">bayes</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('cHJvYmFiaWxpdHk='); return false;">probability</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
+<p>LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_en/bayesian-inference-primer.html" class="no-external">
+<div class="listing-date">
+Nov 13, 2025
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763024796350" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
+<div class="thumbnail"><a href="./posts_en/optimization-notes.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('b3B0aW1pemF0aW9u'); return false;">optimization</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_en/optimization-notes.html" class="no-external">
+<p>Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_en/optimization-notes.html" class="no-external">
+<div class="listing-date">
+Nov 13, 2025
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="ZGVtbyUyQ3R1dG9yaWFsJTJDY24=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763024838274" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="24">
+<div class="thumbnail"><a href="./posts_ch/你好-开始使用.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/你好-开始使用.html" class="no-external">你好，开始使用 Quarto</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVtbw=='); return false;">demo</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('dHV0b3JpYWw='); return false;">tutorial</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Y24='); return false;">cn</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/你好-开始使用.html" class="no-external">
+<p>一篇中文示例文章，用于验证中英文分栏与标签。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/你好-开始使用.html" class="no-external">
+<div class="listing-date">
+Nov 13, 2025
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762923600000" data-listing-file-modified-sort="1763024748475" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
+<div class="thumbnail"><a href="./posts_en/math-and-code-demo.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('ZGVtbw=='); return false;">demo</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('bWF0aA=='); return false;">math</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Y29kZQ=='); return false;">code</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_en/math-and-code-demo.html" class="no-external">
+<p>A sample technical post demonstrating code blocks, math, and figures.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_en/math-and-code-demo.html" class="no-external">
+<div class="listing-date">
+Nov 12, 2025
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762837200000" data-listing-file-modified-sort="1763024731191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
+<div class="thumbnail"><a href="./posts_en/hello-quarto.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('c2V0dXA='); return false;">setup</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('aW50cm8='); return false;">intro</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_en/hello-quarto.html" class="no-external">
+<p>A short hello-world style post to verify site structure and formatting.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_en/hello-quarto.html" class="no-external">
+<div class="listing-date">
+Nov 11, 2025
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> <!-- /main -->
+<script>
+// Simple EN / 中文 language toggle for posts
+(function() {
+  const KEY = 'siteLang'; // 'en' | 'zh'
+  const defaultLang = 'en';
+  function currentLang() {
+    try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; }
+  }
+  function setLang(v) {
+    try { localStorage.setItem(KEY, v); } catch(e) {}
+  }
+  function goToLang(v) {
+    // Determine target for posts and tags
+    const path = window.location.pathname;
+    const base = path.replace(/\/[^\/]*$/, '/');
+    // Known page targets
+    const targets = {
+      posts: v === 'zh' ? 'posts_zh.html' : 'posts_en.html',
+      tags: 'tags.html'
+    };
+    // If we are on posts_en/posts_zh, swap; otherwise default to posts page
+    if (path.endsWith('posts_en.html') || path.endsWith('posts_zh.html')) {
+      window.location.href = base + targets.posts;
+    } else if (path.endsWith('tags.html')) {
+      // tags is language-agnostic
+      window.location.href = base + targets.tags;
+    } else {
+      // from any other page go to posts of chosen language
+      window.location.href = base + targets.posts;
+    }
+  }
+  function mountToggle() {
+    const tools = document.querySelector('.quarto-navbar-tools');
+    if (!tools) return;
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.gap = '0.35rem';
+    wrapper.style.marginLeft = '0.35rem';
+    // EN button
+    const en = document.createElement('a');
+    en.href = '';
+    en.textContent = 'EN';
+    en.className = 'quarto-navigation-tool px-1';
+    en.onclick = function(){ setLang('en'); goToLang('en'); return false; };
+    // Separator
+    const sep = document.createElement('span');
+    sep.textContent = '|';
+    sep.style.opacity = '0.6';
+    // ZH button
+    const zh = document.createElement('a');
+    zh.href = '';
+    zh.textContent = '中文';
+    zh.className = 'quarto-navigation-tool px-1';
+    zh.onclick = function(){ setLang('zh'); goToLang('zh'); return false; };
+
+    // Active styling
+    const lang = currentLang();
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+    wrapper.appendChild(en);
+    wrapper.appendChild(sep);
+    wrapper.appendChild(zh);
+    tools.appendChild(wrapper);
+  }
+  document.addEventListener('DOMContentLoaded', mountToggle);
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

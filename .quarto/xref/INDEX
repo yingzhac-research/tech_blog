@@ -28,5 +28,29 @@
   },
   "posts.qmd": {
     "posts.html": "72754075"
+  },
+  "tags.qmd": {
+    "tags.html": "0b165f91"
+  },
+  "posts_en.qmd": {
+    "posts_en.html": "37170fb0"
+  },
+  "posts_zh.qmd": {
+    "posts_zh.html": "df1e429c"
+  },
+  "posts_en/bayesian-inference-primer.qmd": {
+    "bayesian-inference-primer.html": "ace575a7"
+  },
+  "posts_en/hello-quarto.qmd": {
+    "hello-quarto.html": "9903fbff"
+  },
+  "posts_en/math-and-code-demo.qmd": {
+    "math-and-code-demo.html": "1a2dc02b"
+  },
+  "posts_en/optimization-notes.qmd": {
+    "optimization-notes.html": "7dd8c09c"
+  },
+  "posts_ch/你好-开始使用.qmd": {
+    "你好-开始使用.html": "c8c19558"
   }
 }
