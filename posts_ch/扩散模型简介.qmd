@@ -1,0 +1,72 @@
+---
+title: "扩散模型简介"
+description: 扩散概率模型的简要介绍，包含核心数学公式。
+date: 2025-11-13
+categories: [深度学习, 生成模型, 数学]
+---
+
+扩散模型（Diffusion Models）是一类强大的生成模型，在图像合成、音频生成等领域取得了最先进的效果。本文介绍其核心概念和数学框架。
+
+## 前向扩散过程
+
+前向过程在 $T$ 个时间步内逐步向数据 $\mathbf{x}_0 \sim q(\mathbf{x}_0)$ 添加高斯噪声：
+
+$$
+q(\mathbf{x}_t \mid \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}),
+$$
+
+其中 $\{\beta_t\}_{t=1}^T$ 是方差调度。令 $\alpha_t = 1 - \beta_t$ 和 $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$，可以直接在任意时间步采样：
+
+$$
+q(\mathbf{x}_t \mid \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I}).
+$$
+
+这意味着 $\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}$，其中 $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$。
+
+## 反向去噪过程
+
+反向过程学习去噪，从 $\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 开始：
+
+$$
+p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)).
+$$
+
+联合分布可以分解为：
+
+$$
+p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t).
+$$
+
+## 训练目标
+
+模型通过最大化变分下界（ELBO）进行训练：
+
+$$
+\mathcal{L} = \mathbb{E}_q \left[ -\log p_\theta(\mathbf{x}_0 \mid \mathbf{x}_1) + \sum_{t=2}^T D_{\text{KL}}(q(\mathbf{x}_{t-1}\mid\mathbf{x}_t,\mathbf{x}_0) \| p_\theta(\mathbf{x}_{t-1}\mid\mathbf{x}_t)) \right].
+$$
+
+实践中，采用简化目标预测噪声 $\boldsymbol{\epsilon}$：
+
+$$
+\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right],
+$$
+
+其中 $\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}$。
+
+## 采样生成
+
+为生成新样本，迭代执行反向过程：
+
+$$
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z},
+$$
+
+其中 $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$，$\sigma_t$ 控制随机性。
+
+## 核心思想
+
+- **渐进去噪**：模型学习逆转缓慢的噪声破坏过程。
+- **分数匹配**：噪声预测 $\boldsymbol{\epsilon}_\theta$ 与分数函数 $\nabla_{\mathbf{x}} \log p(\mathbf{x})$ 相关。
+- **灵活性**：扩散模型支持条件生成、图像修复等下游任务。
+
+扩散模型为生成建模提供了原则性方法，具有坚实的理论基础和出色的实验性能。

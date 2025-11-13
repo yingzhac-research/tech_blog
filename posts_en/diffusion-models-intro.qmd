@@ -1,0 +1,72 @@
+---
+title: "Introduction to Diffusion Models"
+description: A brief introduction to diffusion probabilistic models with key mathematical formulations.
+date: 2025-11-13
+categories: [deep-learning, generative-models, math]
+---
+
+Diffusion models have emerged as powerful generative models, achieving state-of-the-art results in image synthesis, audio generation, and beyond. This post introduces the core concepts and mathematical framework.
+
+## Forward Diffusion Process
+
+The forward process gradually adds Gaussian noise to data $\mathbf{x}_0 \sim q(\mathbf{x}_0)$ over $T$ timesteps:
+
+$$
+q(\mathbf{x}_t \mid \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}),
+$$
+
+where $\{\beta_t\}_{t=1}^T$ is a variance schedule. Using the reparameterization $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$, we can sample directly at any timestep:
+
+$$
+q(\mathbf{x}_t \mid \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I}).
+$$
+
+This means $\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$.
+
+## Reverse Denoising Process
+
+The reverse process learns to denoise, starting from $\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$:
+
+$$
+p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)).
+$$
+
+The joint distribution factorizes as:
+
+$$
+p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t).
+$$
+
+## Training Objective
+
+The model is trained by maximizing the variational lower bound (ELBO):
+
+$$
+\mathcal{L} = \mathbb{E}_q \left[ -\log p_\theta(\mathbf{x}_0 \mid \mathbf{x}_1) + \sum_{t=2}^T D_{\text{KL}}(q(\mathbf{x}_{t-1}\mid\mathbf{x}_t,\mathbf{x}_0) \| p_\theta(\mathbf{x}_{t-1}\mid\mathbf{x}_t)) \right].
+$$
+
+In practice, a simplified objective predicts the noise $\boldsymbol{\epsilon}$:
+
+$$
+\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right],
+$$
+
+where $\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}$.
+
+## Sampling
+
+To generate new samples, we iterate the reverse process:
+
+$$
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z},
+$$
+
+where $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and $\sigma_t$ controls stochasticity.
+
+## Key Insights
+
+- **Gradual denoising**: The model learns to reverse a slow noise corruption process.
+- **Score matching**: The noise prediction $\boldsymbol{\epsilon}_\theta$ is related to the score function $\nabla_{\mathbf{x}} \log p(\mathbf{x})$.
+- **Flexibility**: Diffusion models support conditional generation, inpainting, and other downstream tasks.
+
+Diffusion models represent a principled approach to generative modeling with strong theoretical foundations and impressive empirical performance.
