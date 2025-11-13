@@ -12,9 +12,3 @@ listing:
 
 Notes and experiments in AI/ML/DL, mathematics, physics, and quantitative research. Expect concise derivations, reproducible code, figures, and pragmatic takeaways.
 
-Focus areas include:
-- Learning theory, optimization, and generative models
-- Probability, linear algebra, and numerical methods
-- Classical and modern physics snippets
-- Quant research: factor modeling, risk, and lightweight backtests
-
