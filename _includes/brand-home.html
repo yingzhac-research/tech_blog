@@ -1,0 +1,15 @@
+<script>
+(function(){
+  function offset(){
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+    if (brand) {
+      brand.setAttribute('href', offset() + 'home.html');
+    }
+  });
+})();
+</script>
+

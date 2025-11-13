@@ -320,5 +320,12 @@
     "title": "Posts (中文)",
     "section": "",
     "text": "浏览中文文章。\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n你好，开始使用 Quarto\n\n\n\ndemo\n\ntutorial\n\ncn\n\n\n\n一篇中文示例文章，用于验证中英文分栏与标签。\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "home.html",
+    "href": "home.html",
+    "title": "Tech Notes",
+    "section": "",
+    "text": "Notes and experiments in AI/ML/DL, mathematics, physics, and quantitative research. Expect concise derivations, reproducible code, figures, and pragmatic takeaways.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Inference Primer — Beta–Binomial\n\n\nLaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nOptimization Notes — Gradient Descent and Convexity\n\n\nShort notes with LaTeX equations for gradient descent, convexity, and ridge regression.\n\n\n\n\n\nNov 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nMath and Code Demo\n\n\nA sample technical post demonstrating code blocks, math, and figures.\n\n\n\n\n\nNov 12, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nA short hello-world style post to verify site structure and formatting.\n\n\n\n\n\nNov 11, 2025\n\n\n\n\n\nNo matching items"
   }
 ]

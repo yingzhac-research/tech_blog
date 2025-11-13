@@ -7,7 +7,7 @@ website:
   navbar:
     left:
       - text: Home
-        href: index.qmd
+        href: home.qmd
       - text: Posts
         href: posts_en.qmd
       - text: Tags
@@ -28,6 +28,7 @@ format:
     include-after-body:
       - _includes/lang-toggle.html
       - _includes/cache-bust.html
+      - _includes/brand-home.html
     code-copy: true
     toc: true
     toc-depth: 3

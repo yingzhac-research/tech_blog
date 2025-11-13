@@ -41,5 +41,14 @@
     "items": [
       "/posts_ch/你好-开始使用.html"
     ]
+  },
+  {
+    "listing": "/home.html",
+    "items": [
+      "/posts_en/bayesian-inference-primer.html",
+      "/posts_en/optimization-notes.html",
+      "/posts_en/math-and-code-demo.html",
+      "/posts_en/hello-quarto.html"
+    ]
   }
 ]

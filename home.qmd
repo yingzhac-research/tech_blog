@@ -1,0 +1,14 @@
+---
+title: Tech Notes
+description: "Working notes in AI/ML/DL, mathematics, physics, and quantitative research—algorithms, proofs, experiments, and compact case studies."
+listing:
+  contents:
+    - posts_en/*.qmd
+  sort: "date desc"
+  type: default
+  feed: false
+  categories: false
+---
+
+Notes and experiments in AI/ML/DL, mathematics, physics, and quantitative research. Expect concise derivations, reproducible code, figures, and pragmatic takeaways.
+
