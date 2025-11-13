@@ -1,53 +1,49 @@
 <script>
-// Cache-bust internal navigations by appending a stable version query
+// Cache-bust: ensure every page URL carries ?v=<version>, and rewrite internal links
 (function() {
   function buildVersion() {
-    // Derive from hashed bootstrap css name if available, else timestamp
     var el = document.querySelector('link#quarto-bootstrap');
     if (el && el.getAttribute('href')) {
       var href = el.getAttribute('href');
       var name = href.split('/').pop();
-      // take last 12 chars as a pseudo version key
       return name.slice(-12).replace(/[^a-zA-Z0-9]/g,'');
     }
     return String(Math.floor(Date.now()/1000));
   }
-  function withVersion(url, v) {
+  function withVersionRel(url, v) {
     try {
-      var u = new URL(url, window.location.origin);
+      var u = new URL(url, window.location.href);
       u.searchParams.set('v', v);
       return u.pathname + u.search + u.hash;
     } catch (e) {
-      // fallback for relative paths
-      if (url.indexOf('?') === -1) return url + '?v=' + v; else return url + '&v=' + v;
+      return (url.indexOf('?') === -1) ? (url + '?v=' + v) : (url + '&v=' + v);
     }
   }
-  function applyToNavbar(v) {
-    var links = document.querySelectorAll('header .navbar a.nav-link, header .navbar a.navbar-brand');
+  function withVersionAbs(url, v) {
+    var u = new URL(url, window.location.href);
+    u.searchParams.set('v', v);
+    return u.toString();
+  }
+  function rewriteInternalLinks(v) {
+    var links = document.querySelectorAll('a[href]');
     links.forEach(function(a){
       var href = a.getAttribute('href') || '';
-      if (!href) return;
-      // internal .html or root links only
-      if (/^https?:\/\//i.test(href)) return;
-      if (href.indexOf('#') === 0) return;
-      a.setAttribute('href', withVersion(href, v));
+      if (!href || href.startsWith('#')) return;
+      if (/^https?:\/\//i.test(href)) return; // external
+      a.setAttribute('href', withVersionRel(href, v));
     });
   }
-  function maybeReloadRoot(v) {
-    // If opening root without ?v=, force a reload with version to avoid stale cache
-    var hasV = new URLSearchParams(window.location.search).has('v');
-    var path = window.location.pathname;
-    var isRoot = /\/$/.test(path) || /\/index\.html$/.test(path);
-    if (isRoot && !hasV) {
-      var target = withVersion(window.location.pathname, v);
+  function ensureUrlHasVersion(v) {
+    var params = new URLSearchParams(window.location.search);
+    if (!params.has('v')) {
+      var target = withVersionAbs(window.location.href, v);
       window.location.replace(target);
     }
   }
   document.addEventListener('DOMContentLoaded', function(){
     var v = buildVersion();
-    applyToNavbar(v);
-    maybeReloadRoot(v);
+    rewriteInternalLinks(v);
+    ensureUrlHasVersion(v);
   });
 })();
 </script>
-
