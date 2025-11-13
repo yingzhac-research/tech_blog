@@ -1,0 +1,10 @@
+{
+  "skills": [
+    {
+      "name": "blog-writing-assistant",
+      "description": "专业的博客写作助手，检测和修复 Markdown 与 LaTeX 公式之间的渲染冲突。帮助编写包含数学公式的技术文章。",
+      "file": "blog-writing-assistant.md",
+      "tags": ["blog", "latex", "markdown", "math", "writing"]
+    }
+  ]
+}
