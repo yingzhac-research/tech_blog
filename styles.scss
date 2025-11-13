@@ -1,0 +1,153 @@
+/*-- scss:defaults --*/
+// You can place Bootstrap variable overrides here if desired.
+
+/*-- scss:rules --*/
+/* Custom dark styling to complement the Darkly theme.
+   Keep typography simple and comfortable for long-form technical reading. */
+
+/* High-contrast dark defaults (override theme variables first) */
+:root {
+  --bs-body-bg: #121212;
+  --bs-body-color: #eaeef2;      /* base text */
+  --bs-heading-color: #f6f8fb;   /* headings */
+  --bs-secondary-color: #c9d1d9; /* muted text */
+  --bs-link-color: #8ac4ff;
+  --bs-link-hover-color: #b1d7ff;
+}
+
+html, body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
+    "Noto Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", sans-serif;
+  line-height: 1.75;
+}
+
+/* Links: subtle but clear on dark backgrounds */
+a { color: var(--bs-link-color); }
+a:hover, a:focus { color: var(--bs-link-hover-color); }
+
+/* Navbar harmonized with body background */
+.navbar, .navbar-dark {
+  background-color: #0d1117 !important;
+}
+.navbar, .navbar * {
+  color: #eaf2ff !important;
+}
+.navbar-nav .nav-link.active { color: #b1d7ff !important; }
+
+/* Headings: ensure strong contrast */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--bs-heading-color);
+}
+
+/* Main content rhythm */
+main .content p { margin: 0 0 0.95rem 0; }
+
+/* Code blocks: spacing and legibility on dark background */
+div.sourceCode pre, pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+}
+
+code:not(pre code) {
+  background: #1b1b1b;
+  border: 1px solid #2a2a2a;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* Figures and captions */
+figure figcaption, .figcaption { color: #cbd5e1; font-size: 0.95rem; }
+
+/* TOC tweaks for readability */
+.toc-active .nav-link, .toc .nav-link.active {
+  color: #9cd1ff;
+}
+
+/* Listings: boost contrast for titles, descriptions, dates */
+.quarto-listing .listing-title,
+.quarto-listing .listing-title a,
+.listing .listing-title,
+.listing .listing-title a,
+.quarto-post .listing-title,
+.quarto-post .listing-title a {
+  color: #eaf2ff !important;
+}
+.quarto-listing .listing-description,
+.listing .listing-description,
+.quarto-post .listing-description,
+.quarto-listing .description,
+.listing .description,
+.listing-description, /* ensure plain class also matches */
+.listing-description a,
+.delink,
+.delink a,
+.card-subtitle,
+.card-text,
+.text-secondary,
+.text-body-secondary,
+.quarto-listing .listing-subtitle,
+.listing .listing-subtitle,
+.quarto-listing .metadata, /* date/categories container */
+.listing .metadata {
+  color: #e2e8f0 !important; /* brighter for subtitles/descriptions */
+  opacity: 1 !important;
+}
+
+/* Make listing subtitles/descriptions slightly heavier for readability */
+.quarto-listing .listing-subtitle,
+.listing .listing-subtitle,
+.quarto-listing .listing-description,
+.listing .listing-description {
+  font-weight: 500;
+}
+
+/* Horizontal rules a bit brighter for separation */
+hr { border-top: 1px solid #2f3b4a; opacity: 0.9; }
+
+/* Make ALL typical muted/metadata text brighter, including dates */
+.text-muted { color: #cfd8e3 !important; opacity: 1 !important; }
+small, time { color: #cfd8e3 !important; }
+
+/* Dates and metadata in listing cards and post lists */
+.listing-date,
+.quarto-listing .listing-date,
+.listing .listing-date,
+.quarto-post .listing-date,
+.quarto-listing .metadata,
+.listing .metadata,
+.quarto-post .metadata,
+.quarto-listing .metadata *,
+.listing .metadata *,
+.quarto-post .metadata * {
+  color: #d6dde6 !important;
+  font-weight: 500;
+}
+
+/* Category badges more legible on dark */
+.listing-categories .listing-category,
+.quarto-listing .listing-categories .listing-category,
+.quarto-post .listing-categories .listing-category {
+  background-color: #263545 !important;
+  color: #eaf2ff !important;
+  border: 1px solid #3a4b61 !important;
+}
+
+/* Title block (page header) subtitle/description/meta */
+.quarto-title-block .subtitle,
+.quarto-title-block .lead,
+.quarto-title-block .description,
+.quarto-title-block p,
+.quarto-title-block .quarto-title-meta,
+.quarto-title-block .quarto-title-meta * {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}

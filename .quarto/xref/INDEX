@@ -1,0 +1,32 @@
+{
+  "about.qmd": {
+    "about.html": "a420fda2",
+    "about.tex": "f2cfe63f"
+  },
+  "index.qmd": {
+    "index.html": "69eeec95",
+    "index.tex": "337ce33a"
+  },
+  "posts/hello-quarto.qmd": {
+    "hello-quarto.html": "804d79f4",
+    "hello-quarto.tex": "4964d9b4"
+  },
+  "posts/index.qmd": {
+    "index.html": "708ac225",
+    "index.tex": "338799b4"
+  },
+  "posts/math-and-code-demo.qmd": {
+    "math-and-code-demo.html": "e878d2c9",
+    "math-and-code-demo.tex": "78002395"
+  },
+  "posts/bayesian-inference-primer.qmd": {
+    "bayesian-inference-primer.html": "71cf20a9",
+    "bayesian-inference-primer.tex": "e10d1513"
+  },
+  "posts/optimization-notes.qmd": {
+    "optimization-notes.html": "551c1a0b"
+  },
+  "posts.qmd": {
+    "posts.html": "72754075"
+  }
+}

@@ -1,0 +1,13 @@
+project:
+  profile: pdf
+
+format:
+  pdf:
+    pdf-engine: lualatex
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    geometry:
+      - margin=1in
+    colorlinks: true
+

@@ -1,0 +1,10 @@
+---
+title: Posts
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+---
+
+Browse all posts below.
+

@@ -1,0 +1,10 @@
+---
+title: About
+---
+
+This is a placeholder About page.
+
+I write about AI/ML, Data Science, Physics, and Quant topics — mixing practical engineering notes with research-oriented drafts. The site is built with Quarto and styled for comfortable reading with a dark theme.
+
+If you find something useful or spot an error, feel free to reach out or open an issue once this site is on GitHub.
+

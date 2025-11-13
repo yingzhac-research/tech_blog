@@ -1,0 +1,30 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: Tech Notes
+  navbar:
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Posts
+        href: posts.qmd
+      - text: About
+        href: about.qmd
+  page-navigation: true
+
+format:
+  html:
+    theme:
+      dark: darkly
+    css: styles.css
+    code-copy: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    highlight-style: monokai
+
+execute:
+  warning: false
+  freeze: auto

@@ -1,0 +1,14 @@
+---
+title: Tech Notes
+description: "A minimalist, dark-themed tech blog for AI/ML, Data, Physics, and Quant notes."
+listing:
+  contents:
+    - posts/*.qmd
+  sort: "date desc"
+  type: default
+  feed: false
+  categories: false
+---
+
+Welcome to Tech Notes — a concise, dark-themed space for technical writing and research notes.
+这里会记录与 AI、机器学习、数据科学、物理与量化相关的技术随笔与草稿。

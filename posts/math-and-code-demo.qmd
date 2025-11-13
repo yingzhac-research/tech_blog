@@ -1,0 +1,67 @@
+---
+title: Math and Code Demo
+description: A sample technical post demonstrating code blocks, math, and figures.
+date: 2025-11-12
+categories: [demo, math, code]
+---
+
+This is a sample technical post. It demonstrates:
+- syntax-highlighted code blocks
+- inline and block math (LaTeX/MathJax)
+- an illustrative figure with a caption
+
+You can use the same structure for more serious technical writing and export the same `.qmd` to PDF.
+
+## Code Example
+
+Below is a small Python snippet showing a Stable Softplus implementation (for numerical stability) and a simple mean-squared-error:
+
+```python
+import math
+
+def softplus(x: float) -> float:
+    # Stable softplus: log(1 + exp(x))
+    if x > 20:
+        return x  # exp(x) would overflow; asymptotically ~ x
+    return math.log1p(math.exp(x))
+
+def mse(y_true, y_pred):
+    n = len(y_true)
+    return sum((a - b)**2 for a, b in zip(y_true, y_pred)) / n
+
+print(softplus(0.0))
+print(mse([1, 2, 3], [1.1, 2.2, 2.9]))
+```
+
+## Inline Math
+
+We denote a model’s parameters by $\theta$ and a dataset by $\mathcal{D}$. A typical objective may minimize a loss $\mathcal{L}(\theta)$ with gradient $\nabla_\theta \, \mathcal{L}(\theta)$.
+
+## Block Math
+
+For example, the mean squared error (MSE) for targets $y_i$ and predictions $\hat y_i$ is
+
+$$
+\mathcal{L}(\theta)
+\;=\; \frac{1}{N} \sum_{i=1}^{N} \bigl(y_i - \hat y_i\bigr)^2
+\,.
+$$
+
+Alternatively, a negative log-likelihood (NLL) under a Gaussian assumption ($\sigma^2$ fixed) is
+
+$$
+\mathcal{L}(\theta)
+\;=\; \frac{1}{2\sigma^2} \sum_{i=1}^{N} \bigl(y_i - \hat y_i\bigr)^2
+\;+\; \text{const}.
+$$
+
+## Figure with Caption
+
+Here is a placeholder image with a caption and constrained width:
+
+![A demo figure with a placeholder image.](https://placehold.co/800x400/png?text=Demo+Figure){fig-cap="Illustrative placeholder figure" width="80%"}
+
+## Summary
+
+This post shows how to combine code, math, and figures in a single `.qmd`. The same source can be rendered to HTML for the blog and exported to PDF (via `quarto render post.qmd --to pdf`) as a chapter draft or paper section.
+
