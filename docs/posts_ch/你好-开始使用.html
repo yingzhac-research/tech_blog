@@ -79,9 +79,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-a67466b260850d79d12547209d82de6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -339,7 +339,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html"> 
+    <a class="nav-link" href="../home.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -512,7 +512,6 @@ window.Quarto = {
   document.addEventListener('DOMContentLoaded', mountToggle);
 })();
 </script>
-
 <script>
 // Cache-bust: ensure page URLs carry a version param and every internal click appends a fresh version
 (function() {
@@ -599,6 +598,21 @@ window.Quarto = {
   });
 })();
 </script>
+<script>
+(function(){
+  function offset(){
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+    if (brand) {
+      brand.setAttribute('href', offset() + 'home.html');
+    }
+  });
+})();
+</script>
+
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

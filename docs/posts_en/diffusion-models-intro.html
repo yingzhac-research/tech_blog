@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-11-13">
-<meta name="description" content="LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.">
+<meta name="description" content="A brief introduction to diffusion probabilistic models with key mathematical formulations.">
 
-<title>Bayesian Inference Primer — Beta–Binomial – Tech Notes</title>
+<title>Introduction to Diffusion Models – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,41 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -371,10 +336,11 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#bayes-rule-and-likelihood" id="toc-bayes-rule-and-likelihood" class="nav-link active" data-scroll-target="#bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</a></li>
-  <li><a href="#posterior-and-moments" id="toc-posterior-and-moments" class="nav-link" data-scroll-target="#posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</a></li>
-  <li><a href="#minimal-code-example" id="toc-minimal-code-example" class="nav-link" data-scroll-target="#minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">4</span> Summary</a></li>
+  <li><a href="#forward-diffusion-process" id="toc-forward-diffusion-process" class="nav-link active" data-scroll-target="#forward-diffusion-process"><span class="header-section-number">1</span> Forward Diffusion Process</a></li>
+  <li><a href="#reverse-denoising-process" id="toc-reverse-denoising-process" class="nav-link" data-scroll-target="#reverse-denoising-process"><span class="header-section-number">2</span> Reverse Denoising Process</a></li>
+  <li><a href="#training-objective" id="toc-training-objective" class="nav-link" data-scroll-target="#training-objective"><span class="header-section-number">3</span> Training Objective</a></li>
+  <li><a href="#sampling" id="toc-sampling" class="nav-link" data-scroll-target="#sampling"><span class="header-section-number">4</span> Sampling</a></li>
+  <li><a href="#key-insights" id="toc-key-insights" class="nav-link" data-scroll-target="#key-insights"><span class="header-section-number">5</span> Key Insights</a></li>
   </ul>
 </nav>
     </div>
@@ -384,17 +350,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bayesian Inference Primer — Beta–Binomial</h1>
+<h1 class="title">Introduction to Diffusion Models</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">bayes</div>
-    <div class="quarto-category">probability</div>
+    <div class="quarto-category">deep-learning</div>
+    <div class="quarto-category">generative-models</div>
     <div class="quarto-category">math</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.
+    A brief introduction to diffusion probabilistic models with key mathematical formulations.
   </div>
 </div>
 
@@ -417,45 +383,58 @@ window.Quarto = {
 </header>
 
 
-<p>We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be <span class="math inline">\(y_1,\dots,y_n \in \{0,1\}\)</span> with <span class="math inline">\(y_i \sim \operatorname{Bernoulli}(p)\)</span> and prior <span class="math inline">\(p \sim \operatorname{Beta}(\alpha,\beta)\)</span>.</p>
-<section id="bayes-rule-and-likelihood" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</h2>
-<p>Bayes’ rule states <span class="math inline">\(p(p\mid y) \propto p(y\mid p)\,p(p)\)</span>. For <span class="math inline">\(k = \sum_i y_i\)</span>, the likelihood is</p>
+<p>Diffusion models have emerged as powerful generative models, achieving state-of-the-art results in image synthesis, audio generation, and beyond. This post introduces the core concepts and mathematical framework.</p>
+<section id="forward-diffusion-process" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="forward-diffusion-process"><span class="header-section-number">1</span> Forward Diffusion Process</h2>
+<p>The forward process gradually adds Gaussian noise to data <span class="math inline">\(\mathbf{x}_0 \sim q(\mathbf{x}_0)\)</span> over <span class="math inline">\(T\)</span> timesteps:</p>
 <p><span class="math display">\[
-p(y\mid p) \;=\; p^{k}(1-p)^{n-k}.
+q(\mathbf{x}_t \mid \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}),
+\]</span></p>
+<p>where <span class="math inline">\(\{\beta_t\}_{t=1}^T\)</span> is a variance schedule. Using the reparameterization <span class="math inline">\(\alpha_t = 1 - \beta_t\)</span> and <span class="math inline">\(\bar{\alpha}_t = \prod_{s=1}^t \alpha_s\)</span>, we can sample directly at any timestep:</p>
+<p><span class="math display">\[
+q(\mathbf{x}_t \mid \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I}).
+\]</span></p>
+<p>This means <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>, where <span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>.</p>
+</section>
+<section id="reverse-denoising-process" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="reverse-denoising-process"><span class="header-section-number">2</span> Reverse Denoising Process</h2>
+<p>The reverse process learns to denoise, starting from <span class="math inline">\(\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>:</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)).
+\]</span></p>
+<p>The joint distribution factorizes as:</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t).
 \]</span></p>
 </section>
-<section id="posterior-and-moments" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</h2>
-<p>Using Beta–Binomial conjugacy, the posterior is</p>
+<section id="training-objective" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="training-objective"><span class="header-section-number">3</span> Training Objective</h2>
+<p>The model is trained by maximizing the variational lower bound (ELBO):</p>
 <p><span class="math display">\[
-p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
+\mathcal{L} = \mathbb{E}_q \left[ -\log p_\theta(\mathbf{x}_0 \mid \mathbf{x}_1) + \sum_{t=2}^T D_{\text{KL}}(q(\mathbf{x}_{t-1}\mid\mathbf{x}_t,\mathbf{x}_0) \| p_\theta(\mathbf{x}_{t-1}\mid\mathbf{x}_t)) \right].
 \]</span></p>
-<p>with posterior mean</p>
+<p>In practice, a simplified objective predicts the noise <span class="math inline">\(\boldsymbol{\epsilon}\)</span>:</p>
 <p><span class="math display">\[
-\mathbb{E}[p\mid y] \;=\; \frac{\alpha + k}{\alpha + \beta + n}.
+\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right],
 \]</span></p>
-<p>The posterior predictive for a new label <span class="math inline">\(\tilde y\)</span> has</p>
-<p><span class="math display">\[
-\Pr(\tilde y = 1 \mid y) \;=\; \mathbb{E}[p\mid y]
-\;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
+<p>where <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>.</p>
 </section>
-<section id="minimal-code-example" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> beta_binomial_posterior(alpha, beta, k, n):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    post_a <span class="op">=</span> alpha <span class="op">+</span> k</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    post_b <span class="op">=</span> beta <span class="op">+</span> (n <span class="op">-</span> k)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> post_a <span class="op">/</span> (post_a <span class="op">+</span> post_b)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> post_a, post_b, mean</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: prior Beta(1, 1), observations with k=7 successes out of n=10</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pa, pb, pm <span class="op">=</span> beta_binomial_posterior(<span class="fl">1.0</span>, <span class="fl">1.0</span>, k<span class="op">=</span><span class="dv">7</span>, n<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Posterior: Beta(</span><span class="sc">{</span>pa<span class="sc">:.1f}</span><span class="ss">, </span><span class="sc">{</span>pb<span class="sc">:.1f}</span><span class="ss">)  mean=</span><span class="sc">{</span>pm<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="sampling" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sampling"><span class="header-section-number">4</span> Sampling</h2>
+<p>To generate new samples, we iterate the reverse process:</p>
+<p><span class="math display">\[
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z},
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span> and <span class="math inline">\(\sigma_t\)</span> controls stochasticity.</p>
 </section>
-<section id="summary" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="summary"><span class="header-section-number">4</span> Summary</h2>
-<p>This compact primer uses inline math (e.g., <span class="math inline">\(k, n, \alpha, \beta\)</span>) and block equations for conjugacy. The same <code>.qmd</code> can be rendered to HTML and exported to PDF.</p>
+<section id="key-insights" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="key-insights"><span class="header-section-number">5</span> Key Insights</h2>
+<ul>
+<li><strong>Gradual denoising</strong>: The model learns to reverse a slow noise corruption process.</li>
+<li><strong>Score matching</strong>: The noise prediction <span class="math inline">\(\boldsymbol{\epsilon}_\theta\)</span> is related to the score function <span class="math inline">\(\nabla_{\mathbf{x}} \log p(\mathbf{x})\)</span>.</li>
+<li><strong>Flexibility</strong>: Diffusion models support conditional generation, inpainting, and other downstream tasks.</li>
+</ul>
+<p>Diffusion models represent a principled approach to generative modeling with strong theoretical foundations and impressive empirical performance.</p>
 
 
 </section>

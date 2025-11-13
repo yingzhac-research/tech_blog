@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-11-13">
-<meta name="description" content="LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.">
+<meta name="description" content="扩散概率模型的简要介绍，包含核心数学公式。">
 
-<title>Bayesian Inference Primer — Beta–Binomial – Tech Notes</title>
+<title>扩散模型简介 – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,41 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -371,10 +336,11 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#bayes-rule-and-likelihood" id="toc-bayes-rule-and-likelihood" class="nav-link active" data-scroll-target="#bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</a></li>
-  <li><a href="#posterior-and-moments" id="toc-posterior-and-moments" class="nav-link" data-scroll-target="#posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</a></li>
-  <li><a href="#minimal-code-example" id="toc-minimal-code-example" class="nav-link" data-scroll-target="#minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">4</span> Summary</a></li>
+  <li><a href="#前向扩散过程" id="toc-前向扩散过程" class="nav-link active" data-scroll-target="#前向扩散过程"><span class="header-section-number">1</span> 前向扩散过程</a></li>
+  <li><a href="#反向去噪过程" id="toc-反向去噪过程" class="nav-link" data-scroll-target="#反向去噪过程"><span class="header-section-number">2</span> 反向去噪过程</a></li>
+  <li><a href="#训练目标" id="toc-训练目标" class="nav-link" data-scroll-target="#训练目标"><span class="header-section-number">3</span> 训练目标</a></li>
+  <li><a href="#采样生成" id="toc-采样生成" class="nav-link" data-scroll-target="#采样生成"><span class="header-section-number">4</span> 采样生成</a></li>
+  <li><a href="#核心思想" id="toc-核心思想" class="nav-link" data-scroll-target="#核心思想"><span class="header-section-number">5</span> 核心思想</a></li>
   </ul>
 </nav>
     </div>
@@ -384,17 +350,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bayesian Inference Primer — Beta–Binomial</h1>
+<h1 class="title">扩散模型简介</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">bayes</div>
-    <div class="quarto-category">probability</div>
-    <div class="quarto-category">math</div>
+    <div class="quarto-category">深度学习</div>
+    <div class="quarto-category">生成模型</div>
+    <div class="quarto-category">数学</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.
+    扩散概率模型的简要介绍，包含核心数学公式。
   </div>
 </div>
 
@@ -417,45 +383,58 @@ window.Quarto = {
 </header>
 
 
-<p>We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be <span class="math inline">\(y_1,\dots,y_n \in \{0,1\}\)</span> with <span class="math inline">\(y_i \sim \operatorname{Bernoulli}(p)\)</span> and prior <span class="math inline">\(p \sim \operatorname{Beta}(\alpha,\beta)\)</span>.</p>
-<section id="bayes-rule-and-likelihood" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</h2>
-<p>Bayes’ rule states <span class="math inline">\(p(p\mid y) \propto p(y\mid p)\,p(p)\)</span>. For <span class="math inline">\(k = \sum_i y_i\)</span>, the likelihood is</p>
+<p>扩散模型（Diffusion Models）是一类强大的生成模型，在图像合成、音频生成等领域取得了最先进的效果。本文介绍其核心概念和数学框架。</p>
+<section id="前向扩散过程" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="前向扩散过程"><span class="header-section-number">1</span> 前向扩散过程</h2>
+<p>前向过程在 <span class="math inline">\(T\)</span> 个时间步内逐步向数据 <span class="math inline">\(\mathbf{x}_0 \sim q(\mathbf{x}_0)\)</span> 添加高斯噪声：</p>
 <p><span class="math display">\[
-p(y\mid p) \;=\; p^{k}(1-p)^{n-k}.
+q(\mathbf{x}_t \mid \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}),
+\]</span></p>
+<p>其中 <span class="math inline">\(\{\beta_t\}_{t=1}^T\)</span> 是方差调度。令 <span class="math inline">\(\alpha_t = 1 - \beta_t\)</span> 和 <span class="math inline">\(\bar{\alpha}_t = \prod_{s=1}^t \alpha_s\)</span>，可以直接在任意时间步采样：</p>
+<p><span class="math display">\[
+q(\mathbf{x}_t \mid \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I}).
+\]</span></p>
+<p>这意味着 <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>，其中 <span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>。</p>
+</section>
+<section id="反向去噪过程" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="反向去噪过程"><span class="header-section-number">2</span> 反向去噪过程</h2>
+<p>反向过程学习去噪，从 <span class="math inline">\(\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span> 开始：</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)).
+\]</span></p>
+<p>联合分布可以分解为：</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t).
 \]</span></p>
 </section>
-<section id="posterior-and-moments" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</h2>
-<p>Using Beta–Binomial conjugacy, the posterior is</p>
+<section id="训练目标" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="训练目标"><span class="header-section-number">3</span> 训练目标</h2>
+<p>模型通过最大化变分下界（ELBO）进行训练：</p>
 <p><span class="math display">\[
-p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
+\mathcal{L} = \mathbb{E}_q \left[ -\log p_\theta(\mathbf{x}_0 \mid \mathbf{x}_1) + \sum_{t=2}^T D_{\text{KL}}(q(\mathbf{x}_{t-1}\mid\mathbf{x}_t,\mathbf{x}_0) \| p_\theta(\mathbf{x}_{t-1}\mid\mathbf{x}_t)) \right].
 \]</span></p>
-<p>with posterior mean</p>
+<p>实践中，采用简化目标预测噪声 <span class="math inline">\(\boldsymbol{\epsilon}\)</span>：</p>
 <p><span class="math display">\[
-\mathbb{E}[p\mid y] \;=\; \frac{\alpha + k}{\alpha + \beta + n}.
+\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right],
 \]</span></p>
-<p>The posterior predictive for a new label <span class="math inline">\(\tilde y\)</span> has</p>
-<p><span class="math display">\[
-\Pr(\tilde y = 1 \mid y) \;=\; \mathbb{E}[p\mid y]
-\;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>。</p>
 </section>
-<section id="minimal-code-example" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> beta_binomial_posterior(alpha, beta, k, n):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    post_a <span class="op">=</span> alpha <span class="op">+</span> k</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    post_b <span class="op">=</span> beta <span class="op">+</span> (n <span class="op">-</span> k)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> post_a <span class="op">/</span> (post_a <span class="op">+</span> post_b)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> post_a, post_b, mean</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: prior Beta(1, 1), observations with k=7 successes out of n=10</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pa, pb, pm <span class="op">=</span> beta_binomial_posterior(<span class="fl">1.0</span>, <span class="fl">1.0</span>, k<span class="op">=</span><span class="dv">7</span>, n<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Posterior: Beta(</span><span class="sc">{</span>pa<span class="sc">:.1f}</span><span class="ss">, </span><span class="sc">{</span>pb<span class="sc">:.1f}</span><span class="ss">)  mean=</span><span class="sc">{</span>pm<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="采样生成" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="采样生成"><span class="header-section-number">4</span> 采样生成</h2>
+<p>为生成新样本，迭代执行反向过程：</p>
+<p><span class="math display">\[
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z},
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>，<span class="math inline">\(\sigma_t\)</span> 控制随机性。</p>
 </section>
-<section id="summary" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="summary"><span class="header-section-number">4</span> Summary</h2>
-<p>This compact primer uses inline math (e.g., <span class="math inline">\(k, n, \alpha, \beta\)</span>) and block equations for conjugacy. The same <code>.qmd</code> can be rendered to HTML and exported to PDF.</p>
+<section id="核心思想" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="核心思想"><span class="header-section-number">5</span> 核心思想</h2>
+<ul>
+<li><strong>渐进去噪</strong>：模型学习逆转缓慢的噪声破坏过程。</li>
+<li><strong>分数匹配</strong>：噪声预测 <span class="math inline">\(\boldsymbol{\epsilon}_\theta\)</span> 与分数函数 <span class="math inline">\(\nabla_{\mathbf{x}} \log p(\mathbf{x})\)</span> 相关。</li>
+<li><strong>灵活性</strong>：扩散模型支持条件生成、图像修复等下游任务。</li>
+</ul>
+<p>扩散模型为生成建模提供了原则性方法，具有坚实的理论基础和出色的实验性能。</p>
 
 
 </section>
