@@ -79,9 +79,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-a67466b260850d79d12547209d82de6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -120,10 +120,12 @@ try {
   // ignore storage errors (privacy mode, etc.)
 }
 </script>
-<!-- Hint browsers to avoid caching HTML aggressively -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<!-- Aggressive cache prevention for HTML pages -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta name="revisit-after" content="1 days">
+<meta name="robots" content="noarchive">
 
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
@@ -339,7 +341,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html"> 
+    <a class="nav-link" href="../home.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -534,19 +536,13 @@ p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
   document.addEventListener('DOMContentLoaded', mountToggle);
 })();
 </script>
-
 <script>
 // Cache-bust: ensure page URLs carry a version param and every internal click appends a fresh version
 (function() {
   function buildStaticVersion() {
-    // Fallback version key (not used for clicks anymore but used for initial URL normalization)
-    var el = document.querySelector('link#quarto-bootstrap');
-    if (el && el.getAttribute('href')) {
-      var href = el.getAttribute('href');
-      var name = href.split('/').pop();
-      return name.slice(-12).replace(/[^a-zA-Z0-9]/g,'');
-    }
-    return String(Math.floor(Date.now()/1000));
+    // Use current timestamp as version to ensure fresh content
+    // This changes on every page load, forcing browser to check for updates
+    return String(Date.now());
   }
   function withVersionRel(url, v) {
     try {
@@ -621,6 +617,21 @@ p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
   });
 })();
 </script>
+<script>
+(function(){
+  function offset(){
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+    if (brand) {
+      brand.setAttribute('href', offset() + 'home.html');
+    }
+  });
+})();
+</script>
+
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

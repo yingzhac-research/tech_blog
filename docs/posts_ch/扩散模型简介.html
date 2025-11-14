@@ -6,9 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Working notes in AI/ML/DL, mathematics, physics, and quantitative research—algorithms, proofs, experiments, and compact case studies.">
+<meta name="dcterms.date" content="2025-11-13">
+<meta name="description" content="扩散概率模型的简要介绍，包含核心数学公式。">
 
-<title>Tech Notes</title>
+<title>扩散模型简介 – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,30 +25,28 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-a67466b260850d79d12547209d82de6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-a67466b260850d79d12547209d82de6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,35 +74,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script>
 // Default to dark scheme on first visit (no prior preference stored)
 try {
@@ -153,7 +123,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
@@ -325,7 +295,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Tech Notes</span>
     </a>
   </div>
@@ -336,19 +306,19 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./home.html" aria-current="page"> 
+    <a class="nav-link" href="../home.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./posts_en.html"> 
+    <a class="nav-link" href="../posts_en.html"> 
 <span class="menu-text">Posts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./tags.html"> 
+    <a class="nav-link" href="../tags.html"> 
 <span class="menu-text">Tags</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -363,8 +333,18 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#前向扩散过程" id="toc-前向扩散过程" class="nav-link active" data-scroll-target="#前向扩散过程"><span class="header-section-number">1</span> 前向扩散过程</a></li>
+  <li><a href="#反向去噪过程" id="toc-反向去噪过程" class="nav-link" data-scroll-target="#反向去噪过程"><span class="header-section-number">2</span> 反向去噪过程</a></li>
+  <li><a href="#训练目标" id="toc-训练目标" class="nav-link" data-scroll-target="#训练目标"><span class="header-section-number">3</span> 训练目标</a></li>
+  <li><a href="#采样生成" id="toc-采样生成" class="nav-link" data-scroll-target="#采样生成"><span class="header-section-number">4</span> 采样生成</a></li>
+  <li><a href="#核心思想" id="toc-核心思想" class="nav-link" data-scroll-target="#核心思想"><span class="header-section-number">5</span> 核心思想</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -372,12 +352,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Tech Notes</h1>
-</div>
+<h1 class="title">扩散模型简介</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">深度学习</div>
+    <div class="quarto-category">生成模型</div>
+    <div class="quarto-category">数学</div>
+  </div>
+  </div>
 
 <div>
   <div class="description">
-    Working notes in AI/ML/DL, mathematics, physics, and quantitative research—algorithms, proofs, experiments, and compact case studies.
+    扩散概率模型的简要介绍，包含核心数学公式。
   </div>
 </div>
 
@@ -385,6 +370,12 @@ window.Quarto = {
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 13, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -394,126 +385,63 @@ window.Quarto = {
 </header>
 
 
-<p>Notes and experiments in AI/ML/DL, mathematics, physics, and quantitative research. Expect concise derivations, reproducible code, figures, and pragmatic takeaways.</p>
+<p>扩散模型（Diffusion Models）是一类强大的生成模型，在图像合成、音频生成等领域取得了最先进的效果。本文介绍其核心概念和数学框架。</p>
+<section id="前向扩散过程" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="前向扩散过程"><span class="header-section-number">1</span> 前向扩散过程</h2>
+<p>前向过程在 <span class="math inline">\(T\)</span> 个时间步内逐步向数据 <span class="math inline">\(\mathbf{x}_0 \sim q(\mathbf{x}_0)\)</span> 添加高斯噪声：</p>
+<p><span class="math display">\[
+q(\mathbf{x}_t \mid \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1-\beta_t}\,\mathbf{x}_{t-1}, \beta_t \mathbf{I}),
+\]</span></p>
+<p>其中 <span class="math inline">\(\{\beta_t\}_{t=1}^T\)</span> 是方差调度。令 <span class="math inline">\(\alpha_t = 1 - \beta_t\)</span> 和 <span class="math inline">\(\bar{\alpha}_t = \prod_{s=1}^t \alpha_s\)</span>，可以直接在任意时间步采样：</p>
+<p><span class="math display">\[
+q(\mathbf{x}_t \mid \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0, (1-\bar{\alpha}_t)\mathbf{I}).
+\]</span></p>
+<p>这意味着 <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>，其中 <span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>。</p>
+</section>
+<section id="反向去噪过程" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="反向去噪过程"><span class="header-section-number">2</span> 反向去噪过程</h2>
+<p>反向过程学习去噪，从 <span class="math inline">\(\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span> 开始：</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)).
+\]</span></p>
+<p>联合分布可以分解为：</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \mid \mathbf{x}_t).
+\]</span></p>
+</section>
+<section id="训练目标" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="训练目标"><span class="header-section-number">3</span> 训练目标</h2>
+<p>模型通过最大化变分下界（ELBO）进行训练：</p>
+<p><span class="math display">\[
+\mathcal{L} = \mathbb{E}_q \left[ -\log p_\theta(\mathbf{x}_0 \mid \mathbf{x}_1) + \sum_{t=2}^T D_{\text{KL}}(q(\mathbf{x}_{t-1}\mid\mathbf{x}_t,\mathbf{x}_0) \| p_\theta(\mathbf{x}_{t-1}\mid\mathbf{x}_t)) \right].
+\]</span></p>
+<p>实践中，采用简化目标预测噪声 <span class="math inline">\(\boldsymbol{\epsilon}\)</span>：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, \mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \|\boldsymbol{\epsilon} - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right],
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{x}_t = \sqrt{\bar{\alpha}_t}\,\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\,\boldsymbol{\epsilon}\)</span>。</p>
+</section>
+<section id="采样生成" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="采样生成"><span class="header-section-number">4</span> 采样生成</h2>
+<p>为生成新样本，迭代执行反向过程：</p>
+<p><span class="math display">\[
+\mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z},
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>，<span class="math inline">\(\sigma_t\)</span> 控制随机性。</p>
+</section>
+<section id="核心思想" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="核心思想"><span class="header-section-number">5</span> 核心思想</h2>
+<ul>
+<li><strong>渐进去噪</strong>：模型学习逆转缓慢的噪声破坏过程。</li>
+<li><strong>分数匹配</strong>：噪声预测 <span class="math inline">\(\boldsymbol{\epsilon}_\theta\)</span> 与分数函数 <span class="math inline">\(\nabla_{\mathbf{x}} \log p(\mathbf{x})\)</span> 相关。</li>
+<li><strong>灵活性</strong>：扩散模型支持条件生成、图像修复等下游任务。</li>
+</ul>
+<p>扩散模型为生成建模提供了原则性方法，具有坚实的理论基础和出色的实验性能。</p>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="YmF5ZXMlMkNwcm9iYWJpbGl0eSUyQ21hdGg=" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="191">
-<div class="thumbnail"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">Bayesian Inference Primer — Beta–Binomial</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<p>LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="ZGVlcC1sZWFybmluZyUyQ2dlbmVyYXRpdmUtbW9kZWxzJTJDbWF0aA==" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="255">
-<div class="thumbnail"><a href="./posts_en/diffusion-models-intro.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/diffusion-models-intro.html" class="no-external">Introduction to Diffusion Models</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/diffusion-models-intro.html" class="no-external">
-<p>A brief introduction to diffusion probabilistic models with key mathematical formulations.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/diffusion-models-intro.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
-<div class="thumbnail"><a href="./posts_en/optimization-notes.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/optimization-notes.html" class="no-external">
-<p>Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/optimization-notes.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762905600000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
-<div class="thumbnail"><a href="./posts_en/math-and-code-demo.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/math-and-code-demo.html" class="no-external">
-<p>A sample technical post demonstrating code blocks, math, and figures.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">
-<div class="listing-date">
-Nov 12, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762819200000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
-<div class="thumbnail"><a href="./posts_en/hello-quarto.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/hello-quarto.html" class="no-external">
-<p>A short hello-world style post to verify site structure and formatting.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/hello-quarto.html" class="no-external">
-<div class="listing-date">
-Nov 11, 2025
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 ﻿<script>
 // Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
 (function() {

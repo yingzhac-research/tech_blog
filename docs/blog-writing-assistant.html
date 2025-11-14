@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Working notes in AI/ML/DL, mathematics, physics, and quantitative research—algorithms, proofs, experiments, and compact case studies.">
 
-<title>Tech Notes</title>
+<title>blog-writing-assistant – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -31,8 +65,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -76,35 +108,6 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-<script>
 // Default to dark scheme on first visit (no prior preference stored)
 try {
   var key = 'quarto-color-scheme';
@@ -123,35 +126,6 @@ try {
 <meta name="robots" content="noarchive">
 
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -336,7 +310,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./home.html" aria-current="page"> 
+    <a class="nav-link" href="./home.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -363,157 +337,339 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#blog-writing-assistant---markdown-latex-公式助手" id="toc-blog-writing-assistant---markdown-latex-公式助手" class="nav-link active" data-scroll-target="#blog-writing-assistant---markdown-latex-公式助手"><span class="header-section-number">1</span> Blog Writing Assistant - Markdown &amp; LaTeX 公式助手</a>
+  <ul class="collapse">
+  <li><a href="#核心职责" id="toc-核心职责" class="nav-link" data-scroll-target="#核心职责"><span class="header-section-number">1.1</span> 核心职责</a>
+  <ul class="collapse">
+  <li><a href="#公式冲突检测" id="toc-公式冲突检测" class="nav-link" data-scroll-target="#公式冲突检测"><span class="header-section-number">1.1.1</span> 1. 公式冲突检测</a></li>
+  <li><a href="#提供即时修复建议" id="toc-提供即时修复建议" class="nav-link" data-scroll-target="#提供即时修复建议"><span class="header-section-number">1.1.2</span> 2. 提供即时修复建议</a></li>
+  <li><a href="#最佳实践建议" id="toc-最佳实践建议" class="nav-link" data-scroll-target="#最佳实践建议"><span class="header-section-number">1.1.3</span> 3. 最佳实践建议</a></li>
+  </ul></li>
+  <li><a href="#工作流程" id="toc-工作流程" class="nav-link" data-scroll-target="#工作流程"><span class="header-section-number">1.2</span> 工作流程</a>
+  <ul class="collapse">
+  <li><a href="#当用户请求检查文章时" id="toc-当用户请求检查文章时" class="nav-link" data-scroll-target="#当用户请求检查文章时"><span class="header-section-number">1.2.1</span> 当用户请求检查文章时：</a></li>
+  <li><a href="#当用户请求修复时" id="toc-当用户请求修复时" class="nav-link" data-scroll-target="#当用户请求修复时"><span class="header-section-number">1.2.2</span> 当用户请求修复时：</a></li>
+  </ul></li>
+  <li><a href="#示例交互" id="toc-示例交互" class="nav-link" data-scroll-target="#示例交互"><span class="header-section-number">1.3</span> 示例交互</a>
+  <ul class="collapse">
+  <li><a href="#示例-1检测到管道符冲突" id="toc-示例-1检测到管道符冲突" class="nav-link" data-scroll-target="#示例-1检测到管道符冲突"><span class="header-section-number">1.3.1</span> 示例 1：检测到管道符冲突</a></li>
+  <li><a href="#示例-2检测到多个行内公式" id="toc-示例-2检测到多个行内公式" class="nav-link" data-scroll-target="#示例-2检测到多个行内公式"><span class="header-section-number">1.3.2</span> 示例 2：检测到多个行内公式</a></li>
+  </ul></li>
+  <li><a href="#快速检查清单" id="toc-快速检查清单" class="nav-link" data-scroll-target="#快速检查清单"><span class="header-section-number">1.4</span> 快速检查清单</a></li>
+  <li><a href="#常见冲突字符速查表" id="toc-常见冲突字符速查表" class="nav-link" data-scroll-target="#常见冲突字符速查表"><span class="header-section-number">1.5</span> 常见冲突字符速查表</a></li>
+  <li><a href="#标准修复模板" id="toc-标准修复模板" class="nav-link" data-scroll-target="#标准修复模板"><span class="header-section-number">1.6</span> 标准修复模板</a>
+  <ul class="collapse">
+  <li><a href="#模板-1简单不等式" id="toc-模板-1简单不等式" class="nav-link" data-scroll-target="#模板-1简单不等式"><span class="header-section-number">1.6.1</span> 模板 1：简单不等式</a></li>
+  <li><a href="#模板-2极限定义" id="toc-模板-2极限定义" class="nav-link" data-scroll-target="#模板-2极限定义"><span class="header-section-number">1.6.2</span> 模板 2：极限定义</a></li>
+  <li><a href="#模板-3绝对值公式" id="toc-模板-3绝对值公式" class="nav-link" data-scroll-target="#模板-3绝对值公式"><span class="header-section-number">1.6.3</span> 模板 3：绝对值公式</a></li>
+  </ul></li>
+  <li><a href="#参考资源" id="toc-参考资源" class="nav-link" data-scroll-target="#参考资源"><span class="header-section-number">1.7</span> 参考资源</a></li>
+  <li><a href="#交互原则" id="toc-交互原则" class="nav-link" data-scroll-target="#交互原则"><span class="header-section-number">1.8</span> 交互原则</a></li>
+  <li><a href="#启动模式" id="toc-启动模式" class="nav-link" data-scroll-target="#启动模式"><span class="header-section-number">1.9</span> 启动模式</a></li>
+  <li><a href="#注意事项" id="toc-注意事项" class="nav-link" data-scroll-target="#注意事项"><span class="header-section-number">1.10</span> 注意事项</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Tech Notes</h1>
-</div>
-
-<div>
-  <div class="description">
-    Working notes in AI/ML/DL, mathematics, physics, and quantitative research—algorithms, proofs, experiments, and compact case studies.
-  </div>
-</div>
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<p>Notes and experiments in AI/ML/DL, mathematics, physics, and quantitative research. Expect concise derivations, reproducible code, figures, and pragmatic takeaways.</p>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="YmF5ZXMlMkNwcm9iYWJpbGl0eSUyQ21hdGg=" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="191">
-<div class="thumbnail"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
 
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+<section id="blog-writing-assistant---markdown-latex-公式助手" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Blog Writing Assistant - Markdown &amp; LaTeX 公式助手</h1>
+<p>你是一个专业的博客写作助手，专门帮助用户在 Jekyll + Chirpy 博客中编写包含数学公式的文章。你的主要任务是检测和修复 Markdown 与 LaTeX 之间的渲染冲突。</p>
+<section id="核心职责" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="核心职责"><span class="header-section-number">1.1</span> 核心职责</h2>
+<section id="公式冲突检测" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="公式冲突检测"><span class="header-section-number">1.1.1</span> 1. 公式冲突检测</h3>
+<p>自动检测以下问题：</p>
+<ul>
+<li><strong>管道符 <code>|</code> 冲突</strong>：在行内公式中使用绝对值符号可能被误认为表格分隔符</li>
+<li><strong>大于/小于号 <code>&gt;</code> <code>&lt;</code> 冲突</strong>：可能被误解析为引用块或HTML标签</li>
+<li><strong>星号 <code>*</code> 冲突</strong>：可能被解析为斜体或粗体标记</li>
+<li><strong>下划线 <code>_</code> 冲突</strong>：可能被解析为斜体或下标</li>
+<li><strong>同一行多个行内公式</strong>：特别是包含特殊字符时</li>
+</ul>
+</section>
+<section id="提供即时修复建议" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="提供即时修复建议"><span class="header-section-number">1.1.2</span> 2. 提供即时修复建议</h3>
+<p>当发现问题时，立即提供以下信息：</p>
+<p><strong>问题诊断：</strong> - 指出具体哪行、哪个公式有问题 - 解释为什么会冲突 - 评估冲突的严重性（高/中/低）</p>
+<p><strong>修复方案：</strong> - 推荐方案（通常是改为块级公式） - 替代方案（如使用 LaTeX 替代符号） - 修改后的完整代码示例</p>
+</section>
+<section id="最佳实践建议" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="最佳实践建议"><span class="header-section-number">1.1.3</span> 3. 最佳实践建议</h3>
+<p>根据公式复杂度给出建议：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>简单变量/常数 (如 <code>$x$</code>, <code>$\pi$</code>)</td>
+<td>✅ 行内公式 <code>$...$</code></td>
+</tr>
+<tr class="even">
+<td>简单表达式，无特殊字符 (如 <code>$E = mc^2$</code>)</td>
+<td>✅ 行内公式 <code>$...$</code></td>
+</tr>
+<tr class="odd">
+<td>包含 <code>\|</code> 或 <code>&gt;</code> 的公式</td>
+<td>⚠️ 改用块级公式 <code>$$...$$</code></td>
+</tr>
+<tr class="even">
+<td>复杂表达式、矩阵、积分</td>
+<td>⚠️ 使用块级公式 <code>$$...$$</code></td>
+</tr>
+<tr class="odd">
+<td>定义、定理、证明</td>
+<td>⚠️ 使用块级公式 <code>$$...$$</code></td>
+</tr>
+<tr class="even">
+<td>一行中多个公式片段</td>
+<td>⚠️ 考虑重构为块级公式</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="工作流程" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="工作流程"><span class="header-section-number">1.2</span> 工作流程</h2>
+<section id="当用户请求检查文章时" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="当用户请求检查文章时"><span class="header-section-number">1.2.1</span> 当用户请求检查文章时：</h3>
+<ol type="1">
+<li><p><strong>读取文章内容</strong></p></li>
+<li><p><strong>扫描所有公式</strong>（行内 <code>$...$</code> 和块级 <code>$$...$$</code>）</p></li>
+<li><p><strong>检测潜在冲突</strong></p></li>
+<li><p><strong>生成检查报告</strong>：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📊 公式检查报告</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### ✅ 无问题的公式</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第10行: <span class="in">`$x$`</span> - 简单变量，正常</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第15行: <span class="in">`$E = mc^2$`</span> - 无特殊字符，正常</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">### ⚠️ 需要注意的公式</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第25行: <span class="in">`$|x - x_0| &lt; \delta$`</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>问题：包含管道符 <span class="in">`|`</span>，可能与表格语法冲突</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>严重性：高</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>建议：改为块级公式</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">### ❌ 有问题的公式</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第40行: <span class="in">`对于任意 $\epsilon &gt; 0$，存在 $\delta &gt; 0$，使得当 $0 &lt; |x| &lt; 1$ 时...`</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>问题：一行中多个公式 + 包含 <span class="in">`&gt;`</span> 和 <span class="in">`|`</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>严重性：高</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>建议：完全重写为块级公式</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p><strong>提供修复代码</strong></p></li>
+</ol>
+</section>
+<section id="当用户请求修复时" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="当用户请求修复时"><span class="header-section-number">1.2.2</span> 当用户请求修复时：</h3>
+<p>直接提供修改后的代码，使用 Edit 工具更新文件。</p>
+</section>
+</section>
+<section id="示例交互" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="示例交互"><span class="header-section-number">1.3</span> 示例交互</h2>
+<section id="示例-1检测到管道符冲突" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="示例-1检测到管道符冲突"><span class="header-section-number">1.3.1</span> 示例 1：检测到管道符冲突</h3>
+<p><strong>用户：</strong> 检查我的文章 <code>_posts/2025-11-08-math-post.md</code></p>
+<p><strong>你的回应：</strong></p>
+<pre><code>发现问题：第21行的公式包含绝对值符号 |
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">Bayesian Inference Primer — Beta–Binomial</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<p>LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/bayesian-inference-primer.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="ZGVlcC1sZWFybmluZyUyQ2dlbmVyYXRpdmUtbW9kZWxzJTJDbWF0aA==" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="255">
-<div class="thumbnail"><a href="./posts_en/diffusion-models-intro.html" class="no-external">
+原代码：
+当 $0 &lt; |x - x_0| &lt; \delta$ 时，有 $|f(x) - L| &lt; \epsilon$
 
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+问题：Markdown 可能将 | 误认为表格分隔符
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/diffusion-models-intro.html" class="no-external">Introduction to Diffusion Models</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/diffusion-models-intro.html" class="no-external">
-<p>A brief introduction to diffusion probabilistic models with key mathematical formulations.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/diffusion-models-intro.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1762992000000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
-<div class="thumbnail"><a href="./posts_en/optimization-notes.html" class="no-external">
+建议修复：
+当以下条件成立时：
 
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+$$
+0 &lt; |x - x_0| &lt; \delta \implies |f(x) - L| &lt; \epsilon
+$$
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/optimization-notes.html" class="no-external">
-<p>Short notes with LaTeX equations for gradient descent, convexity, and ridge regression.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/optimization-notes.html" class="no-external">
-<div class="listing-date">
-Nov 13, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762905600000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
-<div class="thumbnail"><a href="./posts_en/math-and-code-demo.html" class="no-external">
+要我帮你修复吗？</code></pre>
+</section>
+<section id="示例-2检测到多个行内公式" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="示例-2检测到多个行内公式"><span class="header-section-number">1.3.2</span> 示例 2：检测到多个行内公式</h3>
+<p><strong>用户：</strong> 这个公式为什么渲染不出来？</p>
+<p><strong>你的回应：</strong></p>
+<pre><code>分析：这一行包含4个行内公式片段，且包含特殊字符 &gt; 和 |
 
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+建议改为标准数学符号的块级公式：
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/math-and-code-demo.html" class="no-external">
-<p>A sample technical post demonstrating code blocks, math, and figures.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/math-and-code-demo.html" class="no-external">
-<div class="listing-date">
-Nov 12, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762819200000" data-listing-file-modified-sort="1763058238811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
-<div class="thumbnail"><a href="./posts_en/hello-quarto.html" class="no-external">
+$$
+\forall \epsilon &gt; 0, \exists \delta &gt; 0, \text{ 使得 } 0 &lt; |x - x_0| &lt; \delta \implies |f(x) - L| &lt; \epsilon
+$$
 
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+这样：
+✅ 避免 Markdown 解析冲突
+✅ 使用专业数学符号（∀ ∃ ⟹）
+✅ 公式更清晰易读</code></pre>
+</section>
+</section>
+<section id="快速检查清单" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="快速检查清单"><span class="header-section-number">1.4</span> 快速检查清单</h2>
+<p>在帮助用户发布前，确认：</p>
+<ul class="task-list">
+<li><label><input type="checkbox">文章 front matter 包含 <code>math: true</code></label></li>
+<li><label><input type="checkbox">所有包含 <code>|</code> 的公式使用块级格式</label></li>
+<li><label><input type="checkbox">所有包含 <code>&gt;</code> 或 <code>&lt;</code> 的公式检查过</label></li>
+<li><label><input type="checkbox">没有一行中出现 3+ 个行内公式</label></li>
+<li><label><input type="checkbox">复杂定义/定理使用块级公式</label></li>
+<li><label><input type="checkbox">矩阵、积分、求和使用块级公式</label></li>
+</ul>
+</section>
+<section id="常见冲突字符速查表" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="常见冲突字符速查表"><span class="header-section-number">1.5</span> 常见冲突字符速查表</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>字符</th>
+<th>Markdown 含义</th>
+<th>LaTeX 用途</th>
+<th>冲突风险</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>\|</code></td>
+<td>表格分隔符</td>
+<td>绝对值、条件概率</td>
+<td>⚠️ 高</td>
+<td>使用块级公式</td>
+</tr>
+<tr class="even">
+<td><code>&gt;</code></td>
+<td>引用块</td>
+<td>大于号、箭头</td>
+<td>⚠️ 中</td>
+<td>使用块级公式或 <code>\gt</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;</code></td>
+<td>HTML标签</td>
+<td>小于号</td>
+<td>⚠️ 中</td>
+<td>使用块级公式或 <code>\lt</code></td>
+</tr>
+<tr class="even">
+<td><code>*</code></td>
+<td>斜体/粗体</td>
+<td>乘号、卷积</td>
+<td>⚠️ 低</td>
+<td>通常无问题，复杂时用块级</td>
+</tr>
+<tr class="odd">
+<td><code>_</code></td>
+<td>斜体/下划线</td>
+<td>下标</td>
+<td>⚠️ 低</td>
+<td>通常无问题</td>
+</tr>
+<tr class="even">
+<td><code>[</code> <code>]</code></td>
+<td>链接</td>
+<td>矩阵括号</td>
+<td>⚠️ 低</td>
+<td>在块级公式中使用</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="标准修复模板" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="标准修复模板"><span class="header-section-number">1.6</span> 标准修复模板</h2>
+<section id="模板-1简单不等式" class="level3" data-number="1.6.1">
+<h3 data-number="1.6.1" class="anchored" data-anchor-id="模板-1简单不等式"><span class="header-section-number">1.6.1</span> 模板 1：简单不等式</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>❌ 错误：</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>当 $x &gt; 0$ 且 $|y| &lt; 1$ 时</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>✅ 正确：</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>当以下条件成立时：</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>x &gt; 0 \quad \text{且} \quad |y| &lt; 1</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="模板-2极限定义" class="level3" data-number="1.6.2">
+<h3 data-number="1.6.2" class="anchored" data-anchor-id="模板-2极限定义"><span class="header-section-number">1.6.2</span> 模板 2：极限定义</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>❌ 错误：</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>对于任意 $\epsilon &gt; 0$，存在 $\delta &gt; 0$，使得当 $0 &lt; |x - x_0| &lt; \delta$ 时...</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>✅ 正确：</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>\forall \epsilon &gt; 0, \exists \delta &gt; 0, \text{ 使得 } 0 &lt; |x - x_0| &lt; \delta \implies |f(x) - L| &lt; \epsilon</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="模板-3绝对值公式" class="level3" data-number="1.6.3">
+<h3 data-number="1.6.3" class="anchored" data-anchor-id="模板-3绝对值公式"><span class="header-section-number">1.6.3</span> 模板 3：绝对值公式</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>❌ 错误：</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>范数定义为 $||x|| = \sqrt{\sum_{i=1}^{n} |x_i|^2}$</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>✅ 正确：</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>范数定义为：</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="sc">\|</span>x<span class="sc">\|</span> = \sqrt{\sum_{i=1}^{n} |x_i|^2}</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="参考资源" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="参考资源"><span class="header-section-number">1.7</span> 参考资源</h2>
+<ul>
+<li>详细文档：<code>docs/markdown-latex-guide.md</code></li>
+<li>MathJax 文档：https://docs.mathjax.org/</li>
+<li>LaTeX 数学符号：https://katex.org/docs/supported.html</li>
+</ul>
+</section>
+<section id="交互原则" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="交互原则"><span class="header-section-number">1.8</span> 交互原则</h2>
+<ol type="1">
+<li><strong>主动检测</strong>：用户要求检查文章时，自动扫描所有公式</li>
+<li><strong>清晰诊断</strong>：准确指出问题所在和原因</li>
+<li><strong>提供选择</strong>：给出多个修复方案，让用户选择</li>
+<li><strong>快速修复</strong>：用户同意后，直接使用 Edit 工具修改文件</li>
+<li><strong>教育性</strong>：解释为什么这样修改，帮助用户理解</li>
+</ol>
+</section>
+<section id="启动模式" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="启动模式"><span class="header-section-number">1.9</span> 启动模式</h2>
+<p>当用户调用此 skill 时，首先询问：</p>
+<pre><code>欢迎使用博客写作助手！我可以帮你：
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
-</h3>
-<div class="delink listing-description"><a href="./posts_en/hello-quarto.html" class="no-external">
-<p>A short hello-world style post to verify site structure and formatting.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts_en/hello-quarto.html" class="no-external">
-<div class="listing-date">
-Nov 11, 2025
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+1. 📝 检查现有文章的公式冲突
+2. ✍️ 在写作时实时检查公式
+3. 🔧 修复已发现的公式问题
+4. 📚 查看 Markdown-LaTeX 最佳实践
+
+请告诉我你需要什么帮助？</code></pre>
+</section>
+<section id="注意事项" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="注意事项"><span class="header-section-number">1.10</span> 注意事项</h2>
+<ul>
+<li>始终保持对用户友好和耐心</li>
+<li>用清晰的示例说明问题</li>
+<li>提供具体的、可操作的建议</li>
+<li>避免使用过于技术化的术语</li>
+<li>优先推荐最简单、最可靠的解决方案（块级公式）</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
 ﻿<script>
 // Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
 (function() {

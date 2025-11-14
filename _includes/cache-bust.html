@@ -2,14 +2,9 @@
 // Cache-bust: ensure page URLs carry a version param and every internal click appends a fresh version
 (function() {
   function buildStaticVersion() {
-    // Fallback version key (not used for clicks anymore but used for initial URL normalization)
-    var el = document.querySelector('link#quarto-bootstrap');
-    if (el && el.getAttribute('href')) {
-      var href = el.getAttribute('href');
-      var name = href.split('/').pop();
-      return name.slice(-12).replace(/[^a-zA-Z0-9]/g,'');
-    }
-    return String(Math.floor(Date.now()/1000));
+    // Use current timestamp as version to ensure fresh content
+    // This changes on every page load, forcing browser to check for updates
+    return String(Date.now());
   }
   function withVersionRel(url, v) {
     try {

@@ -1,0 +1,16 @@
+{
+  "skills": [
+    {
+      "name": "blog-writing-assistant",
+      "description": "教学导向的技术博客写作助手。用循序渐进、易于理解的风格撰写技术文章，同时检测和修复 Markdown-LaTeX 公式冲突。强调直觉解释、类比和具体例子。",
+      "file": "blog-writing-assistant.md",
+      "tags": ["blog", "writing", "teaching", "latex", "markdown", "math", "explanatory"]
+    },
+    {
+      "name": "explanatory-style",
+      "description": "教学导向的解释风格。像老师一样循序渐进地讲解概念，使用类比、具体例子和分步说明，帮助深入理解技术原理。",
+      "file": "explanatory-style.md",
+      "tags": ["teaching", "learning", "explanation", "education", "深度理解"]
+    }
+  ]
+}

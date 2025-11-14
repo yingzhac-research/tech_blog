@@ -1,28 +1,9 @@
 [
   {
-    "listing": "/tags.html",
-    "items": [
-      "/posts_en/bayesian-inference-primer.html",
-      "/posts_en/optimization-notes.html",
-      "/posts_ch/你好-开始使用.html",
-      "/posts_en/math-and-code-demo.html",
-      "/posts_en/hello-quarto.html"
-    ]
-  },
-  {
-    "listing": "/posts_en.html",
-    "items": [
-      "/posts_en/bayesian-inference-primer.html",
-      "/posts_en/optimization-notes.html",
-      "/posts_en/math-and-code-demo.html",
-      "/posts_en/hello-quarto.html"
-    ]
-  },
-  {
     "listing": "/posts.html",
     "items": [
-      "/posts/bayesian-inference-primer.html",
       "/posts/optimization-notes.html",
+      "/posts/bayesian-inference-primer.html",
       "/posts/math-and-code-demo.html",
       "/posts/hello-quarto.html"
     ]
@@ -31,6 +12,39 @@
     "listing": "/index.html",
     "items": [
       "/posts_en/bayesian-inference-primer.html",
+      "/posts_en/diffusion-models-intro.html",
+      "/posts_en/optimization-notes.html",
+      "/posts_en/math-and-code-demo.html",
+      "/posts_en/hello-quarto.html"
+    ]
+  },
+  {
+    "listing": "/tags.html",
+    "items": [
+      "/posts_en/optimization-notes.html",
+      "/posts_en/diffusion-models-intro.html",
+      "/posts_en/bayesian-inference-primer.html",
+      "/posts_ch/扩散模型简介.html",
+      "/posts_ch/你好-开始使用.html",
+      "/posts_en/math-and-code-demo.html",
+      "/posts_en/hello-quarto.html"
+    ]
+  },
+  {
+    "listing": "/posts_en.html",
+    "items": [
+      "/posts_en/optimization-notes.html",
+      "/posts_en/diffusion-models-intro.html",
+      "/posts_en/bayesian-inference-primer.html",
+      "/posts_en/math-and-code-demo.html",
+      "/posts_en/hello-quarto.html"
+    ]
+  },
+  {
+    "listing": "/home.html",
+    "items": [
+      "/posts_en/bayesian-inference-primer.html",
+      "/posts_en/diffusion-models-intro.html",
       "/posts_en/optimization-notes.html",
       "/posts_en/math-and-code-demo.html",
       "/posts_en/hello-quarto.html"
@@ -39,16 +53,8 @@
   {
     "listing": "/posts_zh.html",
     "items": [
+      "/posts_ch/扩散模型简介.html",
       "/posts_ch/你好-开始使用.html"
-    ]
-  },
-  {
-    "listing": "/home.html",
-    "items": [
-      "/posts_en/bayesian-inference-primer.html",
-      "/posts_en/optimization-notes.html",
-      "/posts_en/math-and-code-demo.html",
-      "/posts_en/hello-quarto.html"
     ]
   }
 ]
