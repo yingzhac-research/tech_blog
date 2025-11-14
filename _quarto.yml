@@ -28,7 +28,6 @@ format:
       - _includes/nocache.html
     include-after-body:
       - _includes/lang-toggle.html
-      - _includes/cache-bust.html
       - _includes/brand-home.html
     code-copy: true
     toc: true

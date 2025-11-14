@@ -26,11 +26,9 @@
     return true;
   }
   function rewriteInternalLinks(v) {
-    document.querySelectorAll('a[href]').forEach(function(a){
-      var href = a.getAttribute('href') || '';
-      if (!isInternal(href)) return;
-      a.setAttribute('href', withVersionRel(href, v));
-    });
+    // Don't rewrite links in advance to keep URLs clean
+    // Links will get version params on click via enableClickAppender()
+    return;
   }
   function ensureUrlHasVersion(v) {
     var params = new URLSearchParams(window.location.search);
@@ -52,30 +50,17 @@
     }, true);
   }
   function observeDynamicLinks(v) {
-    // Listings and other widgets add links after DOMContentLoaded; observe and rewrite
-    var obs = new MutationObserver(function(mutations){
-      mutations.forEach(function(m){
-        m.addedNodes && m.addedNodes.forEach(function(node){
-          if (node.nodeType !== 1) return;
-          if (node.matches && node.matches('a[href]')) {
-            var href = node.getAttribute('href') || '';
-            if (isInternal(href)) node.setAttribute('href', withVersionRel(href, v));
-          }
-          node.querySelectorAll && node.querySelectorAll('a[href]').forEach(function(a){
-            var href = a.getAttribute('href') || '';
-            if (isInternal(href)) a.setAttribute('href', withVersionRel(href, v));
-          });
-        });
-      });
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
+    // Don't observe and rewrite dynamic links
+    // They will get version params on click via enableClickAppender()
+    return;
   }
   document.addEventListener('DOMContentLoaded', function(){
     var staticV = buildStaticVersion();
     rewriteInternalLinks(staticV);
     observeDynamicLinks(staticV);
     enableClickAppender();
-    ensureUrlHasVersion(staticV);
+    // Don't modify the main URL to keep it clean
+    // ensureUrlHasVersion(staticV);
   });
 })();
 </script>
