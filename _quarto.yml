@@ -23,6 +23,7 @@ format:
       dark: darkly
     css: styles.css
     include-in-header:
+      - _includes/force-refresh.html
       - _includes/dark-default.html
       - _includes/nocache.html
     include-after-body:
