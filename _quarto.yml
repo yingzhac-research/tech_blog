@@ -23,11 +23,11 @@ format:
       dark: darkly
     css: styles.css
     include-in-header:
+      - _includes/force-refresh.html
       - _includes/dark-default.html
       - _includes/nocache.html
     include-after-body:
       - _includes/lang-toggle.html
-      - _includes/cache-bust.html
       - _includes/brand-home.html
     code-copy: true
     toc: true

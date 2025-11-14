@@ -1,0 +1,14 @@
+<!-- Force refresh if cache is stale -->
+<script>
+(function() {
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+  var stored = localStorage.getItem('site_version');
+  if (stored !== SITE_VERSION) {
+    localStorage.setItem('site_version', SITE_VERSION);
+    if (stored !== null) {
+      // Not first visit, force reload from server
+      window.location.reload(true);
+    }
+  }
+})();
+</script>
