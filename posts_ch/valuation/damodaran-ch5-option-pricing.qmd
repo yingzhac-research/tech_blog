@@ -1,8 +1,8 @@
 ---
-title: "期权定价理论与模型：从直觉到 Black-Scholes（Damodaran 第 5 章）"
+title: "【第5章】期权定价理论与模型：从直觉到 Black-Scholes"
 description: "理解期权为何不能用简单的现金流折现来估值，以及如何通过复制组合和无套利原理推导出期权定价公式。"
 author: "Ying"
-date: "2024-12-21"
+date: "2025-12-05"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, 期权, Black-Scholes, 二叉树模型, 实物期权]

@@ -1,8 +1,8 @@
 ---
-title: "增长率估计：DCF估值的核心驱动力"
+title: "【第11章】增长率估计：DCF估值的核心驱动力"
 description: "增长率是DCF估值中最重要却最难估计的输入之一。本章深入探讨历史增长、分析师预测和基本面增长三种方法，揭示增长的真正来源。"
 author: "Ying"
-date: "2025-01-15"
+date: "2025-12-11"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, DCF, 增长, Growth]

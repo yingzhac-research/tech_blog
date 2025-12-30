@@ -1,8 +1,8 @@
 ---
-title: "第8章：估算风险参数与融资成本"
-subtitle: "从Beta到WACC——把风险转化为折现率的完整流程"
-author: "Yingzhao Chen"
-date: "2024-12-30"
+title: "【第8章】估算风险参数与融资成本：从Beta到WACC"
+description: "把风险转化为折现率的完整流程——Beta估算、杠杆调整、债务成本和加权平均资本成本(WACC)的计算。"
+author: "Ying"
+date: "2025-12-08"
 categories: [估值, Beta, 资本成本, WACC, 债务成本]
 image: "images/ch8-cost-of-capital.png"
 number-sections: true

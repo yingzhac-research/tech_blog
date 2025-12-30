@@ -1,8 +1,8 @@
 ---
-title: "从盈利到现金流：估值中最关键的转换"
+title: "【第10章】从盈利到现金流：估值中最关键的转换"
 description: "会计盈利不等于现金流。本章深入探讨如何将报表上的盈利转化为估值所需的自由现金流，包括税收效应、再投资需求和营运资本管理。"
 author: "Ying"
-date: "2025-12-30"
+date: "2025-12-10"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, DCF, 现金流, 税收]

@@ -1,8 +1,8 @@
 ---
-title: "风险的本质：从方差到 Beta 的思维跃迁（Damodaran 第 4 章）"
+title: "【第4章】风险的本质：从方差到 Beta 的思维跃迁"
 description: "理解风险如何被定义、分解和度量，以及为什么只有市场风险才值得被补偿。"
 author: "Ying"
-date: "2024-12-21"
+date: "2025-12-04"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, 风险, CAPM, Beta, 分散化]

@@ -1,8 +1,8 @@
 ---
-title: "第9章：衡量盈利——从会计数字到真实盈利能力"
-subtitle: "R&D资本化、租赁调整与盈利正常化的完整指南"
-author: "Yingzhao Chen"
-date: "2024-12-30"
+title: "【第9章】衡量盈利：从会计数字到真实盈利能力"
+description: "R&D资本化、租赁调整与盈利正常化的完整指南——如何将会计盈利转化为反映真实经济价值的数字。"
+author: "Ying"
+date: "2025-12-09"
 categories: [估值, 盈利, R&D资本化, 经营租赁, 会计调整]
 image: "images/ch9-measuring-earnings.png"
 number-sections: true

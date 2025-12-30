@@ -6,10 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Yingzhao Chen">
-<meta name="dcterms.date" content="2024-12-30">
+<meta name="author" content="Ying">
+<meta name="dcterms.date" content="2025-12-08">
+<meta name="description" content="把风险转化为折现率的完整流程——Beta估算、杠杆调整、债务成本和加权平均资本成本(WACC)的计算。">
 
-<title>第8章：估算风险参数与融资成本 – Tech Notes</title>
+<title>【第8章】估算风险参数与融资成本：从Beta到WACC – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -456,8 +457,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">第8章：估算风险参数与融资成本</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
-<p class="subtitle lead">从Beta到WACC——把风险转化为折现率的完整流程</p>
+<div class="quarto-title-block"><div><h1 class="title">【第8章】估算风险参数与融资成本：从Beta到WACC</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">估值</div>
     <div class="quarto-category">Beta</div>
@@ -467,6 +467,11 @@ window.Quarto = {
   </div>
   </div>
 
+<div>
+  <div class="description">
+    把风险转化为折现率的完整流程——Beta估算、杠杆调整、债务成本和加权平均资本成本(WACC)的计算。
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -474,14 +479,14 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Yingzhao Chen </p>
+             <p>Ying </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 30, 2024</p>
+      <p class="date">December 8, 2025</p>
     </div>
   </div>
   
@@ -1871,10 +1876,10 @@ WACC_{BRL} = (1 + 0.0948) \times \frac{1.06}{1.02} - 1 = \textbf{13.82\%}
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "第8章：估算风险参数与融资成本"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "从Beta到WACC——把风险转化为折现率的完整流程"</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Yingzhao Chen"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-12-30"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "【第8章】估算风险参数与融资成本：从Beta到WACC"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "把风险转化为折现率的完整流程——Beta估算、杠杆调整、债务成本和加权平均资本成本(WACC)的计算。"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ying"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2025-12-08"</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [估值, Beta, 资本成本, WACC, 债务成本]</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> "images/ch8-cost-of-capital.png"</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>

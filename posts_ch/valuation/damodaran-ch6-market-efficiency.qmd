@@ -1,8 +1,8 @@
 ---
-title: "市场有效性：定义、检验与证据（Damodaran 第 6 章）"
+title: "【第6章】市场有效性：定义、检验与证据"
 description: "市场价格到底反映了多少信息？这个问题的答案决定了你应该做主动投资还是被动投资，也决定了估值分析是否有意义。"
 author: "Ying"
-date: "2024-12-21"
+date: "2025-12-06"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, 市场有效性, EMH, 行为金融, 市场异象]

@@ -1,8 +1,8 @@
 ---
-title: "第7章：无风险利率与风险溢价"
-subtitle: "从国债收益率到股权风险溢价——估值中最关键的输入参数"
-author: "Yingzhao Chen"
-date: "2024-12-30"
+title: "【第7章】无风险利率与风险溢价：估值中最关键的输入参数"
+description: "从国债收益率到股权风险溢价——理解折现率的两大核心组成部分，以及如何在不同市场环境下估计它们。"
+author: "Ying"
+date: "2025-12-07"
 categories: [估值, 风险, 无风险利率, 股权风险溢价]
 image: "images/ch7-risk-premiums.png"
 number-sections: true

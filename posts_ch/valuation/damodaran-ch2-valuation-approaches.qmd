@@ -1,8 +1,8 @@
 ---
-title: "估值方法论：DCF、相对估值与实物期权（Damodaran 第 2 章）"
+title: "【第2章】估值方法论：DCF、相对估值与实物期权"
 description: "理解三种估值方法的逻辑基础：内在估值（DCF）寻找资产的'真实价值'，相对估值借助市场定价，期权估值捕捉不确定性中的价值。"
 author: "Ying"
-date: today
+date: "2025-12-02"
 lang: zh
 categories: [金融, 投资, 估值]
 tags: [Valuation, Damodaran, DCF, 相对估值, 实物期权]
