@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="市场价格到底反映了多少信息？这个问题的答案决定了你应该做主动投资还是被动投资，也决定了估值分析是否有意义。">
+
+<title>市场有效性：定义、检验与证据（Damodaran 第 6 章） – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#什么是有效市场" id="toc-什么是有效市场" class="nav-link" data-scroll-target="#什么是有效市场"><span class="header-section-number">2</span> 什么是有效市场</a>
+  <ul class="collapse">
+  <li><a href="#核心定义" id="toc-核心定义" class="nav-link" data-scroll-target="#核心定义"><span class="header-section-number">2.1</span> 核心定义</a></li>
+  <li><a href="#有效市场的前提条件" id="toc-有效市场的前提条件" class="nav-link" data-scroll-target="#有效市场的前提条件"><span class="header-section-number">2.2</span> 有效市场的前提条件</a></li>
+  <li><a href="#三种有效性形式" id="toc-三种有效性形式" class="nav-link" data-scroll-target="#三种有效性形式"><span class="header-section-number">2.3</span> 三种有效性形式</a></li>
+  </ul></li>
+  <li><a href="#检验市场有效性的方法" id="toc-检验市场有效性的方法" class="nav-link" data-scroll-target="#检验市场有效性的方法"><span class="header-section-number">3</span> 检验市场有效性的方法</a>
+  <ul class="collapse">
+  <li><a href="#联合假设问题" id="toc-联合假设问题" class="nav-link" data-scroll-target="#联合假设问题"><span class="header-section-number">3.1</span> 联合假设问题</a></li>
+  <li><a href="#事件研究event-study" id="toc-事件研究event-study" class="nav-link" data-scroll-target="#事件研究event-study"><span class="header-section-number">3.2</span> 事件研究（Event Study）</a></li>
+  <li><a href="#组合研究portfolio-study" id="toc-组合研究portfolio-study" class="nav-link" data-scroll-target="#组合研究portfolio-study"><span class="header-section-number">3.3</span> 组合研究（Portfolio Study）</a></li>
+  </ul></li>
+  <li><a href="#弱式有效性的证据" id="toc-弱式有效性的证据" class="nav-link" data-scroll-target="#弱式有效性的证据"><span class="header-section-number">4</span> 弱式有效性的证据</a>
+  <ul class="collapse">
+  <li><a href="#序列相关性检验" id="toc-序列相关性检验" class="nav-link" data-scroll-target="#序列相关性检验"><span class="header-section-number">4.1</span> 序列相关性检验</a></li>
+  <li><a href="#游程检验runs-test" id="toc-游程检验runs-test" class="nav-link" data-scroll-target="#游程检验runs-test"><span class="header-section-number">4.2</span> 游程检验（Runs Test）</a></li>
+  <li><a href="#过滤规则检验filter-rules" id="toc-过滤规则检验filter-rules" class="nav-link" data-scroll-target="#过滤规则检验filter-rules"><span class="header-section-number">4.3</span> 过滤规则检验（Filter Rules）</a></li>
+  <li><a href="#技术分析模式" id="toc-技术分析模式" class="nav-link" data-scroll-target="#技术分析模式"><span class="header-section-number">4.4</span> 技术分析模式</a></li>
+  </ul></li>
+  <li><a href="#半强式有效性的证据" id="toc-半强式有效性的证据" class="nav-link" data-scroll-target="#半强式有效性的证据"><span class="header-section-number">5</span> 半强式有效性的证据</a>
+  <ul class="collapse">
+  <li><a href="#盈利公告的市场反应" id="toc-盈利公告的市场反应" class="nav-link" data-scroll-target="#盈利公告的市场反应"><span class="header-section-number">5.1</span> 盈利公告的市场反应</a></li>
+  <li><a href="#股票分割" id="toc-股票分割" class="nav-link" data-scroll-target="#股票分割"><span class="header-section-number">5.2</span> 股票分割</a></li>
+  <li><a href="#会计信息披露" id="toc-会计信息披露" class="nav-link" data-scroll-target="#会计信息披露"><span class="header-section-number">5.3</span> 会计信息披露</a></li>
+  <li><a href="#并购公告" id="toc-并购公告" class="nav-link" data-scroll-target="#并购公告"><span class="header-section-number">5.4</span> 并购公告</a></li>
+  </ul></li>
+  <li><a href="#市场异象" id="toc-市场异象" class="nav-link" data-scroll-target="#市场异象"><span class="header-section-number">6</span> 市场异象</a>
+  <ul class="collapse">
+  <li><a href="#规模效应size-effect" id="toc-规模效应size-effect" class="nav-link" data-scroll-target="#规模效应size-effect"><span class="header-section-number">6.1</span> 规模效应（Size Effect）</a></li>
+  <li><a href="#市盈率效应pe-effect" id="toc-市盈率效应pe-effect" class="nav-link" data-scroll-target="#市盈率效应pe-effect"><span class="header-section-number">6.2</span> 市盈率效应（P/E Effect）</a></li>
+  <li><a href="#市净率效应price-to-book-effect" id="toc-市净率效应price-to-book-effect" class="nav-link" data-scroll-target="#市净率效应price-to-book-effect"><span class="header-section-number">6.3</span> 市净率效应（Price-to-Book Effect）</a></li>
+  <li><a href="#时间序列异象" id="toc-时间序列异象" class="nav-link" data-scroll-target="#时间序列异象"><span class="header-section-number">6.4</span> 时间序列异象</a></li>
+  </ul></li>
+  <li><a href="#专业投资者的表现" id="toc-专业投资者的表现" class="nav-link" data-scroll-target="#专业投资者的表现"><span class="header-section-number">7</span> 专业投资者的表现</a>
+  <ul class="collapse">
+  <li><a href="#内部人交易" id="toc-内部人交易" class="nav-link" data-scroll-target="#内部人交易"><span class="header-section-number">7.1</span> 内部人交易</a></li>
+  <li><a href="#分析师推荐" id="toc-分析师推荐" class="nav-link" data-scroll-target="#分析师推荐"><span class="header-section-number">7.2</span> 分析师推荐</a></li>
+  <li><a href="#共同基金表现" id="toc-共同基金表现" class="nav-link" data-scroll-target="#共同基金表现"><span class="header-section-number">7.3</span> 共同基金表现</a></li>
+  </ul></li>
+  <li><a href="#行为金融学的挑战" id="toc-行为金融学的挑战" class="nav-link" data-scroll-target="#行为金融学的挑战"><span class="header-section-number">8</span> 行为金融学的挑战</a>
+  <ul class="collapse">
+  <li><a href="#过度自信overconfidence" id="toc-过度自信overconfidence" class="nav-link" data-scroll-target="#过度自信overconfidence"><span class="header-section-number">8.1</span> 过度自信（Overconfidence）</a></li>
+  <li><a href="#锚定效应anchoring" id="toc-锚定效应anchoring" class="nav-link" data-scroll-target="#锚定效应anchoring"><span class="header-section-number">8.2</span> 锚定效应（Anchoring）</a></li>
+  <li><a href="#损失厌恶loss-aversion" id="toc-损失厌恶loss-aversion" class="nav-link" data-scroll-target="#损失厌恶loss-aversion"><span class="header-section-number">8.3</span> 损失厌恶（Loss Aversion）</a></li>
+  <li><a href="#套利的局限性" id="toc-套利的局限性" class="nav-link" data-scroll-target="#套利的局限性"><span class="header-section-number">8.4</span> 套利的局限性</a></li>
+  </ul></li>
+  <li><a href="#对估值的含义" id="toc-对估值的含义" class="nav-link" data-scroll-target="#对估值的含义"><span class="header-section-number">9</span> 对估值的含义</a>
+  <ul class="collapse">
+  <li><a href="#务实的立场" id="toc-务实的立场" class="nav-link" data-scroll-target="#务实的立场"><span class="header-section-number">9.1</span> 务实的立场</a></li>
+  <li><a href="#对估值实践的含义" id="toc-对估值实践的含义" class="nav-link" data-scroll-target="#对估值实践的含义"><span class="header-section-number">9.2</span> 对估值实践的含义</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">10</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">11</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">市场有效性：定义、检验与证据（Damodaran 第 6 章）</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    市场价格到底反映了多少信息？这个问题的答案决定了你应该做主动投资还是被动投资，也决定了估值分析是否有意义。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2024年12月21日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你发现了一个”必胜”的投资策略：买入过去一年涨幅最大的股票，因为”强者恒强”。你兴奋地告诉朋友，朋友却说：“如果这么简单就能赚钱，为什么大家不都这么做？”</p>
+<p>这个反问触及了金融学中最根本的问题之一：<strong>市场到底有多”聪明”？</strong></p>
+<p>如果市场足够聪明，能够迅速消化所有可获得的信息，那么： - 任何基于公开信息的投资策略都不可能持续获得超额收益 - 股票价格已经反映了真实价值，寻找”被低估”的股票是徒劳的 - 最好的策略就是买入并持有一个分散化的投资组合</p>
+<p>但如果市场并不那么聪明呢？那就意味着： - 存在系统性的定价错误 - 聪明的投资者可以通过分析获得超额收益 - 主动投资是有价值的</p>
+<p>本章将深入探讨<strong>有效市场假说（Efficient Market Hypothesis, EMH）</strong>——这个自 1960 年代以来一直主导金融学思想的理论。我们将讨论：</p>
+<ul>
+<li>什么是市场有效性？它有哪些不同的形式？</li>
+<li>如何检验市场是否有效？</li>
+<li>实证证据告诉我们什么？</li>
+<li>那些著名的”市场异象”意味着什么？</li>
+</ul>
+</section>
+<section id="什么是有效市场" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="什么是有效市场"><span class="header-section-number">2</span> 什么是有效市场</h2>
+<section id="核心定义" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="核心定义"><span class="header-section-number">2.1</span> 核心定义</h3>
+<p>让我们先从直觉开始。一个”有效”的市场意味着什么？</p>
+<p>想象一个理想的市场：任何新信息一出现，所有投资者立即知道并正确理解其含义，然后立刻根据这个信息调整他们的买卖决策。结果是，股票价格会瞬间调整到反映这个新信息的”正确”水平。</p>
+<p>更正式地说，Fama（1970）给出的经典定义是：</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>有效市场的定义
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在一个有效市场中，<strong>价格总是”完全反映”（fully reflect）所有可获得的信息</strong>。</p>
+</div>
+</div>
+<p>这个定义虽然简洁，但有几个关键的含义：</p>
+<ol type="1">
+<li><strong>价格调整是即时的</strong>：新信息出现后，价格立即调整，不存在”滞后反应”</li>
+<li><strong>价格调整是准确的</strong>：价格调整到正确的水平，不存在”过度反应”或”反应不足”</li>
+<li><strong>无法利用信息获利</strong>：既然价格已经反映了信息，你就无法利用这个信息获得超额收益</li>
+</ol>
+</section>
+<section id="有效市场的前提条件" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="有效市场的前提条件"><span class="header-section-number">2.2</span> 有效市场的前提条件</h3>
+<p>市场要达到有效，需要满足一些条件。虽然这些条件在现实中可能无法完全满足，但有趣的是，市场有效性并不要求这些条件必须严格成立：</p>
+<p><strong>条件一：交易成本为零</strong></p>
+<p>在理想情况下，投资者可以免费交易。现实中交易成本确实存在，但只要交易成本不高到阻止有利可图的交易，市场仍然可以有效。</p>
+<p><strong>条件二：信息对所有人免费可得</strong></p>
+<p>理想情况下，所有投资者同时获得相同的信息。现实中，一些投资者可能比其他人更早获得信息。但只要有足够多的知情投资者参与交易，价格仍然能够反映信息。</p>
+<p><strong>条件三：投资者对信息的解读一致</strong></p>
+<p>理想情况下，所有投资者对信息的含义达成共识。现实中，投资者可能对同一信息有不同的解读。但只要平均而言解读是正确的，市场仍然可以有效。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>边际投资者
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>市场有效性并不要求每个投资者都理性。它只要求<strong>边际投资者（Marginal Investor）</strong>——那些主动交易、影响价格的投资者——在整体上是理性的。如果”聪明钱”足够多且足够活跃，他们的交易行为就足以使价格趋向正确水平。</p>
+</div>
+</div>
+</section>
+<section id="三种有效性形式" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="三种有效性形式"><span class="header-section-number">2.3</span> 三种有效性形式</h3>
+<p>Fama 将市场有效性分为三种形式，根据价格反映的信息范围不同：</p>
+<p><strong>弱式有效（Weak Form Efficiency）</strong></p>
+<p>价格反映了<strong>所有历史价格和交易量信息</strong>。</p>
+<p>含义： - 技术分析无效——你无法通过研究历史价格走势来预测未来价格 - 趋势跟踪策略（如”追涨杀跌”）不能获得超额收益 - 过去的收益率对未来没有预测能力</p>
+<p><strong>半强式有效（Semi-Strong Form Efficiency）</strong></p>
+<p>价格反映了<strong>所有公开可得的信息</strong>，包括历史价格、财务报表、新闻公告、分析师报告等。</p>
+<p>含义： - 基本面分析无效——你无法通过研究财务报表来找到被低估的股票 - 在信息公布后再交易已经太晚——价格已经调整 - 弱式有效是半强式有效的子集</p>
+<p><strong>强式有效（Strong Form Efficiency）</strong></p>
+<p>价格反映了<strong>所有信息</strong>，包括内部人才知道的私人信息。</p>
+<p>含义： - 即使是内部人也无法获得超额收益 - 这是最严格的有效性形式 - 半强式有效是强式有效的子集</p>
+<p>这三种形式形成了一个嵌套结构：</p>
+<p><span class="math display">\[
+\text{强式有效} \supset \text{半强式有效} \supset \text{弱式有效}
+\]</span></p>
+<p>如果一个市场是强式有效的，它必然也是半强式和弱式有效的。反之，如果弱式有效被拒绝，更高形式的有效性也会被拒绝。</p>
+</section>
+</section>
+<section id="检验市场有效性的方法" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="检验市场有效性的方法"><span class="header-section-number">3</span> 检验市场有效性的方法</h2>
+<section id="联合假设问题" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="联合假设问题"><span class="header-section-number">3.1</span> 联合假设问题</h3>
+<p>在讨论具体检验方法之前，我们必须认识到一个根本性的困难：<strong>联合假设问题（Joint Hypothesis Problem）</strong>。</p>
+<p>当我们检验市场有效性时，我们实际上是在问：投资者是否能够获得”超额收益”？但什么是”超额收益”？它是相对于某个<strong>基准</strong>（Benchmark）的收益。这个基准通常来自于一个<strong>资产定价模型</strong>，比如 CAPM。</p>
+<p>问题在于：如果我们发现某个策略获得了”超额收益”，可能有两种解释：</p>
+<ol type="1">
+<li>市场无效：存在真正的定价错误可以被利用</li>
+<li>模型错误：我们用来计算超额收益的定价模型是错的</li>
+</ol>
+<p>我们无法区分这两种情况，因为市场有效性和资产定价模型是<strong>联合</strong>被检验的。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>联合假设问题的含义
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这意味着市场有效性假说<strong>不能被严格地证伪</strong>。每当我们发现一个”异象”，支持者可以说”那只是我们还没找到正确的风险模型”，而反对者可以说”这是市场无效的证据”。这种争论没有最终的仲裁者。</p>
+</div>
+</div>
+</section>
+<section id="事件研究event-study" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="事件研究event-study"><span class="header-section-number">3.2</span> 事件研究（Event Study）</h3>
+<p>事件研究是检验半强式有效性的主要方法。它研究的是：当某个信息事件发生时，股票价格是如何反应的？</p>
+<p><strong>基本思想</strong></p>
+<ol type="1">
+<li>确定一个”事件”——例如盈利公告、股票分割、并购公告等</li>
+<li>定义”事件窗口”——事件前后的一段时间</li>
+<li>计算”超额收益”——实际收益减去预期收益</li>
+<li>分析超额收益的模式</li>
+</ol>
+<p><strong>数学框架</strong></p>
+<p>设事件发生在第 0 天。对于每只股票 <span class="math inline">\(i\)</span>，我们计算其在第 <span class="math inline">\(t\)</span> 天的超额收益：</p>
+<p><span class="math display">\[
+AR_{it} = R_{it} - E[R_{it}]
+\]</span></p>
+<p>其中 <span class="math inline">\(R_{it}\)</span> 是实际收益，<span class="math inline">\(E[R_{it}]\)</span> 是根据某个模型（如市场模型或 CAPM）计算的预期收益。</p>
+<p>对于多只股票，我们计算平均超额收益：</p>
+<p><span class="math display">\[
+\overline{AR}_t = \frac{1}{N} \sum_{i=1}^{N} AR_{it}
+\]</span></p>
+<p>为了捕捉事件的累积效应，我们计算累积平均超额收益（Cumulative Average Abnormal Return, CAAR）：</p>
+<p><span class="math display">\[
+CAAR_{(t_1, t_2)} = \sum_{t=t_1}^{t_2} \overline{AR}_t
+\]</span></p>
+<p><strong>判断标准</strong></p>
+<p>根据有效市场假说，我们应该看到：</p>
+<ol type="1">
+<li><strong>事件发生时</strong>（<span class="math inline">\(t=0\)</span>）：应该有显著的超额收益（如果事件包含新信息）</li>
+<li><strong>事件发生前</strong>：不应该有超额收益（除非存在信息泄露）</li>
+<li><strong>事件发生后</strong>：不应该有超额收益（价格已经调整完毕）</li>
+</ol>
+<p>如果我们看到事件后仍有持续的超额收益，说明价格调整是缓慢的——这与有效市场假说矛盾。</p>
+</section>
+<section id="组合研究portfolio-study" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="组合研究portfolio-study"><span class="header-section-number">3.3</span> 组合研究（Portfolio Study）</h3>
+<p>组合研究检验的是：基于某些可观察的特征构建投资组合，是否能获得超额收益？</p>
+<p><strong>基本思想</strong></p>
+<ol type="1">
+<li>选择一个可观察的特征——例如市盈率、市值、市净率等</li>
+<li>根据这个特征将股票分组——例如分成 5 或 10 个组</li>
+<li>计算每个组的收益率</li>
+<li>比较高特征值组和低特征值组的收益差异</li>
+<li>检验这个差异是否能被风险差异解释</li>
+</ol>
+<p><strong>具体步骤</strong></p>
+<p>以市盈率（P/E）效应为例：</p>
+<ol type="1">
+<li>每年年初，按 P/E 比率将所有股票从低到高排序</li>
+<li>分成 10 个组（十分位）：最低 P/E 组、次低组、…、最高 P/E 组</li>
+<li>计算每个组在接下来一年的平均收益率</li>
+<li>比较最低 P/E 组和最高 P/E 组的收益差异</li>
+<li>使用 CAPM 或其他模型调整风险后，检验超额收益是否依然存在</li>
+</ol>
+<p><strong>长期与短期</strong></p>
+<p>一个重要的区分是：</p>
+<ul>
+<li><strong>短期组合研究</strong>：检验策略在公告后短期内的表现</li>
+<li><strong>长期组合研究</strong>：检验策略在持有一年或更长时间的表现</li>
+</ul>
+<p>长期研究更容易受到联合假设问题的困扰，因为更难准确估计长期的预期收益。</p>
+</section>
+</section>
+<section id="弱式有效性的证据" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="弱式有效性的证据"><span class="header-section-number">4</span> 弱式有效性的证据</h2>
+<p>弱式有效性的检验主要问：<strong>过去的价格能否预测未来的价格？</strong></p>
+<section id="序列相关性检验" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="序列相关性检验"><span class="header-section-number">4.1</span> 序列相关性检验</h3>
+<p>最直接的检验方法是计算收益率的序列相关性（Serial Correlation）：</p>
+<p><span class="math display">\[
+\rho = \text{Corr}(R_t, R_{t-1})
+\]</span></p>
+<p>如果 <span class="math inline">\(\rho &gt; 0\)</span>，说明存在”动量”——今天涨明天还会涨。 如果 <span class="math inline">\(\rho &lt; 0\)</span>，说明存在”反转”——今天涨明天会跌。 如果 <span class="math inline">\(\rho = 0\)</span>，说明过去的收益对未来没有预测能力。</p>
+<p><strong>实证结果</strong></p>
+<p>早期研究（如 Fama 1965）发现，日收益率的序列相关性非常接近于零（通常在 <span class="math inline">\(\pm 0.05\)</span> 之间）。虽然统计上有时显著，但<strong>经济意义不大</strong>——考虑到交易成本，这么小的可预测性无法转化为利润。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>统计显著 vs 经济显著
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在金融研究中，一个结果可能在统计上显著（p 值很小），但在经济上不显著（利润被交易成本吞噬）。对于投资者来说，真正重要的是经济显著性。</p>
+</div>
+</div>
+</section>
+<section id="游程检验runs-test" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="游程检验runs-test"><span class="header-section-number">4.2</span> 游程检验（Runs Test）</h3>
+<p>游程检验不关心收益率的大小，只关心<strong>方向</strong>（上涨还是下跌）。</p>
+<p>一个”游程”是连续的同方向变动。例如，序列 “+ + - - - + -”包含 4 个游程。</p>
+<p>如果价格变动是随机的，我们可以计算预期的游程数量。如果实际游程数量显著少于预期，说明存在趋势（动量）；如果显著多于预期，说明存在过多的反转。</p>
+<p><strong>实证结果</strong></p>
+<p>大多数研究发现，实际游程数量与随机预期没有显著差异，支持弱式有效性。</p>
+</section>
+<section id="过滤规则检验filter-rules" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="过滤规则检验filter-rules"><span class="header-section-number">4.3</span> 过滤规则检验（Filter Rules）</h3>
+<p>过滤规则是一种简单的技术交易策略：</p>
+<ul>
+<li>当价格上涨 <span class="math inline">\(x\%\)</span> 时买入</li>
+<li>当价格下跌 <span class="math inline">\(x\%\)</span> 时卖出</li>
+</ul>
+<p>如果存在可利用的趋势，这种策略应该能获得超额收益。</p>
+<p><strong>实证结果</strong></p>
+<p>Alexander（1961）和 Fama &amp; Blume（1966）的研究发现： - 小的过滤规则（如 1%）可以产生高于买入持有策略的收益 - 但考虑交易成本后，这些收益消失了 - 大的过滤规则表现不如买入持有策略</p>
+<p>结论：过滤规则不能在扣除交易成本后产生超额收益，支持弱式有效性。</p>
+</section>
+<section id="技术分析模式" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="技术分析模式"><span class="header-section-number">4.4</span> 技术分析模式</h3>
+<p>一些研究检验了更复杂的技术分析模式，如头肩形态、双顶双底等。</p>
+<p>结论是混合的： - 一些简单的规则（如移动平均线交叉）在某些时期和市场似乎有效 - 但这种”有效性”往往在被发现后消失——可能是由于更多人使用导致套利消失 - 复杂的图表形态很难严格地统计检验</p>
+</section>
+</section>
+<section id="半强式有效性的证据" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="半强式有效性的证据"><span class="header-section-number">5</span> 半强式有效性的证据</h2>
+<p>半强式有效性检验的核心问题是：<strong>公开信息发布后，投资者能否获得超额收益？</strong></p>
+<section id="盈利公告的市场反应" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="盈利公告的市场反应"><span class="header-section-number">5.1</span> 盈利公告的市场反应</h3>
+<p>盈利公告是最被广泛研究的信息事件之一。</p>
+<p><strong>关键发现</strong></p>
+<p>Ball &amp; Brown（1968）的经典研究发现：</p>
+<ol type="1">
+<li><strong>公告日反应</strong>：市场对盈利意外（实际盈利与预期的差异）反应迅速，大部分价格调整发生在公告日</li>
+<li><strong>公告前漂移</strong>：在公告前几周，价格就开始朝着公告方向移动——可能是信息泄露或分析师预测</li>
+<li><strong>公告后漂移（PEAD）</strong>：价格在公告后继续朝同一方向漂移约 60 天</li>
+</ol>
+<p>第三个发现——公告后漂移（Post-Earnings Announcement Drift, PEAD）——是一个著名的异象，与有效市场假说矛盾。如果市场是有效的，所有信息应该在公告时立即反映在价格中。</p>
+</section>
+<section id="股票分割" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="股票分割"><span class="header-section-number">5.2</span> 股票分割</h3>
+<p>Fama, Fisher, Jensen &amp; Roll（1969）研究了股票分割的市场反应：</p>
+<ul>
+<li>股票分割前有正的超额收益</li>
+<li>分割后没有超额收益</li>
+<li>关键是分割本身并不创造价值——它只是改变了股票的面值</li>
+</ul>
+<p>结论：如果分割后没有异常收益，说明市场在分割日已经完全反映了分割的信息。这支持有效市场假说。</p>
+</section>
+<section id="会计信息披露" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="会计信息披露"><span class="header-section-number">5.3</span> 会计信息披露</h3>
+<p>Render &amp; Schwert（1972）研究了各种会计信息变更的市场反应：</p>
+<ul>
+<li>市场能够”看穿”不影响现金流的会计变更</li>
+<li>例如，从 FIFO 转为 LIFO 会计方法——虽然报告利润可能改变，但实际现金流不变</li>
+<li>市场价格反映了真实的经济影响，而不是报告数字</li>
+</ul>
+<p>这表明市场是”足够聪明”的，不会被表面的会计变动所欺骗。</p>
+</section>
+<section id="并购公告" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="并购公告"><span class="header-section-number">5.4</span> 并购公告</h3>
+<p><strong>收购方与被收购方的反应</strong></p>
+<p>研究发现一个有趣的模式：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>角色</th>
+<th>公告日反应</th>
+<th>解读</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>被收购方</td>
+<td>大幅上涨（+20-30%）</td>
+<td>收购溢价</td>
+</tr>
+<tr class="even">
+<td>收购方（现金交易）</td>
+<td>小幅下跌</td>
+<td>可能支付过高</td>
+</tr>
+<tr class="odd">
+<td>收购方（股票交易）</td>
+<td>明显下跌</td>
+<td>负面信号</td>
+</tr>
+</tbody>
+</table>
+<p>为什么股票交易的收购方股价下跌更多？这涉及<strong>信号传递</strong>：使用股票支付可能表明管理层认为自己公司的股票被高估了。</p>
+</section>
+</section>
+<section id="市场异象" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="市场异象"><span class="header-section-number">6</span> 市场异象</h2>
+<p>尽管早期研究总体支持有效市场假说，但从 1980 年代开始，研究者发现了越来越多的”异象”——与有效市场假说不一致的规律性收益模式。</p>
+<section id="规模效应size-effect" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="规模效应size-effect"><span class="header-section-number">6.1</span> 规模效应（Size Effect）</h3>
+<p><strong>发现</strong></p>
+<p>Banz（1981）发现：小市值股票的收益率系统性地高于大市值股票，即使调整了 CAPM 风险（Beta）后仍然如此。</p>
+<p><strong>具体数据</strong></p>
+<p>将股票按市值分成 10 组： - 最小市值组的年化超额收益约为 5% - 这个超额收益不能被 Beta 风险解释</p>
+<p><strong>可能的解释</strong></p>
+<ol type="1">
+<li><strong>遗漏的风险因子</strong>：小公司可能面临 CAPM 未捕捉到的风险（如流动性风险、财务困境风险）</li>
+<li><strong>生存偏差</strong>：小公司更容易破产或退市，数据库可能只包含”幸存者”</li>
+<li><strong>真正的定价错误</strong>：市场确实低估了小公司</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>规模效应的消退
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>有趣的是，规模效应在被发现并广泛传播后似乎减弱了。这可能是因为套利活动消除了定价错误，也可能是因为原始发现本身是数据挖掘的结果。</p>
+</div>
+</div>
+</section>
+<section id="市盈率效应pe-effect" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="市盈率效应pe-effect"><span class="header-section-number">6.2</span> 市盈率效应（P/E Effect）</h3>
+<p><strong>发现</strong></p>
+<p>Basu（1977, 1983）发现：低市盈率股票的收益率系统性地高于高市盈率股票。</p>
+<p><strong>解读争议</strong></p>
+<p>支持者认为这是市场无效的证据——投资者对高增长公司过于乐观，对低增长公司过于悲观。</p>
+<p>反对者认为低 P/E 股票可能有更高的风险，只是这种风险没有被正确测量。</p>
+</section>
+<section id="市净率效应price-to-book-effect" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="市净率效应price-to-book-effect"><span class="header-section-number">6.3</span> 市净率效应（Price-to-Book Effect）</h3>
+<p><strong>发现</strong></p>
+<p>Fama &amp; French（1992）发现：低市净率（P/B）股票的收益率显著高于高市净率股票。这个效应甚至比规模效应更强。</p>
+<p><strong>Fama-French 三因子模型</strong></p>
+<p>为了解释规模效应和价值效应，Fama &amp; French 提出了三因子模型：</p>
+<p><span class="math display">\[
+E[R_i] - R_f = \beta_i^{MKT}(E[R_m] - R_f) + \beta_i^{SMB} \cdot SMB + \beta_i^{HML} \cdot HML
+\]</span></p>
+<p>其中： - <span class="math inline">\(SMB\)</span>（Small Minus Big）：小市值组合减大市值组合的收益 - <span class="math inline">\(HML\)</span>（High Minus Low）：高 B/M（低 P/B）组合减低 B/M 组合的收益</p>
+<p>这个模型可以解释大部分的规模和价值”异象”——但问题是，SMB 和 HML 是否真的代表<strong>风险</strong>？还是仅仅是对已知异象的事后描述？</p>
+</section>
+<section id="时间序列异象" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="时间序列异象"><span class="header-section-number">6.4</span> 时间序列异象</h3>
+<p>除了横截面异象（不同股票之间的差异），还存在时间序列异象：</p>
+<p><strong>一月效应（January Effect）</strong></p>
+<p>股票收益在一月份异常高，特别是小市值股票。</p>
+<p>可能的解释： - 年末税收卖出压力导致价格下跌，一月份压力解除后反弹 - 年度奖金在一月份发放，推高需求 - 基金经理的”窗口装饰”行为</p>
+<p><strong>周末效应（Weekend Effect）</strong></p>
+<p>周五的收益通常为正，周一的收益通常为负。</p>
+<p>这个异象难以解释。一些研究认为它与信息发布的时间有关（坏消息倾向于在周五收盘后发布）。</p>
+<p><strong>假日效应（Holiday Effect）</strong></p>
+<p>假日前的交易日收益率异常高。</p>
+</section>
+</section>
+<section id="专业投资者的表现" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="专业投资者的表现"><span class="header-section-number">7</span> 专业投资者的表现</h2>
+<p>如果市场是有效的，专业投资者——那些花费大量资源进行研究和分析的人——应该无法持续跑赢市场。让我们看看证据。</p>
+<section id="内部人交易" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="内部人交易"><span class="header-section-number">7.1</span> 内部人交易</h3>
+<p><strong>定义</strong>：内部人包括公司高管、董事会成员和持股超过 10% 的大股东。</p>
+<p><strong>实证发现</strong>：</p>
+<p>多项研究表明，内部人的交易确实能够预测未来股价： - 当内部人大量买入时，股价倾向于上涨 - 当内部人大量卖出时，股价倾向于下跌</p>
+<p>这并不令人惊讶——内部人拥有关于公司的私人信息。</p>
+<p><strong>法律约束</strong>：正因为如此，内部人交易受到严格的法律监管。</p>
+</section>
+<section id="分析师推荐" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="分析师推荐"><span class="header-section-number">7.2</span> 分析师推荐</h3>
+<p><strong>研究发现</strong>：</p>
+<p>分析师的买入/卖出推荐在短期内确实有预测能力： - 买入推荐后股价倾向于上涨 - 卖出推荐后股价倾向于下跌</p>
+<p>但这种预测能力： 1. 在推荐发布后迅速消失——说明信息很快被市场吸收 2. 扣除交易成本后可能不够显著 3. 存在”乐观偏差”——分析师倾向于给出更多买入推荐</p>
+</section>
+<section id="共同基金表现" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="共同基金表现"><span class="header-section-number">7.3</span> 共同基金表现</h3>
+<p><strong>核心问题</strong>：专业管理的共同基金能否跑赢简单的被动指数基金？</p>
+<p><strong>Jensen（1968）的经典研究</strong>：</p>
+<p>使用 CAPM 调整风险后，共同基金的平均 Alpha（超额收益）接近于零，甚至略为负值。</p>
+<p><span class="math display">\[
+\alpha = R_{fund} - [R_f + \beta(R_m - R_f)]
+\]</span></p>
+<p>研究发现： - 约 70% 的基金 Alpha 为负 - 平均 Alpha 约为 -1.1%（考虑费用后） - 过去的好业绩不能预测未来的好业绩</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>对投资者的含义
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果共同基金平均而言不能跑赢市场，支付高额管理费（通常 1-2%）就是不划算的。这解释了为什么低成本的被动指数基金（如 Vanguard 基金）在过去几十年中如此流行。</p>
+</div>
+</div>
+<p><strong>业绩持续性</strong></p>
+<p>一个自然的问题是：即使平均表现不佳，是否存在”明星基金经理”能够持续跑赢市场？</p>
+<p>研究表明： - 业绩的持续性很弱 - 今年排名靠前的基金，明年的排名与今年几乎无关 - 唯一持续的是：排名靠后的基金倾向于持续表现不佳（可能由于高费用）</p>
+</section>
+</section>
+<section id="行为金融学的挑战" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="行为金融学的挑战"><span class="header-section-number">8</span> 行为金融学的挑战</h2>
+<p>传统的有效市场假说建立在理性投资者的假设上。但心理学和行为经济学的研究表明，人类决策存在系统性的偏差。</p>
+<section id="过度自信overconfidence" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="过度自信overconfidence"><span class="header-section-number">8.1</span> 过度自信（Overconfidence）</h3>
+<p>投资者倾向于高估自己的能力和信息的准确性。这导致： - 过度交易——交易越多，扣除成本后收益越低 - 分散化不足——过于集中于自己”熟悉”的股票</p>
+</section>
+<section id="锚定效应anchoring" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="锚定效应anchoring"><span class="header-section-number">8.2</span> 锚定效应（Anchoring）</h3>
+<p>投资者的判断受到无关参照点的影响。例如： - 股票的”历史高点”成为一个心理锚 - 分析师在调整盈利预测时调整幅度不够</p>
+</section>
+<section id="损失厌恶loss-aversion" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="损失厌恶loss-aversion"><span class="header-section-number">8.3</span> 损失厌恶（Loss Aversion）</h3>
+<p>人们对损失的厌恶程度约是对同等金额收益的喜爱程度的两倍。这导致： - <strong>处置效应</strong>：投资者倾向于过早卖出盈利的股票，过晚卖出亏损的股票 - 这与理性的税收策略正好相反</p>
+</section>
+<section id="套利的局限性" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="套利的局限性"><span class="header-section-number">8.4</span> 套利的局限性</h3>
+<p>即使存在定价错误，<strong>套利</strong>也可能难以消除它们：</p>
+<ol type="1">
+<li><strong>基本面风险</strong>：你可能是对的，但市场可能继续错下去</li>
+<li><strong>噪音交易者风险</strong>：非理性投资者的行为可能使错误定价更严重</li>
+<li><strong>实施成本</strong>：做空成本高，有些股票难以做空</li>
+<li><strong>代理问题</strong>：基金经理可能因为短期业绩压力无法等待长期套利</li>
+</ol>
+<p>这些因素解释了为什么异象可能持续存在，而不会被套利消除。</p>
+</section>
+</section>
+<section id="对估值的含义" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="对估值的含义"><span class="header-section-number">9</span> 对估值的含义</h2>
+<p>作为估值从业者，我们应该如何看待市场有效性？</p>
+<section id="务实的立场" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="务实的立场"><span class="header-section-number">9.1</span> 务实的立场</h3>
+<p>完全的强式有效显然不成立——内部人确实能够获得超额收益。 完全的无效也不成立——随机选股的投资者并没有系统性地跑赢市场。</p>
+<p>一个务实的立场是：</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>市场有效性的实用观点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>市场在<strong>大部分时间对大部分股票</strong>是相当有效的，但并非<strong>总是对所有股票</strong>都有效。市场可能在某些时候、某些股票上出现定价错误，特别是：</p>
+<ul>
+<li>信息较少的小公司</li>
+<li>经历重大变化的公司</li>
+<li>市场情绪极端的时期</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="对估值实践的含义" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="对估值实践的含义"><span class="header-section-number">9.2</span> 对估值实践的含义</h3>
+<ol type="1">
+<li><p><strong>不要轻易假设市场错了</strong>：如果你的估值与市场价格相差甚远，首先应该问自己是否遗漏了什么，而不是假设市场是错的</p></li>
+<li><p><strong>关注边际收益</strong>：即使存在定价错误，发现它们的成本（研究时间、信息成本）也可能很高。要判断边际收益是否超过边际成本</p></li>
+<li><p><strong>理解你的比较优势</strong>：什么信息是你有而市场可能没有的？什么分析能力是你有而市场可能缺乏的？</p></li>
+<li><p><strong>保持谦逊</strong>：即使你的分析是对的，市场的错误也可能比你的耐心更持久</p></li>
+</ol>
+</section>
+</section>
+<section id="总结" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="总结"><span class="header-section-number">10</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>有效市场假说</strong>：价格反映所有可获得的信息，分为弱式、半强式、强式三种形式</li>
+<li><strong>联合假设问题</strong>：我们无法单独检验市场有效性——它总是与定价模型联合被检验</li>
+<li><strong>弱式有效性</strong>：大量证据支持——短期价格变动接近随机游走</li>
+<li><strong>半强式有效性</strong>：证据混合——事件研究大体支持，但存在一些异象</li>
+<li><strong>强式有效性</strong>：被拒绝——内部人和某些分析师能够获得超额收益</li>
+<li><strong>市场异象</strong>：规模效应、价值效应、动量效应等存在，但是否代表风险还是定价错误存在争议</li>
+<li><strong>行为金融</strong>：提供了理解市场无效的心理学基础，但也面临如何解释套利消除机制失效的问题</li>
+</ul>
+</div>
+</div>
+<p>本章我们回答了开头提出的问题：市场到底有多”聪明”？答案是：<strong>相当聪明，但不是完美的</strong>。</p>
+<p>对于估值实践者来说，关键的 takeaway 是：市场价格是一个有信息含量的基准，但不是神谕。你的估值分析应该与市场价格对话，而不是完全忽视它，也不是盲目接受它。</p>
+</section>
+<section id="思考题" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="思考题"><span class="header-section-number">11</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>检验设计</strong>：如果你想检验某个新闻事件（如 FDA 药物批准）后市场的反应速度，你会如何设计事件研究？需要注意哪些问题？</p></li>
+<li><p><strong>异象解读</strong>：规模效应和价值效应可以被 Fama-French 三因子模型”解释”。但这是否意味着这些不再是”异象”？风险调整和行为偏差如何区分？</p></li>
+<li><p><strong>套利局限</strong>：假设你发现了一个明显的定价错误——某公司的收盘价格低于其持有现金的价值。为什么这种错误可能持续存在？你会面临什么风险？</p></li>
+<li><p><strong>信息与价格</strong>：在一个完全有效的市场中，既然价格已经反映了所有信息，为什么还有人愿意花钱去收集和分析信息？这是 Grossman-Stiglitz（1980）悖论。你怎么看？</p></li>
+<li><p><strong>实践应用</strong>：作为一个估值分析师，市场有效性假说对你的工作有什么影响？你会如何处理”你的估值与市场价格不一致”的情况？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

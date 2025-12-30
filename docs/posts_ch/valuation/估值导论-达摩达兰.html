@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="深入理解估值的本质——为什么价格不等于价值？估值中的偏见、不确定性与复杂性如何影响我们的判断？本文基于 Damodaran 的经典著作，用教学导向的方式帮助你建立估值的思维框架。">
+
+<title>估值导论：从哲学基础到实践应用 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个根本问题开始" id="toc-从一个根本问题开始" class="nav-link active" data-scroll-target="#从一个根本问题开始"><span class="header-section-number">1</span> 从一个根本问题开始</a></li>
+  <li><a href="#估值的哲学基础" id="toc-估值的哲学基础" class="nav-link" data-scroll-target="#估值的哲学基础"><span class="header-section-number">2</span> 估值的哲学基础</a>
+  <ul class="collapse">
+  <li><a href="#王尔德的讽刺与投资的现实" id="toc-王尔德的讽刺与投资的现实" class="nav-link" data-scroll-target="#王尔德的讽刺与投资的现实"><span class="header-section-number">2.1</span> 王尔德的讽刺与投资的现实</a></li>
+  <li><a href="#健全投资的第一公理" id="toc-健全投资的第一公理" class="nav-link" data-scroll-target="#健全投资的第一公理"><span class="header-section-number">2.2</span> 健全投资的第一公理</a></li>
+  <li><a href="#估值的三要素框架" id="toc-估值的三要素框架" class="nav-link" data-scroll-target="#估值的三要素框架"><span class="header-section-number">2.3</span> 估值的三要素框架</a></li>
+  </ul></li>
+  <li><a href="#定价与估值你在玩哪一种游戏" id="toc-定价与估值你在玩哪一种游戏" class="nav-link" data-scroll-target="#定价与估值你在玩哪一种游戏"><span class="header-section-number">3</span> 定价与估值：你在玩哪一种游戏？</a>
+  <ul class="collapse">
+  <li><a href="#两个经常被混淆的概念" id="toc-两个经常被混淆的概念" class="nav-link" data-scroll-target="#两个经常被混淆的概念"><span class="header-section-number">3.1</span> 两个经常被混淆的概念</a></li>
+  <li><a href="#内在价值-vs-市场价格核心区别" id="toc-内在价值-vs-市场价格核心区别" class="nav-link" data-scroll-target="#内在价值-vs-市场价格核心区别"><span class="header-section-number">3.2</span> 内在价值 vs 市场价格：核心区别</a></li>
+  <li><a href="#投资者与交易者" id="toc-投资者与交易者" class="nav-link" data-scroll-target="#投资者与交易者"><span class="header-section-number">3.3</span> 投资者与交易者</a></li>
+  <li><a href="#为什么两边都要懂一点" id="toc-为什么两边都要懂一点" class="nav-link" data-scroll-target="#为什么两边都要懂一点"><span class="header-section-number">3.4</span> 为什么两边都要懂一点？</a></li>
+  </ul></li>
+  <li><a href="#估值的百慕大三角" id="toc-估值的百慕大三角" class="nav-link" data-scroll-target="#估值的百慕大三角"><span class="header-section-number">4</span> 估值的”百慕大三角”</a>
+  <ul class="collapse">
+  <li><a href="#三大挑战概览" id="toc-三大挑战概览" class="nav-link" data-scroll-target="#三大挑战概览"><span class="header-section-number">4.1</span> 三大挑战概览</a></li>
+  <li><a href="#偏见先验立场的力量" id="toc-偏见先验立场的力量" class="nav-link" data-scroll-target="#偏见先验立场的力量"><span class="header-section-number">4.2</span> 偏见：先验立场的力量</a></li>
+  <li><a href="#不确定性这是特性不是缺陷" id="toc-不确定性这是特性不是缺陷" class="nav-link" data-scroll-target="#不确定性这是特性不是缺陷"><span class="header-section-number">4.3</span> 不确定性：这是特性，不是缺陷</a></li>
+  <li><a href="#复杂性更大不等于更好" id="toc-复杂性更大不等于更好" class="nav-link" data-scroll-target="#复杂性更大不等于更好"><span class="header-section-number">4.4</span> 复杂性：更大不等于更好</a></li>
+  </ul></li>
+  <li><a href="#市场有效性做一个怀疑主义者" id="toc-市场有效性做一个怀疑主义者" class="nav-link" data-scroll-target="#市场有效性做一个怀疑主义者"><span class="header-section-number">5</span> 市场有效性：做一个怀疑主义者</a>
+  <ul class="collapse">
+  <li><a href="#一个引发强烈反应的概念" id="toc-一个引发强烈反应的概念" class="nav-link" data-scroll-target="#一个引发强烈反应的概念"><span class="header-section-number">5.1</span> 一个引发强烈反应的概念</a></li>
+  <li><a href="#估值的隐含假设" id="toc-估值的隐含假设" class="nav-link" data-scroll-target="#估值的隐含假设"><span class="header-section-number">5.2</span> 估值的隐含假设</a></li>
+  <li><a href="#两个阵营的内部矛盾" id="toc-两个阵营的内部矛盾" class="nav-link" data-scroll-target="#两个阵营的内部矛盾"><span class="header-section-number">5.3</span> 两个阵营的内部矛盾</a></li>
+  <li><a href="#怀疑主义者的立场" id="toc-怀疑主义者的立场" class="nav-link" data-scroll-target="#怀疑主义者的立场"><span class="header-section-number">5.4</span> 怀疑主义者的立场</a></li>
+  </ul></li>
+  <li><a href="#估值的应用场景" id="toc-估值的应用场景" class="nav-link" data-scroll-target="#估值的应用场景"><span class="header-section-number">6</span> 估值的应用场景</a>
+  <ul class="collapse">
+  <li><a href="#投资组合管理" id="toc-投资组合管理" class="nav-link" data-scroll-target="#投资组合管理"><span class="header-section-number">6.1</span> 投资组合管理</a></li>
+  <li><a href="#不同投资者类型与估值的关系" id="toc-不同投资者类型与估值的关系" class="nav-link" data-scroll-target="#不同投资者类型与估值的关系"><span class="header-section-number">6.2</span> 不同投资者类型与估值的关系</a></li>
+  <li><a href="#并购分析" id="toc-并购分析" class="nav-link" data-scroll-target="#并购分析"><span class="header-section-number">6.3</span> 并购分析</a></li>
+  <li><a href="#公司金融" id="toc-公司金融" class="nav-link" data-scroll-target="#公司金融"><span class="header-section-number">6.4</span> 公司金融</a></li>
+  </ul></li>
+  <li><a href="#总结把估值当作一种决策纪律" id="toc-总结把估值当作一种决策纪律" class="nav-link" data-scroll-target="#总结把估值当作一种决策纪律"><span class="header-section-number">7</span> 总结：把估值当作一种决策纪律</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">估值导论：从哲学基础到实践应用</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入理解估值的本质——为什么价格不等于价值？估值中的偏见、不确定性与复杂性如何影响我们的判断？本文基于 Damodaran 的经典著作，用教学导向的方式帮助你建立估值的思维框架。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年1月15日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个根本问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个根本问题开始"><span class="header-section-number">1</span> 从一个根本问题开始</h2>
+<p>让我们从一个看似简单却意义深远的问题开始：<strong>一个资产的价值从何而来？</strong></p>
+<p>每一个能在未来产生现金流的资产——无论是金融资产还是实物资产——都有其价值。这听起来像是废话，但它实际上蕴含了整个估值学科的核心逻辑。</p>
+<p>成功投资的关键不仅在于知道资产值多少钱，更在于理解<strong>这个价值是怎么来的</strong>。你可能会注意到，估值房地产和估值上市公司股票需要截然不同的信息和方法。但令人惊讶的是，不同资产估值技术之间的差异并不是最重要的——<strong>基本原则的高度相似性</strong>才是关键。</p>
+<p>本文的目标不是教你背诵模型，而是帮助你建立估值的”世界观”：你在估什么、你为什么会错、以及错了该怎么办。</p>
+</section>
+<section id="估值的哲学基础" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="估值的哲学基础"><span class="header-section-number">2</span> 估值的哲学基础</h2>
+<section id="王尔德的讽刺与投资的现实" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="王尔德的讽刺与投资的现实"><span class="header-section-number">2.1</span> 王尔德的讽刺与投资的现实</h3>
+<p>奥斯卡·王尔德曾讽刺愤世嫉俗者是”知道一切东西的价格，却不知道任何东西的价值”的人。这句话放到金融市场里，简直是对某些分析师和投资者的精准描述。</p>
+<p>市场上有相当多的人信奉”更大的傻瓜”理论：他们认为资产本身值多少钱并不重要，只要有一个愿意出更高价格的”更大的傻瓜”来接盘就行。</p>
+<p>这种策略或许能让你赚到一些钱，但它是一场危险的游戏。原因很简单：当你想卖出的时候，你<strong>无法保证</strong>那个愿意出更高价的傻瓜还在场。</p>
+</section>
+<section id="健全投资的第一公理" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="健全投资的第一公理"><span class="header-section-number">2.2</span> 健全投资的第一公理</h3>
+<p>这就引出了健全投资的第一公理：</p>
+<blockquote class="blockquote">
+<p><strong>投资者不应该为资产支付超过其价值的价格。</strong></p>
+</blockquote>
+<p>这句话听起来合乎逻辑、显而易见，但它在每一代投资者、每一个市场中都会被遗忘，然后在泡沫破裂后被痛苦地重新发现。</p>
+<p>你可能会问：价值难道不是”因人而异”吗？如果别人愿意付那个价格，不就说明那个价格是合理的吗？</p>
+<p>这种观点是危险的。当你投资的是一幅画或一座雕塑时，主观感知可能确实是唯一重要的东西。但金融资产不一样——人们购买股票、债券、房产，不是为了挂在墙上欣赏，而是为了它们<strong>预期产生的现金流</strong>。</p>
+<p>因此，对价值的感知最终必须能被现实支撑。这意味着：为任何资产支付的价格应该反映它预期产生的现金流。</p>
+</section>
+<section id="估值的三要素框架" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="估值的三要素框架"><span class="header-section-number">2.3</span> 估值的三要素框架</h3>
+<p>这个洞察引出了本书所有估值模型的理论基石。Damodaran 在书中明确指出：<strong>本书的估值模型，本质上都是把价值与以下三个因素建立联系：</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>要素</th>
+<th>说明</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>现金流的水平</strong></td>
+<td>资产当前能产生多少现金流</td>
+<td>公司现在赚多少钱？</td>
+</tr>
+<tr class="even">
+<td><strong>现金流的增长</strong></td>
+<td>未来现金流预期如何变化</td>
+<td>增长有多快？能持续多久？</td>
+</tr>
+<tr class="odd">
+<td><strong>现金流的风险</strong></td>
+<td>现金流的不确定性，决定折现率</td>
+<td>这些现金流有多”靠谱”？</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>估值的本质
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>无论估值模型看起来多复杂，它们最终都在回答同一个问题：</p>
+<p><strong>给定现金流的水平、增长和风险，这个资产应该值多少钱？</strong></p>
+<p>不同的估值方法只是在如何估计这三个要素、如何将它们组合成价值上有所不同。理解这一点，你就抓住了估值的本质。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="定价与估值你在玩哪一种游戏" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="定价与估值你在玩哪一种游戏"><span class="header-section-number">3</span> 定价与估值：你在玩哪一种游戏？</h2>
+<section id="两个经常被混淆的概念" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="两个经常被混淆的概念"><span class="header-section-number">3.1</span> 两个经常被混淆的概念</h3>
+<p>金融学者和实践者经常交替使用”价格”（price）和”价值”（value）这两个词。学者们受到有效市场假说的影响，认为两者应该趋同；实践者则习惯性地假设这两个词衡量的是同样的东西。</p>
+<p>但实际上，价值和价格由不同的因素决定，需要不同的分析工具。让我们用一个表格来对比：</p>
+</section>
+<section id="内在价值-vs-市场价格核心区别" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="内在价值-vs-市场价格核心区别"><span class="header-section-number">3.2</span> 内在价值 vs 市场价格：核心区别</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 42%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内在价值（Intrinsic Value）</th>
+<th>市场价格（Price）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>核心驱动因素</strong></td>
+<td>现有资产产生的现金流、现金流增长、增长质量</td>
+<td>市场情绪与动量、表面叙事、流动性</td>
+</tr>
+<tr class="even">
+<td><strong>分析方法</strong></td>
+<td>内在价值模型：预测未来现金流并调整风险后折现</td>
+<td>定价历史、“相似”或”可比”投资的定价</td>
+</tr>
+<tr class="odd">
+<td><strong>核心问题</strong></td>
+<td>这个资产<strong>应该</strong>值多少？</td>
+<td>市场<strong>愿意</strong>付多少？</td>
+</tr>
+<tr class="even">
+<td><strong>时间视角</strong></td>
+<td>长期导向</td>
+<td>可以是短期导向</td>
+</tr>
+<tr class="odd">
+<td><strong>关键假设</strong></td>
+<td>价值可以通过基本面分析衡量</td>
+<td>供需决定价格</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>价值与价格之间的鸿沟
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>内在价值和市场价格之间几乎总是存在差距。关键问题是：<strong>这个差距存在吗？它会收敛吗？</strong></p>
+<ul>
+<li>内在价值信徒认为：差距会收敛，价格最终会向价值回归</li>
+<li>交易者则利用这个差距的短期波动获利，不太关心长期收敛</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="投资者与交易者" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="投资者与交易者"><span class="header-section-number">3.3</span> 投资者与交易者</h3>
+<p>市场上有大量参与者——可能是大多数——并不是真正的”投资者”，而是选择玩”定价游戏”的”交易者”。</p>
+<p>在定价游戏中，获胜的定义很简单：低买高卖。交易者利用市场情绪和动量的变化获利，资产的内在价值在他们的决策中几乎不扮演角色。</p>
+<p>这不是说交易者的方法是错的。关键在于：<strong>你要清楚自己在玩哪一种游戏</strong>。</p>
+</section>
+<section id="为什么两边都要懂一点" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="为什么两边都要懂一点"><span class="header-section-number">3.4</span> 为什么两边都要懂一点？</h3>
+<p>这里有一个重要的洞察：无论你站在投资/定价鸿沟的哪一边，理解另一边的运作方式都会让你受益。</p>
+<ul>
+<li>如果你是内在价值的信徒，理解交易者如何定价资产会让你成为<strong>更好的估值者</strong>——你会明白为什么有时候价值看起来”对”，但价格就是不动</li>
+<li>如果你是交易者，学习投资者如何思考和估值公司会让你成为<strong>更好的交易者</strong>——你会更好地判断信息的分量</li>
+</ul>
+</section>
+</section>
+<section id="估值的百慕大三角" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="估值的百慕大三角"><span class="header-section-number">4</span> 估值的”百慕大三角”</h2>
+<p>就像传说中百慕大三角会让船只和飞机神秘消失一样，估值领域也有一个让分析师和投资者失去理性的”三角”。估值中最大的挑战不是技术性或机械性的，而是来自三个”人性因素”：</p>
+<section id="三大挑战概览" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="三大挑战概览"><span class="header-section-number">4.1</span> 三大挑战概览</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 32%">
+<col style="width: 46%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>挑战</th>
+<th>核心问题</th>
+<th>常见错误反应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>偏见（Bias）</strong></td>
+<td>先入为主的判断扭曲分析</td>
+<td>否认（Denial）、欺骗（Deception）、自我欺骗（Self-delusion）</td>
+</tr>
+<tr class="even">
+<td><strong>不确定性（Uncertainty）</strong></td>
+<td>未来本质上不可预测</td>
+<td>瘫痪（Paralysis）、外包决策（Outsourcing）、羊群效应（Herding）、心理账户（Mental accounting）</td>
+</tr>
+<tr class="odd">
+<td><strong>复杂性（Complexity）</strong></td>
+<td>数据和工具过于丰富</td>
+<td>困惑（Confusion）、被吓倒（Intimidation）、盲目信任模型（Blind faith in models）</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>百慕大三角的危害
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这三个因素解释了为什么在过去四十年里，尽管我们拥有了更多数据和更强大的工具，估值的质量反而在很多方面变得”更差”而非”更好”。</p>
+</div>
+</div>
+<p>让我们逐一深入探讨。</p>
+</section>
+<section id="偏见先验立场的力量" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="偏见先验立场的力量"><span class="header-section-number">4.2</span> 偏见：先验立场的力量</h3>
+<section id="为什么估值不是科学" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="为什么估值不是科学"><span class="header-section-number">4.2.1</span> 为什么估值不是科学？</h4>
+<p>估值既不是某些支持者所宣称的”科学”，也不是理想主义者希望的”对真实价值的客观搜寻”。</p>
+<p>我们在估值中使用的模型可能是定量的，但输入参数给主观判断留下了大量空间。因此，最终得到的价值会被我们带入过程的偏见所染色。</p>
+<p>更糟糕的是，在许多估值中，<strong>价格先被设定，估值随后跟进</strong>——分析师先有了结论，然后去找支持结论的数据和假设。</p>
+</section>
+<section id="偏见从哪里来" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="偏见从哪里来"><span class="header-section-number">4.2.2</span> 偏见从哪里来？</h4>
+<p>偏见可能来自你对公司产品或管理层的看法。</p>
+<p>举个例子：假设你是苹果产品的忠实用户，用了几十年。当你去估值苹果公司时，你会<strong>倾向于</strong>在看任何财务数据之前就认为苹果被低估。同样，如果你在 2024 年初估值特斯拉，你几乎不可能把你对特斯拉公司的看法和你对马斯克这个人的看法分开——而马斯克是一个会激发强烈正面或负面反应的人物。</p>
+</section>
+<section id="如何管理偏见" class="level4" data-number="4.2.3">
+<h4 data-number="4.2.3" class="anchored" data-anchor-id="如何管理偏见"><span class="header-section-number">4.2.3</span> 如何管理偏见？</h4>
+<p>你能完全消除偏见吗？答案是：<strong>不能</strong>。但你可以管理它：</p>
+<ol type="1">
+<li><strong>对自己坦诚</strong>：承认这些偏见的存在，这样在估计未来数字时可以有意识地对抗它们</li>
+<li><strong>避免过早表态</strong>：在估值完成前避免对公司价值做强烈的公开表态。一旦你公开说”这家公司被低估了”，你就很难客观地看待相反的证据</li>
+<li><strong>最小化利益关系</strong>：在估值前尽量减少你在结论上的利害关系</li>
+</ol>
+</section>
+<section id="机构性偏见" class="level4" data-number="4.2.4">
+<h4 data-number="4.2.4" class="anchored" data-anchor-id="机构性偏见"><span class="header-section-number">4.2.4</span> 机构性偏见</h4>
+<p>除了个人偏见，还有<strong>机构性偏见</strong>需要警惕。</p>
+<p>例如，股票研究分析师更可能发布买入建议而非卖出建议——买入建议和卖出建议的比例大约是 10:1。这是为什么？</p>
+<ul>
+<li>分析师在获取他们发出卖出建议的公司的信息时会面临困难</li>
+<li>来自持有该股票的投资组合经理的压力</li>
+<li>如果分析师的公司还承做投行业务，压力会更大</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>历史案例：1990 年代末的互联网泡沫
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>1990 年代末，新经济公司市值的非凡飙升让许多卖方股票研究分析师从”分析师”变成了这些股票的”啦啦队长”。虽然这些分析师的建议可能是善意的，但他们工作的投资银行正在主导这些公司的 IPO，这使他们面临偏见甚至更糟的指控。</p>
+<p>2001 年网络股崩盘后，有国会听证会、SEC 关于股票研究需要公正性的声明，投资银行也建立了”中国墙”来分隔投行人员和股票研究分析师。但偏见的真正来源——银行业务、交易和投资建议的混合——并没有被根本触及。</p>
+</div>
+</div>
+</section>
+<section id="作为消费者的教训" class="level4" data-number="4.2.5">
+<h4 data-number="4.2.5" class="anchored" data-anchor-id="作为消费者的教训"><span class="header-section-number">4.2.5</span> 作为消费者的教训</h4>
+<p>当你使用第三方的估值报告时，应该在做决策前考虑分析师的偏见。例如，一家被收购目标公司自己做的估值很可能是正向偏见的。这不意味着估值毫无价值，但意味着你应该带着怀疑的眼光来看待。</p>
+</section>
+</section>
+<section id="不确定性这是特性不是缺陷" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="不确定性这是特性不是缺陷"><span class="header-section-number">4.3</span> 不确定性：这是特性，不是缺陷</h3>
+<section id="更多信息不等于更确定" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="更多信息不等于更确定"><span class="header-section-number">4.3.1</span> 更多信息不等于更确定</h4>
+<p>人们普遍认为，对输入感到不确定时的答案是收集更多信息、做更多研究。</p>
+<p><strong>这不是真的。</strong></p>
+<p>即使在最仔细、最详细的估值结束时，仍然会存在关于最终数字的不确定性。为什么？因为它们被我们对公司和经济<strong>未来</strong>做出的假设所染色，而未来是不可预测的。</p>
+<p>现金流和折现率都是估计值，这些估计在事后来看会是错误的，因为现实世界会带来无法预见的惊喜。期望或要求估值的确定性是不现实的。</p>
+</section>
+<section id="不确定性的程度差异" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="不确定性的程度差异"><span class="header-section-number">4.3.2</span> 不确定性的程度差异</h4>
+<p>估值的精确程度在不同投资间差异很大：</p>
+<ul>
+<li>一家有长期财务历史的<strong>大型成熟公司</strong>的估值，通常比较精确</li>
+<li>一个处于动荡行业的<strong>年轻公司</strong>的估值，不确定性更高</li>
+<li>如果这家公司还在<strong>新兴市场</strong>运营，不确定性会进一步放大</li>
+</ul>
+<p>一个有用的思维框架是把估值难度与公司在生命周期中的位置联系起来：</p>
+<p><span class="math display">\[
+\text{估值难度} \propto \frac{1}{\text{公司成熟度}}
+\]</span></p>
+<p>成熟公司往往比成长公司更容易估值，而年轻的初创公司比有成熟产品和市场的公司更难估值。</p>
+</section>
+<section id="估值是进行中的工作" class="level4" data-number="4.3.3">
+<h4 data-number="4.3.3" class="anchored" data-anchor-id="估值是进行中的工作"><span class="header-section-number">4.3.3</span> 估值是进行中的工作</h4>
+<p>这里有一个很多人没有意识到的点：估值完成后，你可能会认为工作结束了。但实际上，<strong>估值是一项进行中的工作</strong>。</p>
+<p>从任何估值模型得到的价值会受到公司特定信息和市场范围信息的影响。当新信息披露时，这个价值会改变。信息可能是：</p>
+<ul>
+<li><strong>公司特定的</strong>：季度财报、管理层变动、新产品发布</li>
+<li><strong>行业层面的</strong>：竞争格局变化、监管政策调整</li>
+<li><strong>宏观层面的</strong>：通胀上升、利率变化、经济衰退、疫情、战争</li>
+</ul>
+<p>即使是做得最好的估值也会快速老化，必须更新以反映当前信息。</p>
+<p>当被批评改变立场时，经济学家凯恩斯有一句著名的回应：</p>
+<blockquote class="blockquote">
+<p>“当事实改变时，我改变我的想法。先生，您怎么做？”</p>
+</blockquote>
+</section>
+<section id="面对不确定性的错误反应" class="level4" data-number="4.3.4">
+<h4 data-number="4.3.4" class="anchored" data-anchor-id="面对不确定性的错误反应"><span class="header-section-number">4.3.4</span> 面对不确定性的错误反应</h4>
+<p>对估值最大的伤害来自分析师和投资者<strong>对不确定性的反应</strong>，而不是不确定性本身。常见的错误反应包括：</p>
+<ol type="1">
+<li><strong>否认</strong>：假装不确定性不存在，给出虚假的精确感</li>
+<li><strong>瘫痪</strong>：在危机期间停止估值公司，认为”现在估值没有意义”</li>
+<li><strong>推托</strong>：对年轻初创公司说”在不确定性面前估值毫无意义”</li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>关键洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>越是黑暗的时候，越是不确定性笼罩的时候，做估值的回报越大。即使是不精确的估值，也比完全不做估值要好！</p>
+</div>
+</div>
+</section>
+</section>
+<section id="复杂性更大不等于更好" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="复杂性更大不等于更好"><span class="header-section-number">4.4</span> 复杂性：更大不等于更好</h3>
+<section id="数据丰富的陷阱" class="level4" data-number="4.4.1">
+<h4 data-number="4.4.1" class="anchored" data-anchor-id="数据丰富的陷阱"><span class="header-section-number">4.4.1</span> 数据丰富的陷阱</h4>
+<p>几十年前，估值更简单，因为分析师别无选择：数据有限，工具原始。</p>
+<p>但现在情况不同了。数据访问变得更广泛、更轻松，工具也变得更强大。构建复杂的大模型变得越来越容易，抵制增加更多细节的诱惑变得越来越难。</p>
+<p>结果是，复杂性在估值中变成了常态而非例外：数百个行项目、层层细节、精细的假设。</p>
+</section>
+<section id="复杂性的三个陷阱" class="level4" data-number="4.4.2">
+<h4 data-number="4.4.2" class="anchored" data-anchor-id="复杂性的三个陷阱"><span class="header-section-number">4.4.2</span> 复杂性的三个陷阱</h4>
+<p>看起来让模型更完整、更复杂应该产生更好的估值。但实际上未必如此：</p>
+<ol type="1">
+<li><strong>输入错误风险增加</strong>：模型越复杂，需要的输入越多，输入错误的可能性就越高</li>
+<li><strong>黑箱问题</strong>：当模型变得如此复杂以至于成为”黑箱”——分析师在一端输入数字，估值从另一端出来——没人真正理解中间发生了什么</li>
+<li><strong>责任转移</strong>：估值失败时，责任往往被推给模型而不是分析师。“不是我的错，是模型干的。”</li>
+</ol>
+</section>
+<section id="三个重要原则" class="level4" data-number="4.4.3">
+<h4 data-number="4.4.3" class="anchored" data-anchor-id="三个重要原则"><span class="header-section-number">4.4.3</span> 三个重要原则</h4>
+<p>关于估值的复杂性，有三点需要牢记：</p>
+<p><strong>第一，简约原则（Parsimony）</strong></p>
+<blockquote class="blockquote">
+<p>不要使用超过绝对需要的输入来估值资产。</p>
+</blockquote>
+<p>如果你能用 5 个输入得到合理的估值，就不要用 50 个。</p>
+<p><strong>第二，收益与成本的权衡</strong></p>
+<p>建立更多细节有额外收益，但也有估计成本和错误风险。你需要认识到这种权衡的存在。</p>
+<p><strong>第三，人是估值主体</strong></p>
+<blockquote class="blockquote">
+<p>模型不会给公司估值——是<strong>你</strong>在估值。</p>
+</blockquote>
+<p>在一个信息过载的世界里，把重要的信息从不重要的信息中分离出来，几乎与你使用的估值模型和技术同等重要。</p>
+</section>
+</section>
+</section>
+<section id="市场有效性做一个怀疑主义者" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="市场有效性做一个怀疑主义者"><span class="header-section-number">5</span> 市场有效性：做一个怀疑主义者</h2>
+<section id="一个引发强烈反应的概念" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="一个引发强烈反应的概念"><span class="header-section-number">5.1</span> 一个引发强烈反应的概念</h3>
+<p>金融领域没有什么概念比”市场有效性”更容易引起投资者的强烈负面反应。</p>
+<p>在金融学科的早年，流行的观点是市场是有效的——这意味着主动投资没有意义，估值近乎无用。如果市场价格已经反映了所有可用信息，你凭什么能找到被低估的股票？</p>
+</section>
+<section id="估值的隐含假设" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="估值的隐含假设"><span class="header-section-number">5.2</span> 估值的隐含假设</h3>
+<p>有趣的是，进行估值的行为本身就隐含了一个假设：<strong>市场会犯错</strong>，而且我们能够发现这些错误——通常是使用成千上万其他投资者也能获取的信息。</p>
+<p>因此，似乎可以合理地说：</p>
+<ul>
+<li>相信市场无效的人应该把时间和资源花在估值上</li>
+<li>相信市场有效的人应该把市场价格作为价值的最佳估计</li>
+</ul>
+<p>但这个简单的二分法掩盖了两个阵营内部的矛盾。</p>
+</section>
+<section id="两个阵营的内部矛盾" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="两个阵营的内部矛盾"><span class="header-section-number">5.3</span> 两个阵营的内部矛盾</h3>
+<p><strong>有效市场信徒的矛盾</strong></p>
+<p>相信市场有效的人可能仍然觉得估值有其价值。例如，当他们需要估值公司运营方式变化的影响时，或者需要理解市场价格为什么随时间变化时。</p>
+<p>更重要的是，如果没有投资者尝试寻找被低估和高估的股票并据此交易，市场一开始怎么会变得有效呢？</p>
+<p>换句话说：<strong>市场有效的前提条件似乎是存在数百万相信市场无效的投资者</strong>。</p>
+<p><strong>无效市场信徒的矛盾</strong></p>
+<p>相信市场会犯错并据此买卖股票的人，必须相信市场<strong>最终会</strong>纠正这些错误（即变得有效），因为这是他们赚钱的方式。</p>
+<p>这是一个相当自私的定义：市场是无效的，直到你在你认为定价错误的股票上建立大仓位；但在你建仓后，它们就会变得有效了。</p>
+</section>
+<section id="怀疑主义者的立场" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="怀疑主义者的立场"><span class="header-section-number">5.4</span> 怀疑主义者的立场</h3>
+<p>最好的方法是以<strong>怀疑主义者</strong>的身份来处理市场有效性问题。</p>
+<p>认识到一方面市场会犯错，但另一方面，发现这些错误需要技能和运气的结合。</p>
+<p>这种立场导致两个实用的结论：</p>
+<ol type="1">
+<li><strong>如果某件事看起来好得不像真的</strong>——一只股票看起来明显被低估或高估——它可能不是真的</li>
+<li><strong>当你的估值与市场价格显著不同时</strong>，先假设市场是正确的。然后你必须努力说服自己市场错了，才能得出该股票被高估或低估的结论</li>
+</ol>
+<p>这个更高的标准可能会让你在跟进估值时更加谨慎。但考虑到击败市场的难度，这不是一个不好的结果。</p>
+</section>
+</section>
+<section id="估值的应用场景" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="估值的应用场景"><span class="header-section-number">6</span> 估值的应用场景</h2>
+<p>估值在金融的多个领域都很有用，但它在不同领域扮演的角色是不同的。</p>
+<section id="投资组合管理" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="投资组合管理"><span class="header-section-number">6.1</span> 投资组合管理</h3>
+<p>估值在投资组合管理中的角色取决于投资者的投资哲学。不同类型的投资者对估值的需求和使用方式截然不同：</p>
+</section>
+<section id="不同投资者类型与估值的关系" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="不同投资者类型与估值的关系"><span class="header-section-number">6.2</span> 不同投资者类型与估值的关系</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 25%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>投资者类型</th>
+<th>估值的角色</th>
+<th>关注重点</th>
+<th>核心假设</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>被动投资者</strong></td>
+<td>最小</td>
+<td>跟踪指数</td>
+<td>市场是有效的，主动投资不值得</td>
+</tr>
+<tr class="even">
+<td><strong>市场择时者</strong></td>
+<td>市场整体估值</td>
+<td>整体市场是高估还是低估</td>
+<td>市场走势可以预测</td>
+</tr>
+<tr class="odd">
+<td><strong>基本面分析师</strong></td>
+<td>核心</td>
+<td>个股的内在价值 vs 市场价格</td>
+<td>价值与财务因素的关系可衡量且稳定</td>
+</tr>
+<tr class="even">
+<td><strong>特许经营买家</strong></td>
+<td>关键</td>
+<td>自己理解的业务的价值</td>
+<td>深度理解业务能带来更准确的估值</td>
+</tr>
+<tr class="odd">
+<td><strong>图表分析师</strong></td>
+<td>辅助</td>
+<td>支撑线和阻力线</td>
+<td>价格走势有可预测的模式</td>
+</tr>
+<tr class="even">
+<td><strong>信息交易者</strong></td>
+<td>间接</td>
+<td>信息如何改变价值</td>
+<td>能够预判信息发布和市场反应</td>
+</tr>
+<tr class="odd">
+<td><strong>有效市场信徒</strong></td>
+<td>诊断性</td>
+<td>理解市场定价的隐含假设</td>
+<td>市场价格是价值的最佳估计</td>
+</tr>
+</tbody>
+</table>
+<p><strong>基本面分析的核心逻辑</strong></p>
+<p>基本面分析认为：公司的真实价值可以与其财务特征相关联——增长前景、风险状况和现金流。任何与这个真实价值的偏离都表明股票被低估或高估。</p>
+<p>这是一种长期投资策略，基础假设是： - 价值与财务因素之间的关系可以被衡量 - 这种关系随时间稳定 - 偏离会在合理时间内被纠正</p>
+<p><strong>特许经营买家的哲学</strong></p>
+<p>沃伦·巴菲特的投资哲学是特许经营买家的最佳代表：</p>
+<blockquote class="blockquote">
+<p>“我们尽量坚持我们相信自己理解的业务。这意味着它们必须相对简单且性质稳定。如果一个业务复杂且不断变化，我们不够聪明，无法预测未来现金流。”</p>
+</blockquote>
+<p>特许经营买家专注于他们<strong>真正理解</strong>的少数几个业务，并试图以低于内在价值的价格收购。他们还关心通过改善经营能创造多少额外价值。</p>
+</section>
+<section id="并购分析" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="并购分析"><span class="header-section-number">6.3</span> 并购分析</h3>
+<p>估值应该在并购分析中扮演核心角色——尽管实际上往往并非如此。</p>
+<ul>
+<li><strong>收购方</strong>必须在出价前决定目标公司的公允价值</li>
+<li><strong>目标公司</strong>必须在决定接受或拒绝报价前确定自己的合理价值</li>
+</ul>
+<section id="并购估值的特殊考量" class="level4" data-number="6.3.1">
+<h4 data-number="6.3.1" class="anchored" data-anchor-id="并购估值的特殊考量"><span class="header-section-number">6.3.1</span> 并购估值的特殊考量</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 25%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>考量因素</th>
+<th>说明</th>
+<th>常见陷阱</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>协同效应（Synergy）</strong></td>
+<td>两家公司合并后的价值可能大于各自价值之和</td>
+<td>认为协同效应”无法量化”而忽略——这是错误的，它可以且应该被估值</td>
+</tr>
+<tr class="even">
+<td><strong>控制权价值（Value of Control）</strong></td>
+<td>更换管理层、重组公司对价值的影响</td>
+<td>在敌意收购中尤其重要，但常被低估</td>
+</tr>
+<tr class="odd">
+<td><strong>偏见问题</strong></td>
+<td>利益冲突导致估值失真</td>
+<td>目标公司高估自己以抵抗收购；收购方为完成交易而高估目标</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>并购中的偏见陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在并购中，估值的偏见问题比一般投资更严重：</p>
+<ul>
+<li><strong>目标公司</strong>：倾向于高估自己的价值，尤其在敌意收购中试图说服股东报价太低</li>
+<li><strong>收购方</strong>：如果已经出于战略原因决定收购，分析师会面临压力，被迫得出支持收购的估值结果</li>
+<li><strong>投行</strong>：薪酬与交易是否完成挂钩，而非交易是否合理定价，导致目标公司估值被向上偏置</li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+<section id="公司金融" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="公司金融"><span class="header-section-number">6.4</span> 公司金融</h3>
+<p>如果公司金融的目标是公司价值最大化，那么财务决策和公司价值之间的关系必须被清楚地理解。</p>
+<p>公司的价值可以直接与它做出的决策相关联： - 它承担哪些项目 - 它如何融资这些项目 - 它的股利政策是什么</p>
+<p>理解这种关系是做出增加价值的决策和明智的财务重组的关键。</p>
+<p><strong>简而言之：如果不理解估值，很难做出好的公司金融决策。</strong></p>
+</section>
+</section>
+<section id="总结把估值当作一种决策纪律" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结把估值当作一种决策纪律"><span class="header-section-number">7</span> 总结：把估值当作一种决策纪律</h2>
+<p>估值在金融的许多领域都扮演关键角色——在公司金融、并购和投资组合管理中。</p>
+<p>但本文中讨论的警告值得重复：</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>估值不是客观的练习</strong>：你带入过程的任何先入之见和偏见都会进入最终的价值</li>
+<li><strong>即使是最好的估值也只是一个估计值</strong>：你的评估有相当大的可能是错误的</li>
+<li><strong>不确定性是特性，不是缺陷</strong>：学会与之共处，用统计和概率工具来管理它</li>
+<li><strong>简约优于复杂</strong>：只使用必要的输入，抵制增加不必要细节的诱惑</li>
+<li><strong>做一个怀疑主义者</strong>：既尊重市场，又保持批判性思维</li>
+</ol>
+</div>
+</div>
+<p>把估值当作一种<strong>决策纪律</strong>来培养。它的价值不在于给你一个”正确答案”，而在于帮助你把模糊的”看法”转化为具体的现金流假设和风险评估，从而做出更理性的投资和财务决策。</p>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p>你能区分”投资者”和”交易者”吗？你自己更接近哪一种？这对你应该如何使用估值有什么影响？</p></li>
+<li><p>回想你最近做过的一个投资决策。你能识别出哪些偏见可能影响了你的判断？这些偏见是个人的还是机构性的？</p></li>
+<li><p>假设你估值一家初创公司，使用不同的假设得到的价值范围从 5000 万到 2 亿美元。这个巨大的范围说明了什么？你会如何处理这种不确定性？</p></li>
+<li><p>“模型越复杂，估值越准确”——你同意这个观点吗？为什么？</p></li>
+<li><p>当你的估值比市场价格低 50% 时，你的第一反应应该是什么？为什么？</p></li>
+</ol>
+<hr>
+<p><em>本文基于 Aswath Damodaran《Investment Valuation》第 1 章的内容进行教学化改写。Damodaran 教授是纽约大学斯特恩商学院的金融学教授，被誉为”估值大师”。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

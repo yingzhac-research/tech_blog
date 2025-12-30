@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="理解三种估值方法的逻辑基础：内在估值（DCF）寻找资产的’真实价值’，相对估值借助市场定价，期权估值捕捉不确定性中的价值。">
+
+<title>估值方法论：DCF、相对估值与实物期权（Damodaran 第 2 章） – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#三种估值方法全景图" id="toc-三种估值方法全景图" class="nav-link" data-scroll-target="#三种估值方法全景图"><span class="header-section-number">2</span> 三种估值方法：全景图</a></li>
+  <li><a href="#内在估值dcf-的逻辑基础" id="toc-内在估值dcf-的逻辑基础" class="nav-link" data-scroll-target="#内在估值dcf-的逻辑基础"><span class="header-section-number">3</span> 内在估值：DCF 的逻辑基础</a>
+  <ul class="collapse">
+  <li><a href="#现值法则估值的第一性原理" id="toc-现值法则估值的第一性原理" class="nav-link" data-scroll-target="#现值法则估值的第一性原理"><span class="header-section-number">3.1</span> 现值法则：估值的第一性原理</a></li>
+  <li><a href="#理解内在价值" id="toc-理解内在价值" class="nav-link" data-scroll-target="#理解内在价值"><span class="header-section-number">3.2</span> 理解”内在价值”</a></li>
+  <li><a href="#dcf-模型的两条路径" id="toc-dcf-模型的两条路径" class="nav-link" data-scroll-target="#dcf-模型的两条路径"><span class="header-section-number">3.3</span> DCF 模型的两条路径</a></li>
+  <li><a href="#一致性原则不要混淆现金流和折现率" id="toc-一致性原则不要混淆现金流和折现率" class="nav-link" data-scroll-target="#一致性原则不要混淆现金流和折现率"><span class="header-section-number">3.4</span> 一致性原则：不要混淆现金流和折现率</a></li>
+  <li><a href="#案例现金流与折现率的匹配" id="toc-案例现金流与折现率的匹配" class="nav-link" data-scroll-target="#案例现金流与折现率的匹配"><span class="header-section-number">3.5</span> 案例：现金流与折现率的匹配</a></li>
+  <li><a href="#资本成本法-vs-apv-法如何处理债务的影响" id="toc-资本成本法-vs-apv-法如何处理债务的影响" class="nav-link" data-scroll-target="#资本成本法-vs-apv-法如何处理债务的影响"><span class="header-section-number">3.6</span> 资本成本法 vs APV 法：如何处理债务的影响？</a></li>
+  <li><a href="#总现金流模型-vs-超额收益模型" id="toc-总现金流模型-vs-超额收益模型" class="nav-link" data-scroll-target="#总现金流模型-vs-超额收益模型"><span class="header-section-number">3.7</span> 总现金流模型 vs 超额收益模型</a></li>
+  <li><a href="#一个简单的现金流测试" id="toc-一个简单的现金流测试" class="nav-link" data-scroll-target="#一个简单的现金流测试"><span class="header-section-number">3.8</span> 一个简单的现金流测试</a></li>
+  <li><a href="#dcf-的适用性和局限性" id="toc-dcf-的适用性和局限性" class="nav-link" data-scroll-target="#dcf-的适用性和局限性"><span class="header-section-number">3.9</span> DCF 的适用性和局限性</a></li>
+  </ul></li>
+  <li><a href="#相对估值市场怎么给类似资产定价" id="toc-相对估值市场怎么给类似资产定价" class="nav-link" data-scroll-target="#相对估值市场怎么给类似资产定价"><span class="header-section-number">4</span> 相对估值：市场怎么给类似资产定价？</a>
+  <ul class="collapse">
+  <li><a href="#定价的逻辑基础" id="toc-定价的逻辑基础" class="nav-link" data-scroll-target="#定价的逻辑基础"><span class="header-section-number">4.1</span> 定价的逻辑基础</a></li>
+  <li><a href="#相对估值的假设" id="toc-相对估值的假设" class="nav-link" data-scroll-target="#相对估值的假设"><span class="header-section-number">4.2</span> 相对估值的假设</a></li>
+  <li><a href="#基于基本面-vs-基于可比公司" id="toc-基于基本面-vs-基于可比公司" class="nav-link" data-scroll-target="#基于基本面-vs-基于可比公司"><span class="header-section-number">4.3</span> 基于基本面 vs 基于可比公司</a></li>
+  <li><a href="#横截面比较-vs-时间序列比较" id="toc-横截面比较-vs-时间序列比较" class="nav-link" data-scroll-target="#横截面比较-vs-时间序列比较"><span class="header-section-number">4.4</span> 横截面比较 vs 时间序列比较</a></li>
+  <li><a href="#相对估值的优缺点" id="toc-相对估值的优缺点" class="nav-link" data-scroll-target="#相对估值的优缺点"><span class="header-section-number">4.5</span> 相对估值的优缺点</a></li>
+  <li><a href="#案例可比公司选择的主观性" id="toc-案例可比公司选择的主观性" class="nav-link" data-scroll-target="#案例可比公司选择的主观性"><span class="header-section-number">4.6</span> 案例：可比公司选择的主观性</a></li>
+  </ul></li>
+  <li><a href="#或有索赔估值不确定性本身有价值" id="toc-或有索赔估值不确定性本身有价值" class="nav-link" data-scroll-target="#或有索赔估值不确定性本身有价值"><span class="header-section-number">5</span> 或有索赔估值：不确定性本身有价值</a>
+  <ul class="collapse">
+  <li><a href="#期权思维的核心洞察" id="toc-期权思维的核心洞察" class="nav-link" data-scroll-target="#期权思维的核心洞察"><span class="header-section-number">5.1</span> 期权思维的核心洞察</a></li>
+  <li><a href="#期权的基本类型" id="toc-期权的基本类型" class="nav-link" data-scroll-target="#期权的基本类型"><span class="header-section-number">5.2</span> 期权的基本类型</a></li>
+  <li><a href="#金融期权-vs-实物期权" id="toc-金融期权-vs-实物期权" class="nav-link" data-scroll-target="#金融期权-vs-实物期权"><span class="header-section-number">5.3</span> 金融期权 vs 实物期权</a></li>
+  <li><a href="#实物期权的例子" id="toc-实物期权的例子" class="nav-link" data-scroll-target="#实物期权的例子"><span class="header-section-number">5.4</span> 实物期权的例子</a></li>
+  <li><a href="#期权估值的局限性" id="toc-期权估值的局限性" class="nav-link" data-scroll-target="#期权估值的局限性"><span class="header-section-number">5.5</span> 期权估值的局限性</a></li>
+  <li><a href="#期权估值的适用场景" id="toc-期权估值的适用场景" class="nav-link" data-scroll-target="#期权估值的适用场景"><span class="header-section-number">5.6</span> 期权估值的适用场景</a></li>
+  </ul></li>
+  <li><a href="#三种方法的比较与选择" id="toc-三种方法的比较与选择" class="nav-link" data-scroll-target="#三种方法的比较与选择"><span class="header-section-number">6</span> 三种方法的比较与选择</a>
+  <ul class="collapse">
+  <li><a href="#方法之间的关系" id="toc-方法之间的关系" class="nav-link" data-scroll-target="#方法之间的关系"><span class="header-section-number">6.1</span> 方法之间的关系</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">7</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">估值方法论：DCF、相对估值与实物期权（Damodaran 第 2 章）</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    理解三种估值方法的逻辑基础：内在估值（DCF）寻找资产的’真实价值’，相对估值借助市场定价，期权估值捕捉不确定性中的价值。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月30日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你手上有一家公司需要估值。你会怎么做？</p>
+<p>你可能想到的第一个方法是：预测未来现金流，然后折现——这就是经典的 DCF（Discounted Cash Flow）方法。但你也可能听说过另一种做法：找几家类似的公司，看看它们的市盈率（P/E），然后套用到你的公司上。还有一种更”高级”的方法：把公司的某些资产看作期权来估值。</p>
+<p>这三种方法听起来完全不同，但它们之间是什么关系？什么时候该用哪一种？它们会给出相同的答案吗？</p>
+<p>本章将系统性地回答这些问题。我们会发现：三种方法并非完全独立，理解它们的逻辑基础和适用条件，比机械地套用公式重要得多。</p>
+<hr>
+</section>
+<section id="三种估值方法全景图" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="三种估值方法全景图"><span class="header-section-number">2</span> 三种估值方法：全景图</h2>
+<p>在具体讨论之前，让我们先建立一个全局视角。估值方法可以分为三大类：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>核心问题</th>
+<th>核心逻辑</th>
+<th>常见形式</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>内在估值</strong></td>
+<td>资产本身值多少？</td>
+<td>价值 = 未来现金流的现值</td>
+<td>DCF、股利折现模型</td>
+</tr>
+<tr class="even">
+<td><strong>相对估值</strong></td>
+<td>市场给类似资产什么价？</td>
+<td>比较同类资产的定价倍数</td>
+<td>P/E、EV/EBITDA、P/B</td>
+</tr>
+<tr class="odd">
+<td><strong>期权估值</strong></td>
+<td>不确定性本身值多少？</td>
+<td>价值 = 或有收益的期权价值</td>
+<td>Black-Scholes、二叉树</td>
+</tr>
+</tbody>
+</table>
+<p>你可能会问：为什么需要三种方法？一种不够吗？</p>
+<p>原因在于：不同的方法基于不同的假设，适用于不同的场景。更重要的是，理解 DCF 是理解其他方法的基础——相对估值的倍数最终可以追溯到 DCF 的逻辑，期权估值也常常需要先做一个 DCF 作为起点。</p>
+<hr>
+</section>
+<section id="内在估值dcf-的逻辑基础" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="内在估值dcf-的逻辑基础"><span class="header-section-number">3</span> 内在估值：DCF 的逻辑基础</h2>
+<section id="现值法则估值的第一性原理" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="现值法则估值的第一性原理"><span class="header-section-number">3.1</span> 现值法则：估值的第一性原理</h3>
+<p>内在估值（Intrinsic Valuation）的核心思想可以用一句话概括：</p>
+<blockquote class="blockquote">
+<p><strong>任何资产的价值，等于其预期未来现金流的现值。</strong></p>
+</blockquote>
+<p>这不是一个”方法”，而是一个”定义”。无论资产是股票、债券、房产还是一个项目，只要它在未来能产生现金流，它就有价值，而这个价值等于：</p>
+<p><span class="math display">\[
+\text{资产价值} = \sum_{t=1}^{n} \frac{E(\text{现金流}_t)}{(1+r)^t}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(E(\text{现金流}_t)\)</span> 是第 <span class="math inline">\(t\)</span> 期的预期现金流</li>
+<li><span class="math inline">\(r\)</span> 是反映风险的折现率</li>
+<li><span class="math inline">\(n\)</span> 是资产的寿命</li>
+</ul>
+<p>这个公式的直觉是：<strong>今天的一块钱比明天的一块钱更值钱</strong>（时间价值），而且<strong>确定的一块钱比不确定的一块钱更值钱</strong>（风险溢价）。</p>
+</section>
+<section id="理解内在价值" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="理解内在价值"><span class="header-section-number">3.2</span> 理解”内在价值”</h3>
+<p>什么是内在价值（Intrinsic Value）？这是一个有点哲学意味的概念。</p>
+<p>Damodaran 给出了一个务实的定义：内在价值是一个<strong>无偏分析师</strong>会给出的估值——这个分析师准确估计了公司的预期现金流，并使用了正确的折现率。</p>
+<p>你可能会说：这听起来不可能做到啊！没错，估计内在价值本身就充满不确定性，尤其是对于年轻的、现金流难以预测的公司。但这不意味着我们应该放弃。为什么？</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>为什么要坚持估计内在价值？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>市场会犯错。</strong> 虽然市场价格可能偏离内在价值，但我们期望两者最终会趋同。做内在估值的回报来自于：当市场纠正错误时，你已经站在了正确的一边。</p>
+</div>
+</div>
+</section>
+<section id="dcf-模型的两条路径" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="dcf-模型的两条路径"><span class="header-section-number">3.3</span> DCF 模型的两条路径</h3>
+<p>在实际应用中，DCF 可以从两个角度进行：</p>
+<p><strong>路径一：股权估值（Equity Valuation）</strong></p>
+<p>只关注属于股东的现金流，用股权成本（Cost of Equity）折现：</p>
+<p><span class="math display">\[
+\text{股权价值} = \sum_{t=1}^{\infty} \frac{E(\text{股权现金流}_t)}{(1+k_e)^t}
+\]</span></p>
+<p>股权现金流是什么？是公司在支付所有费用、再投资需求、税款<strong>和债务相关支出</strong>之后，剩余给股东的现金。股利折现模型（Dividend Discount Model）是这种方法的特例。</p>
+<p><strong>路径二：公司估值（Firm Valuation）</strong></p>
+<p>关注整个公司的现金流（支付给所有资本提供者之前的现金流），用加权平均资本成本（WACC）折现：</p>
+<p><span class="math display">\[
+\text{公司价值} = \sum_{t=1}^{\infty} \frac{E(\text{公司现金流}_t)}{(1+k_c)^t}
+\]</span></p>
+<p>公司现金流是什么？是公司在支付运营费用、再投资需求和税款之后，<strong>但在支付债务利息和本金之前</strong>的现金流——也叫自由现金流（Free Cash Flow to Firm, FCFF）。</p>
+<p>这两条路径的关系可以用下图理解：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    公司价值 (Firm Value)                     │
+│    现金流：税后、再投资后、债务支付前                         │
+│    折现率：WACC（加权平均资本成本）                           │
+├─────────────────────────────────────────────────────────────┤
+│         债务价值              │         股权价值              │
+│    (Debt Value)              │    (Equity Value)            │
+│    = 公司价值 - 股权价值      │    = 公司价值 - 债务价值      │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="一致性原则不要混淆现金流和折现率" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="一致性原则不要混淆现金流和折现率"><span class="header-section-number">3.4</span> 一致性原则：不要混淆现金流和折现率</h3>
+<p>这里有一个非常重要的原则：<strong>现金流和折现率必须匹配</strong>。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>最常见的 DCF 错误
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>错误 1</strong>：用 WACC 折现股权现金流 → 高估股权价值</li>
+<li><strong>错误 2</strong>：用股权成本折现公司现金流 → 低估公司价值</li>
+</ul>
+<p>这两个错误非常容易犯，因为它们的结果看起来”合理”，但实际上严重偏离了真实价值。</p>
+</div>
+</div>
+<p>让我们用一个具体的数值例子来说明。</p>
+</section>
+<section id="案例现金流与折现率的匹配" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="案例现金流与折现率的匹配"><span class="header-section-number">3.5</span> 案例：现金流与折现率的匹配</h3>
+<p>假设一家公司未来 5 年的现金流预测如下：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>股权现金流</th>
+<th>税后利息</th>
+<th>公司现金流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>$50</td>
+<td>$40</td>
+<td>$90</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>$60</td>
+<td>$40</td>
+<td>$100</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>$68</td>
+<td>$40</td>
+<td>$108</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>$76.20</td>
+<td>$40</td>
+<td>$116.20</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>$83.49</td>
+<td>$40</td>
+<td>$123.49</td>
+</tr>
+<tr class="even">
+<td>终值</td>
+<td>$1,603</td>
+<td>—</td>
+<td>$2,363</td>
+</tr>
+</tbody>
+</table>
+<p>已知条件：</p>
+<ul>
+<li>股权成本 <span class="math inline">\(k_e = 13.625\%\)</span></li>
+<li>税前债务成本 = 10%，税率 = 50%，税后债务成本 = 5%</li>
+<li>股权市值 = $1,073，债务市值 = $800</li>
+</ul>
+<p>首先，计算 WACC：</p>
+<p><span class="math display">\[
+\text{WACC} = 13.625\% \times \frac{1073}{1873} + 5\% \times \frac{800}{1873} = 9.94\%
+\]</span></p>
+<p><strong>正确方法 1：股权现金流用股权成本折现</strong></p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{50}{1.13625} + \frac{60}{1.13625^2} + \frac{68}{1.13625^3} + \frac{76.2}{1.13625^4} + \frac{83.49 + 1603}{1.13625^5} = \$1,073
+\]</span></p>
+<p><strong>正确方法 2：公司现金流用 WACC 折现</strong></p>
+<p><span class="math display">\[
+\text{公司价值} = \frac{90}{1.0994} + \frac{100}{1.0994^2} + \frac{108}{1.0994^3} + \frac{116.2}{1.0994^4} + \frac{123.49 + 2363}{1.0994^5} = \$1,873
+\]</span></p>
+<p><span class="math display">\[
+\text{股权价值} = \$1,873 - \$800 = \$1,073
+\]</span></p>
+<p>两种方法得到的股权价值完全一致！</p>
+<p><strong>错误示范 1：用 WACC 折现股权现金流</strong></p>
+<p><span class="math display">\[
+\text{"股权价值"} = \frac{50}{1.0994} + \cdots + \frac{83.49 + 1603}{1.0994^5} = \$1,248
+\]</span></p>
+<p>高估了 $175！</p>
+<p><strong>错误示范 2：用股权成本折现公司现金流</strong></p>
+<p><span class="math display">\[
+\text{"公司价值"} = \frac{90}{1.13625} + \cdots + \frac{123.49 + 2363}{1.13625^5} = \$1,613
+\]</span></p>
+<p><span class="math display">\[
+\text{"股权价值"} = \$1,613 - \$800 = \$813
+\]</span></p>
+<p>低估了 $260！</p>
+</section>
+<section id="资本成本法-vs-apv-法如何处理债务的影响" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="资本成本法-vs-apv-法如何处理债务的影响"><span class="header-section-number">3.6</span> 资本成本法 vs APV 法：如何处理债务的影响？</h3>
+<p>债务对公司价值有两个相反的影响：</p>
+<ul>
+<li><strong>正面</strong>：利息可以抵税，降低税负（税盾效应）</li>
+<li><strong>负面</strong>：债务增加破产风险</li>
+</ul>
+<p>在<strong>资本成本法</strong>（Cost of Capital Approach）中，这些影响被整合到折现率里：</p>
+<p><span class="math display">\[
+\text{WACC} = k_e \times \frac{E}{D+E} + k_d \times (1-t) \times \frac{D}{D+E}
+\]</span></p>
+<p>如果税盾效应大于破产成本，更多债务会降低 WACC，从而提高公司价值。</p>
+<p>在<strong>调整现值法</strong>（APV, Adjusted Present Value）中，我们把这些影响分开计算：</p>
+<p><span class="math display">\[
+\text{公司价值} = \text{全股权融资时的价值} + \text{税盾现值} - \text{破产成本现值}
+\]</span></p>
+<p>两种方法在假设一致时会给出相同的答案。APV 的优势在于它让债务的影响更加透明。</p>
+</section>
+<section id="总现金流模型-vs-超额收益模型" class="level3" data-number="3.7">
+<h3 data-number="3.7" class="anchored" data-anchor-id="总现金流模型-vs-超额收益模型"><span class="header-section-number">3.7</span> 总现金流模型 vs 超额收益模型</h3>
+<p>还有一种重要的区分：</p>
+<ul>
+<li><strong>总现金流模型</strong>：价值 = 所有现金流的现值</li>
+<li><strong>超额收益模型</strong>：价值 = 投资成本 + 超额收益的现值</li>
+</ul>
+<p>让我们用一个例子来说明。假设你投资 $100 百万，每年产生 $12 百万的税后现金流，资本成本是 10%。</p>
+<p><strong>总现金流方法：</strong></p>
+<p><span class="math display">\[
+\text{价值} = \frac{\$12\text{百万}}{0.10} = \$120\text{百万}
+\]</span></p>
+<p><strong>超额收益方法：</strong></p>
+<p>首先计算超额收益：</p>
+<p><span class="math display">\[
+\text{超额收益} = \$12\text{百万} - 0.10 \times \$100\text{百万} = \$2\text{百万}
+\]</span></p>
+<p>然后：</p>
+<p><span class="math display">\[
+\text{价值} = \frac{\$2\text{百万}}{0.10} + \$100\text{百万} = \$120\text{百万}
+\]</span></p>
+<p>结果完全相同！但超额收益模型有一个重要的教学意义：</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>超额收益模型的洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>不是赚钱本身创造价值，而是赚取超过资本成本的收益才创造价值。</strong></p>
+<p>如果一个项目的回报率刚好等于资本成本，它的价值就等于投入的资本，既不创造也不毁灭价值。</p>
+</div>
+</div>
+</section>
+<section id="一个简单的现金流测试" class="level3" data-number="3.8">
+<h3 data-number="3.8" class="anchored" data-anchor-id="一个简单的现金流测试"><span class="header-section-number">3.8</span> 一个简单的现金流测试</h3>
+<p>如何判断你在处理的是股权现金流还是公司现金流？</p>
+<ul>
+<li>如果现金流是在<strong>利息和本金支付之后</strong>计算的 → 股权现金流 → 用股权成本折现</li>
+<li>如果现金流是在<strong>利息和本金支付之前</strong>计算的 → 公司现金流 → 用 WACC 折现</li>
+</ul>
+<p>更具体地说：</p>
+<ul>
+<li>股权现金流通常从<strong>净利润</strong>开始（已扣除利息）</li>
+<li>公司现金流通常从<strong>营业利润</strong>或 <strong>EBIT</strong> 开始（未扣除利息）</li>
+</ul>
+</section>
+<section id="dcf-的适用性和局限性" class="level3" data-number="3.9">
+<h3 data-number="3.9" class="anchored" data-anchor-id="dcf-的适用性和局限性"><span class="header-section-number">3.9</span> DCF 的适用性和局限性</h3>
+<p>DCF 在以下情况下最容易应用：</p>
+<ul>
+<li>公司有正的、可预测的现金流</li>
+<li>有可靠的风险代理（如 beta）来估计折现率</li>
+</ul>
+<p>但现实中很多公司不符合这个”理想状态”。让我们看看几种具有挑战性的情况：</p>
+<p><strong>亏损公司（Money-Losing Firms）</strong></p>
+<p>当公司持续亏损时，预测未来现金流变得困难，因为存在破产风险。即使公司能存活，也需要估计现金流何时转正。对于预期会失败的公司，DCF 会高估价值，因为它假设公司是持续经营的。</p>
+<p><strong>周期性公司（Cyclical Firms）</strong></p>
+<p>周期性公司的现金流随经济周期波动。在衰退期，它们看起来像困境公司。估值时通常需要”平滑”现金流预测，这就引入了分析师对经济周期的判断。</p>
+<p><strong>拥有闲置资产的公司</strong></p>
+<p>DCF 只反映产生现金流的资产的价值。如果公司有闲置的土地、设备或专利，这些资产的价值不会体现在 DCF 中。解决方法是单独估值这些资产，然后加到 DCF 结果上。</p>
+<p><strong>拥有专利或产品期权的公司</strong></p>
+<p>专利可能暂时不产生现金流，但它代表了一种”选择权”——在有利条件下可以开发利用。传统 DCF 会低估这类公司。这时需要用期权定价方法补充。</p>
+<p><strong>正在重组的公司</strong></p>
+<p>重组公司可能在出售资产、收购新业务、改变资本结构。历史数据变得不可靠。需要基于重组后的预期来估值。</p>
+<p><strong>并购中的目标公司</strong></p>
+<p>需要额外考虑两个因素：协同效应的价值，以及更换管理层带来的控制权价值。</p>
+<p><strong>私有公司</strong></p>
+<p>最大的挑战是风险衡量——大多数风险模型需要历史价格数据，而私有公司没有。解决方法包括：参考可比上市公司的风险，或使用基于会计变量的风险代理。</p>
+<hr>
+</section>
+</section>
+<section id="相对估值市场怎么给类似资产定价" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="相对估值市场怎么给类似资产定价"><span class="header-section-number">4</span> 相对估值：市场怎么给类似资产定价？</h2>
+<section id="定价的逻辑基础" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="定价的逻辑基础"><span class="header-section-number">4.1</span> 定价的逻辑基础</h3>
+<p>相对估值（Relative Valuation）或称定价（Pricing），采用完全不同的思路：</p>
+<blockquote class="blockquote">
+<p><strong>资产的价值取决于市场如何给类似资产定价。</strong></p>
+</blockquote>
+<p>具体做法是：找到一组可比资产，计算它们的定价倍数（如 P/E、EV/EBITDA），然后将这个倍数应用到目标资产上。</p>
+<p>例如，如果软件行业的平均 P/E 是 24 倍，而你要估值的软件公司 EPS 是 $2，那么”价格”就是 $48。</p>
+</section>
+<section id="相对估值的假设" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="相对估值的假设"><span class="header-section-number">4.2</span> 相对估值的假设</h3>
+<p>相对估值依赖于一个关键假设：</p>
+<blockquote class="blockquote">
+<p><strong>市场平均而言是对的，但在个股定价上会犯错。</strong></p>
+</blockquote>
+<p>这与 DCF 的假设不同。DCF 试图找到”真实”价值，而相对估值假设市场整体定价正确，只是个别股票可能偏离。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>相对估值 vs DCF 的核心区别
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>DCF</strong>：寻找内在价值，不依赖市场定价</li>
+<li><strong>相对估值</strong>：依赖市场定价，假设偏差会被纠正</li>
+</ul>
+<p>如果整个行业都被高估了 50%，相对估值不会发现这个问题，但 DCF 可能会。反过来，相对估值的支持者会说：行业内的定价错误更容易被发现和纠正。</p>
+</div>
+</div>
+</section>
+<section id="基于基本面-vs-基于可比公司" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="基于基本面-vs-基于可比公司"><span class="header-section-number">4.3</span> 基于基本面 vs 基于可比公司</h3>
+<p>使用倍数有两种思路：</p>
+<p><strong>基本面方法</strong></p>
+<p>从 DCF 模型推导出倍数应该是多少。例如，对于稳定增长的公司：</p>
+<p><span class="math display">\[
+P/E = \frac{1-b}{k_e - g}
+\]</span></p>
+<p>其中 <span class="math inline">\(b\)</span> 是留存比率，<span class="math inline">\(g\)</span> 是增长率。这种方法让你能分析：如果增长率变化，P/E 应该如何变化？</p>
+<p><strong>可比公司方法</strong></p>
+<p>直接比较目标公司与同行的倍数。这种方法更常用，但需要回答一个关键问题：什么是”可比”？</p>
+<p>真正可比的公司应该有相似的：</p>
+<ul>
+<li>增长率</li>
+<li>风险特征</li>
+<li>现金流模式</li>
+</ul>
+<p>由于很难找到完美的可比公司，实践中需要对差异进行调整。</p>
+</section>
+<section id="横截面比较-vs-时间序列比较" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="横截面比较-vs-时间序列比较"><span class="header-section-number">4.4</span> 横截面比较 vs 时间序列比较</h3>
+<p><strong>横截面比较</strong>：将公司当前的倍数与同行业其他公司比较</p>
+<p>例如，软件公司 A 的 P/E 是 10，而行业平均是 25。如果 A 与行业平均相似，它可能被低估了。但如果 A 的风险更高，较低的 P/E 可能是合理的。</p>
+<p><strong>时间序列比较</strong>：将公司当前的倍数与历史水平比较</p>
+<p>例如，福特汽车现在的 P/E 是 6，而历史平均是 10。这是否意味着被低估？不一定——你需要假设公司的基本面没有发生根本性变化。对于福特来说，电动车的崛起可能已经永久改变了行业格局。</p>
+</section>
+<section id="相对估值的优缺点" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="相对估值的优缺点"><span class="header-section-number">4.5</span> 相对估值的优缺点</h3>
+<p><strong>优点：</strong></p>
+<ul>
+<li>简单直观，易于沟通</li>
+<li>可以快速获得估值</li>
+<li>当有大量可比公司时特别有效</li>
+<li>反映市场当前的定价水平</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>容易被操纵（选择性地挑选可比公司）</li>
+<li>会复制市场的错误（如果整个行业被高估）</li>
+<li>对独特公司（没有真正的可比公司）难以应用</li>
+<li>假设往往是隐含的，不像 DCF 那样透明</li>
+</ul>
+</section>
+<section id="案例可比公司选择的主观性" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="案例可比公司选择的主观性"><span class="header-section-number">4.6</span> 案例：可比公司选择的主观性</h3>
+<p>假设你要为一家软件公司 IPO 定价。下表是同行业公司的 P/E：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>P/E</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Adobe Systems</td>
+<td>23.2</td>
+</tr>
+<tr class="even">
+<td>Autodesk</td>
+<td>20.4</td>
+</tr>
+<tr class="odd">
+<td>Broderbund</td>
+<td>32.8</td>
+</tr>
+<tr class="even">
+<td>Computer Associates</td>
+<td>18.0</td>
+</tr>
+<tr class="odd">
+<td>Lotus Development</td>
+<td>24.1</td>
+</tr>
+<tr class="even">
+<td>Microsoft</td>
+<td>27.4</td>
+</tr>
+<tr class="odd">
+<td>Novell</td>
+<td>30.0</td>
+</tr>
+<tr class="even">
+<td>Oracle</td>
+<td>37.8</td>
+</tr>
+<tr class="odd">
+<td>Software Publishing</td>
+<td>10.6</td>
+</tr>
+<tr class="even">
+<td>System Software</td>
+<td>15.7</td>
+</tr>
+<tr class="odd">
+<td><strong>平均</strong></td>
+<td><strong>24.0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>看起来很客观，对吧？但是：</p>
+<ul>
+<li>如果剔除两个最低 P/E 的公司（10.6 和 15.7），平均变成 <strong>26.7</strong></li>
+<li>如果剔除两个最高 P/E 的公司（32.8 和 37.8），平均变成 <strong>21.2</strong></li>
+</ul>
+<p>一个有偏见的分析师可以轻易地通过选择”可比公司”来得到他想要的结论。这就是为什么相对估值更容易被滥用。</p>
+<hr>
+</section>
+</section>
+<section id="或有索赔估值不确定性本身有价值" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="或有索赔估值不确定性本身有价值"><span class="header-section-number">5</span> 或有索赔估值：不确定性本身有价值</h2>
+<section id="期权思维的核心洞察" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="期权思维的核心洞察"><span class="header-section-number">5.1</span> 期权思维的核心洞察</h3>
+<p>或有索赔估值（Contingent Claim Valuation）基于一个革命性的认识：</p>
+<blockquote class="blockquote">
+<p><strong>某些资产的价值可能大于其预期现金流的现值，因为它们的收益取决于某个事件是否发生。</strong></p>
+</blockquote>
+<p>传统 DCF 会低估这类资产，因为它只考虑”平均”情况，而忽略了”选择权”的价值。</p>
+<p>期权的本质是：在有利条件下你可以行动，在不利条件下你可以选择不行动。这种”下有底、上无顶”的收益结构本身就有价值。</p>
+</section>
+<section id="期权的基本类型" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="期权的基本类型"><span class="header-section-number">5.2</span> 期权的基本类型</h3>
+<p><strong>看涨期权（Call Option）</strong>：当标的资产价值超过某个水平（行权价）时，期权持有者获得收益。</p>
+<p><strong>看跌期权（Put Option）</strong>：当标的资产价值低于行权价时，期权持有者获得收益。</p>
+<pre><code>        收益
+          ↑
+          │    看涨期权
+          │         ╱
+          │        ╱
+          │       ╱
+──────────┼──────●───────→ 标的资产价值
+          │      行权价
+          │</code></pre>
+<p>期权价值取决于：</p>
+<ul>
+<li>标的资产的当前价值</li>
+<li>标的资产价值的波动率</li>
+<li>行权价</li>
+<li>到期时间</li>
+<li>无风险利率</li>
+</ul>
+</section>
+<section id="金融期权-vs-实物期权" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="金融期权-vs-实物期权"><span class="header-section-number">5.3</span> 金融期权 vs 实物期权</h3>
+<p><strong>金融期权</strong>：标的是金融资产（股票、债券等）</p>
+<ul>
+<li>股票期权</li>
+<li>可赎回债券</li>
+<li>认股权证</li>
+</ul>
+<p><strong>实物期权（Real Options）</strong>：标的是实物资产或项目</p>
+<ul>
+<li>未开发的石油储备：开采权是一个看涨期权</li>
+<li>专利：产品开发权是一个看涨期权</li>
+<li>企业股权：可以看作对企业资产的看涨期权（债务面值是行权价）</li>
+</ul>
+</section>
+<section id="实物期权的例子" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="实物期权的例子"><span class="header-section-number">5.4</span> 实物期权的例子</h3>
+<p>想象巴西石油公司（Petrobras）拥有一块未开发的油田。</p>
+<p><strong>DCF 方法</strong>：基于当前油价预期，估计开发油田的 NPV。</p>
+<p>但这忽略了一个关键点：Petrobras <strong>有权选择</strong>是否开发。如果油价上涨，它会开发；如果油价下跌，它可以等待甚至放弃。</p>
+<p><strong>期权方法</strong>：将油田看作一个看涨期权：</p>
+<ul>
+<li>标的资产：开发后的油田价值</li>
+<li>行权价：开发成本</li>
+<li>到期时间：开发权的有效期</li>
+<li>波动率：油价的波动率</li>
+</ul>
+<p>期权方法会给出更高的价值，因为它捕捉了”等待并观望”这个选择权的价值。</p>
+</section>
+<section id="期权估值的局限性" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="期权估值的局限性"><span class="header-section-number">5.5</span> 期权估值的局限性</h3>
+<p>期权定价模型（如 Black-Scholes）最初是为短期金融期权开发的。将它们应用于长期实物期权时，会遇到几个问题：</p>
+<ul>
+<li><strong>波动率假设</strong>：模型假设波动率恒定，但对于长期期权，这个假设难以成立</li>
+<li><strong>非交易标的</strong>：实物资产通常不在市场上交易，难以获得价值和波动率的输入</li>
+<li><strong>行权条件复杂</strong>：实物期权往往有复杂的行权条件，不像金融期权那样明确</li>
+</ul>
+<p>因此，实物期权估值的结果往往比金融期权估值有更大的误差范围。</p>
+</section>
+<section id="期权估值的适用场景" class="level3" data-number="5.6">
+<h3 data-number="5.6" class="anchored" data-anchor-id="期权估值的适用场景"><span class="header-section-number">5.6</span> 期权估值的适用场景</h3>
+<p><strong>直接应用</strong>：</p>
+<ul>
+<li>LEAPS（长期股票期权）</li>
+<li>或有价值权（CVRs）</li>
+<li>认股权证</li>
+</ul>
+<p><strong>扩展应用</strong>：</p>
+<ul>
+<li>股权估值：将股权看作对公司资产的看涨期权</li>
+<li>专利估值：将专利看作开发产品的期权</li>
+<li>自然资源公司：将未开发储备看作期权</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="三种方法的比较与选择" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="三种方法的比较与选择"><span class="header-section-number">6</span> 三种方法的比较与选择</h2>
+<p>现在让我们把三种方法放在一起比较：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 16%">
+<col style="width: 32%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>DCF</th>
+<th>相对估值</th>
+<th>期权估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>核心假设</strong></td>
+<td>价值 = 现金流现值</td>
+<td>市场平均定价正确</td>
+<td>选择权有价值</td>
+</tr>
+<tr class="even">
+<td><strong>信息需求</strong></td>
+<td>现金流预测、折现率</td>
+<td>可比公司数据</td>
+<td>波动率、期权参数</td>
+</tr>
+<tr class="odd">
+<td><strong>主要输出</strong></td>
+<td>内在价值</td>
+<td>相对价格</td>
+<td>期权价值</td>
+</tr>
+<tr class="even">
+<td><strong>优势</strong></td>
+<td>逻辑清晰、假设透明</td>
+<td>简单、反映市场</td>
+<td>捕捉不确定性价值</td>
+</tr>
+<tr class="odd">
+<td><strong>局限</strong></td>
+<td>输入估计困难</td>
+<td>易被操纵、复制错误</td>
+<td>模型假设严格</td>
+</tr>
+<tr class="even">
+<td><strong>最适用于</strong></td>
+<td>成熟、稳定的公司</td>
+<td>有大量可比公司</td>
+<td>有明显期权特征的资产</td>
+</tr>
+</tbody>
+</table>
+<section id="方法之间的关系" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="方法之间的关系"><span class="header-section-number">6.1</span> 方法之间的关系</h3>
+<p>三种方法并非完全独立：</p>
+<ul>
+<li><strong>相对估值的倍数可以从 DCF 推导</strong>：P/E、EV/EBITDA 等倍数都有其 DCF 基础</li>
+<li><strong>期权估值常以 DCF 为起点</strong>：例如，计算专利期权价值时，需要先估计产品的 DCF 价值作为标的资产价值</li>
+<li><strong>三种方法可以相互验证</strong>：如果 DCF 和相对估值给出差异很大的结果，这是一个需要深入分析的信号</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>实践建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>不要把估值方法当作”非此即彼”的选择。对于重要的估值，最好：</p>
+<ol type="1">
+<li>先做 DCF 建立基础理解</li>
+<li>用相对估值检验 DCF 结果的合理性</li>
+<li>如果资产有明显的期权特征，补充期权分析</li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结"><span class="header-section-number">7</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>DCF 是基础</strong>：理解现金流折现的逻辑是理解所有估值方法的前提</li>
+<li><strong>现金流与折现率必须匹配</strong>：股权现金流配股权成本，公司现金流配 WACC</li>
+<li><strong>相对估值依赖市场</strong>：假设市场平均正确，但个股可能错价</li>
+<li><strong>期权估值捕捉选择权价值</strong>：当资产有”下有底、上无顶”特征时特别有用</li>
+<li><strong>没有完美的方法</strong>：每种方法有其适用场景和局限性</li>
+</ul>
+</div>
+</div>
+<p>本章我们回答了开头的问题：三种估值方法各有其逻辑基础，适用于不同场景。关键不是选择”最好”的方法，而是理解每种方法的假设和局限，然后根据具体情况灵活运用。</p>
+<p>在接下来的章节中，我们会深入探讨每种方法的具体应用：如何估计现金流、如何确定折现率、如何选择可比公司、如何构建期权模型。但无论学习多么复杂的技术，都不要忘记本章建立的基础框架。</p>
+<hr>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>现金流匹配测试</strong>：如果你看到一份估值报告，使用 WACC 作为折现率，但现金流是从净利润开始计算的，你会有什么担忧？</p></li>
+<li><p><strong>相对估值的陷阱</strong>：假设你是一名分析师，老板希望你证明某公司被低估。你可以通过哪些方式”操纵”可比公司的选择来达到这个目的？这种做法有什么问题？</p></li>
+<li><p><strong>期权思维的应用</strong>：一家生物科技公司拥有一个处于临床试验阶段的药物。传统 DCF 可能低估这家公司的原因是什么？你会如何调整估值方法？</p></li>
+<li><p><strong>方法选择</strong>：对于以下公司，你会优先使用哪种估值方法？为什么？</p>
+<ul>
+<li>一家盈利稳定的消费品公司</li>
+<li>一家亏损的初创科技公司</li>
+<li>一家拥有大量未开发土地储备的房地产公司</li>
+</ul></li>
+<li><p><strong>市场效率与估值</strong>：如果市场完全有效，DCF 估值还有意义吗？相对估值呢？</p></li>
+</ol>
+<hr>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-11-26">
+<meta name="description" content="深入理解 VLA 模型的架构设计、数学原理、Action Tokenization 的三种形态，以及知识指导的触觉 VLA。">
+
+<title>Vision-Language-Action 模型：让机器人理解世界并行动 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#引言从感知到行动的鸿沟" id="toc-引言从感知到行动的鸿沟" class="nav-link active" data-scroll-target="#引言从感知到行动的鸿沟"><span class="header-section-number">1</span> 引言：从感知到行动的鸿沟</a>
+  <ul class="collapse">
+  <li><a href="#本文的学习路线图" id="toc-本文的学习路线图" class="nav-link" data-scroll-target="#本文的学习路线图"><span class="header-section-number">1.1</span> 本文的学习路线图</a></li>
+  </ul></li>
+  <li><a href="#历史演进从手工规则到端到端学习" id="toc-历史演进从手工规则到端到端学习" class="nav-link" data-scroll-target="#历史演进从手工规则到端到端学习"><span class="header-section-number">2</span> 历史演进：从手工规则到端到端学习</a>
+  <ul class="collapse">
+  <li><a href="#传统机器人控制的痛点" id="toc-传统机器人控制的痛点" class="nav-link" data-scroll-target="#传统机器人控制的痛点"><span class="header-section-number">2.1</span> 传统机器人控制的痛点</a></li>
+  <li><a href="#语言模型带来的启示" id="toc-语言模型带来的启示" class="nav-link" data-scroll-target="#语言模型带来的启示"><span class="header-section-number">2.2</span> 语言模型带来的启示</a></li>
+  <li><a href="#vla-范式的诞生" id="toc-vla-范式的诞生" class="nav-link" data-scroll-target="#vla-范式的诞生"><span class="header-section-number">2.3</span> VLA 范式的诞生</a></li>
+  <li><a href="#vla-发展时间线" id="toc-vla-发展时间线" class="nav-link" data-scroll-target="#vla-发展时间线"><span class="header-section-number">2.4</span> VLA 发展时间线</a></li>
+  </ul></li>
+  <li><a href="#vla-核心架构详解" id="toc-vla-核心架构详解" class="nav-link" data-scroll-target="#vla-核心架构详解"><span class="header-section-number">3</span> VLA 核心架构详解</a>
+  <ul class="collapse">
+  <li><a href="#整体架构" id="toc-整体架构" class="nav-link" data-scroll-target="#整体架构"><span class="header-section-number">3.1</span> 整体架构</a></li>
+  <li><a href="#视觉编码器双流融合" id="toc-视觉编码器双流融合" class="nav-link" data-scroll-target="#视觉编码器双流融合"><span class="header-section-number">3.2</span> 视觉编码器：双流融合</a></li>
+  <li><a href="#语言模型骨干" id="toc-语言模型骨干" class="nav-link" data-scroll-target="#语言模型骨干"><span class="header-section-number">3.3</span> 语言模型骨干</a></li>
+  <li><a href="#动作-token-化256-bins-离散化" id="toc-动作-token-化256-bins-离散化" class="nav-link" data-scroll-target="#动作-token-化256-bins-离散化"><span class="header-section-number">3.4</span> 动作 Token 化：256 bins 离散化</a></li>
+  <li><a href="#训练目标与损失函数" id="toc-训练目标与损失函数" class="nav-link" data-scroll-target="#训练目标与损失函数"><span class="header-section-number">3.5</span> 训练目标与损失函数</a></li>
+  <li><a href="#推理过程" id="toc-推理过程" class="nav-link" data-scroll-target="#推理过程"><span class="header-section-number">3.6</span> 推理过程</a></li>
+  </ul></li>
+  <li><a href="#action-tokenization-的三种形态" id="toc-action-tokenization-的三种形态" class="nav-link" data-scroll-target="#action-tokenization-的三种形态"><span class="header-section-number">4</span> Action Tokenization 的三种形态</a>
+  <ul class="collapse">
+  <li><a href="#vlac代码作为动作" id="toc-vlac代码作为动作" class="nav-link" data-scroll-target="#vlac代码作为动作"><span class="header-section-number">4.1</span> VLAC：代码作为动作</a></li>
+  <li><a href="#vlakp关键帧稀疏表示" id="toc-vlakp关键帧稀疏表示" class="nav-link" data-scroll-target="#vlakp关键帧稀疏表示"><span class="header-section-number">4.2</span> VLAKP：关键帧稀疏表示</a></li>
+  <li><a href="#vladp密集离散化与连续扩散" id="toc-vladp密集离散化与连续扩散" class="nav-link" data-scroll-target="#vladp密集离散化与连续扩散"><span class="header-section-number">4.3</span> VLADP：密集离散化与连续扩散</a></li>
+  <li><a href="#三种形态的对比" id="toc-三种形态的对比" class="nav-link" data-scroll-target="#三种形态的对比"><span class="header-section-number">4.4</span> 三种形态的对比</a></li>
+  </ul></li>
+  <li><a href="#知识指导的触觉-vla" id="toc-知识指导的触觉-vla" class="nav-link" data-scroll-target="#知识指导的触觉-vla"><span class="header-section-number">5</span> 知识指导的触觉 VLA</a>
+  <ul class="collapse">
+  <li><a href="#为什么视觉不够" id="toc-为什么视觉不够" class="nav-link" data-scroll-target="#为什么视觉不够"><span class="header-section-number">5.1</span> 为什么视觉不够？</a></li>
+  <li><a href="#tactile-vla释放-vlm-的物理知识" id="toc-tactile-vla释放-vlm-的物理知识" class="nav-link" data-scroll-target="#tactile-vla释放-vlm-的物理知识"><span class="header-section-number">5.2</span> Tactile-VLA：释放 VLM 的物理知识</a></li>
+  <li><a href="#omnivtla跨传感器泛化" id="toc-omnivtla跨传感器泛化" class="nav-link" data-scroll-target="#omnivtla跨传感器泛化"><span class="header-section-number">5.3</span> OmniVTLA：跨传感器泛化</a></li>
+  </ul></li>
+  <li><a href="#总结与展望" id="toc-总结与展望" class="nav-link" data-scroll-target="#总结与展望"><span class="header-section-number">6</span> 总结与展望</a>
+  <ul class="collapse">
+  <li><a href="#vla-的核心贡献" id="toc-vla-的核心贡献" class="nav-link" data-scroll-target="#vla-的核心贡献"><span class="header-section-number">6.1</span> VLA 的核心贡献</a></li>
+  <li><a href="#当前的局限" id="toc-当前的局限" class="nav-link" data-scroll-target="#当前的局限"><span class="header-section-number">6.2</span> 当前的局限</a></li>
+  <li><a href="#未来方向" id="toc-未来方向" class="nav-link" data-scroll-target="#未来方向"><span class="header-section-number">6.3</span> 未来方向</a></li>
+  </ul></li>
+  <li><a href="#参考资源" id="toc-参考资源" class="nav-link" data-scroll-target="#参考资源"><span class="header-section-number">7</span> 参考资源</a>
+  <ul class="collapse">
+  <li><a href="#核心论文" id="toc-核心论文" class="nav-link" data-scroll-target="#核心论文"><span class="header-section-number">7.1</span> 核心论文</a></li>
+  <li><a href="#代码与模型" id="toc-代码与模型" class="nav-link" data-scroll-target="#代码与模型"><span class="header-section-number">7.2</span> 代码与模型</a></li>
+  <li><a href="#综述文章" id="toc-综述文章" class="nav-link" data-scroll-target="#综述文章"><span class="header-section-number">7.3</span> 综述文章</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Vision-Language-Action 模型：让机器人理解世界并行动</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">深度学习</div>
+    <div class="quarto-category">机器人</div>
+    <div class="quarto-category">多模态</div>
+    <div class="quarto-category">具身智能</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入理解 VLA 模型的架构设计、数学原理、Action Tokenization 的三种形态，以及知识指导的触觉 VLA。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 26, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="引言从感知到行动的鸿沟" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="引言从感知到行动的鸿沟"><span class="header-section-number">1</span> 引言：从感知到行动的鸿沟</h2>
+<p>在过去几年里，大语言模型（LLM）和视觉语言模型（VLM）在理解和生成方面取得了令人瞩目的进展。GPT-4V 可以描述图片内容，Claude 可以分析复杂的视觉场景。但是，当我们试图让这些模型控制一个真实的机器人时，会遇到一个根本性的问题：<strong>理解世界和在世界中行动是两回事</strong>。</p>
+<p>想象一下，你对一个机器人说：“把红色的苹果轻轻放进篮子里”。这个看似简单的指令，实际上需要机器人：</p>
+<ol type="1">
+<li><strong>视觉理解</strong>：识别场景中的苹果和篮子</li>
+<li><strong>语言理解</strong>：解析”轻轻放进”这个指令的含义</li>
+<li><strong>动作规划</strong>：规划一条避障的运动轨迹</li>
+<li><strong>力控制</strong>：控制抓取力度，避免捏碎苹果</li>
+<li><strong>时序执行</strong>：在连续的时间步上精确控制关节</li>
+</ol>
+<p>传统的方法是分模块设计：一个模块负责感知，一个模块负责规划，一个模块负责控制。但这种方法存在信息损失——感知模块看到的丰富信息，经过层层抽象后传递给控制模块时，可能已经丢失了关键细节。</p>
+<p><strong>Vision-Language-Action（VLA）模型</strong>的出现，正是为了弥合这个鸿沟。它的核心思想是：<strong>用一个统一的端到端模型，直接从原始感知（图像、语言指令）映射到机器人动作</strong>。</p>
+<section id="本文的学习路线图" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="本文的学习路线图"><span class="header-section-number">1.1</span> 本文的学习路线图</h3>
+<p>这篇文章将带你深入理解 VLA 模型的方方面面：</p>
+<p><strong>第一部分：历史演进与动机</strong>（第2节） - 从行为克隆到端到端学习的技术脉络 - 传统机器人控制的痛点 - VLA 范式如何一举解决这些问题</p>
+<p><strong>第二部分：VLA 核心架构</strong>（第3节） - 视觉编码器：DINOv2 和 SigLIP 的双流设计 - 语言骨干：如何复用预训练 LLM - 动作解码器：从 token 到连续控制信号 - 完整的数学推导和张量维度标注</p>
+<p><strong>第三部分：Action Tokenization 的三种形态</strong>（第4节） - <strong>Code Token（VLAC）</strong>：生成代码作为动作表示 - <strong>Key Pose Token（VLAKP）</strong>：关键帧稀疏表示 - <strong>Dense Pose Token（VLADP）</strong>：密集离散化与连续扩散</p>
+<p><strong>第四部分：知识指导的触觉 VLA</strong>（第5节） - 为什么视觉不够？触觉的必要性 - Tactile-VLA 架构：混合位置-力控制器 - VLM 先验知识如何迁移到物理交互</p>
+<p>准备好了吗？让我们从机器人学习的历史演进开始这段探索之旅。</p>
+</section>
+</section>
+<section id="历史演进从手工规则到端到端学习" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="历史演进从手工规则到端到端学习"><span class="header-section-number">2</span> 历史演进：从手工规则到端到端学习</h2>
+<section id="传统机器人控制的痛点" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="传统机器人控制的痛点"><span class="header-section-number">2.1</span> 传统机器人控制的痛点</h3>
+<p>在 VLA 出现之前，机器人控制主要依赖分层架构：</p>
+<pre><code>感知层 → 规划层 → 控制层</code></pre>
+<p>这种架构有几个根本性的问题：</p>
+<p><strong>问题一：信息瓶颈</strong></p>
+<p>感知层需要把丰富的视觉信息压缩成有限的符号表示（如物体的位姿），传递给规划层。这个过程会丢失很多细节——纹理、光照、遮挡关系等。当这些细节对任务成功至关重要时（比如判断一个物体是否易碎），系统就会失败。</p>
+<p><strong>问题二：领域迁移困难</strong></p>
+<p>每个模块都是针对特定环境设计的。换一个场景、换一种物体、换一个机器人平台，整个系统都需要重新调试。这导致机器人的泛化能力极差。</p>
+<p><strong>问题三：缺乏常识推理</strong></p>
+<p>当用户说”拿一个能用来敲钉子的东西”，传统系统无法理解”石头可以当锤子用”这种常识推理。它只能识别预定义的物体类别，无法进行开放世界的语义理解。</p>
+</section>
+<section id="语言模型带来的启示" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="语言模型带来的启示"><span class="header-section-number">2.2</span> 语言模型带来的启示</h3>
+<p>2023年，Google DeepMind 发布了 RT-2（Robotics Transformer 2），首次展示了一个令人惊叹的现象：<strong>把大型视觉语言模型微调到机器人数据上后，模型可以执行从未见过的指令</strong>。</p>
+<p>例如，RT-2 可以理解”把可以用来灭火的东西放到恐龙旁边”这样的复杂指令，即使训练数据中从未出现过这种任务。模型能够推理出”水瓶可以灭火”，然后执行正确的动作。</p>
+<p>这说明：<strong>VLM 在大规模互联网数据上学到的世界知识，可以迁移到机器人控制任务中</strong>。</p>
+</section>
+<section id="vla-范式的诞生" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="vla-范式的诞生"><span class="header-section-number">2.3</span> VLA 范式的诞生</h3>
+<p>VLA 模型的核心洞察是：<strong>把机器人动作表示为语言 token，统一到 VLM 的训练框架中</strong>。</p>
+<p>具体来说：</p>
+<ol type="1">
+<li>图像通过视觉编码器变成一系列 patch embeddings</li>
+<li>语言指令通过 tokenizer 变成文本 embeddings</li>
+<li>机器人状态（关节角度、速度等）编码为 proprioceptive embeddings</li>
+<li><strong>机器人动作离散化为 action tokens</strong></li>
+</ol>
+<p>这些多模态 token 统一输入到一个 decoder-only Transformer 中，训练目标和语言模型一样：<strong>预测下一个 token</strong>。</p>
+<p>这个设计的美妙之处在于：</p>
+<ul>
+<li><strong>统一表示</strong>：感知、语言、动作都在同一个表示空间中</li>
+<li><strong>预训练迁移</strong>：可以复用 VLM 的预训练权重，继承其语义理解能力</li>
+<li><strong>端到端优化</strong>：从感知到动作的整个pipeline都是可微分的</li>
+</ul>
+</section>
+<section id="vla-发展时间线" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="vla-发展时间线"><span class="header-section-number">2.4</span> VLA 发展时间线</h3>
+<p>VLA 领域的发展可以分为三个阶段：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶段</th>
+<th>时间</th>
+<th>代表工作</th>
+<th>里程碑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>早期探索</td>
+<td>2022-2023 Q2</td>
+<td>PaLM-E, RT-1</td>
+<td>验证可行性</td>
+</tr>
+<tr class="even">
+<td>快速增长</td>
+<td>2023 Q3-2024 Q3</td>
+<td>RT-2, OpenVLA</td>
+<td>开源模型涌现</td>
+</tr>
+<tr class="odd">
+<td>成熟应用</td>
+<td>2024 Q4-至今</td>
+<td>π0, GR00T N1</td>
+<td>工业级部署</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="vla-核心架构详解" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="vla-核心架构详解"><span class="header-section-number">3</span> VLA 核心架构详解</h2>
+<p>现在，让我们深入 VLA 模型的内部结构。我们以 OpenVLA 为例，因为它是目前最具代表性的开源 VLA 模型，完整的代码和权重都可以获取。</p>
+<section id="整体架构" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="整体架构"><span class="header-section-number">3.1</span> 整体架构</h3>
+<p>OpenVLA 的架构可以分为三个核心组件：</p>
+<p><span class="math display">\[
+\underbrace{\text{视觉编码器}}_{\text{DINOv2 + SigLIP}} \rightarrow \underbrace{\text{投影层}}_{\text{Linear}} \rightarrow \underbrace{\text{语言模型骨干}}_{\text{Llama-2 7B}} \rightarrow \underbrace{\text{动作 Token}}_{\text{256 bins}}
+\]</span></p>
+<p>让我们逐一解析每个组件。</p>
+</section>
+<section id="视觉编码器双流融合" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="视觉编码器双流融合"><span class="header-section-number">3.2</span> 视觉编码器：双流融合</h3>
+<p>OpenVLA 使用两个预训练的视觉编码器，它们各有专长：</p>
+<p><strong>DINOv2</strong>（约 300M 参数）：</p>
+<ul>
+<li>使用自监督学习训练（不需要标注）</li>
+<li>擅长捕捉空间关系和几何结构</li>
+<li>对物体的位置、形状、遮挡关系敏感</li>
+</ul>
+<p><strong>SigLIP</strong>（约 400M 参数）：</p>
+<ul>
+<li>使用图像-文本对进行对比学习</li>
+<li>特征与语言语义对齐</li>
+<li>擅长识别物体类别和属性</li>
+</ul>
+<p>你可能会问：<strong>为什么需要两个编码器？</strong></p>
+<p>这是一个权衡的设计。DINOv2 在空间推理上更强，但缺乏语言对齐；SigLIP 在语义理解上更强，但空间细节可能不够。通过融合两者，模型可以同时获得两方面的能力。</p>
+<p>数学上，给定输入图像 <span class="math inline">\(\mathbf{I} \in \mathbb{R}^{H \times W \times 3}\)</span>（OpenVLA 使用 <span class="math inline">\(H = W = 224\)</span>），两个编码器分别输出：</p>
+<p><span class="math display">\[
+\mathbf{V}_{\text{DINO}} = f_{\text{DINO}}(\mathbf{I}) \in \mathbb{R}^{N_p \times d_{\text{DINO}}}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{V}_{\text{SigLIP}} = f_{\text{SigLIP}}(\mathbf{I}) \in \mathbb{R}^{N_p \times d_{\text{SigLIP}}}
+\]</span></p>
+<p>其中： - <span class="math inline">\(N_p = (H/P)^2\)</span> 是 patch 数量（<span class="math inline">\(P\)</span> 是 patch 大小，通常为 14 或 16） - <span class="math inline">\(d_{\text{DINO}}\)</span>, <span class="math inline">\(d_{\text{SigLIP}}\)</span> 是各自的隐藏维度</p>
+<p>融合策略是简单的拼接：</p>
+<p><span class="math display">\[
+\mathbf{V}_{\text{fused}} = [\mathbf{V}_{\text{DINO}}; \mathbf{V}_{\text{SigLIP}}] \in \mathbb{R}^{N_p \times (d_{\text{DINO}} + d_{\text{SigLIP}})}
+\]</span></p>
+<p>然后通过一个线性投影层映射到语言模型的维度：</p>
+<p><span class="math display">\[
+\mathbf{V} = \mathbf{V}_{\text{fused}} \mathbf{W}_{\text{proj}} \in \mathbb{R}^{N_p \times d_{\text{LLM}}}
+\]</span></p>
+<p>对于 OpenVLA，最终得到约 275 个视觉 token，每个维度为 <span class="math inline">\(d_{\text{LLM}} = 4096\)</span>（Llama-2 7B 的隐藏维度）。</p>
+</section>
+<section id="语言模型骨干" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="语言模型骨干"><span class="header-section-number">3.3</span> 语言模型骨干</h3>
+<p>OpenVLA 使用 Llama-2 7B 作为主干网络。这个选择基于几个考虑：</p>
+<ol type="1">
+<li><strong>开源可用</strong>：Llama-2 的权重公开可获取</li>
+<li><strong>规模适中</strong>：7B 参数在单 GPU 上可以运行</li>
+<li><strong>预训练充分</strong>：在大规模文本上训练，具备丰富的世界知识</li>
+</ol>
+<p>输入到 Llama-2 的序列是：</p>
+<p><span class="math display">\[
+[\underbrace{\text{视觉 tokens}}_{\sim 275 \text{ tokens}}; \underbrace{\text{语言 tokens}}_{\text{指令长度}}; \underbrace{\text{动作 tokens}}_{\text{7 tokens}}]
+\]</span></p>
+<p>模型的训练目标是标准的下一个 token 预测：</p>
+<p><span class="math display">\[
+\mathcal{L} = -\sum_{t} \log p_\theta(a_t \mid \mathbf{V}, \mathbf{T}, a_{&lt;t})
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{V}\)</span> 是视觉 token，<span class="math inline">\(\mathbf{T}\)</span> 是文本 token，<span class="math inline">\(a_{&lt;t}\)</span> 是之前的动作 token。</p>
+</section>
+<section id="动作-token-化256-bins-离散化" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="动作-token-化256-bins-离散化"><span class="header-section-number">3.4</span> 动作 Token 化：256 bins 离散化</h3>
+<p>这是 VLA 最关键的设计之一：<strong>如何把连续的机器人动作表示为离散的 token？</strong></p>
+<p>OpenVLA 采用均匀离散化策略。对于一个 7 自由度的机械臂（6 DoF 位姿 + 1 夹爪），动作空间是：</p>
+<p><span class="math display">\[
+\mathbf{a} = (\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw}, \text{gripper}) \in \mathbb{R}^7
+\]</span></p>
+<p>每个维度被离散化为 256 个 bins：</p>
+<p><span class="math display">\[
+a_i^{\text{discrete}} = \text{quantize}(a_i, 256) = \left\lfloor \frac{a_i - a_i^{\min}}{a_i^{\max} - a_i^{\min}} \times 255 \right\rfloor
+\]</span></p>
+<p>其中 <span class="math inline">\(a_i^{\min}\)</span> 和 <span class="math inline">\(a_i^{\max}\)</span> 是训练数据中第 1 和第 99 百分位数（而不是最大最小值，以减少离群点的影响）。</p>
+<p><strong>为什么选择 256 bins？</strong></p>
+<p>这是精度和词表大小的权衡：</p>
+<ul>
+<li>256 = <span class="math inline">\(2^8\)</span>，正好是 8 位分辨率</li>
+<li>对于机器人控制，8 位精度（约 0.4% 的相对误差）通常足够</li>
+<li>更多 bins 会增加词表大小，导致 token embedding 矩阵膨胀</li>
+</ul>
+<p><strong>Token 映射策略</strong></p>
+<p>OpenVLA 复用 Llama-2 词表中最不常用的 256 个 token 来表示动作。这样做的好处是不需要扩展词表，可以直接使用预训练的 embedding 矩阵。</p>
+<p>最终，一个完整的动作被编码为 7 个 token 的序列，例如：</p>
+<pre><code>"1 128 91 241 5 101 127"</code></pre>
+<p>这个字符串的含义是： - “1”：继续执行（非终止） - “128 91 241”：末端执行器的位移 - “5 101 127”：末端执行器的旋转 - 最后一位表示夹爪状态</p>
+</section>
+<section id="训练目标与损失函数" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="训练目标与损失函数"><span class="header-section-number">3.5</span> 训练目标与损失函数</h3>
+<p>VLA 的训练使用标准的交叉熵损失：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{CE}} = -\sum_{i=1}^{7} \log p_\theta(a_i \mid \mathbf{V}, \mathbf{T}, a_{&lt;i})
+\]</span></p>
+<p>对于每个动作维度 <span class="math inline">\(i\)</span>，模型预测 256 个类别上的概率分布，损失是预测分布和真实 bin 的交叉熵。</p>
+<p>值得注意的是，这和语言模型的训练完全相同——只是预测的 token 变成了动作 bin 而不是词汇。</p>
+</section>
+<section id="推理过程" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="推理过程"><span class="header-section-number">3.6</span> 推理过程</h3>
+<p>在推理时，模型自回归地生成动作 token：</p>
+<p><strong>Step 1</strong>: 编码视觉和语言输入</p>
+<p><span class="math display">\[
+\mathbf{h}_0 = \text{LLM}(\mathbf{V}, \mathbf{T})
+\]</span></p>
+<p><strong>Step 2</strong>: 依次生成 7 个动作 token</p>
+<p><span class="math display">\[
+\begin{aligned}
+a_1 &amp;\sim p_\theta(\cdot \mid \mathbf{h}_0) \\
+a_2 &amp;\sim p_\theta(\cdot \mid \mathbf{h}_0, a_1) \\
+&amp;\vdots \\
+a_7 &amp;\sim p_\theta(\cdot \mid \mathbf{h}_0, a_1, \ldots, a_6)
+\end{aligned}
+\]</span></p>
+<p><strong>Step 3</strong>: 反量化为连续动作</p>
+<p><span class="math display">\[
+a_i^{\text{continuous}} = \frac{a_i^{\text{discrete}}}{255} \times (a_i^{\max} - a_i^{\min}) + a_i^{\min}
+\]</span></p>
+<p><strong>Step 4</strong>: 发送到机器人执行</p>
+<p>整个推理过程在现代 GPU 上只需要几十毫秒，足以支持实时控制。</p>
+</section>
+</section>
+<section id="action-tokenization-的三种形态" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="action-tokenization-的三种形态"><span class="header-section-number">4</span> Action Tokenization 的三种形态</h2>
+<p>你在问题中提到了三种不同的动作 token 形态：VLAC、VLAKP、VLADP。让我详细解释每一种。</p>
+<section id="vlac代码作为动作" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="vlac代码作为动作"><span class="header-section-number">4.1</span> VLAC：代码作为动作</h3>
+<p><strong>动机</strong>：机器人动作本质上是一系列操作，而代码正是描述操作的最自然的方式。</p>
+<p><strong>架构设计</strong>：</p>
+<p>VLAC 模型不直接输出关节角度，而是输出可执行的代码片段：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># VLA 模型的输出示例</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pick_up(<span class="st">"red_apple"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>move_to(basket_position)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>place_down(force<span class="op">=</span><span class="fl">0.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>这些代码通过一个预定义的 API 解释执行，调用底层的运动规划器。</p>
+<p><strong>数学建模</strong>：</p>
+<p>设代码 token 序列为 <span class="math inline">\(\mathbf{c} = (c_1, c_2, \ldots, c_L)\)</span>，模型优化：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{VLAC}} = -\sum_{t=1}^{L} \log p_\theta(c_t \mid \mathbf{V}, \mathbf{T}, c_{&lt;t})
+\]</span></p>
+<p><strong>优势</strong>： - 可解释性强：人类可以直接阅读和修改输出 - 组合泛化：可以通过代码组合实现新任务 - 高层抽象：不需要关心底层的运动学细节</p>
+<p><strong>局限</strong>： - 需要预定义 API，限制了表达能力 - 难以处理需要精细力控的任务 - 对 API 设计的质量高度依赖</p>
+</section>
+<section id="vlakp关键帧稀疏表示" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="vlakp关键帧稀疏表示"><span class="header-section-number">4.2</span> VLAKP：关键帧稀疏表示</h3>
+<p><strong>动机</strong>：大多数机器人任务可以分解为几个关键姿态（key poses）之间的过渡。</p>
+<p><strong>架构设计</strong>：</p>
+<p>VLAKP 只预测关键帧的位姿，中间的轨迹由运动规划器插值生成：</p>
+<p><span class="math display">\[
+\mathbf{a}_{\text{VLAKP}} = (\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_K)
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{p}_k \in SE(3)\)</span> 是第 <span class="math inline">\(k\)</span> 个关键帧的 6D 位姿，<span class="math inline">\(K\)</span> 是关键帧数量（通常 3-5 个）。</p>
+<p><strong>Token 化方法</strong>：</p>
+<p>每个关键帧被编码为固定数量的 token：</p>
+<p><span class="math display">\[
+\mathbf{p}_k \rightarrow (t_1^k, t_2^k, \ldots, t_6^k)
+\]</span></p>
+<p>总共需要 <span class="math inline">\(6K\)</span> 个 token 来描述完整的任务。</p>
+<p><strong>优势</strong>： - 输出长度短，推理效率高 - 天然支持长 horizon 任务 - 对关键帧之间的执行误差鲁棒</p>
+<p><strong>局限</strong>： - 需要额外的运动规划器 - 难以处理需要连续反馈的任务 - 关键帧的选择需要先验知识</p>
+</section>
+<section id="vladp密集离散化与连续扩散" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="vladp密集离散化与连续扩散"><span class="header-section-number">4.3</span> VLADP：密集离散化与连续扩散</h3>
+<p><strong>动机</strong>：某些任务需要高频、精细的控制，256 bins 的离散化精度不够。</p>
+<p>这里又细分为两种技术路线：</p>
+<section id="路线一更密集的离散化" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="路线一更密集的离散化"><span class="header-section-number">4.3.1</span> 路线一：更密集的离散化</h4>
+<p>直接增加 bins 数量到 1024 或更多，并使用 <strong>Action Chunking</strong> 技术：</p>
+<p><span class="math display">\[
+\mathbf{a}_{\text{chunk}} = (\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_H)
+\]</span></p>
+<p>其中 <span class="math inline">\(H\)</span> 是 chunk 大小（如 16 或 32）。模型一次预测未来 <span class="math inline">\(H\)</span> 步的动作，然后执行一部分后再重新预测。</p>
+<p><strong>FAST tokenization</strong> 使用离散余弦变换（DCT）压缩动作序列：</p>
+<p><span class="math display">\[
+\mathbf{A}_{\text{DCT}} = \text{DCT}(\mathbf{a}_{\text{chunk}})
+\]</span></p>
+<p>只保留低频系数，大幅减少 token 数量。</p>
+</section>
+<section id="路线二连续扩散流匹配" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="路线二连续扩散流匹配"><span class="header-section-number">4.3.2</span> 路线二：连续扩散/流匹配</h4>
+<p>以 <strong>π0</strong> 为代表，完全放弃离散 token，使用扩散模型直接输出连续动作：</p>
+<p><span class="math display">\[
+\mathbf{a} = f_\theta(\mathbf{z}, \mathbf{V}, \mathbf{T})
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span> 是噪声输入。</p>
+<p><strong>Flow Matching 目标</strong>：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{FM}} = \mathbb{E}_{t, \mathbf{a}, \mathbf{z}} \left[ \left\| v_\theta(\mathbf{a}_t, t) - (\mathbf{a} - \mathbf{z}) \right\|^2 \right]
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{a}_t = (1-t)\mathbf{z} + t\mathbf{a}\)</span> 是时间 <span class="math inline">\(t\)</span> 的插值。</p>
+<p><strong>π0 的双系统架构</strong>：</p>
+<p>π0 结合了 VLM 和扩散模型：</p>
+<ol type="1">
+<li><strong>慢系统（VLM）</strong>：理解高层语义，输出条件特征</li>
+<li><strong>快系统（扩散头）</strong>：生成高频连续动作，50Hz 控制频率</li>
+</ol>
+<p><span class="math display">\[
+\underbrace{\text{PaliGemma VLM}}_{\text{3B 参数}} \rightarrow \underbrace{\text{Flow Matching Head}}_{\text{300M 参数}} \rightarrow \underbrace{\text{连续动作}}_{\text{50 Hz}}
+\]</span></p>
+<p><strong>优势</strong>： - 可以输出任意精度的连续动作 - 天然支持多模态动作分布 - 适合精细操作任务</p>
+<p><strong>局限</strong>： - 推理需要多步去噪，延迟较高 - 架构更复杂，训练更困难 - 与预训练 LLM 的对齐不如 token 化方法自然</p>
+</section>
+</section>
+<section id="三种形态的对比" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="三种形态的对比"><span class="header-section-number">4.4</span> 三种形态的对比</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>形态</th>
+<th>输出类型</th>
+<th>控制频率</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>VLAC</td>
+<td>代码</td>
+<td>低（任务级）</td>
+<td>高层规划、可解释性要求高</td>
+</tr>
+<tr class="even">
+<td>VLAKP</td>
+<td>关键帧</td>
+<td>中（1-5 Hz）</td>
+<td>抓取、放置等里程碑任务</td>
+</tr>
+<tr class="odd">
+<td>VLADP</td>
+<td>连续</td>
+<td>高（50+ Hz）</td>
+<td>精细操作、力控任务</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="知识指导的触觉-vla" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="知识指导的触觉-vla"><span class="header-section-number">5</span> 知识指导的触觉 VLA</h2>
+<p>前面讨论的 VLA 模型主要依赖视觉和语言两种模态。但在真实的机器人操作中，<strong>触觉</strong>往往是不可或缺的。</p>
+<section id="为什么视觉不够" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="为什么视觉不够"><span class="header-section-number">5.1</span> 为什么视觉不够？</h3>
+<p>考虑这些场景：</p>
+<ol type="1">
+<li><strong>判断物体硬度</strong>：一个苹果和一个网球看起来很像，但需要不同的抓取力</li>
+<li><strong>遮挡情况</strong>：当手指遮住物体时，视觉无法判断是否抓稳</li>
+<li><strong>力控任务</strong>：插入充电器时需要精确的力反馈来检测对齐</li>
+<li><strong>表面质地</strong>：玻璃杯和塑料杯可能外观相似，但滑动摩擦系数不同</li>
+</ol>
+<p>这些信息<strong>只有通过触觉才能获取</strong>。</p>
+</section>
+<section id="tactile-vla释放-vlm-的物理知识" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="tactile-vla释放-vlm-的物理知识"><span class="header-section-number">5.2</span> Tactile-VLA：释放 VLM 的物理知识</h3>
+<p>2025年发布的 <strong>Tactile-VLA</strong> 提出了一个有趣的发现：<strong>VLM 已经隐含了丰富的物理交互知识，只需要少量示范就能激活这些知识用于触觉任务</strong>。</p>
+<section id="核心架构" class="level4" data-number="5.2.1">
+<h4 data-number="5.2.1" class="anchored" data-anchor-id="核心架构"><span class="header-section-number">5.2.1</span> 核心架构</h4>
+<p>Tactile-VLA 的架构包含四个关键组件：</p>
+<p><strong>1. 多模态编码器</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbf{V} &amp;= f_{\text{vision}}(\mathbf{I}) \in \mathbb{R}^{N_v \times d} \\
+\mathbf{T} &amp;= f_{\text{text}}(\text{instruction}) \in \mathbb{R}^{N_t \times d} \\
+\mathbf{S} &amp;= f_{\text{tactile}}(\text{tactile\_image}) \in \mathbb{R}^{N_s \times d} \\
+\mathbf{P} &amp;= f_{\text{proprio}}(\text{joint\_states}) \in \mathbb{R}^{N_p \times d}
+\end{aligned}
+\]</span></p>
+<p>触觉传感器的数据通常是一张接触区域的图像（如 GelSight 传感器），也通过视觉编码器处理。</p>
+<p><strong>2. Token 级融合</strong></p>
+<p>所有模态在 token 级别融合，作为 VLM 的输入前缀：</p>
+<p><span class="math display">\[
+\mathbf{H}_{\text{input}} = [\mathbf{V}; \mathbf{T}; \mathbf{S}; \mathbf{P}]
+\]</span></p>
+<p><strong>3. 触觉感知动作专家</strong></p>
+<p>与标准 VLA 不同，Tactile-VLA 的动作输出包含两部分：</p>
+<p><span class="math display">\[
+\mathbf{a} = (\mathbf{a}_{\text{pos}}, \mathbf{a}_{\text{force}})
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{a}_{\text{pos}} \in \mathbb{R}^6\)</span>：目标位姿</li>
+<li><span class="math inline">\(\mathbf{a}_{\text{force}} \in \mathbb{R}^6\)</span>：目标力/力矩</li>
+</ul>
+<p><strong>4. 混合位置-力控制器</strong></p>
+<p>这是 Tactile-VLA 的关键创新。控制器在笛卡尔空间中同时控制位置和力：</p>
+<p><span class="math display">\[
+\boldsymbol{\tau} = \mathbf{J}^T \left[ \mathbf{K}_p (\mathbf{x}_{\text{target}} - \mathbf{x}) + \mathbf{K}_f (\mathbf{f}_{\text{target}} - \mathbf{f}) \right]
+\]</span></p>
+<p>其中： - <span class="math inline">\(\boldsymbol{\tau}\)</span> 是关节力矩 - <span class="math inline">\(\mathbf{J}\)</span> 是雅可比矩阵 - <span class="math inline">\(\mathbf{K}_p\)</span>, <span class="math inline">\(\mathbf{K}_f\)</span> 是位置/力增益矩阵 - <span class="math inline">\(\mathbf{x}\)</span>, <span class="math inline">\(\mathbf{f}\)</span> 是当前位置和力 - <span class="math inline">\(\mathbf{x}_{\text{target}}\)</span>, <span class="math inline">\(\mathbf{f}_{\text{target}}\)</span> 是模型输出的目标</p>
+<p><strong>选择矩阵</strong>：</p>
+<p>在某些自由度上控制位置，在另一些自由度上控制力：</p>
+<p><span class="math display">\[
+\mathbf{S} = \text{diag}(s_1, s_2, \ldots, s_6), \quad s_i \in \{0, 1\}
+\]</span></p>
+<p>当 <span class="math inline">\(s_i = 1\)</span> 时，第 <span class="math inline">\(i\)</span> 个自由度是力控；否则是位置控制。</p>
+</section>
+<section id="知识迁移机制" class="level4" data-number="5.2.2">
+<h4 data-number="5.2.2" class="anchored" data-anchor-id="知识迁移机制"><span class="header-section-number">5.2.2</span> 知识迁移机制</h4>
+<p>Tactile-VLA 最有趣的发现是：<strong>VLM 预训练中学到的物理常识可以迁移到触觉任务</strong>。</p>
+<p>例如，VLM 在网络文本中学到了： - “玻璃是易碎的” → 抓玻璃杯时应该轻柔 - “鸡蛋很脆弱” → 需要小心的力控 - “金属是坚硬的” → 可以用更大的力</p>
+<p>通过少量触觉示范（few-shot），模型能够： 1. 将这些语言层面的知识与触觉信号建立对应 2. 在遇到新物体时，基于语言描述推断合适的力策略</p>
+</section>
+<section id="实验结果" class="level4" data-number="5.2.3">
+<h4 data-number="5.2.3" class="anchored" data-anchor-id="实验结果"><span class="header-section-number">5.2.3</span> 实验结果</h4>
+<p>在充电器插入任务上：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>成功率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>纯视觉 VLA</td>
+<td>25%</td>
+</tr>
+<tr class="even">
+<td>视觉 + 触觉（简单融合）</td>
+<td>40%</td>
+</tr>
+<tr class="odd">
+<td>Tactile-VLA</td>
+<td><strong>90%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这个巨大的差距说明：<strong>在接触密集型任务中，触觉不是可选的，而是必要的</strong>。</p>
+</section>
+</section>
+<section id="omnivtla跨传感器泛化" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="omnivtla跨传感器泛化"><span class="header-section-number">5.3</span> OmniVTLA：跨传感器泛化</h3>
+<p>另一个值得关注的工作是 <strong>OmniVTLA</strong>，它解决了一个实际问题：<strong>不同的触觉传感器输出格式完全不同</strong>。</p>
+<p>OmniVTLA 使用双路径触觉编码器：</p>
+<ol type="1">
+<li><strong>视觉型触觉编码器</strong>：处理 GelSight 等基于视觉的触觉传感器</li>
+<li><strong>力型触觉编码器</strong>：处理力/力矩传感器的数值输出</li>
+</ol>
+<p>两者通过语义对齐投影到同一空间，实现跨传感器迁移。</p>
+</section>
+</section>
+<section id="总结与展望" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="总结与展望"><span class="header-section-number">6</span> 总结与展望</h2>
+<section id="vla-的核心贡献" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="vla-的核心贡献"><span class="header-section-number">6.1</span> VLA 的核心贡献</h3>
+<p>VLA 模型代表了机器人学习范式的一次重要转变：</p>
+<ol type="1">
+<li><strong>统一表示</strong>：视觉、语言、动作在同一框架下建模</li>
+<li><strong>知识迁移</strong>：互联网规模的 VLM 预训练知识可以服务于机器人</li>
+<li><strong>端到端优化</strong>：避免了模块化设计的信息损失</li>
+</ol>
+</section>
+<section id="当前的局限" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="当前的局限"><span class="header-section-number">6.2</span> 当前的局限</h3>
+<p>但 VLA 也面临一些挑战：</p>
+<ol type="1">
+<li><strong>实时性</strong>：大模型的推理延迟与高频控制的需求之间存在矛盾</li>
+<li><strong>数据效率</strong>：训练一个好的 VLA 需要大量的机器人数据</li>
+<li><strong>安全性</strong>：在开放环境中部署端到端模型存在风险</li>
+<li><strong>可解释性</strong>：难以理解模型的决策过程</li>
+</ol>
+</section>
+<section id="未来方向" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="未来方向"><span class="header-section-number">6.3</span> 未来方向</h3>
+<p>展望未来，VLA 可能会朝以下方向发展：</p>
+<ol type="1">
+<li><strong>多机器人协同</strong>：一个 VLA 控制多个机器人完成复杂任务</li>
+<li><strong>仿真到真实迁移</strong>：在仿真中大规模训练，零样本迁移到真实世界</li>
+<li><strong>终身学习</strong>：机器人在部署后持续学习新技能</li>
+<li><strong>物理可信 VLA</strong>：结合物理引擎的先验，提高样本效率和安全性</li>
+</ol>
+<p>VLA 模型的出现，让我们看到了通往通用机器人的一条可能路径。正如语言模型统一了 NLP 的各种任务，VLA 有望统一机器人的感知、规划和控制。这是一个令人兴奋的研究方向，期待在未来几年看到更多突破性的进展。</p>
+</section>
+</section>
+<section id="参考资源" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="参考资源"><span class="header-section-number">7</span> 参考资源</h2>
+<section id="核心论文" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="核心论文"><span class="header-section-number">7.1</span> 核心论文</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2307.15818">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control</a></li>
+<li><a href="https://arxiv.org/abs/2406.09246">OpenVLA: An Open-Source Vision-Language-Action Model</a></li>
+<li><a href="https://www.physicalintelligence.company/download/pi0.pdf">π0: A Vision-Language-Action Flow Model for General Robot Control</a></li>
+<li><a href="https://arxiv.org/abs/2507.09160">Tactile-VLA: Unlocking Vision-Language-Action Model’s Physical Knowledge for Tactile Generalization</a></li>
+</ul>
+</section>
+<section id="代码与模型" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="代码与模型"><span class="header-section-number">7.2</span> 代码与模型</h3>
+<ul>
+<li><a href="https://github.com/openvla/openvla">OpenVLA GitHub</a></li>
+<li><a href="https://vla-survey.github.io/">VLA Survey 项目主页</a></li>
+<li><a href="https://github.com/Psi-Robot/Awesome-VLA-Papers">Awesome-VLA-Papers</a></li>
+</ul>
+</section>
+<section id="综述文章" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="综述文章"><span class="header-section-number">7.3</span> 综述文章</h3>
+<ul>
+<li><a href="https://www.techrxiv.org/users/952793/articles/1322104">Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications</a></li>
+<li><a href="https://arxiv.org/html/2508.13073v1">Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey</a></li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

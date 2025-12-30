@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Yingzhao Chen">
+<meta name="dcterms.date" content="2024-12-30">
+
+<title>第7章：无风险利率与风险溢价 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#无风险利率一切的起点" id="toc-无风险利率一切的起点" class="nav-link" data-scroll-target="#无风险利率一切的起点"><span class="header-section-number">2</span> 无风险利率：一切的起点</a>
+  <ul class="collapse">
+  <li><a href="#什么是真正的无风险" id="toc-什么是真正的无风险" class="nav-link" data-scroll-target="#什么是真正的无风险"><span class="header-section-number">2.1</span> 什么是真正的”无风险”？</a></li>
+  <li><a href="#实践中的关键原则期限匹配" id="toc-实践中的关键原则期限匹配" class="nav-link" data-scroll-target="#实践中的关键原则期限匹配"><span class="header-section-number">2.2</span> 实践中的关键原则：期限匹配</a></li>
+  <li><a href="#当没有无风险政府时怎么办" id="toc-当没有无风险政府时怎么办" class="nav-link" data-scroll-target="#当没有无风险政府时怎么办"><span class="header-section-number">2.3</span> 当没有”无风险”政府时怎么办？</a></li>
+  </ul></li>
+  <li><a href="#股权风险溢价投资者要求的额外回报" id="toc-股权风险溢价投资者要求的额外回报" class="nav-link" data-scroll-target="#股权风险溢价投资者要求的额外回报"><span class="header-section-number">3</span> 股权风险溢价：投资者要求的额外回报</a>
+  <ul class="collapse">
+  <li><a href="#直觉为什么股票要比国债赚更多" id="toc-直觉为什么股票要比国债赚更多" class="nav-link" data-scroll-target="#直觉为什么股票要比国债赚更多"><span class="header-section-number">3.1</span> 直觉：为什么股票要比国债赚更多？</a></li>
+  <li><a href="#方法一历史风险溢价" id="toc-方法一历史风险溢价" class="nav-link" data-scroll-target="#方法一历史风险溢价"><span class="header-section-number">3.2</span> 方法一：历史风险溢价</a></li>
+  <li><a href="#方法二隐含股权风险溢价" id="toc-方法二隐含股权风险溢价" class="nav-link" data-scroll-target="#方法二隐含股权风险溢价"><span class="header-section-number">3.3</span> 方法二：隐含股权风险溢价</a></li>
+  <li><a href="#两种方法的比较" id="toc-两种方法的比较" class="nav-link" data-scroll-target="#两种方法的比较"><span class="header-section-number">3.4</span> 两种方法的比较</a></li>
+  </ul></li>
+  <li><a href="#国家风险溢价新兴市场的额外风险" id="toc-国家风险溢价新兴市场的额外风险" class="nav-link" data-scroll-target="#国家风险溢价新兴市场的额外风险"><span class="header-section-number">4</span> 国家风险溢价：新兴市场的额外风险</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要国家风险溢价" id="toc-为什么需要国家风险溢价" class="nav-link" data-scroll-target="#为什么需要国家风险溢价"><span class="header-section-number">4.1</span> 为什么需要国家风险溢价？</a></li>
+  <li><a href="#估算国家风险溢价的三种方法" id="toc-估算国家风险溢价的三种方法" class="nav-link" data-scroll-target="#估算国家风险溢价的三种方法"><span class="header-section-number">4.2</span> 估算国家风险溢价的三种方法</a></li>
+  <li><a href="#一个重要的细微差别公司风险敞口" id="toc-一个重要的细微差别公司风险敞口" class="nav-link" data-scroll-target="#一个重要的细微差别公司风险敞口"><span class="header-section-number">4.3</span> 一个重要的细微差别：公司风险敞口</a></li>
+  </ul></li>
+  <li><a href="#债券违约利差债务成本的风险溢价" id="toc-债券违约利差债务成本的风险溢价" class="nav-link" data-scroll-target="#债券违约利差债务成本的风险溢价"><span class="header-section-number">5</span> 债券违约利差：债务成本的风险溢价</a>
+  <ul class="collapse">
+  <li><a href="#从无风险到有风险的债务" id="toc-从无风险到有风险的债务" class="nav-link" data-scroll-target="#从无风险到有风险的债务"><span class="header-section-number">5.1</span> 从无风险到有风险的债务</a></li>
+  <li><a href="#违约利差的决定因素" id="toc-违约利差的决定因素" class="nav-link" data-scroll-target="#违约利差的决定因素"><span class="header-section-number">5.2</span> 违约利差的决定因素</a></li>
+  <li><a href="#如果公司没有评级怎么办" id="toc-如果公司没有评级怎么办" class="nav-link" data-scroll-target="#如果公司没有评级怎么办"><span class="header-section-number">5.3</span> 如果公司没有评级怎么办？</a></li>
+  </ul></li>
+  <li><a href="#把所有部分组合在一起" id="toc-把所有部分组合在一起" class="nav-link" data-scroll-target="#把所有部分组合在一起"><span class="header-section-number">6</span> 把所有部分组合在一起</a></li>
+  <li><a href="#本章总结" id="toc-本章总结" class="nav-link" data-scroll-target="#本章总结"><span class="header-section-number">7</span> 本章总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">第7章：无风险利率与风险溢价</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">从国债收益率到股权风险溢价——估值中最关键的输入参数</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">估值</div>
+    <div class="quarto-category">风险</div>
+    <div class="quarto-category">无风险利率</div>
+    <div class="quarto-category">股权风险溢价</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Yingzhao Chen </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 30, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你需要为两家公司估值：一家是美国的成熟科技公司苹果，另一家是巴西的新兴电商平台。直觉告诉我们，投资巴西公司应该要求更高的回报——但高多少？5%？10%？这个”额外要求的回报”从何而来？</p>
+<p>更基础的问题是：当我们说”投资者要求10%的回报”时，这个10%是怎么构成的？</p>
+<p>答案就藏在本章要讨论的几个关键概念中：<strong>无风险利率</strong>（Risk-free Rate）、<strong>股权风险溢价</strong>（Equity Risk Premium, ERP）、以及<strong>国家风险溢价</strong>（Country Risk Premium）。这些参数看似简单，却是整个估值体系中最具争议、也最容易出错的地方。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>为什么这些参数如此重要？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在DCF估值中，折现率的微小变化会导致估值的巨大波动。假设一家公司的永续现金流是100亿，如果折现率从10%变成9%，估值就从1000亿跳到1111亿——差了111亿！而折现率的核心组成部分，就是本章讨论的无风险利率和风险溢价。</p>
+</div>
+</div>
+</section>
+<section id="无风险利率一切的起点" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="无风险利率一切的起点"><span class="header-section-number">2</span> 无风险利率：一切的起点</h2>
+<section id="什么是真正的无风险" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="什么是真正的无风险"><span class="header-section-number">2.1</span> 什么是真正的”无风险”？</h3>
+<p>我们先思考一个看似简单的问题：什么样的投资才是真正无风险的？</p>
+<p>表面上，“无风险”意味着”确定能拿回钱”。但Damodaran指出，真正的无风险投资需要满足两个条件：</p>
+<ol type="1">
+<li><strong>没有违约风险</strong>（No Default Risk）：发行方必须100%能还钱</li>
+<li><strong>没有再投资风险</strong>（No Reinvestment Risk）：期间产生的现金流再投资时，收益率必须是确定的</li>
+</ol>
+<p>第一个条件比较直观——政府可以印钱还债，所以政府债券通常被认为没有违约风险。但第二个条件常被忽略：如果你买了一张10年期债券，期间每年收到的利息，当你再投资时的利率是不确定的。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>零息债券：唯一真正无风险的工具
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>严格来说，只有<strong>零息政府债券</strong>（Zero-coupon Government Bond）才是真正的无风险投资。因为它没有中间的利息支付，持有到期时的回报是完全确定的。</p>
+<p>但在实践中，我们通常用<strong>期限匹配的政府债券收益率</strong>作为无风险利率的近似。</p>
+</div>
+</div>
+</section>
+<section id="实践中的关键原则期限匹配" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="实践中的关键原则期限匹配"><span class="header-section-number">2.2</span> 实践中的关键原则：期限匹配</h3>
+<p>这里有一个至关重要的原则：<strong>无风险利率的期限必须与被折现的现金流期限匹配</strong>。</p>
+<p>为什么？让我们用一个例子来说明。假设你要估算一家公司未来10年的现金流，如果用1年期国债利率（比如4%）来折现，而10年期国债利率是5%，你就犯了一个隐蔽但严重的错误：</p>
+<ul>
+<li>用4%折现意味着你假设投资者可以持续10年都以4%的利率滚动投资</li>
+<li>但实际上，未来的短期利率是不确定的</li>
+<li>10年期国债的5%收益率已经包含了对这种不确定性的定价</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>现金流期限</th>
+<th>应使用的无风险利率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1年</td>
+<td>1年期国债利率</td>
+</tr>
+<tr class="even">
+<td>5年</td>
+<td>5年期国债利率</td>
+</tr>
+<tr class="odd">
+<td>10年以上（如永续）</td>
+<td>10年期或30年期国债利率</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>实务建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>对于大多数DCF估值，由于我们估算的是长期现金流（通常包含一个永续终值），应该使用<strong>10年期或更长期限的政府债券利率</strong>作为无风险利率。</p>
+<p>2024年12月，美国10年期国债收益率约为4.5%，这是估值美国公司时的起点。</p>
+</div>
+</div>
+</section>
+<section id="当没有无风险政府时怎么办" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="当没有无风险政府时怎么办"><span class="header-section-number">2.3</span> 当没有”无风险”政府时怎么办？</h3>
+<p>美国政府债券被认为是无风险的，因为美国政府可以印美元。但如果你在巴西、印度或阿根廷做估值呢？这些国家的政府债券可能存在违约风险。</p>
+<p>Damodaran提供了几种解决方案：</p>
+<p><strong>方法一：使用本币计价的发达国家债券</strong></p>
+<p>如果你用美元做估值，可以直接用美国国债利率。但要确保所有的现金流预测也是美元计价的。</p>
+<p><strong>方法二：用主权CDS利差调整</strong></p>
+<p>政府债券收益率 - 主权CDS利差 ≈ 无风险利率</p>
+<p>主权CDS（Credit Default Swap）利差反映了市场对该国违约风险的定价。例如：</p>
+<ul>
+<li>巴西10年期政府债券收益率：12%</li>
+<li>巴西主权CDS利差：2.5%</li>
+<li>巴西的雷亚尔无风险利率 ≈ 12% - 2.5% = 9.5%</li>
+</ul>
+<p><strong>方法三：通过通胀率转换</strong></p>
+<p>如果你知道美元无风险利率（4.5%），可以通过预期通胀率差异转换为其他货币：</p>
+<p><span class="math display">\[
+(1 + r_{本币}) = (1 + r_{美元}) \times \frac{1 + \pi_{本币}}{1 + \pi_{美元}}
+\]</span></p>
+<p>其中 <span class="math inline">\(\pi\)</span> 代表预期通胀率。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>货币一致性原则
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这是估值中最容易犯的错误之一：<strong>现金流的货币必须与折现率的货币一致</strong>。</p>
+<p>如果你用美元预测现金流，就用美元无风险利率；如果用人民币预测现金流，就用人民币无风险利率。混用会导致严重的估值错误。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="股权风险溢价投资者要求的额外回报" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="股权风险溢价投资者要求的额外回报"><span class="header-section-number">3</span> 股权风险溢价：投资者要求的额外回报</h2>
+<section id="直觉为什么股票要比国债赚更多" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="直觉为什么股票要比国债赚更多"><span class="header-section-number">3.1</span> 直觉：为什么股票要比国债赚更多？</h3>
+<p>无风险利率回答了”把钱借给最安全的借款人能赚多少”的问题。但投资股票比买国债风险大得多——公司可能破产、利润可能下滑、股价可能暴跌。</p>
+<p>因此，理性的投资者会要求<strong>额外的回报</strong>来补偿这些风险。这个额外回报就是<strong>股权风险溢价</strong>（Equity Risk Premium, ERP）。</p>
+<p><span class="math display">\[
+E(R_{股票}) = R_f + ERP
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(E(R_{股票})\)</span>：投资股票的期望回报率</li>
+<li><span class="math inline">\(R_f\)</span>：无风险利率</li>
+<li><span class="math inline">\(ERP\)</span>：股权风险溢价</li>
+</ul>
+<p>关键问题是：ERP应该是多少？这是金融学中争议最大的问题之一。</p>
+</section>
+<section id="方法一历史风险溢价" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="方法一历史风险溢价"><span class="header-section-number">3.2</span> 方法一：历史风险溢价</h3>
+<p>最直观的方法是看历史：过去股票比国债多赚了多少？</p>
+<p>以美国市场为例，Damodaran统计了1928-2023年的数据：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>比较基准</th>
+<th>算术平均</th>
+<th>几何平均</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>股票 vs 短期国债</td>
+<td>8.4%</td>
+<td>6.6%</td>
+</tr>
+<tr class="even">
+<td>股票 vs 长期国债</td>
+<td>6.2%</td>
+<td>4.6%</td>
+</tr>
+</tbody>
+</table>
+<p>但这个方法有几个重要问题：</p>
+<p><strong>问题1：用什么时间段？</strong></p>
+<ul>
+<li>用过去20年？50年？100年？</li>
+<li>不同时期的结果差异巨大</li>
+<li>短期数据波动大，长期数据可能不代表未来</li>
+</ul>
+<p><strong>问题2：算术平均还是几何平均？</strong></p>
+<p>这是一个关键的技术问题。假设某股票第一年涨100%（从100涨到200），第二年跌50%（从200跌回100）：</p>
+<ul>
+<li>算术平均回报 = (100% + (-50%)) / 2 = 25%</li>
+<li>几何平均回报 = <span class="math inline">\(\sqrt{1 \times 1} - 1\)</span> = 0%</li>
+</ul>
+<p>哪个对？<strong>几何平均</strong>反映了真实的累计收益，而<strong>算术平均</strong>是对未来单期回报的无偏估计。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>选择建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>如果你做的是<strong>单期</strong>估值（比如预测明年的回报），用算术平均</li>
+<li>如果你做的是<strong>多期</strong>DCF估值，几何平均更合适</li>
+<li>实务中，很多人取两者的平均作为折中</li>
+</ul>
+</div>
+</div>
+<p><strong>问题3：比较基准是短期还是长期国债？</strong></p>
+<ul>
+<li>短期国债（T-bills）：几乎没有利率风险，但与长期投资期限不匹配</li>
+<li>长期国债（T-bonds）：期限匹配，但本身有利率风险</li>
+</ul>
+<p>如前所述，由于DCF估值涉及长期现金流，<strong>应该用长期国债作为比较基准</strong>。</p>
+</section>
+<section id="方法二隐含股权风险溢价" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="方法二隐含股权风险溢价"><span class="header-section-number">3.3</span> 方法二：隐含股权风险溢价</h3>
+<p>历史法的根本问题是：<strong>过去不代表未来</strong>。市场结构、投资者构成、风险偏好都在变化。</p>
+<p>Damodaran推荐的替代方法是<strong>隐含股权风险溢价</strong>：从当前的市场价格反推投资者要求的回报率。</p>
+<p>核心思路是：如果我们知道市场的当前价格、预期股息和预期增长率，就可以用Gordon增长模型反推折现率：</p>
+<p><span class="math display">\[
+价格 = \frac{预期股息}{折现率 - 增长率}
+\]</span></p>
+<p>变形后：</p>
+<p><span class="math display">\[
+折现率 = \frac{预期股息}{价格} + 增长率
+\]</span></p>
+<p>用这个折现率减去无风险利率，就得到<strong>隐含的股权风险溢价</strong>。</p>
+<p><strong>具体例子：2024年1月的S&amp;P 500</strong></p>
+<p>让我们用实际数据来计算：</p>
+<ul>
+<li>S&amp;P 500指数：4,770点</li>
+<li>过去12个月的股息 + 回购：约205点</li>
+<li>分析师预测未来5年盈利增长率：约8%</li>
+<li>5年后假设进入稳态增长：4%</li>
+<li>10年期国债收益率：4.5%</li>
+</ul>
+<p>通过迭代求解（使现金流现值等于4,770），可以得到隐含的期望回报率约为10.2%。</p>
+<p>因此，隐含ERP = 10.2% - 4.5% = <strong>5.7%</strong></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>隐含法的优势
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>前瞻性</strong>：反映当前市场对风险的定价，而非历史平均</li>
+<li><strong>动态更新</strong>：可以随市场变化实时调整</li>
+<li><strong>内部一致</strong>：与当前市场价格保持一致</li>
+</ol>
+<p>Damodaran每月在他的网站上更新隐含ERP的估算，这是实务中非常有价值的参考。</p>
+</div>
+</div>
+</section>
+<section id="两种方法的比较" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="两种方法的比较"><span class="header-section-number">3.4</span> 两种方法的比较</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>历史法</th>
+<th>隐含法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>数据来源</td>
+<td>历史回报数据</td>
+<td>当前市场价格</td>
+</tr>
+<tr class="even">
+<td>时间导向</td>
+<td>后视镜</td>
+<td>前瞻性</td>
+</tr>
+<tr class="odd">
+<td>稳定性</td>
+<td>较稳定（除非改变时间窗口）</td>
+<td>随市场波动</td>
+</tr>
+<tr class="even">
+<td>适用场景</td>
+<td>学术研究、长期趋势</td>
+<td>实时估值、市场时机</td>
+</tr>
+<tr class="odd">
+<td>2024年估计值</td>
+<td>约4.5-6.5%（取决于参数）</td>
+<td>约5.5-6%（美国市场）</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="国家风险溢价新兴市场的额外风险" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="国家风险溢价新兴市场的额外风险"><span class="header-section-number">4</span> 国家风险溢价：新兴市场的额外风险</h2>
+<section id="为什么需要国家风险溢价" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="为什么需要国家风险溢价"><span class="header-section-number">4.1</span> 为什么需要国家风险溢价？</h3>
+<p>到目前为止，我们讨论的ERP主要针对美国这样的成熟市场。但如果你要估值一家印度公司或巴西公司呢？</p>
+<p>这些新兴市场面临额外的风险：</p>
+<ul>
+<li><strong>政治风险</strong>：政权更迭、政策不确定性</li>
+<li><strong>经济风险</strong>：货币波动、通胀不稳定</li>
+<li><strong>法律风险</strong>：产权保护不足、合同执行困难</li>
+<li><strong>流动性风险</strong>：市场深度不足，交易成本高</li>
+</ul>
+<p>投资者会要求<strong>额外的溢价</strong>来补偿这些风险。问题是：这个额外溢价应该是多少？</p>
+</section>
+<section id="估算国家风险溢价的三种方法" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="估算国家风险溢价的三种方法"><span class="header-section-number">4.2</span> 估算国家风险溢价的三种方法</h3>
+<p><strong>方法一：主权债券违约利差法</strong></p>
+<p>最简单的方法是看该国政府债券相对于美国国债的利差：</p>
+<p><span class="math display">\[
+国家风险溢价 = 该国美元债券收益率 - 美国国债收益率
+\]</span></p>
+<p>例如，如果巴西发行的美元计价债券收益率是7%，美国国债是4.5%，则巴西的国家风险溢价 = 2.5%。</p>
+<p>但这个方法有个问题：它测量的是<strong>债券</strong>市场的风险溢价，而股票的风险通常比债券大。</p>
+<p><strong>方法二：相对波动率调整法</strong></p>
+<p>为了调整股票相对于债券的更高波动性，可以用两个市场的波动率比例来放大：</p>
+<p><span class="math display">\[
+国家股权风险溢价 = 国家债券利差 \times \frac{\sigma_{股票}}{\sigma_{债券}}
+\]</span></p>
+<p>其中 <span class="math inline">\(\sigma\)</span> 代表波动率。</p>
+<p>假设新兴市场股票的波动率是债券的1.5倍（这是一个典型的比例），则：</p>
+<p>巴西股权风险溢价 = 2.5% × 1.5 = <strong>3.75%</strong></p>
+<p><strong>方法三：综合评级法</strong></p>
+<p>Damodaran建议使用国家信用评级来估算风险溢价，并提供了一个对照表。例如（2024年数据）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>国家评级（穆迪）</th>
+<th>典型国家</th>
+<th>额外风险溢价</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Aaa</td>
+<td>德国、新加坡</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>Aa1/Aa2</td>
+<td>日本、韩国</td>
+<td>0.5-0.7%</td>
+</tr>
+<tr class="odd">
+<td>A1/A2</td>
+<td>中国、波兰</td>
+<td>1.0-1.5%</td>
+</tr>
+<tr class="even">
+<td>Baa1/Baa2</td>
+<td>印度、墨西哥</td>
+<td>2.0-2.5%</td>
+</tr>
+<tr class="odd">
+<td>Ba1/Ba2</td>
+<td>巴西、印尼</td>
+<td>3.0-4.0%</td>
+</tr>
+<tr class="even">
+<td>B1及以下</td>
+<td>阿根廷、土耳其</td>
+<td>5.0%+</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>实务建议：完整的新兴市场折现率
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>假设你要估值一家印度公司（评级约Baa3）：</p>
+<ol type="1">
+<li>美元无风险利率：4.5%（10年期美国国债）</li>
+<li>成熟市场ERP：5.5%（隐含法估算）</li>
+<li>印度国家风险溢价：约2.5%</li>
+</ol>
+<p><strong>印度公司的股权成本</strong> = 4.5% + 5.5% + 2.5% = <strong>12.5%</strong></p>
+<p>（这只是Beta=1的基准，实际还需要乘以公司的Beta系数）</p>
+</div>
+</div>
+</section>
+<section id="一个重要的细微差别公司风险敞口" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="一个重要的细微差别公司风险敞口"><span class="header-section-number">4.3</span> 一个重要的细微差别：公司风险敞口</h3>
+<p>并非所有位于新兴市场的公司都面临同样程度的国家风险：</p>
+<ul>
+<li>一家<strong>巴西出口商</strong>：收入来自全球，可能只承担部分巴西风险</li>
+<li>一家<strong>巴西本地零售商</strong>：收入完全来自巴西，承担全部巴西风险</li>
+<li>一家<strong>美国公司在巴西的子公司</strong>：取决于业务结构</li>
+</ul>
+<p>Damodaran建议根据公司的<strong>收入来源地理分布</strong>来分配国家风险溢价，而不是简单地看公司注册地。</p>
+</section>
+</section>
+<section id="债券违约利差债务成本的风险溢价" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="债券违约利差债务成本的风险溢价"><span class="header-section-number">5</span> 债券违约利差：债务成本的风险溢价</h2>
+<section id="从无风险到有风险的债务" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="从无风险到有风险的债务"><span class="header-section-number">5.1</span> 从无风险到有风险的债务</h3>
+<p>前面讨论的都是股权成本。但公司也会借债，债务成本怎么确定？</p>
+<p>核心公式很简单：</p>
+<p><span class="math display">\[
+债务成本 = 无风险利率 + 违约利差
+\]</span></p>
+<p><strong>违约利差</strong>（Default Spread）反映了债权人要求的额外回报，以补偿借款人可能无法偿还的风险。</p>
+</section>
+<section id="违约利差的决定因素" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="违约利差的决定因素"><span class="header-section-number">5.2</span> 违约利差的决定因素</h3>
+<p>违约利差主要取决于公司的<strong>信用评级</strong>。评级越低，违约风险越高，利差越大：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>评级（标普）</th>
+<th>典型违约利差（2024年）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AAA</td>
+<td>0.5-0.7%</td>
+</tr>
+<tr class="even">
+<td>AA</td>
+<td>0.8-1.0%</td>
+</tr>
+<tr class="odd">
+<td>A</td>
+<td>1.0-1.5%</td>
+</tr>
+<tr class="even">
+<td>BBB</td>
+<td>1.5-2.5%</td>
+</tr>
+<tr class="odd">
+<td>BB</td>
+<td>3.0-4.0%</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>5.0-6.0%</td>
+</tr>
+<tr class="odd">
+<td>CCC及以下</td>
+<td>8.0%+</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>违约利差会随市场周期变化
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>上面的数字是”正常”市场环境下的典型值。但在市场恐慌时期（如2008年金融危机、2020年3月），违约利差会急剧扩大：</p>
+<ul>
+<li>2007年：BBB级债券利差约1.5%</li>
+<li>2008年底：同样评级的利差飙升到超过6%</li>
+<li>2024年：回到约2%</li>
+</ul>
+<p>因此，使用违约利差时，既要考虑公司的评级，也要考虑当前的市场环境。</p>
+</div>
+</div>
+</section>
+<section id="如果公司没有评级怎么办" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="如果公司没有评级怎么办"><span class="header-section-number">5.3</span> 如果公司没有评级怎么办？</h3>
+<p>很多公司（尤其是非上市公司）没有正式的信用评级。这时可以用<strong>合成评级</strong>（Synthetic Rating）：</p>
+<ol type="1">
+<li>计算公司的<strong>利息覆盖率</strong>（Interest Coverage Ratio）= EBIT / 利息费用</li>
+<li>根据利息覆盖率查表得到对应的合成评级</li>
+<li>用合成评级查找对应的违约利差</li>
+</ol>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>利息覆盖率</th>
+<th>合成评级</th>
+<th>典型违约利差</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&gt; 12.5</td>
+<td>AAA</td>
+<td>0.5%</td>
+</tr>
+<tr class="even">
+<td>9.5-12.5</td>
+<td>AA</td>
+<td>0.8%</td>
+</tr>
+<tr class="odd">
+<td>7.5-9.5</td>
+<td>A+</td>
+<td>1.0%</td>
+</tr>
+<tr class="even">
+<td>6.0-7.5</td>
+<td>A</td>
+<td>1.2%</td>
+</tr>
+<tr class="odd">
+<td>4.5-6.0</td>
+<td>A-</td>
+<td>1.4%</td>
+</tr>
+<tr class="even">
+<td>4.0-4.5</td>
+<td>BBB</td>
+<td>1.8%</td>
+</tr>
+<tr class="odd">
+<td>3.5-4.0</td>
+<td>BB+</td>
+<td>2.5%</td>
+</tr>
+<tr class="even">
+<td>3.0-3.5</td>
+<td>BB</td>
+<td>3.0%</td>
+</tr>
+<tr class="odd">
+<td>2.5-3.0</td>
+<td>B+</td>
+<td>4.0%</td>
+</tr>
+<tr class="even">
+<td>2.0-2.5</td>
+<td>B</td>
+<td>5.0%</td>
+</tr>
+<tr class="odd">
+<td>&lt; 2.0</td>
+<td>CCC</td>
+<td>8.0%</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="把所有部分组合在一起" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="把所有部分组合在一起"><span class="header-section-number">6</span> 把所有部分组合在一起</h2>
+<p>让我们用一个完整的例子来演示如何使用本章的所有概念。</p>
+<p><strong>案例：估算一家巴西钢铁公司的折现率</strong></p>
+<p>假设条件： - 公司在巴西运营，60%收入来自巴西，40%出口到全球 - 公司Beta系数：1.2 - 公司信用评级：BB+ - 债务/资本比率：40% - 税率：34%</p>
+<p><strong>步骤1：确定无风险利率</strong> 美元10年期国债收益率：4.5%</p>
+<p><strong>步骤2：计算股权成本</strong></p>
+<p>基础ERP（成熟市场）：5.5%</p>
+<p>国家风险溢价： - 巴西基础溢价：3.5% - 根据收入来源调整：3.5% × 60% = 2.1%</p>
+<p>总ERP = 5.5% + 2.1% = 7.6%</p>
+<p>股权成本 = 4.5% + 1.2 × 7.6% = <strong>13.6%</strong></p>
+<p><strong>步骤3：计算债务成本</strong></p>
+<p>BB+评级违约利差：约2.5%</p>
+<p>税前债务成本 = 4.5% + 2.5% = 7.0% 税后债务成本 = 7.0% × (1 - 34%) = <strong>4.6%</strong></p>
+<p><strong>步骤4：计算WACC</strong></p>
+<p><span class="math display">\[
+WACC = 60\% \times 13.6\% + 40\% \times 4.6\% = 8.2\% + 1.8\% = \textbf{10.0\%}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>小结：折现率的完整构成
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[
+\text{股权成本} = R_f + \beta \times (ERP_{成熟市场} + CRP)
+\]</span></p>
+<p><span class="math display">\[
+\text{债务成本} = R_f + \text{违约利差}
+\]</span></p>
+<p><span class="math display">\[
+WACC = \frac{E}{V} \times R_e + \frac{D}{V} \times R_d \times (1-T)
+\]</span></p>
+<p>每个输入参数的来源：</p>
+<ul>
+<li><span class="math inline">\(R_f\)</span>：政府债券收益率（期限匹配）</li>
+<li><span class="math inline">\(ERP\)</span>：历史法或隐含法估算</li>
+<li><span class="math inline">\(CRP\)</span>：主权利差或评级查表</li>
+<li>违约利差：公司评级或合成评级</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="本章总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="本章总结"><span class="header-section-number">7</span> 本章总结</h2>
+<p>本章讨论了估值中最基础也最关键的几个输入参数：</p>
+<ol type="1">
+<li><p><strong>无风险利率</strong>是一切的起点，必须满足无违约风险和无再投资风险，实践中用期限匹配的政府债券利率</p></li>
+<li><p><strong>股权风险溢价</strong>可以用历史法或隐含法估算，隐含法更具前瞻性，当前美国市场的ERP约为5.5-6%</p></li>
+<li><p><strong>国家风险溢价</strong>补偿新兴市场的额外风险，可以通过主权利差、相对波动率或评级表来估算</p></li>
+<li><p><strong>违约利差</strong>决定债务成本，取决于公司信用评级和市场环境</p></li>
+<li><p><strong>货币一致性</strong>是容易犯错但绝对不能犯错的原则</p></li>
+</ol>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>问题1
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>为什么Damodaran更推荐用隐含ERP而不是历史ERP？如果市场处于泡沫期（如2000年互联网泡沫），隐含ERP会有什么问题？</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>问题2
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>假设你要估值一家中国公司，该公司80%的收入来自美国市场。在计算国家风险溢价时，你会如何处理？</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>问题3
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在利率上升周期中（如2022-2023年），无风险利率上升对ERP的估算有什么影响？对公司估值的整体影响是什么？</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>问题4
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>为什么计算债务成本时要用税后利率？如果一家公司连续亏损，无法享受利息抵税，应该如何调整WACC计算？</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>问题5
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>违约利差在经济周期的不同阶段变化很大。作为估值分析师，你应该使用当前的违约利差，还是某种”正常化”的利差？为什么？</p>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "第7章：无风险利率与风险溢价"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "从国债收益率到股权风险溢价——估值中最关键的输入参数"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Yingzhao Chen"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-12-30"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [估值, 风险, 无风险利率, 股权风险溢价]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> "images/ch7-risk-premiums.png"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="an">toc-depth:</span><span class="co"> 3</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## 从一个问题开始</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>假设你需要为两家公司估值：一家是美国的成熟科技公司苹果，另一家是巴西的新兴电商平台。直觉告诉我们，投资巴西公司应该要求更高的回报——但高多少？5%？10%？这个"额外要求的回报"从何而来？</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>更基础的问题是：当我们说"投资者要求10%的回报"时，这个10%是怎么构成的？</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>答案就藏在本章要讨论的几个关键概念中：**无风险利率**（Risk-free Rate）、**股权风险溢价**（Equity Risk Premium, ERP）、以及**国家风险溢价**（Country Risk Premium）。这些参数看似简单，却是整个估值体系中最具争议、也最容易出错的地方。</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## 为什么这些参数如此重要？</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>在DCF估值中，折现率的微小变化会导致估值的巨大波动。假设一家公司的永续现金流是100亿，如果折现率从10%变成9%，估值就从1000亿跳到1111亿——差了111亿！而折现率的核心组成部分，就是本章讨论的无风险利率和风险溢价。</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">## 无风险利率：一切的起点</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">### 什么是真正的"无风险"？</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>我们先思考一个看似简单的问题：什么样的投资才是真正无风险的？</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>表面上，"无风险"意味着"确定能拿回钱"。但Damodaran指出，真正的无风险投资需要满足两个条件：</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**没有违约风险**（No Default Risk）：发行方必须100%能还钱</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**没有再投资风险**（No Reinvestment Risk）：期间产生的现金流再投资时，收益率必须是确定的</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>第一个条件比较直观——政府可以印钱还债，所以政府债券通常被认为没有违约风险。但第二个条件常被忽略：如果你买了一张10年期债券，期间每年收到的利息，当你再投资时的利率是不确定的。</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## 零息债券：唯一真正无风险的工具</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>严格来说，只有**零息政府债券**（Zero-coupon Government Bond）才是真正的无风险投资。因为它没有中间的利息支付，持有到期时的回报是完全确定的。</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>但在实践中，我们通常用**期限匹配的政府债券收益率**作为无风险利率的近似。</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">### 实践中的关键原则：期限匹配</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>这里有一个至关重要的原则：**无风险利率的期限必须与被折现的现金流期限匹配**。</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>为什么？让我们用一个例子来说明。假设你要估算一家公司未来10年的现金流，如果用1年期国债利率（比如4%）来折现，而10年期国债利率是5%，你就犯了一个隐蔽但严重的错误：</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>用4%折现意味着你假设投资者可以持续10年都以4%的利率滚动投资</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>但实际上，未来的短期利率是不确定的</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>10年期国债的5%收益率已经包含了对这种不确定性的定价</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 现金流期限 <span class="pp">|</span> 应使用的无风险利率 <span class="pp">|</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------|-------------------|</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1年 <span class="pp">|</span> 1年期国债利率 <span class="pp">|</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5年 <span class="pp">|</span> 5年期国债利率 <span class="pp">|</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10年以上（如永续） <span class="pp">|</span> 10年期或30年期国债利率 <span class="pp">|</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## 实务建议</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>对于大多数DCF估值，由于我们估算的是长期现金流（通常包含一个永续终值），应该使用**10年期或更长期限的政府债券利率**作为无风险利率。</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>2024年12月，美国10年期国债收益率约为4.5%，这是估值美国公司时的起点。</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### 当没有"无风险"政府时怎么办？</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>美国政府债券被认为是无风险的，因为美国政府可以印美元。但如果你在巴西、印度或阿根廷做估值呢？这些国家的政府债券可能存在违约风险。</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>Damodaran提供了几种解决方案：</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>**方法一：使用本币计价的发达国家债券**</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>如果你用美元做估值，可以直接用美国国债利率。但要确保所有的现金流预测也是美元计价的。</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>**方法二：用主权CDS利差调整**</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>政府债券收益率 - 主权CDS利差 ≈ 无风险利率</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>主权CDS（Credit Default Swap）利差反映了市场对该国违约风险的定价。例如：</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>巴西10年期政府债券收益率：12%</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>巴西主权CDS利差：2.5%</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>巴西的雷亚尔无风险利率 ≈ 12% - 2.5% = 9.5%</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>**方法三：通过通胀率转换**</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>如果你知道美元无风险利率（4.5%），可以通过预期通胀率差异转换为其他货币：</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>(1 + r_{本币}) = (1 + r_{美元}) \times \frac{1 + \pi_{本币}}{1 + \pi_{美元}}</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>其中 $\pi$ 代表预期通胀率。</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="fu">## 货币一致性原则</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>这是估值中最容易犯的错误之一：**现金流的货币必须与折现率的货币一致**。</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>如果你用美元预测现金流，就用美元无风险利率；如果用人民币预测现金流，就用人民币无风险利率。混用会导致严重的估值错误。</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="fu">## 股权风险溢价：投资者要求的额外回报</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a><span class="fu">### 直觉：为什么股票要比国债赚更多？</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>无风险利率回答了"把钱借给最安全的借款人能赚多少"的问题。但投资股票比买国债风险大得多——公司可能破产、利润可能下滑、股价可能暴跌。</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>因此，理性的投资者会要求**额外的回报**来补偿这些风险。这个额外回报就是**股权风险溢价**（Equity Risk Premium, ERP）。</span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>E(R_{股票}) = R_f + ERP</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>其中：</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$E(R_{股票})$：投资股票的期望回报率</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$R_f$：无风险利率</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$ERP$：股权风险溢价</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>关键问题是：ERP应该是多少？这是金融学中争议最大的问题之一。</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="fu">### 方法一：历史风险溢价</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>最直观的方法是看历史：过去股票比国债多赚了多少？</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a>以美国市场为例，Damodaran统计了1928-2023年的数据：</span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 比较基准 <span class="pp">|</span> 算术平均 <span class="pp">|</span> 几何平均 <span class="pp">|</span></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|----------|----------|</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 股票 vs 短期国债 <span class="pp">|</span> 8.4% <span class="pp">|</span> 6.6% <span class="pp">|</span></span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 股票 vs 长期国债 <span class="pp">|</span> 6.2% <span class="pp">|</span> 4.6% <span class="pp">|</span></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>但这个方法有几个重要问题：</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a>**问题1：用什么时间段？**</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>用过去20年？50年？100年？</span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>不同时期的结果差异巨大</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>短期数据波动大，长期数据可能不代表未来</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>**问题2：算术平均还是几何平均？**</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>这是一个关键的技术问题。假设某股票第一年涨100%（从100涨到200），第二年跌50%（从200跌回100）：</span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>算术平均回报 = (100% + (-50%)) / 2 = 25%</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>几何平均回报 = $\sqrt{1 \times 1} - 1$ = 0%</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>哪个对？**几何平均**反映了真实的累计收益，而**算术平均**是对未来单期回报的无偏估计。</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## 选择建议</span></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>如果你做的是**单期**估值（比如预测明年的回报），用算术平均</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>如果你做的是**多期**DCF估值，几何平均更合适</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>实务中，很多人取两者的平均作为折中</span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>**问题3：比较基准是短期还是长期国债？**</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>短期国债（T-bills）：几乎没有利率风险，但与长期投资期限不匹配</span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>长期国债（T-bonds）：期限匹配，但本身有利率风险</span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>如前所述，由于DCF估值涉及长期现金流，**应该用长期国债作为比较基准**。</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a><span class="fu">### 方法二：隐含股权风险溢价</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>历史法的根本问题是：**过去不代表未来**。市场结构、投资者构成、风险偏好都在变化。</span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>Damodaran推荐的替代方法是**隐含股权风险溢价**：从当前的市场价格反推投资者要求的回报率。</span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>核心思路是：如果我们知道市场的当前价格、预期股息和预期增长率，就可以用Gordon增长模型反推折现率：</span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>价格 = \frac{预期股息}{折现率 - 增长率}</span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>变形后：</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>折现率 = \frac{预期股息}{价格} + 增长率</span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>用这个折现率减去无风险利率，就得到**隐含的股权风险溢价**。</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>**具体例子：2024年1月的S&amp;P 500**</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>让我们用实际数据来计算：</span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>S&amp;P 500指数：4,770点</span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>过去12个月的股息 + 回购：约205点</span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>分析师预测未来5年盈利增长率：约8%</span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>5年后假设进入稳态增长：4%</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>10年期国债收益率：4.5%</span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>通过迭代求解（使现金流现值等于4,770），可以得到隐含的期望回报率约为10.2%。</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>因此，隐含ERP = 10.2% - 4.5% = **5.7%**</span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a><span class="fu">## 隐含法的优势</span></span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**前瞻性**：反映当前市场对风险的定价，而非历史平均</span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**动态更新**：可以随市场变化实时调整</span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**内部一致**：与当前市场价格保持一致</span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>Damodaran每月在他的网站上更新隐含ERP的估算，这是实务中非常有价值的参考。</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a><span class="fu">### 两种方法的比较</span></span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 维度 <span class="pp">|</span> 历史法 <span class="pp">|</span> 隐含法 <span class="pp">|</span></span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|--------|--------|</span></span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 数据来源 <span class="pp">|</span> 历史回报数据 <span class="pp">|</span> 当前市场价格 <span class="pp">|</span></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 时间导向 <span class="pp">|</span> 后视镜 <span class="pp">|</span> 前瞻性 <span class="pp">|</span></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 稳定性 <span class="pp">|</span> 较稳定（除非改变时间窗口） <span class="pp">|</span> 随市场波动 <span class="pp">|</span></span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 适用场景 <span class="pp">|</span> 学术研究、长期趋势 <span class="pp">|</span> 实时估值、市场时机 <span class="pp">|</span></span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2024年估计值 <span class="pp">|</span> 约4.5-6.5%（取决于参数） <span class="pp">|</span> 约5.5-6%（美国市场） <span class="pp">|</span></span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## 国家风险溢价：新兴市场的额外风险</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么需要国家风险溢价？</span></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a>到目前为止，我们讨论的ERP主要针对美国这样的成熟市场。但如果你要估值一家印度公司或巴西公司呢？</span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a>这些新兴市场面临额外的风险：</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**政治风险**：政权更迭、政策不确定性</span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**经济风险**：货币波动、通胀不稳定</span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**法律风险**：产权保护不足、合同执行困难</span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**流动性风险**：市场深度不足，交易成本高</span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>投资者会要求**额外的溢价**来补偿这些风险。问题是：这个额外溢价应该是多少？</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="fu">### 估算国家风险溢价的三种方法</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a>**方法一：主权债券违约利差法**</span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>最简单的方法是看该国政府债券相对于美国国债的利差：</span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a>国家风险溢价 = 该国美元债券收益率 - 美国国债收益率</span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a>例如，如果巴西发行的美元计价债券收益率是7%，美国国债是4.5%，则巴西的国家风险溢价 = 2.5%。</span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a>但这个方法有个问题：它测量的是**债券**市场的风险溢价，而股票的风险通常比债券大。</span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a>**方法二：相对波动率调整法**</span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a>为了调整股票相对于债券的更高波动性，可以用两个市场的波动率比例来放大：</span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a>国家股权风险溢价 = 国家债券利差 \times \frac{\sigma_{股票}}{\sigma_{债券}}</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a>其中 $\sigma$ 代表波动率。</span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a>假设新兴市场股票的波动率是债券的1.5倍（这是一个典型的比例），则：</span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a>巴西股权风险溢价 = 2.5% × 1.5 = **3.75%**</span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a>**方法三：综合评级法**</span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>Damodaran建议使用国家信用评级来估算风险溢价，并提供了一个对照表。例如（2024年数据）：</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 国家评级（穆迪） <span class="pp">|</span> 典型国家 <span class="pp">|</span> 额外风险溢价 <span class="pp">|</span></span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------------|----------|-------------|</span></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Aaa <span class="pp">|</span> 德国、新加坡 <span class="pp">|</span> 0% <span class="pp">|</span></span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Aa1/Aa2 <span class="pp">|</span> 日本、韩国 <span class="pp">|</span> 0.5-0.7% <span class="pp">|</span></span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A1/A2 <span class="pp">|</span> 中国、波兰 <span class="pp">|</span> 1.0-1.5% <span class="pp">|</span></span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Baa1/Baa2 <span class="pp">|</span> 印度、墨西哥 <span class="pp">|</span> 2.0-2.5% <span class="pp">|</span></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Ba1/Ba2 <span class="pp">|</span> 巴西、印尼 <span class="pp">|</span> 3.0-4.0% <span class="pp">|</span></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> B1及以下 <span class="pp">|</span> 阿根廷、土耳其 <span class="pp">|</span> 5.0%+ <span class="pp">|</span></span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a><span class="fu">## 实务建议：完整的新兴市场折现率</span></span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a>假设你要估值一家印度公司（评级约Baa3）：</span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>美元无风险利率：4.5%（10年期美国国债）</span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>成熟市场ERP：5.5%（隐含法估算）</span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>印度国家风险溢价：约2.5%</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>**印度公司的股权成本** = 4.5% + 5.5% + 2.5% = **12.5%**</span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>（这只是Beta=1的基准，实际还需要乘以公司的Beta系数）</span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a><span class="fu">### 一个重要的细微差别：公司风险敞口</span></span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>并非所有位于新兴市场的公司都面临同样程度的国家风险：</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>一家**巴西出口商**：收入来自全球，可能只承担部分巴西风险</span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>一家**巴西本地零售商**：收入完全来自巴西，承担全部巴西风险</span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>一家**美国公司在巴西的子公司**：取决于业务结构</span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>Damodaran建议根据公司的**收入来源地理分布**来分配国家风险溢价，而不是简单地看公司注册地。</span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a><span class="fu">## 债券违约利差：债务成本的风险溢价</span></span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a><span class="fu">### 从无风险到有风险的债务</span></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a>前面讨论的都是股权成本。但公司也会借债，债务成本怎么确定？</span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a>核心公式很简单：</span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>债务成本 = 无风险利率 + 违约利差</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a>**违约利差**（Default Spread）反映了债权人要求的额外回报，以补偿借款人可能无法偿还的风险。</span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a><span class="fu">### 违约利差的决定因素</span></span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a>违约利差主要取决于公司的**信用评级**。评级越低，违约风险越高，利差越大：</span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 评级（标普） <span class="pp">|</span> 典型违约利差（2024年） <span class="pp">|</span></span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|----------------------|</span></span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> AAA <span class="pp">|</span> 0.5-0.7% <span class="pp">|</span></span>
+<span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> AA <span class="pp">|</span> 0.8-1.0% <span class="pp">|</span></span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A <span class="pp">|</span> 1.0-1.5% <span class="pp">|</span></span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> BBB <span class="pp">|</span> 1.5-2.5% <span class="pp">|</span></span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> BB <span class="pp">|</span> 3.0-4.0% <span class="pp">|</span></span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> B <span class="pp">|</span> 5.0-6.0% <span class="pp">|</span></span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> CCC及以下 <span class="pp">|</span> 8.0%+ <span class="pp">|</span></span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a><span class="fu">## 违约利差会随市场周期变化</span></span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a>上面的数字是"正常"市场环境下的典型值。但在市场恐慌时期（如2008年金融危机、2020年3月），违约利差会急剧扩大：</span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>2007年：BBB级债券利差约1.5%</span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>2008年底：同样评级的利差飙升到超过6%</span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>2024年：回到约2%</span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a>因此，使用违约利差时，既要考虑公司的评级，也要考虑当前的市场环境。</span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a><span class="fu">### 如果公司没有评级怎么办？</span></span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a>很多公司（尤其是非上市公司）没有正式的信用评级。这时可以用**合成评级**（Synthetic Rating）：</span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>计算公司的**利息覆盖率**（Interest Coverage Ratio）= EBIT / 利息费用</span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>根据利息覆盖率查表得到对应的合成评级</span>
+<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>用合成评级查找对应的违约利差</span>
+<span id="cb1-358"><a href="#cb1-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 利息覆盖率 <span class="pp">|</span> 合成评级 <span class="pp">|</span> 典型违约利差 <span class="pp">|</span></span>
+<span id="cb1-360"><a href="#cb1-360" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------|----------|-------------|</span></span>
+<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> &gt; 12.5 <span class="pp">|</span> AAA <span class="pp">|</span> 0.5% <span class="pp">|</span></span>
+<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 9.5-12.5 <span class="pp">|</span> AA <span class="pp">|</span> 0.8% <span class="pp">|</span></span>
+<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 7.5-9.5 <span class="pp">|</span> A+ <span class="pp">|</span> 1.0% <span class="pp">|</span></span>
+<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 6.0-7.5 <span class="pp">|</span> A <span class="pp">|</span> 1.2% <span class="pp">|</span></span>
+<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4.5-6.0 <span class="pp">|</span> A- <span class="pp">|</span> 1.4% <span class="pp">|</span></span>
+<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4.0-4.5 <span class="pp">|</span> BBB <span class="pp">|</span> 1.8% <span class="pp">|</span></span>
+<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3.5-4.0 <span class="pp">|</span> BB+ <span class="pp">|</span> 2.5% <span class="pp">|</span></span>
+<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3.0-3.5 <span class="pp">|</span> BB <span class="pp">|</span> 3.0% <span class="pp">|</span></span>
+<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.5-3.0 <span class="pp">|</span> B+ <span class="pp">|</span> 4.0% <span class="pp">|</span></span>
+<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2.0-2.5 <span class="pp">|</span> B <span class="pp">|</span> 5.0% <span class="pp">|</span></span>
+<span id="cb1-371"><a href="#cb1-371" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> &lt; 2.0 <span class="pp">|</span> CCC <span class="pp">|</span> 8.0% <span class="pp">|</span></span>
+<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a><span class="fu">## 把所有部分组合在一起</span></span>
+<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a>让我们用一个完整的例子来演示如何使用本章的所有概念。</span>
+<span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a>**案例：估算一家巴西钢铁公司的折现率**</span>
+<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a>假设条件：</span>
+<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>公司在巴西运营，60%收入来自巴西，40%出口到全球</span>
+<span id="cb1-381"><a href="#cb1-381" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>公司Beta系数：1.2</span>
+<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>公司信用评级：BB+</span>
+<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>债务/资本比率：40%</span>
+<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>税率：34%</span>
+<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a>**步骤1：确定无风险利率**</span>
+<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a>美元10年期国债收益率：4.5%</span>
+<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a>**步骤2：计算股权成本**</span>
+<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a>基础ERP（成熟市场）：5.5%</span>
+<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a>国家风险溢价：</span>
+<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>巴西基础溢价：3.5%</span>
+<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>根据收入来源调整：3.5% × 60% = 2.1%</span>
+<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a>总ERP = 5.5% + 2.1% = 7.6%</span>
+<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a>股权成本 = 4.5% + 1.2 × 7.6% = **13.6%**</span>
+<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a>**步骤3：计算债务成本**</span>
+<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a>BB+评级违约利差：约2.5%</span>
+<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a>税前债务成本 = 4.5% + 2.5% = 7.0%</span>
+<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a>税后债务成本 = 7.0% × (1 - 34%) = **4.6%**</span>
+<span id="cb1-407"><a href="#cb1-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-408"><a href="#cb1-408" aria-hidden="true" tabindex="-1"></a>**步骤4：计算WACC**</span>
+<span id="cb1-409"><a href="#cb1-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-410"><a href="#cb1-410" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-411"><a href="#cb1-411" aria-hidden="true" tabindex="-1"></a>WACC = 60\% \times 13.6\% + 40\% \times 4.6\% = 8.2\% + 1.8\% = \textbf{10.0\%}</span>
+<span id="cb1-412"><a href="#cb1-412" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-413"><a href="#cb1-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-414"><a href="#cb1-414" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb1-415"><a href="#cb1-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## 小结：折现率的完整构成</span></span>
+<span id="cb1-416"><a href="#cb1-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-417"><a href="#cb1-417" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-418"><a href="#cb1-418" aria-hidden="true" tabindex="-1"></a>\text{股权成本} = R_f + \beta \times (ERP_{成熟市场} + CRP)</span>
+<span id="cb1-419"><a href="#cb1-419" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-420"><a href="#cb1-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-421"><a href="#cb1-421" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-422"><a href="#cb1-422" aria-hidden="true" tabindex="-1"></a>\text{债务成本} = R_f + \text{违约利差}</span>
+<span id="cb1-423"><a href="#cb1-423" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-424"><a href="#cb1-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-425"><a href="#cb1-425" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-426"><a href="#cb1-426" aria-hidden="true" tabindex="-1"></a>WACC = \frac{E}{V} \times R_e + \frac{D}{V} \times R_d \times (1-T)</span>
+<span id="cb1-427"><a href="#cb1-427" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-428"><a href="#cb1-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-429"><a href="#cb1-429" aria-hidden="true" tabindex="-1"></a>每个输入参数的来源：</span>
+<span id="cb1-430"><a href="#cb1-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-431"><a href="#cb1-431" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$R_f$：政府债券收益率（期限匹配）</span>
+<span id="cb1-432"><a href="#cb1-432" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$ERP$：历史法或隐含法估算</span>
+<span id="cb1-433"><a href="#cb1-433" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$CRP$：主权利差或评级查表</span>
+<span id="cb1-434"><a href="#cb1-434" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>违约利差：公司评级或合成评级</span>
+<span id="cb1-435"><a href="#cb1-435" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-436"><a href="#cb1-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-437"><a href="#cb1-437" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章总结</span></span>
+<span id="cb1-438"><a href="#cb1-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-439"><a href="#cb1-439" aria-hidden="true" tabindex="-1"></a>本章讨论了估值中最基础也最关键的几个输入参数：</span>
+<span id="cb1-440"><a href="#cb1-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-441"><a href="#cb1-441" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**无风险利率**是一切的起点，必须满足无违约风险和无再投资风险，实践中用期限匹配的政府债券利率</span>
+<span id="cb1-442"><a href="#cb1-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-443"><a href="#cb1-443" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**股权风险溢价**可以用历史法或隐含法估算，隐含法更具前瞻性，当前美国市场的ERP约为5.5-6%</span>
+<span id="cb1-444"><a href="#cb1-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-445"><a href="#cb1-445" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**国家风险溢价**补偿新兴市场的额外风险，可以通过主权利差、相对波动率或评级表来估算</span>
+<span id="cb1-446"><a href="#cb1-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-447"><a href="#cb1-447" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**违约利差**决定债务成本，取决于公司信用评级和市场环境</span>
+<span id="cb1-448"><a href="#cb1-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-449"><a href="#cb1-449" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**货币一致性**是容易犯错但绝对不能犯错的原则</span>
+<span id="cb1-450"><a href="#cb1-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-451"><a href="#cb1-451" aria-hidden="true" tabindex="-1"></a><span class="fu">## 思考题</span></span>
+<span id="cb1-452"><a href="#cb1-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-453"><a href="#cb1-453" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-454"><a href="#cb1-454" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题1</span></span>
+<span id="cb1-455"><a href="#cb1-455" aria-hidden="true" tabindex="-1"></a>为什么Damodaran更推荐用隐含ERP而不是历史ERP？如果市场处于泡沫期（如2000年互联网泡沫），隐含ERP会有什么问题？</span>
+<span id="cb1-456"><a href="#cb1-456" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-457"><a href="#cb1-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-458"><a href="#cb1-458" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-459"><a href="#cb1-459" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题2</span></span>
+<span id="cb1-460"><a href="#cb1-460" aria-hidden="true" tabindex="-1"></a>假设你要估值一家中国公司，该公司80%的收入来自美国市场。在计算国家风险溢价时，你会如何处理？</span>
+<span id="cb1-461"><a href="#cb1-461" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-462"><a href="#cb1-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-463"><a href="#cb1-463" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-464"><a href="#cb1-464" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题3</span></span>
+<span id="cb1-465"><a href="#cb1-465" aria-hidden="true" tabindex="-1"></a>在利率上升周期中（如2022-2023年），无风险利率上升对ERP的估算有什么影响？对公司估值的整体影响是什么？</span>
+<span id="cb1-466"><a href="#cb1-466" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-467"><a href="#cb1-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-468"><a href="#cb1-468" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-469"><a href="#cb1-469" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题4</span></span>
+<span id="cb1-470"><a href="#cb1-470" aria-hidden="true" tabindex="-1"></a>为什么计算债务成本时要用税后利率？如果一家公司连续亏损，无法享受利息抵税，应该如何调整WACC计算？</span>
+<span id="cb1-471"><a href="#cb1-471" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-472"><a href="#cb1-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-473"><a href="#cb1-473" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-474"><a href="#cb1-474" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题5</span></span>
+<span id="cb1-475"><a href="#cb1-475" aria-hidden="true" tabindex="-1"></a>违约利差在经济周期的不同阶段变化很大。作为估值分析师，你应该使用当前的违约利差，还是某种"正常化"的利差？为什么？</span>
+<span id="cb1-476"><a href="#cb1-476" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

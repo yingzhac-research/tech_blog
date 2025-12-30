@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="财务报表是估值的原材料。理解会计师如何计量资产、负债、盈利和风险，以及这些数字与’真实价值’之间的差距，是做好估值的基础。">
+
+<title>读懂财务报表：估值分析师的视角（Damodaran 第 3 章） – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#三张财务报表全景图" id="toc-三张财务报表全景图" class="nav-link" data-scroll-target="#三张财务报表全景图"><span class="header-section-number">2</span> 三张财务报表：全景图</a>
+  <ul class="collapse">
+  <li><a href="#资产负债表balance-sheet" id="toc-资产负债表balance-sheet" class="nav-link" data-scroll-target="#资产负债表balance-sheet"><span class="header-section-number">2.1</span> 资产负债表（Balance Sheet）</a></li>
+  <li><a href="#利润表income-statement" id="toc-利润表income-statement" class="nav-link" data-scroll-target="#利润表income-statement"><span class="header-section-number">2.2</span> 利润表（Income Statement）</a></li>
+  <li><a href="#现金流量表statement-of-cash-flows" id="toc-现金流量表statement-of-cash-flows" class="nav-link" data-scroll-target="#现金流量表statement-of-cash-flows"><span class="header-section-number">2.3</span> 现金流量表（Statement of Cash Flows）</a></li>
+  </ul></li>
+  <li><a href="#资产计量账面价值与真实价值的差距" id="toc-资产计量账面价值与真实价值的差距" class="nav-link" data-scroll-target="#资产计量账面价值与真实价值的差距"><span class="header-section-number">3</span> 资产计量：账面价值与真实价值的差距</a>
+  <ul class="collapse">
+  <li><a href="#会计计量资产的三个原则" id="toc-会计计量资产的三个原则" class="nav-link" data-scroll-target="#会计计量资产的三个原则"><span class="header-section-number">3.1</span> 会计计量资产的三个原则</a></li>
+  <li><a href="#固定资产折旧的玄机" id="toc-固定资产折旧的玄机" class="nav-link" data-scroll-target="#固定资产折旧的玄机"><span class="header-section-number">3.2</span> 固定资产：折旧的玄机</a></li>
+  <li><a href="#流动资产存货估值的选择" id="toc-流动资产存货估值的选择" class="nav-link" data-scroll-target="#流动资产存货估值的选择"><span class="header-section-number">3.3</span> 流动资产：存货估值的选择</a></li>
+  <li><a href="#金融投资持股比例决定计量方法" id="toc-金融投资持股比例决定计量方法" class="nav-link" data-scroll-target="#金融投资持股比例决定计量方法"><span class="header-section-number">3.4</span> 金融投资：持股比例决定计量方法</a></li>
+  <li><a href="#无形资产会计的最大盲区" id="toc-无形资产会计的最大盲区" class="nav-link" data-scroll-target="#无形资产会计的最大盲区"><span class="header-section-number">3.5</span> 无形资产：会计的最大盲区</a></li>
+  <li><a href="#案例rtx-与-home-depot-的资产结构" id="toc-案例rtx-与-home-depot-的资产结构" class="nav-link" data-scroll-target="#案例rtx-与-home-depot-的资产结构"><span class="header-section-number">3.6</span> 案例：RTX 与 Home Depot 的资产结构</a></li>
+  </ul></li>
+  <li><a href="#负债与股东权益的计量" id="toc-负债与股东权益的计量" class="nav-link" data-scroll-target="#负债与股东权益的计量"><span class="header-section-number">4</span> 负债与股东权益的计量</a>
+  <ul class="collapse">
+  <li><a href="#负债确认的三个条件" id="toc-负债确认的三个条件" class="nav-link" data-scroll-target="#负债确认的三个条件"><span class="header-section-number">4.1</span> 负债确认的三个条件</a></li>
+  <li><a href="#流动负债" id="toc-流动负债" class="nav-link" data-scroll-target="#流动负债"><span class="header-section-number">4.2</span> 流动负债</a></li>
+  <li><a href="#长期债务" id="toc-长期债务" class="nav-link" data-scroll-target="#长期债务"><span class="header-section-number">4.3</span> 长期债务</a></li>
+  <li><a href="#其他长期负债" id="toc-其他长期负债" class="nav-link" data-scroll-target="#其他长期负债"><span class="header-section-number">4.4</span> 其他长期负债</a></li>
+  <li><a href="#股东权益" id="toc-股东权益" class="nav-link" data-scroll-target="#股东权益"><span class="header-section-number">4.5</span> 股东权益</a></li>
+  </ul></li>
+  <li><a href="#盈利能力的计量" id="toc-盈利能力的计量" class="nav-link" data-scroll-target="#盈利能力的计量"><span class="header-section-number">5</span> 盈利能力的计量</a>
+  <ul class="collapse">
+  <li><a href="#会计盈利的两个基本原则" id="toc-会计盈利的两个基本原则" class="nav-link" data-scroll-target="#会计盈利的两个基本原则"><span class="header-section-number">5.1</span> 会计盈利的两个基本原则</a></li>
+  <li><a href="#营运利润-vs-净利润" id="toc-营运利润-vs-净利润" class="nav-link" data-scroll-target="#营运利润-vs-净利润"><span class="header-section-number">5.2</span> 营运利润 vs 净利润</a></li>
+  <li><a href="#非经常性项目" id="toc-非经常性项目" class="nav-link" data-scroll-target="#非经常性项目"><span class="header-section-number">5.3</span> 非经常性项目</a></li>
+  <li><a href="#盈利能力比率" id="toc-盈利能力比率" class="nav-link" data-scroll-target="#盈利能力比率"><span class="header-section-number">5.4</span> 盈利能力比率</a></li>
+  <li><a href="#案例rtx-与-home-depot-的盈利能力" id="toc-案例rtx-与-home-depot-的盈利能力" class="nav-link" data-scroll-target="#案例rtx-与-home-depot-的盈利能力"><span class="header-section-number">5.5</span> 案例：RTX 与 Home Depot 的盈利能力</a></li>
+  </ul></li>
+  <li><a href="#风险计量会计的局限" id="toc-风险计量会计的局限" class="nav-link" data-scroll-target="#风险计量会计的局限"><span class="header-section-number">6</span> 风险计量：会计的局限</a>
+  <ul class="collapse">
+  <li><a href="#会计视角下的风险" id="toc-会计视角下的风险" class="nav-link" data-scroll-target="#会计视角下的风险"><span class="header-section-number">6.1</span> 会计视角下的风险</a></li>
+  <li><a href="#短期流动性比率" id="toc-短期流动性比率" class="nav-link" data-scroll-target="#短期流动性比率"><span class="header-section-number">6.2</span> 短期流动性比率</a></li>
+  <li><a href="#长期偿债能力比率" id="toc-长期偿债能力比率" class="nav-link" data-scroll-target="#长期偿债能力比率"><span class="header-section-number">6.3</span> 长期偿债能力比率</a></li>
+  <li><a href="#负债比率" id="toc-负债比率" class="nav-link" data-scroll-target="#负债比率"><span class="header-section-number">6.4</span> 负债比率</a></li>
+  <li><a href="#案例rtx-与-home-depot-的风险指标" id="toc-案例rtx-与-home-depot-的风险指标" class="nav-link" data-scroll-target="#案例rtx-与-home-depot-的风险指标"><span class="header-section-number">6.5</span> 案例：RTX 与 Home Depot 的风险指标</a></li>
+  </ul></li>
+  <li><a href="#会计准则差异gaap-vs-ifrs" id="toc-会计准则差异gaap-vs-ifrs" class="nav-link" data-scroll-target="#会计准则差异gaap-vs-ifrs"><span class="header-section-number">7</span> 会计准则差异：GAAP vs IFRS</a></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">8</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">9</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">读懂财务报表：估值分析师的视角（Damodaran 第 3 章）</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    财务报表是估值的原材料。理解会计师如何计量资产、负债、盈利和风险，以及这些数字与’真实价值’之间的差距，是做好估值的基础。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月30日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>当你打开一家公司的年报，看到”总资产 1000 亿”这个数字时，你会相信这家公司真的值 1000 亿吗？</p>
+<p>大多数有经验的投资者会说：不会。他们知道，资产负债表上的数字是<strong>会计账面价值（Book Value）</strong>，而不是<strong>市场价值（Market Value）</strong>。但问题来了：既然账面价值不等于市场价值，为什么我们还要看财务报表？</p>
+<p>答案是：财务报表虽然不能直接告诉我们公司值多少钱，但它提供了估值所需的<strong>基础信息</strong>——资产的类型、融资的结构、盈利的水平、风险的线索。关键在于：你要理解会计数字背后的规则和局限，才能正确地使用它们。</p>
+<p>本章将回答四个核心问题：</p>
+<ol type="1">
+<li><strong>资产值多少？</strong> 会计如何计量，与真实价值有何差距？</li>
+<li><strong>融资结构是什么？</strong> 债务和股权如何划分和计量？</li>
+<li><strong>盈利能力如何？</strong> 利润从哪里来，如何衡量回报？</li>
+<li><strong>风险有多大？</strong> 会计如何报告风险，有何局限？</li>
+</ol>
+<hr>
+</section>
+<section id="三张财务报表全景图" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="三张财务报表全景图"><span class="header-section-number">2</span> 三张财务报表：全景图</h2>
+<p>在深入细节之前，让我们先建立对三张核心财务报表的整体理解。</p>
+<section id="资产负债表balance-sheet" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="资产负债表balance-sheet"><span class="header-section-number">2.1</span> 资产负债表（Balance Sheet）</h3>
+<p>资产负债表是一张<strong>时点快照</strong>，回答三个问题：</p>
+<ul>
+<li>公司拥有什么资产？</li>
+<li>这些资产如何计量？</li>
+<li>用什么方式融资（债务 vs 股权）？</li>
+</ul>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        资产负债表                            │
+├──────────────────────────┬──────────────────────────────────┤
+│         资产             │           负债与股东权益          │
+├──────────────────────────┼──────────────────────────────────┤
+│ 非现金流动资产 (成本)     │ 流动负债 (成本)                  │
+│ 现金及有价证券 (市值)     │ 有息债务 (原始发行额)            │
+│ 固定资产 (成本 - 折旧)    │ 其他负债 (估计值)                │
+│ 金融投资 (成本/市值)      │ 股东权益 (历史累计)              │
+│ 无形资产 (大多是商誉)     │                                  │
+└──────────────────────────┴──────────────────────────────────┘</code></pre>
+</section>
+<section id="利润表income-statement" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="利润表income-statement"><span class="header-section-number">2.2</span> 利润表（Income Statement）</h3>
+<p>利润表是一张<strong>期间报告</strong>，展示公司在一段时间内的经营成果：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>收入（Revenues）</td>
+<td>本期销售的商品/服务产生的收入</td>
+</tr>
+<tr class="even">
+<td>− 销售成本（COGS）</td>
+<td>直接与产品相关的成本</td>
+</tr>
+<tr class="odd">
+<td>= 毛利（Gross Profit）</td>
+<td>单位盈利能力</td>
+</tr>
+<tr class="even">
+<td>− 营业费用（Operating Expenses）</td>
+<td>间接运营成本</td>
+</tr>
+<tr class="odd">
+<td>= 营业利润（Operating Income / EBIT）</td>
+<td>业务本身的盈利能力</td>
+</tr>
+<tr class="even">
+<td>− 利息费用 + 利息收入</td>
+<td>融资相关</td>
+</tr>
+<tr class="odd">
+<td>= 税前利润（Pretax Income）</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>− 所得税</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>= 净利润（Net Income）</td>
+<td>归属股东的利润</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="现金流量表statement-of-cash-flows" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="现金流量表statement-of-cash-flows"><span class="header-section-number">2.3</span> 现金流量表（Statement of Cash Flows）</h3>
+<p>现金流量表解释了现金余额为什么发生变化：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>类别</th>
+<th>主要项目</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>经营活动现金流</strong></td>
+<td>净利润 + 折旧 ± 营运资本变化</td>
+</tr>
+<tr class="even">
+<td><strong>投资活动现金流</strong></td>
+<td>资本支出、收购、投资</td>
+</tr>
+<tr class="odd">
+<td><strong>融资活动现金流</strong></td>
+<td>借债/还债、发行/回购股票、股利</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>会计视角 vs 估值视角
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>会计师的目标是<strong>准确记录过去</strong>——交易发生了什么，按什么规则入账。估值分析师的目标是<strong>预测未来</strong>——公司未来能产生多少现金流。这种目标差异导致了许多我们即将讨论的”会计 vs 价值”的差距。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="资产计量账面价值与真实价值的差距" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="资产计量账面价值与真实价值的差距"><span class="header-section-number">3</span> 资产计量：账面价值与真实价值的差距</h2>
+<section id="会计计量资产的三个原则" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="会计计量资产的三个原则"><span class="header-section-number">3.1</span> 会计计量资产的三个原则</h3>
+<p>要理解为什么账面价值经常不等于市场价值，首先要理解会计计量资产的三个基本原则：</p>
+<p><strong>原则一：以历史成本为基础</strong></p>
+<p>会计对资产的计量以<strong>账面价值（Book Value）</strong>为起点，即资产的原始购买成本，经过后续改良调增、折旧调减。除非有充分理由，会计师倾向于保留历史成本。</p>
+<p><strong>原则二：不信任市场估值</strong></p>
+<p>当资产的市场价值与账面价值不同时，会计通常对市场价值持怀疑态度——认为它太波动、太容易被操纵。对于基于未来现金流估计的价值，会计的怀疑更深。</p>
+<p><strong>原则三：宁低勿高（保守主义）</strong></p>
+<p>当有多种估值方法可选时，会计通常选择更保守（更低）的那个。例如，当市场价值和账面价值都可用时，会计规则往往要求使用两者中较低的。</p>
+<p>这三个原则解释了为什么<strong>账面价值通常低于市场价值</strong>——会计系统性地偏向保守。</p>
+</section>
+<section id="固定资产折旧的玄机" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="固定资产折旧的玄机"><span class="header-section-number">3.2</span> 固定资产：折旧的玄机</h3>
+<p>固定资产（Fixed Assets）包括厂房、设备、土地、建筑物等长期资产。</p>
+<p><strong>计量方法</strong>：原始成本 − 累计折旧 = 净固定资产</p>
+<p><strong>折旧方法</strong>有两大类：</p>
+<ul>
+<li><strong>直线法（Straight-line）</strong>：每年折旧相同金额</li>
+<li><strong>加速折旧（Accelerated）</strong>：前几年折旧多，后几年少</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>折旧的两套账
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在美国，许多公司在<strong>财务报告</strong>中使用直线法（让利润看起来更好），但在<strong>税务申报</strong>中使用加速折旧（减少当期应税收入）。这意味着同一家公司对外报告的折旧和实际用于纳税的折旧可能不同！</p>
+</div>
+</div>
+<p><strong>对估值的影响</strong>：</p>
+<ul>
+<li>固定资产的账面价值受资产年龄、折旧年限和折旧方法的强烈影响</li>
+<li>老资产的账面价值更低，但这并不意味着它们产生的价值更少</li>
+<li>跨公司比较时，要注意折旧政策的差异</li>
+</ul>
+</section>
+<section id="流动资产存货估值的选择" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="流动资产存货估值的选择"><span class="header-section-number">3.3</span> 流动资产：存货估值的选择</h3>
+<p>流动资产（Current Assets）包括存货、应收账款和现金。</p>
+<p><strong>现金</strong>是少数几种会计价值与市场价值应该一致的资产。</p>
+<p><strong>应收账款</strong>按应收金额计量，但需要考虑坏账准备。</p>
+<p><strong>存货</strong>的估值方法有三种选择：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 32%">
+<col style="width: 32%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>对销售成本的影响</th>
+<th>对存货价值的影响</th>
+<th>对利润的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>FIFO</strong>（先进先出）</td>
+<td>较低（用早期成本）</td>
+<td>较高（接近当前成本）</td>
+<td>较高</td>
+</tr>
+<tr class="even">
+<td><strong>LIFO</strong>（后进先出）</td>
+<td>较高（用近期成本）</td>
+<td>较低（用早期成本）</td>
+<td>较低</td>
+</tr>
+<tr class="odd">
+<td><strong>加权平均</strong></td>
+<td>中间</td>
+<td>中间</td>
+<td>中间</td>
+</tr>
+</tbody>
+</table>
+<p>在通货膨胀时期：</p>
+<ul>
+<li>FIFO 会让利润看起来更高（因为销售成本用的是较低的早期价格）</li>
+<li>LIFO 会让利润看起来更低，但节省税款（因为销售成本用的是较高的近期价格）</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>如何比较使用不同存货方法的公司？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>使用 LIFO 的公司必须在附注中披露 <strong>LIFO Reserve</strong>——即 FIFO 存货价值与 LIFO 存货价值的差异。你可以用这个数字把 LIFO 公司的利润调整为可比的 FIFO 基础。</p>
+</div>
+</div>
+</section>
+<section id="金融投资持股比例决定计量方法" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="金融投资持股比例决定计量方法"><span class="header-section-number">3.4</span> 金融投资：持股比例决定计量方法</h3>
+<p>当一家公司投资另一家公司的股权时，会计处理取决于<strong>持股比例</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>持股比例</th>
+<th>分类</th>
+<th>计量方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt; 20%</td>
+<td>少数被动投资</td>
+<td>按成本或市值（视持有目的）</td>
+</tr>
+<tr class="even">
+<td>20%-50%</td>
+<td>少数主动投资</td>
+<td>权益法（按比例确认被投资方损益）</td>
+</tr>
+<tr class="odd">
+<td>&gt; 50%</td>
+<td>多数主动投资</td>
+<td>合并报表（100% 并入资产负债）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>少数被动投资</strong>的三种处理：</p>
+<ul>
+<li><strong>持有至到期</strong>：按成本计量</li>
+<li><strong>可供出售</strong>：按市值计量，但未实现损益进入股东权益，不影响利润表</li>
+<li><strong>交易性投资</strong>：按市值计量，未实现损益进入利润表（Mark-to-Market）</li>
+</ul>
+<p><strong>多数主动投资</strong>的特殊处理：</p>
+<p>当持股超过 50%，公司必须<strong>合并</strong>子公司的财务报表——将子公司 100% 的资产、负债、收入、费用都并入母公司报表，然后在负债端列示<strong>少数股东权益（Minority Interest）</strong>反映不属于母公司的那部分。</p>
+</section>
+<section id="无形资产会计的最大盲区" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="无形资产会计的最大盲区"><span class="header-section-number">3.5</span> 无形资产：会计的最大盲区</h3>
+<p>无形资产（Intangible Assets）是会计面临的最大挑战，也是估值分析师需要特别警惕的领域。</p>
+<p><strong>专利和商标</strong>：</p>
+<ul>
+<li><strong>内部研发产生的</strong>：研发成本在发生当期费用化，不形成资产</li>
+<li><strong>外部收购的</strong>：按收购成本确认为资产，在使用年限内摊销</li>
+</ul>
+<p>这意味着：一家通过内部研发创造大量专利的公司，其资产负债表上可能看不到这些专利的价值！</p>
+<p><strong>品牌、管理能力等”真正的”无形资产</strong>：</p>
+<p>这些资产几乎完全不会出现在资产负债表上。看看全球市值最高的公司——Apple、Microsoft、Alphabet——它们的价值很大程度上来自无形资产，但这些资产在账面上几乎看不到。</p>
+<p><strong>商誉（Goodwill）</strong>：</p>
+<p>商誉是无形资产中最常见的一项，但它的来源很特殊：</p>
+<p><span class="math display">\[
+\text{商誉} = \text{收购价格} - \text{被收购公司可辨认净资产的公允价值}
+\]</span></p>
+<p>换句话说，商誉是收购中<strong>多付的那部分钱</strong>。它反映的是收购方认为被收购公司”值得多付”的价值——可能是品牌、客户关系、协同效应，也可能只是收购方的过度乐观。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>商誉的警示
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>商誉的增加几乎总是因为收购。如果一家公司的商誉占资产比例很高，说明它通过收购进行了大量扩张。关键问题是：这些收购是否真的创造了价值，还是收购方付出了过高的价格？</p>
+<p>现行会计准则要求每年对商誉进行<strong>减值测试</strong>——如果被收购公司的价值下降，商誉必须相应减记。但如果价值上升，商誉不能增加。这是保守主义原则的又一体现。</p>
+</div>
+</div>
+</section>
+<section id="案例rtx-与-home-depot-的资产结构" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="案例rtx-与-home-depot-的资产结构"><span class="header-section-number">3.6</span> 案例：RTX 与 Home Depot 的资产结构</h3>
+<p>让我们看一个具体的案例，比较两家公司的资产结构：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>RTX</th>
+<th>Home Depot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净固定资产</td>
+<td>$15,748 M</td>
+<td>$25,631 M</td>
+</tr>
+<tr class="even">
+<td>经营租赁资产</td>
+<td>$1,638 M</td>
+<td>$6,941 M</td>
+</tr>
+<tr class="odd">
+<td>商誉</td>
+<td>$53,699 M</td>
+<td>$7,444 M</td>
+</tr>
+<tr class="even">
+<td>净无形资产</td>
+<td>$35,399 M</td>
+<td>$0</td>
+</tr>
+<tr class="odd">
+<td>存货</td>
+<td>$11,777 M</td>
+<td>$24,886 M</td>
+</tr>
+<tr class="even">
+<td><strong>总资产</strong></td>
+<td><strong>$161,869 M</strong></td>
+<td><strong>$76,445 M</strong></td>
+</tr>
+</tbody>
+</table>
+<p>几个关键观察：</p>
+<ol type="1">
+<li><strong>RTX 的商誉占比极高</strong>：$53,699M 的商誉占总资产的 33%，反映了该公司通过合并 Raytheon 和 United Technologies 部分业务形成的历史</li>
+<li><strong>Home Depot 的存货占比高</strong>：作为零售商，存货是其核心运营资产</li>
+<li><strong>经营租赁资产</strong>：2019 年会计准则变更后，租赁资产必须资本化显示在资产负债表上</li>
+<li><strong>缺失的资产</strong>：RTX 的研发支出被费用化，不形成资产；Home Depot 的品牌价值也不在账面上</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="负债与股东权益的计量" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="负债与股东权益的计量"><span class="header-section-number">4</span> 负债与股东权益的计量</h2>
+<section id="负债确认的三个条件" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="负债确认的三个条件"><span class="header-section-number">4.1</span> 负债确认的三个条件</h3>
+<p>会计只有在满足以下三个条件时，才会确认一项负债：</p>
+<ol type="1">
+<li>义务预计会导致未来的现金流出</li>
+<li>公司无法避免这项义务</li>
+<li>产生义务的交易已经发生</li>
+</ol>
+<p>这个定义比你想象的更严格。例如，<strong>经营租赁</strong>在 2019 年之前不被确认为负债（因为公司”可以”选择不续租），导致许多公司的真实负债被低估。</p>
+</section>
+<section id="流动负债" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="流动负债"><span class="header-section-number">4.2</span> 流动负债</h3>
+<p>流动负债（Current Liabilities）是一年内到期的义务，包括：</p>
+<ul>
+<li><strong>应付账款</strong>：欠供应商的货款</li>
+<li><strong>短期借款</strong>：一年内到期的贷款</li>
+<li><strong>长期债务的流动部分</strong>：长期债务中将在一年内到期的部分</li>
+<li><strong>其他流动负债</strong>：应付工资、应交税金等</li>
+</ul>
+<p>流动负债是账面价值与市场价值<strong>最接近</strong>的项目，因为它们都是短期义务，到期日近，估计误差小。</p>
+</section>
+<section id="长期债务" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="长期债务"><span class="header-section-number">4.3</span> 长期债务</h3>
+<p>长期债务按<strong>发行时的现值</strong>计量：</p>
+<ul>
+<li>银行贷款：按贷款本金</li>
+<li>债券：按发行价格（可能是平价、溢价或折价发行）</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>长期债务的账面价值 vs 市场价值
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>债务的账面价值在存续期内<strong>不会随利率变化而调整</strong>。但债务的市场价值会随利率波动：利率上升时，债务的市场价值下降；利率下降时，市场价值上升。</p>
+<p>这意味着：在利率大幅变化的环境下，债务的账面价值可能严重偏离其真实价值。</p>
+</div>
+</div>
+</section>
+<section id="其他长期负债" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="其他长期负债"><span class="header-section-number">4.4</span> 其他长期负债</h3>
+<p><strong>租赁</strong></p>
+<p>2019 年之后，几乎所有租赁都必须资本化：</p>
+<ul>
+<li>资产端：确认一项”使用权资产”</li>
+<li>负债端：确认租赁负债（未来租金的现值）</li>
+</ul>
+<p>这个变化对租赁密集型行业（如航空、零售）影响巨大，使它们的资产负债表”膨胀”。</p>
+<p><strong>养老金</strong></p>
+<ul>
+<li><strong>固定缴款计划（Defined Contribution）</strong>：公司按固定比例缴款，没有后续义务</li>
+<li><strong>固定收益计划（Defined Benefit）</strong>：公司承诺支付固定退休金，必须持续为计划提供资金</li>
+</ul>
+<p>固定收益计划会产生<strong>养老金资产</strong>（计划中的投资）和<strong>养老金负债</strong>（承诺支付的义务现值）。如果负债超过资产，公司有<strong>养老金缺口</strong>，必须在资产负债表上反映。</p>
+<p><strong>递延所得税</strong></p>
+<p>当公司用于税务申报和财务报告的会计方法不同时，就会产生递延税：</p>
+<ul>
+<li>如果税务上确认的收入<strong>多于</strong>财务报告，产生<strong>递延税资产</strong></li>
+<li>如果税务上确认的收入<strong>少于</strong>财务报告，产生<strong>递延税负债</strong></li>
+</ul>
+<p>例如，使用加速折旧进行税务申报但使用直线折旧进行财务报告的公司，会产生递延税负债。</p>
+</section>
+<section id="股东权益" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="股东权益"><span class="header-section-number">4.5</span> 股东权益</h3>
+<p>股东权益（Shareholders’ Equity）是资产负债表上最”累积历史”的项目：</p>
+<p><span class="math display">\[
+\text{股东权益} = \text{原始发行股本} + \text{留存收益} - \text{库存股}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><strong>原始发行股本</strong>：公司最初发行股票时收到的金额</li>
+<li><strong>留存收益</strong>：历年净利润累计减去历年股利</li>
+<li><strong>库存股</strong>：公司回购的自身股票（按回购价格记录）</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>账面股东权益的陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>大规模股票回购</strong>会导致股东权益大幅缩水，甚至变成负数！这不是因为公司经营不善，而是因为回购按市场价格进行，而市场价格通常远高于账面价值。</p>
+<p>例如，Home Depot 在 2023 财年末的股东权益只有 $1,562M，但市值超过 $3,600 亿。这种巨大差异主要是因为公司长期进行大规模股票回购。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="盈利能力的计量" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="盈利能力的计量"><span class="header-section-number">5</span> 盈利能力的计量</h2>
+<section id="会计盈利的两个基本原则" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="会计盈利的两个基本原则"><span class="header-section-number">5.1</span> 会计盈利的两个基本原则</h3>
+<p><strong>原则一：权责发生制（Accrual Accounting）</strong></p>
+<p>收入在商品/服务<strong>提供</strong>时确认，而不是在<strong>收到现金</strong>时确认。费用在与收入<strong>匹配</strong>时确认，而不是在<strong>支付现金</strong>时确认。</p>
+<p>这意味着：<strong>净利润 ≠ 现金流</strong>。一家公司可能报告盈利但现金流为负（因为收入确认了但钱还没收到），也可能报告亏损但现金流为正（因为收到了预付款）。</p>
+<p><strong>原则二：费用分类</strong></p>
+<ul>
+<li><strong>营运费用（Operating Expenses）</strong>：只为当期提供收益，全额计入当期损益</li>
+<li><strong>融资费用（Financing Expenses）</strong>：与非股权融资相关，如利息费用</li>
+<li><strong>资本支出（Capital Expenses）</strong>：为多个期间提供收益，分期摊销（折旧/摊销）</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>研发费用的分类争议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>会计将研发费用（R&amp;D）归类为<strong>营运费用</strong>，在发生当期全额费用化。但从经济实质上看，研发明显为未来多个期间提供收益，应该是<strong>资本支出</strong>。</p>
+<p>这个分类错误导致： 1. 研发密集型公司的<strong>当期利润被低估</strong> 2. 研发密集型公司的<strong>资产被低估</strong>（研发形成的”知识资产”不在账面上） 3. <strong>ROC/ROE 被高估</strong>（因为资产/股东权益被低估）</p>
+<p>在后续章节（第 9 章）中，我们会讨论如何将研发费用资本化以获得更真实的盈利和资产数字。</p>
+</div>
+</div>
+</section>
+<section id="营运利润-vs-净利润" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="营运利润-vs-净利润"><span class="header-section-number">5.2</span> 营运利润 vs 净利润</h3>
+<p><strong>营运利润（Operating Income / EBIT）</strong>：</p>
+<p><span class="math display">\[
+\text{EBIT} = \text{收入} - \text{销售成本} - \text{营运费用}
+\]</span></p>
+<p>反映公司<strong>业务本身</strong>的盈利能力，不受融资结构影响。</p>
+<p><strong>净利润（Net Income）</strong>：</p>
+<p><span class="math display">\[
+\text{净利润} = \text{EBIT} - \text{利息费用} + \text{利息收入} - \text{所得税}
+\]</span></p>
+<p>反映<strong>归属股东</strong>的利润，受融资结构影响。</p>
+</section>
+<section id="非经常性项目" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="非经常性项目"><span class="header-section-number">5.3</span> 非经常性项目</h3>
+<p>利润表中有一些项目不是来自正常经营：</p>
+<ul>
+<li><strong>非常项目（Extraordinary Items）</strong>：不寻常且不经常发生的事件（如债务重组收益）</li>
+<li><strong>终止经营损益</strong>：已出售或正在出售业务的损益</li>
+<li><strong>会计政策变更影响</strong>：如存货估值方法变更</li>
+</ul>
+<p>在预测未来盈利时，应该从这些非经常性项目<strong>之前</strong>的利润开始，因为它们不太可能重复发生。</p>
+</section>
+<section id="盈利能力比率" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="盈利能力比率"><span class="header-section-number">5.4</span> 盈利能力比率</h3>
+<p><strong>资产回报率（ROA）</strong></p>
+<p><span class="math display">\[
+\text{ROA} = \frac{\text{EBIT} \times (1 - \text{税率})}{\text{总资产}}
+\]</span></p>
+<p>衡量公司使用全部资产产生利润的效率。</p>
+<p><strong>投资资本回报率（ROIC / ROC）</strong></p>
+<p><span class="math display">\[
+\text{ROIC} = \frac{\text{EBIT} \times (1 - \text{税率})}{\text{投资资本}}
+\]</span></p>
+<p>其中：</p>
+<p><span class="math display">\[
+\text{投资资本} = \text{股东权益} + \text{有息债务} - \text{现金} - \text{商誉（可选）}
+\]</span></p>
+<p>ROIC 比 ROA 更准确地衡量<strong>营运资产</strong>的回报，因为它排除了现金和非营运资产。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>ROIC 的分解
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>ROIC 可以分解为两个因素：</p>
+<p><span class="math display">\[
+\text{ROIC} = \text{税后营运利润率} \times \text{资本周转率}
+\]</span></p>
+<p>即：</p>
+<p><span class="math display">\[
+\text{ROIC} = \frac{\text{EBIT}(1-t)}{\text{销售收入}} \times \frac{\text{销售收入}}{\text{投资资本}}
+\]</span></p>
+<p>这个分解告诉我们：公司可以通过提高利润率<strong>或</strong>提高资本效率来提高 ROIC。不同行业的公司往往采取不同的策略：奢侈品公司靠高利润率，零售公司靠高周转率。</p>
+</div>
+</div>
+<p><strong>股东权益回报率（ROE）</strong></p>
+<p><span class="math display">\[
+\text{ROE} = \frac{\text{净利润}}{\text{股东权益}}
+\]</span></p>
+<p>ROE 衡量股东投资的回报。它与 ROIC 的关系是：</p>
+<p><span class="math display">\[
+\text{ROE} = \text{ROIC} + \frac{D}{E} \times [\text{ROIC} - i(1-t)]
+\]</span></p>
+<p>其中 <span class="math inline">\(D/E\)</span> 是债务/股东权益比率，<span class="math inline">\(i\)</span> 是债务利率。</p>
+<p>这个公式的含义是：如果公司的 ROIC <strong>高于</strong>税后债务成本，使用更多债务会<strong>提高</strong> ROE。这就是<strong>财务杠杆</strong>的放大效应。</p>
+</section>
+<section id="案例rtx-与-home-depot-的盈利能力" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="案例rtx-与-home-depot-的盈利能力"><span class="header-section-number">5.5</span> 案例：RTX 与 Home Depot 的盈利能力</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>RTX</th>
+<th>Home Depot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税后营运利润</td>
+<td>$3,561 M</td>
+<td>$24,039 M</td>
+</tr>
+<tr class="even">
+<td>投资资本</td>
+<td>$46,398 M</td>
+<td>$41,725 M</td>
+</tr>
+<tr class="odd">
+<td><strong>ROIC</strong></td>
+<td><strong>7.58%</strong></td>
+<td><strong>62.84%</strong></td>
+</tr>
+<tr class="even">
+<td>净利润</td>
+<td>$3,195 M</td>
+<td>$17,105 M</td>
+</tr>
+<tr class="odd">
+<td>股东权益</td>
+<td>$59,798 M</td>
+<td>$1,562 M</td>
+</tr>
+<tr class="even">
+<td><strong>ROE</strong></td>
+<td><strong>4.83%</strong></td>
+<td><strong>N/A</strong></td>
+</tr>
+</tbody>
+</table>
+<p>几个关键观察：</p>
+<ol type="1">
+<li><strong>RTX 的 ROIC 较低</strong>：7.58% 的回报率说明公司在其投资资本上赚取的回报有限</li>
+<li><strong>Home Depot 的 ROIC 看起来异常高</strong>：62.84%！但这是因为大规模股票回购导致股东权益极低，人为地缩小了分母</li>
+<li><strong>Home Depot 的 ROE 无法计算</strong>：2022 年末股东权益为负值，使 ROE 失去意义</li>
+</ol>
+<p>这个案例说明：<strong>大规模回购会扭曲基于账面价值的盈利能力指标</strong>。</p>
+<hr>
+</section>
+</section>
+<section id="风险计量会计的局限" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="风险计量会计的局限"><span class="header-section-number">6</span> 风险计量：会计的局限</h2>
+<section id="会计视角下的风险" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="会计视角下的风险"><span class="header-section-number">6.1</span> 会计视角下的风险</h3>
+<p>会计对风险的关注主要集中在两个方面：</p>
+<ol type="1">
+<li><strong>违约风险</strong>：公司能否履行固定义务（如利息支付）</li>
+<li><strong>静态视角</strong>：基于某一时点的数据评估</li>
+</ol>
+<p>这与投资者关心的<strong>股权风险</strong>（回报的波动性）有很大不同。会计不会告诉你一家全股权融资、盈利稳定但波动性很大的公司风险高，因为它没有”固定义务”。</p>
+</section>
+<section id="短期流动性比率" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="短期流动性比率"><span class="header-section-number">6.2</span> 短期流动性比率</h3>
+<p><strong>流动比率（Current Ratio）</strong></p>
+<p><span class="math display">\[
+\text{流动比率} = \frac{\text{流动资产}}{\text{流动负债}}
+\]</span></p>
+<p>传统观点认为流动比率应该在 2 以上。但过高的流动比率可能说明公司资产配置效率低（过多现金闲置或存货积压）。</p>
+<p><strong>速动比率（Quick Ratio）</strong></p>
+<p><span class="math display">\[
+\text{速动比率} = \frac{\text{现金} + \text{有价证券}}{\text{流动负债}}
+\]</span></p>
+<p>更严格的流动性指标，排除了变现较慢的存货和应收账款。</p>
+<p><strong>营运资金周转</strong></p>
+<ul>
+<li><strong>应收账款周转天数</strong> = 365 / (销售收入 / 平均应收账款)</li>
+<li><strong>存货周转天数</strong> = 365 / (销售成本 / 平均存货)</li>
+<li><strong>应付账款周转天数</strong> = 365 / (采购额 / 平均应付账款)</li>
+</ul>
+<p><span class="math display">\[
+\text{现金周转周期} = \text{应收账款天数} + \text{存货天数} - \text{应付账款天数}
+\]</span></p>
+<p>现金周转周期越长，公司需要的短期融资越多。</p>
+</section>
+<section id="长期偿债能力比率" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="长期偿债能力比率"><span class="header-section-number">6.3</span> 长期偿债能力比率</h3>
+<p><strong>利息保障倍数（Interest Coverage Ratio）</strong></p>
+<p><span class="math display">\[
+\text{利息保障倍数} = \frac{\text{EBIT}}{\text{利息费用}}
+\]</span></p>
+<p>衡量公司用营运利润支付利息的能力。比率越高，债务负担越轻。</p>
+<p><strong>固定费用保障倍数</strong></p>
+<p><span class="math display">\[
+\text{固定费用保障倍数} = \frac{\text{EBIT} - \text{固定费用}}{\text{固定费用}}
+\]</span></p>
+<p>将租赁支付等其他固定义务也纳入考量。</p>
+<p><strong>现金固定费用保障倍数</strong></p>
+<p><span class="math display">\[
+\text{现金固定费用保障倍数} = \frac{\text{EBITDA}}{\text{现金固定费用}}
+\]</span></p>
+<p>用 EBITDA（加回折旧摊销）衡量，反映现金流覆盖能力。</p>
+</section>
+<section id="负债比率" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="负债比率"><span class="header-section-number">6.4</span> 负债比率</h3>
+<p><strong>账面负债率</strong></p>
+<p><span class="math display">\[
+\text{负债率} = \frac{\text{总债务}}{\text{总债务} + \text{股东权益}}
+\]</span></p>
+<p><strong>市值负债率</strong></p>
+<p><span class="math display">\[
+\text{市值负债率} = \frac{\text{债务市值}}{\text{债务市值} + \text{股权市值}}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>账面负债率的陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>账面负债率在两种情况下会产生误导：</p>
+<ol type="1">
+<li><strong>股权市值远高于账面价值</strong>：账面负债率会高估真实的财务杠杆</li>
+<li><strong>大规模股票回购</strong>：股东权益缩水，账面负债率会飙升</li>
+</ol>
+<p>以 Home Depot 为例：账面负债率超过 96%（因为股东权益只有 $1,562M），但市值负债率只有约 12%（因为市值超过 $3,600 亿）。哪个更能反映真实的财务风险？显然是后者。</p>
+</div>
+</div>
+</section>
+<section id="案例rtx-与-home-depot-的风险指标" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="案例rtx-与-home-depot-的风险指标"><span class="header-section-number">6.5</span> 案例：RTX 与 Home Depot 的风险指标</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>RTX</th>
+<th>Home Depot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EBIT</td>
+<td>$3,561 M</td>
+<td>$24,039 M</td>
+</tr>
+<tr class="even">
+<td>利息费用</td>
+<td>$1,505 M</td>
+<td>$1,617 M</td>
+</tr>
+<tr class="odd">
+<td><strong>利息保障倍数</strong></td>
+<td><strong>2.37</strong></td>
+<td><strong>14.87</strong></td>
+</tr>
+<tr class="even">
+<td>账面负债率</td>
+<td>42.40%</td>
+<td>96.99%</td>
+</tr>
+<tr class="odd">
+<td>市值负债率</td>
+<td>27.22%</td>
+<td>12.16%</td>
+</tr>
+</tbody>
+</table>
+<p>观察：</p>
+<ul>
+<li>RTX 的利息保障倍数较低（2.37），说明营运利润对利息支付的覆盖较薄</li>
+<li>Home Depot 的账面负债率极高（97%），但市值负债率很低（12%），说明账面指标具有误导性</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="会计准则差异gaap-vs-ifrs" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="会计准则差异gaap-vs-ifrs"><span class="header-section-number">7</span> 会计准则差异：GAAP vs IFRS</h2>
+<p>如果你需要比较来自不同国家的公司，需要注意会计准则的差异。美国使用 GAAP，大多数其他国家使用 IFRS。主要差异包括：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>领域</th>
+<th>IFRS</th>
+<th>US GAAP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>存货</strong></td>
+<td>允许 FIFO 或加权平均，不允许 LIFO</td>
+<td>允许 FIFO、LIFO 或加权平均</td>
+</tr>
+<tr class="even">
+<td><strong>固定资产</strong></td>
+<td>可以按市值重估</td>
+<td>只能按成本减折旧</td>
+</tr>
+<tr class="odd">
+<td><strong>减值</strong></td>
+<td>可以转回</td>
+<td>不能转回</td>
+</tr>
+<tr class="even">
+<td><strong>研发</strong></td>
+<td>开发成本可以资本化</td>
+<td>必须费用化（软件除外）</td>
+</tr>
+<tr class="odd">
+<td><strong>租赁</strong></td>
+<td>包括部分无形资产租赁</td>
+<td>只包括有形资产租赁</td>
+</tr>
+</tbody>
+</table>
+<p>总体而言，IFRS 比 GAAP 更原则导向（principle-based），GAAP 更规则导向（rule-based）。两者正在逐步趋同，但差异仍然存在。</p>
+<hr>
+</section>
+<section id="总结" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="总结"><span class="header-section-number">8</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>账面价值 ≠ 市场价值</strong>：会计以历史成本为基础，偏向保守，与市场价值存在系统性差距</li>
+<li><strong>无形资产是会计盲区</strong>：内部创造的专利、品牌、人力资本几乎不在账面上</li>
+<li><strong>研发费用化是重大缺陷</strong>：导致研发密集型公司的利润和资产被低估</li>
+<li><strong>大规模回购扭曲账面指标</strong>：使基于账面价值的比率（ROE、负债率）失去意义</li>
+<li><strong>用市值而非账面值计算负债率</strong>：更能反映真实的财务风险</li>
+<li><strong>不同准则有差异</strong>：跨国比较时需要调整 GAAP 与 IFRS 的差异</li>
+</ul>
+</div>
+</div>
+<p>本章我们回答了开头的问题：财务报表不能直接告诉我们公司值多少钱，但它提供了估值所需的原材料。关键是理解会计规则的逻辑和局限，然后根据需要进行调整。</p>
+<p>在接下来的章节中，我们将学习如何从这些会计数字出发，估计现金流、增长率和折现率——这才是估值的核心步骤。</p>
+<hr>
+</section>
+<section id="思考题" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="思考题"><span class="header-section-number">9</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>账面价值 vs 市场价值</strong>：一家科技公司的股权账面价值是 100 亿，市值是 1000 亿。解释可能导致这种巨大差距的原因。</p></li>
+<li><p><strong>折旧方法的影响</strong>：两家完全相同的公司，A 使用直线折旧，B 使用双倍余额递减法。在资产购买后的前几年，哪家公司的报告利润更高？哪家的现金流更高（假设税法允许使用加速折旧）？</p></li>
+<li><p><strong>研发资本化</strong>：一家制药公司每年研发支出 10 亿，假设研发投资的平均”寿命”是 5 年。如果将研发资本化而非费用化，对公司的（a）资产、（b）当期利润、（c）ROC 会有什么影响？</p></li>
+<li><p><strong>回购的影响</strong>：公司 A 账面股东权益 50 亿，净利润 10 亿，ROE = 20%。公司以市价回购了 20 亿的股票。假设净利润不变，回购后的（a）股东权益和（b）ROE 是多少？这种 ROE 的变化是否反映了真实的盈利能力改善？</p></li>
+<li><p><strong>负债率的选择</strong>：对于一家市值远高于账面价值的公司，你会建议使用账面负债率还是市值负债率来评估其财务风险？为什么？</p></li>
+</ol>
+<hr>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-11-13">
-<meta name="description" content="LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.">
+<meta name="description" content="变分自编码器的数学原理、ELBO 推导和重参数化技巧。">
 
-<title>Bayesian Inference Primer — Beta–Binomial – Tech Notes</title>
+<title>变分自编码器 (VAE) 简介 – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,41 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -79,9 +44,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-a67466b260850d79d12547209d82de6a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-a2298632bc87880f434370b199308aab.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,23 +74,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Force refresh if cache is stale -->
+
 <script>
-// Default to dark scheme on first visit (no prior preference stored)
-try {
-  var key = 'quarto-color-scheme';
-  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
-    window.localStorage.setItem(key, 'alternate');
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
   }
-} catch (e) {
-  // ignore storage errors (privacy mode, etc.)
-}
+
+})();
+
 </script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
 <!-- Aggressive cache prevention for HTML pages -->
+
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
 <meta http-equiv="Pragma" content="no-cache">
+
 <meta http-equiv="Expires" content="0">
+
 <meta name="revisit-after" content="1 days">
+
 <meta name="robots" content="noarchive">
+
+
 
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
@@ -373,10 +384,13 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#bayes-rule-and-likelihood" id="toc-bayes-rule-and-likelihood" class="nav-link active" data-scroll-target="#bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</a></li>
-  <li><a href="#posterior-and-moments" id="toc-posterior-and-moments" class="nav-link" data-scroll-target="#posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</a></li>
-  <li><a href="#minimal-code-example" id="toc-minimal-code-example" class="nav-link" data-scroll-target="#minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">4</span> Summary</a></li>
+  <li><a href="#模型结构" id="toc-模型结构" class="nav-link active" data-scroll-target="#模型结构"><span class="header-section-number">1</span> 模型结构</a></li>
+  <li><a href="#变分下界-elbo" id="toc-变分下界-elbo" class="nav-link" data-scroll-target="#变分下界-elbo"><span class="header-section-number">2</span> 变分下界 (ELBO)</a></li>
+  <li><a href="#elbo-推导" id="toc-elbo-推导" class="nav-link" data-scroll-target="#elbo-推导"><span class="header-section-number">3</span> ELBO 推导</a></li>
+  <li><a href="#重参数化技巧" id="toc-重参数化技巧" class="nav-link" data-scroll-target="#重参数化技巧"><span class="header-section-number">4</span> 重参数化技巧</a></li>
+  <li><a href="#kl-散度闭式解" id="toc-kl-散度闭式解" class="nav-link" data-scroll-target="#kl-散度闭式解"><span class="header-section-number">5</span> KL 散度闭式解</a></li>
+  <li><a href="#训练过程" id="toc-训练过程" class="nav-link" data-scroll-target="#训练过程"><span class="header-section-number">6</span> 训练过程</a></li>
+  <li><a href="#应用场景" id="toc-应用场景" class="nav-link" data-scroll-target="#应用场景"><span class="header-section-number">7</span> 应用场景</a></li>
   </ul>
 </nav>
     </div>
@@ -386,17 +400,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bayesian Inference Primer — Beta–Binomial</h1>
+<h1 class="title">变分自编码器 (VAE) 简介</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">bayes</div>
-    <div class="quarto-category">probability</div>
-    <div class="quarto-category">math</div>
+    <div class="quarto-category">深度学习</div>
+    <div class="quarto-category">生成模型</div>
+    <div class="quarto-category">概率模型</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    LaTeX demo with conjugacy, posterior, and predictive for Bernoulli data.
+    变分自编码器的数学原理、ELBO 推导和重参数化技巧。
   </div>
 </div>
 
@@ -419,218 +433,251 @@ window.Quarto = {
 </header>
 
 
-<p>We briefly illustrate Bayesian inference for Bernoulli data using a Beta prior. Let observations be <span class="math inline">\(y_1,\dots,y_n \in \{0,1\}\)</span> with <span class="math inline">\(y_i \sim \operatorname{Bernoulli}(p)\)</span> and prior <span class="math inline">\(p \sim \operatorname{Beta}(\alpha,\beta)\)</span>.</p>
-<section id="bayes-rule-and-likelihood" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="bayes-rule-and-likelihood"><span class="header-section-number">1</span> Bayes’ Rule and Likelihood</h2>
-<p>Bayes’ rule states <span class="math inline">\(p(p\mid y) \propto p(y\mid p)\,p(p)\)</span>. For <span class="math inline">\(k = \sum_i y_i\)</span>, the likelihood is</p>
+<p>变分自编码器（Variational Autoencoder, VAE）是一种生成模型，结合了变分推断和深度学习，能够学习数据的潜在表示并生成新样本。</p>
+<section id="模型结构" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="模型结构"><span class="header-section-number">1</span> 模型结构</h2>
+<p>VAE 包含两个神经网络：</p>
+<ul>
+<li><strong>编码器</strong> <span class="math inline">\(q_\phi(\mathbf{z} \mid \mathbf{x})\)</span>：将输入 <span class="math inline">\(\mathbf{x}\)</span> 映射到潜在变量 <span class="math inline">\(\mathbf{z}\)</span> 的后验分布</li>
+<li><strong>解码器</strong> <span class="math inline">\(p_\theta(\mathbf{x} \mid \mathbf{z})\)</span>：从潜在变量 <span class="math inline">\(\mathbf{z}\)</span> 重构输入 <span class="math inline">\(\mathbf{x}\)</span></li>
+</ul>
+<p>目标是最大化边缘似然 <span class="math inline">\(p_\theta(\mathbf{x}) = \int p_\theta(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z}) \, d\mathbf{z}\)</span>。</p>
+</section>
+<section id="变分下界-elbo" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="变分下界-elbo"><span class="header-section-number">2</span> 变分下界 (ELBO)</h2>
+<p>由于直接优化边缘似然困难，我们最大化证据下界（Evidence Lower Bound, ELBO）：</p>
 <p><span class="math display">\[
-p(y\mid p) \;=\; p^{k}(1-p)^{n-k}.
+\mathcal{L}(\theta, \phi; \mathbf{x}) = \mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})} \left[ \log p_\theta(\mathbf{x} \mid \mathbf{z}) \right] - D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})),
+\]</span></p>
+<p>其中： - 第一项是<strong>重构误差</strong>：衡量解码器重建输入的能力 - 第二项是 <strong>KL 散度</strong>：正则化项，使后验接近先验 <span class="math inline">\(p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span></p>
+</section>
+<section id="elbo-推导" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="elbo-推导"><span class="header-section-number">3</span> ELBO 推导</h2>
+<p>通过 Jensen 不等式，我们有：</p>
+<p><span class="math display">\[
+\log p_\theta(\mathbf{x}) \geq \mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})} \left[ \log \frac{p_\theta(\mathbf{x}, \mathbf{z})}{q_\phi(\mathbf{z} \mid \mathbf{x})} \right] = \mathcal{L}(\theta, \phi; \mathbf{x}).
+\]</span></p>
+<p>展开可得：</p>
+<p><span class="math display">\[
+\mathcal{L} = \mathbb{E}_{q_\phi} [\log p_\theta(\mathbf{x} \mid \mathbf{z})] - D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})).
 \]</span></p>
 </section>
-<section id="posterior-and-moments" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="posterior-and-moments"><span class="header-section-number">2</span> Posterior and Moments</h2>
-<p>Using Beta–Binomial conjugacy, the posterior is</p>
+<section id="重参数化技巧" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="重参数化技巧"><span class="header-section-number">4</span> 重参数化技巧</h2>
+<p>为了通过梯度下降优化 ELBO，我们需要对随机变量 <span class="math inline">\(\mathbf{z} \sim q_\phi(\mathbf{z} \mid \mathbf{x})\)</span> 求导。重参数化技巧将采样过程改写为确定性函数加噪声：</p>
+<p>假设 <span class="math inline">\(q_\phi(\mathbf{z} \mid \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}), \boldsymbol{\sigma}_\phi^2(\mathbf{x}))\)</span>，则：</p>
 <p><span class="math display">\[
-p(p\mid y) \;=\; \operatorname{Beta}(\alpha + k,\; \beta + n - k),
+\mathbf{z} = \boldsymbol{\mu}_\phi(\mathbf{x}) + \boldsymbol{\sigma}_\phi(\mathbf{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}),
 \]</span></p>
-<p>with posterior mean</p>
-<p><span class="math display">\[
-\mathbb{E}[p\mid y] \;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
-<p>The posterior predictive for a new label <span class="math inline">\(\tilde y\)</span> has</p>
-<p><span class="math display">\[
-\Pr(\tilde y = 1 \mid y) \;=\; \mathbb{E}[p\mid y]
-\;=\; \frac{\alpha + k}{\alpha + \beta + n}.
-\]</span></p>
+<p>其中 <span class="math inline">\(\odot\)</span> 表示逐元素乘法。这样梯度可以通过 <span class="math inline">\(\boldsymbol{\mu}_\phi\)</span> 和 <span class="math inline">\(\boldsymbol{\sigma}_\phi\)</span> 反向传播。</p>
 </section>
-<section id="minimal-code-example" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="minimal-code-example"><span class="header-section-number">3</span> Minimal Code Example</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> beta_binomial_posterior(alpha, beta, k, n):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    post_a <span class="op">=</span> alpha <span class="op">+</span> k</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    post_b <span class="op">=</span> beta <span class="op">+</span> (n <span class="op">-</span> k)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    mean <span class="op">=</span> post_a <span class="op">/</span> (post_a <span class="op">+</span> post_b)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> post_a, post_b, mean</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: prior Beta(1, 1), observations with k=7 successes out of n=10</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pa, pb, pm <span class="op">=</span> beta_binomial_posterior(<span class="fl">1.0</span>, <span class="fl">1.0</span>, k<span class="op">=</span><span class="dv">7</span>, n<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Posterior: Beta(</span><span class="sc">{</span>pa<span class="sc">:.1f}</span><span class="ss">, </span><span class="sc">{</span>pb<span class="sc">:.1f}</span><span class="ss">)  mean=</span><span class="sc">{</span>pm<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="kl-散度闭式解" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="kl-散度闭式解"><span class="header-section-number">5</span> KL 散度闭式解</h2>
+<p>当先验和后验都是高斯分布时，KL 散度有闭式解：</p>
+<p><span class="math display">\[
+D_{\text{KL}}(q_\phi(\mathbf{z} \mid \mathbf{x}) \| p(\mathbf{z})) = \frac{1}{2} \sum_{j=1}^J \left( \mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1 \right),
+\]</span></p>
+<p>其中 <span class="math inline">\(J\)</span> 是潜在维度。</p>
 </section>
-<section id="summary" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="summary"><span class="header-section-number">4</span> Summary</h2>
-<p>This compact primer uses inline math (e.g., <span class="math inline">\(k, n, \alpha, \beta\)</span>) and block equations for conjugacy. The same <code>.qmd</code> can be rendered to HTML and exported to PDF.</p>
+<section id="训练过程" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="训练过程"><span class="header-section-number">6</span> 训练过程</h2>
+<ol type="1">
+<li>从训练数据中采样 <span class="math inline">\(\mathbf{x}\)</span></li>
+<li>编码器输出 <span class="math inline">\(\boldsymbol{\mu}_\phi(\mathbf{x})\)</span> 和 <span class="math inline">\(\boldsymbol{\sigma}_\phi(\mathbf{x})\)</span></li>
+<li>使用重参数化采样 <span class="math inline">\(\mathbf{z}\)</span></li>
+<li>解码器重构 <span class="math inline">\(\hat{\mathbf{x}} = \text{Decoder}_\theta(\mathbf{z})\)</span></li>
+<li>计算 ELBO 并反向传播</li>
+</ol>
+</section>
+<section id="应用场景" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="应用场景"><span class="header-section-number">7</span> 应用场景</h2>
+<ul>
+<li><strong>图像生成</strong>：学习图像的潜在表示并生成新图像</li>
+<li><strong>数据压缩</strong>：潜在空间提供紧凑的数据表示</li>
+<li><strong>异常检测</strong>：重构误差高的样本可能是异常值</li>
+<li><strong>半监督学习</strong>：结合标签信息改进表示学习</li>
+</ul>
+<p>VAE 为概率生成模型提供了可扩展的训练框架，是深度生成模型的重要里程碑。</p>
 
 
 </section>
 
 </main> <!-- /main -->
 ﻿<script>
+
 // Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
 (function() {
+
   const KEY = 'siteLang'; // 'en' | 'zh'
+
   const defaultLang = 'en';
+
   const POSTS_EN = 'posts_en.html';
+
   const POSTS_ZH = 'posts_zh.html';
+
   const TAGS = 'tags.html';
 
+
+
   function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
   function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
   function offset() {
+
     const meta = document.querySelector('meta[name="quarto:offset"]');
+
     const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
     return off;
+
   }
+
   function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
   function goToLang(lang) {
+
     const off = offset();
+
     const path = window.location.pathname;
+
     setLang(lang);
+
     if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
       window.location.href = off + TAGS;
+
     } else {
+
       window.location.href = off + targetFor(lang);
+
     }
+
   }
+
   function updateNavbarPostsLink() {
+
     const off = offset();
+
     const href = off + targetFor(currentLang());
+
     const links = document.querySelectorAll('header .navbar a.nav-link');
+
     links.forEach((a) => {
+
       const h = a.getAttribute('href') || '';
+
       if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
     });
+
   }
+
   function mountToggle() {
+
     const tools = document.querySelector('.quarto-navbar-tools');
+
     if (!tools) return;
+
     const wrapper = document.createElement('div');
+
     wrapper.style.display = 'inline-flex';
+
     wrapper.style.alignItems = 'center';
+
     wrapper.style.gap = '0.35rem';
+
     wrapper.style.marginLeft = '0.35rem';
 
+
+
     const en = document.createElement('a');
+
     en.href = '';
+
     en.textContent = 'EN';
+
     en.className = 'quarto-navigation-tool px-1';
+
     en.onclick = function(){ goToLang('en'); return false; };
 
+
+
     const sep = document.createElement('span');
+
     sep.textContent = '|';
+
     sep.style.opacity = '0.6';
 
+
+
     const zh = document.createElement('a');
+
     zh.href = '';
+
     zh.textContent = '中文';
+
     zh.className = 'quarto-navigation-tool px-1';
+
     zh.onclick = function(){ goToLang('zh'); return false; };
 
+
+
     const lang = currentLang();
+
     (lang === 'en' ? en : zh).style.fontWeight = '700';
 
+
+
     wrapper.appendChild(en);
+
     wrapper.appendChild(sep);
+
     wrapper.appendChild(zh);
+
     tools.appendChild(wrapper);
+
     updateNavbarPostsLink();
+
   }
+
   document.addEventListener('DOMContentLoaded', mountToggle);
+
 })();
+
 </script>
+
 <script>
-// Cache-bust: ensure page URLs carry a version param and every internal click appends a fresh version
-(function() {
-  function buildStaticVersion() {
-    // Use current timestamp as version to ensure fresh content
-    // This changes on every page load, forcing browser to check for updates
-    return String(Date.now());
-  }
-  function withVersionRel(url, v) {
-    try {
-      var u = new URL(url, window.location.href);
-      u.searchParams.set('v', v);
-      return u.pathname + u.search + u.hash;
-    } catch (e) {
-      return (url.indexOf('?') === -1) ? (url + '?v=' + v) : (url + '&v=' + v);
-    }
-  }
-  function withVersionAbs(url, v) {
-    var u = new URL(url, window.location.href);
-    u.searchParams.set('v', v);
-    return u.toString();
-  }
-  function isInternal(href) {
-    if (!href || href.startsWith('#')) return false;
-    if (/^https?:\/\//i.test(href)) return false;
-    return true;
-  }
-  function rewriteInternalLinks(v) {
-    document.querySelectorAll('a[href]').forEach(function(a){
-      var href = a.getAttribute('href') || '';
-      if (!isInternal(href)) return;
-      a.setAttribute('href', withVersionRel(href, v));
-    });
-  }
-  function ensureUrlHasVersion(v) {
-    var params = new URLSearchParams(window.location.search);
-    if (!params.has('v')) {
-      var target = withVersionAbs(window.location.href, v);
-      window.location.replace(target);
-    }
-  }
-  function enableClickAppender() {
-    // On every internal click, append a fresh timestamp version to guarantee a fresh fetch
-    document.addEventListener('click', function(e){
-      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
-      if (!a) return;
-      var href = a.getAttribute('href') || '';
-      if (!isInternal(href)) return;
-      // Mutate destination with a unique version for this click
-      var fresh = String(Date.now());
-      a.setAttribute('href', withVersionRel(href, fresh));
-    }, true);
-  }
-  function observeDynamicLinks(v) {
-    // Listings and other widgets add links after DOMContentLoaded; observe and rewrite
-    var obs = new MutationObserver(function(mutations){
-      mutations.forEach(function(m){
-        m.addedNodes && m.addedNodes.forEach(function(node){
-          if (node.nodeType !== 1) return;
-          if (node.matches && node.matches('a[href]')) {
-            var href = node.getAttribute('href') || '';
-            if (isInternal(href)) node.setAttribute('href', withVersionRel(href, v));
-          }
-          node.querySelectorAll && node.querySelectorAll('a[href]').forEach(function(a){
-            var href = a.getAttribute('href') || '';
-            if (isInternal(href)) a.setAttribute('href', withVersionRel(href, v));
-          });
-        });
-      });
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    var staticV = buildStaticVersion();
-    rewriteInternalLinks(staticV);
-    observeDynamicLinks(staticV);
-    enableClickAppender();
-    ensureUrlHasVersion(staticV);
-  });
-})();
-</script>
-<script>
+
 (function(){
+
   function offset(){
+
     var meta = document.querySelector('meta[name="quarto:offset"]');
+
     return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
   }
+
   document.addEventListener('DOMContentLoaded', function(){
+
     var brand = document.querySelector('header .navbar a.navbar-brand');
+
     if (brand) {
+
       brand.setAttribute('href', offset() + 'home.html');
+
     }
+
   });
+
 })();
+
 </script>
+
+
 
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

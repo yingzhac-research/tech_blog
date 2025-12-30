@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-01-20">
+<meta name="description" content="用散文式方式解释 DeepSeek-R1：从普通大模型到会认真思考的模型，讲清推理轨迹、奖励模型和强化学习训练，并为每个数学符号和张量变量补上含义与 shape。">
+
+<title>DeepSeek-R1：推理增强的大语言模型 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#大模型里的推理到底是什么" id="toc-大模型里的推理到底是什么" class="nav-link active" data-scroll-target="#大模型里的推理到底是什么"><span class="header-section-number">1</span> 大模型里的「推理」到底是什么</a>
+  <ul class="collapse">
+  <li><a href="#语言模型在做什么" id="toc-语言模型在做什么" class="nav-link" data-scroll-target="#语言模型在做什么"><span class="header-section-number">1.1</span> 语言模型在做什么</a></li>
+  <li><a href="#直接给答案和写出推理的差别" id="toc-直接给答案和写出推理的差别" class="nav-link" data-scroll-target="#直接给答案和写出推理的差别"><span class="header-section-number">1.2</span> 「直接给答案」和「写出推理」的差别</a></li>
+  </ul></li>
+  <li><a href="#监督微调基线从数据和损失函数讲起" id="toc-监督微调基线从数据和损失函数讲起" class="nav-link" data-scroll-target="#监督微调基线从数据和损失函数讲起"><span class="header-section-number">2</span> 监督微调基线：从数据和损失函数讲起</a>
+  <ul class="collapse">
+  <li><a href="#数据集与张量-shape" id="toc-数据集与张量-shape" class="nav-link" data-scroll-target="#数据集与张量-shape"><span class="header-section-number">2.1</span> 数据集与张量 shape</a></li>
+  <li><a href="#sft-目标函数与含义" id="toc-sft-目标函数与含义" class="nav-link" data-scroll-target="#sft-目标函数与含义"><span class="header-section-number">2.2</span> SFT 目标函数与含义</a></li>
+  </ul></li>
+  <li><a href="#deepseek-r1-的整体训练流程" id="toc-deepseek-r1-的整体训练流程" class="nav-link" data-scroll-target="#deepseek-r1-的整体训练流程"><span class="header-section-number">3</span> DeepSeek-R1 的整体训练流程</a>
+  <ul class="collapse">
+  <li><a href="#预训练与基础-sft" id="toc-预训练与基础-sft" class="nav-link" data-scroll-target="#预训练与基础-sft"><span class="header-section-number">3.1</span> 预训练与基础 SFT</a></li>
+  <li><a href="#生成推理轨迹" id="toc-生成推理轨迹" class="nav-link" data-scroll-target="#生成推理轨迹"><span class="header-section-number">3.2</span> 生成推理轨迹</a></li>
+  <li><a href="#训练奖励模型" id="toc-训练奖励模型" class="nav-link" data-scroll-target="#训练奖励模型"><span class="header-section-number">3.3</span> 训练奖励模型</a></li>
+  <li><a href="#强化学习优化策略" id="toc-强化学习优化策略" class="nav-link" data-scroll-target="#强化学习优化策略"><span class="header-section-number">3.4</span> 强化学习优化策略</a></li>
+  </ul></li>
+  <li><a href="#推理轨迹如何形式化思考过程" id="toc-推理轨迹如何形式化思考过程" class="nav-link" data-scroll-target="#推理轨迹如何形式化思考过程"><span class="header-section-number">4</span> 推理轨迹：如何形式化「思考过程」</a>
+  <ul class="collapse">
+  <li><a href="#输出拆分为推理与答案" id="toc-输出拆分为推理与答案" class="nav-link" data-scroll-target="#输出拆分为推理与答案"><span class="header-section-number">4.1</span> 输出拆分为推理与答案</a></li>
+  <li><a href="#用几何题示范一条完整轨迹" id="toc-用几何题示范一条完整轨迹" class="nav-link" data-scroll-target="#用几何题示范一条完整轨迹"><span class="header-section-number">4.2</span> 用几何题示范一条完整轨迹</a></li>
+  </ul></li>
+  <li><a href="#奖励模型给推理过程打分" id="toc-奖励模型给推理过程打分" class="nav-link" data-scroll-target="#奖励模型给推理过程打分"><span class="header-section-number">5</span> 奖励模型：给推理过程打分</a>
+  <ul class="collapse">
+  <li><a href="#输入张量和-shape" id="toc-输入张量和-shape" class="nav-link" data-scroll-target="#输入张量和-shape"><span class="header-section-number">5.1</span> 输入张量和 shape</a></li>
+  <li><a href="#答案正确性奖励" id="toc-答案正确性奖励" class="nav-link" data-scroll-target="#答案正确性奖励"><span class="header-section-number">5.2</span> 答案正确性奖励</a></li>
+  <li><a href="#过程奖励process-reward" id="toc-过程奖励process-reward" class="nav-link" data-scroll-target="#过程奖励process-reward"><span class="header-section-number">5.3</span> 过程奖励（process reward）</a></li>
+  <li><a href="#长度惩罚" id="toc-长度惩罚" class="nav-link" data-scroll-target="#长度惩罚"><span class="header-section-number">5.4</span> 长度惩罚</a></li>
+  <li><a href="#奖励加权组合" id="toc-奖励加权组合" class="nav-link" data-scroll-target="#奖励加权组合"><span class="header-section-number">5.5</span> 奖励加权组合</a></li>
+  </ul></li>
+  <li><a href="#强化学习阶段让模型走高分路径" id="toc-强化学习阶段让模型走高分路径" class="nav-link" data-scroll-target="#强化学习阶段让模型走高分路径"><span class="header-section-number">6</span> 强化学习阶段：让模型走高分路径</a>
+  <ul class="collapse">
+  <li><a href="#把语言模型看成-mdp" id="toc-把语言模型看成-mdp" class="nav-link" data-scroll-target="#把语言模型看成-mdp"><span class="header-section-number">6.1</span> 把语言模型看成 MDP</a></li>
+  <li><a href="#策略梯度目标与直觉" id="toc-策略梯度目标与直觉" class="nav-link" data-scroll-target="#策略梯度目标与直觉"><span class="header-section-number">6.2</span> 策略梯度目标与直觉</a></li>
+  </ul></li>
+  <li><a href="#工程细节让训练真正跑起来" id="toc-工程细节让训练真正跑起来" class="nav-link" data-scroll-target="#工程细节让训练真正跑起来"><span class="header-section-number">7</span> 工程细节：让训练真正跑起来</a>
+  <ul class="collapse">
+  <li><a href="#采样策略与多样性" id="toc-采样策略与多样性" class="nav-link" data-scroll-target="#采样策略与多样性"><span class="header-section-number">7.1</span> 采样策略与多样性</a></li>
+  <li><a href="#课程式训练" id="toc-课程式训练" class="nav-link" data-scroll-target="#课程式训练"><span class="header-section-number">7.2</span> 课程式训练</a></li>
+  <li><a href="#计算成本与效率" id="toc-计算成本与效率" class="nav-link" data-scroll-target="#计算成本与效率"><span class="header-section-number">7.3</span> 计算成本与效率</a></li>
+  </ul></li>
+  <li><a href="#总结从-deepseek-r1-学到什么" id="toc-总结从-deepseek-r1-学到什么" class="nav-link" data-scroll-target="#总结从-deepseek-r1-学到什么"><span class="header-section-number">8</span> 总结：从 DeepSeek-R1 学到什么</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">DeepSeek-R1：推理增强的大语言模型</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">大模型</div>
+    <div class="quarto-category">强化学习</div>
+    <div class="quarto-category">推理</div>
+    <div class="quarto-category">DeepSeek</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    用散文式方式解释 DeepSeek-R1：从普通大模型到会认真思考的模型，讲清推理轨迹、奖励模型和强化学习训练，并为每个数学符号和张量变量补上含义与 shape。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 20, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>2025 年 1 月，DeepSeek 发布了 DeepSeek-R1，一种专门强化「推理能力」的大语言模型。</p>
+<p>如果只看论文里的结构图，很容易有一种「每一块都一笔带过」的感觉：有公式、有 loss、有 reward，但难以在脑子里形成一条连续的故事线。</p>
+<p>这篇文章按「散文式讲解」来写，目标是：</p>
+<ul>
+<li>把大模型里的「推理」说清楚，而不是一句话略过。</li>
+<li>从普通监督微调（SFT）讲起，一步步解释 DeepSeek-R1 多做了什么。</li>
+<li>每个数学符号都交代清楚含义。</li>
+<li>每个张量变量尽量标出典型的 shape，方便在脑中对应到 PyTorch 里的 <code>tensor</code>。</li>
+</ul>
+<hr>
+<section id="大模型里的推理到底是什么" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="大模型里的推理到底是什么"><span class="header-section-number">1</span> 大模型里的「推理」到底是什么</h2>
+<p>先不要急着看公式，我们从一个具体的小例子开始。</p>
+<p>假设有这么一道题：</p>
+<blockquote class="blockquote">
+<p>「一个正方形的对角线长度是 10，问这个正方形的面积是多少？」</p>
+</blockquote>
+<p>早期的大语言模型（比如原始的 GPT-3 或普通的 LLaMA）在面对这种题目时，典型的行为是：</p>
+<ol type="1">
+<li>把题目转成一串 token。</li>
+<li>经过一堆 Transformer 层，直接给出一个答案，比如「50」。</li>
+<li>中间几乎不展示思考过程，或者只写一两句很粗糙的话。</li>
+</ol>
+<p>也就是说，它更像是在「一口气猜答案」，而不是一步步推理。</p>
+<section id="语言模型在做什么" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="语言模型在做什么"><span class="header-section-number">1.1</span> 语言模型在做什么</h3>
+<p>从数学上看，一个自回归大语言模型在拟合的，其实是一个条件概率分布：</p>
+<p><span class="math display">\[
+p_\theta(\mathbf{y} \mid \mathbf{x})
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{x}\)</span>：输入 token 序列，比如题目文本。</li>
+<li><span class="math inline">\(\mathbf{y}\)</span>：输出 token 序列，比如推理过程加最终答案。</li>
+<li><span class="math inline">\(\theta\)</span>：模型参数，包含所有层的权重。</li>
+</ul>
+<p>如果从张量的角度看，在一个 batch 里，我们通常可以这样写：</p>
+<p><span class="math display">\[
+\mathbf{x} \in \mathbb{R}^{B \times T_{\text{in}}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(B\)</span>：batch size，一次输入多少条样本。</li>
+<li><span class="math inline">\(T_{\text{in}}\)</span>：每条输入序列的长度（token 个数）。</li>
+<li>第 <span class="math inline">\(b\)</span> 行 <span class="math inline">\(\mathbf{x}_{b,:}\)</span>：第 <span class="math inline">\(b\)</span> 条样本的 token id 序列。</li>
+</ul>
+<p>Embedding 和多层 Transformer 之后，我们得到每个位置的隐藏向量：</p>
+<p><span class="math display">\[
+\mathbf{H} \in \mathbb{R}^{B \times T_{\text{out}} \times d_{\text{model}}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(T_{\text{out}}\)</span>：输出序列的长度（生成多少个 token）。</li>
+<li><span class="math inline">\(d_{\text{model}}\)</span>：隐藏层维度，比如 4096 或 8192。</li>
+<li>对第 <span class="math inline">\(b\)</span> 条样本第 <span class="math inline">\(t\)</span> 个位置，隐藏向量是 <span class="math inline">\(\mathbf{H}_{b,t,:} \in \mathbb{R}^{d_{\text{model}}}\)</span>。</li>
+</ul>
+<p>再接一个线性层（通常共享词向量矩阵），把隐藏向量映射到词表维度：</p>
+<p><span class="math display">\[
+\mathbf{Z} \in \mathbb{R}^{B \times T_{\text{out}} \times V}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(V\)</span>：词表大小。</li>
+<li><span class="math inline">\(\mathbf{Z}_{b,t,:} \in \mathbb{R}^{V}\)</span>：第 <span class="math inline">\(b\)</span> 条样本第 <span class="math inline">\(t\)</span> 个位置上，对每个词的打分（logits）。</li>
+</ul>
+<p>经过 softmax 就得到每一步的概率分布：</p>
+<p><span class="math display">\[
+p_\theta(y_{b,t} = v \mid \mathbf{x}_b, y_{b,&lt;t})
+= \text{softmax}(\mathbf{Z}_{b,t,:})_v
+\]</span></p>
+<p>在推理时，模型就是不断根据这些分布采样下一个 token，直到遇到终止符。</p>
+</section>
+<section id="直接给答案和写出推理的差别" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="直接给答案和写出推理的差别"><span class="header-section-number">1.2</span> 「直接给答案」和「写出推理」的差别</h3>
+<p>再回到这道几何题。</p>
+<p>如果我们期望的是「会推理的模型」，我们希望它的输出更像下面这样：</p>
+<pre class="text"><code>已知正方形的对角线长度为 d = 10。
+设正方形的边长为 a。
+正方形的两条边与对角线构成一个直角三角形，
+根据勾股定理，有：
+  d² = a² + a² = 2a²
+所以：
+  a² = d² / 2 = 100 / 2 = 50
+正方形的面积 A = a² = 50。
+因此答案是 50。</code></pre>
+<p>这里有几个关键特征：</p>
+<ul>
+<li>引入了<strong>中间变量</strong> <span class="math inline">\(a\)</span>（边长），而不是直接从 <span class="math inline">\(d\)</span> 跳到面积。</li>
+<li>显式写出了勾股定理 <span class="math inline">\(d^2 = a^2 + a^2\)</span>，而不是在模型内部「默默算」。</li>
+<li>把「求边长」和「求面积」拆成了两个清晰的步骤。</li>
+</ul>
+<p>我们可以把这样的输出称为一条<strong>推理轨迹</strong>（reasoning trace）：模型不仅给出结果，还给出一条逻辑上连贯的思考过程。</p>
+<p>DeepSeek-R1 的核心目标，就是让模型在训练阶段就学会「写出并优化这样的推理轨迹」，而不是只拟合最终答案。</p>
+<hr>
+</section>
+</section>
+<section id="监督微调基线从数据和损失函数讲起" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="监督微调基线从数据和损失函数讲起"><span class="header-section-number">2</span> 监督微调基线：从数据和损失函数讲起</h2>
+<p>在解释 DeepSeek-R1 的特殊设计之前，先把普通大模型的「基线训练方式」讲清楚。所有后续改造，其实都是在这个基线上往前加东西。</p>
+<section id="数据集与张量-shape" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="数据集与张量-shape"><span class="header-section-number">2.1</span> 数据集与张量 shape</h3>
+<p>在监督微调（SFT, Supervised Fine-Tuning）阶段，我们有一个数据集：</p>
+<p><span class="math display">\[
+\mathcal{D} = \{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^N
+\]</span></p>
+<ul>
+<li><span class="math inline">\(N\)</span>：样本总数。</li>
+<li><span class="math inline">\(\mathbf{x}_i\)</span>：第 <span class="math inline">\(i\)</span> 条样本的输入 token 序列（问题、上下文等）。</li>
+<li><span class="math inline">\(\mathbf{y}_i\)</span>：第 <span class="math inline">\(i\)</span> 条样本的目标输出 token 序列（标准答案，可以包含一些解释）。</li>
+</ul>
+<p>在一个 batch 内，我们通常会把它们整理成两个张量：</p>
+<ul>
+<li>输入张量：<span class="math inline">\(\mathbf{X} \in \mathbb{R}^{B \times T_{\text{in}}}\)</span>。
+<ul>
+<li>第 <span class="math inline">\(b\)</span> 行 <span class="math inline">\(\mathbf{X}_{b,:}\)</span> 是某个 <span class="math inline">\(\mathbf{x}_i\)</span> padding 之后的版本。</li>
+</ul></li>
+<li>目标张量：<span class="math inline">\(\mathbf{Y} \in \mathbb{R}^{B \times T_{\text{out}}}\)</span>。
+<ul>
+<li>第 <span class="math inline">\(b\)</span> 行 <span class="math inline">\(\mathbf{Y}_{b,:}\)</span> 是对应的 <span class="math inline">\(\mathbf{y}_i\)</span>。</li>
+</ul></li>
+</ul>
+<p>这里的 <span class="math inline">\(T_{\text{in}}\)</span> 与 <span class="math inline">\(T_{\text{out}}\)</span> 通常相近，也可以合并成一个统一的序列长度，通过掩码来区分输入与输出。</p>
+</section>
+<section id="sft-目标函数与含义" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="sft-目标函数与含义"><span class="header-section-number">2.2</span> SFT 目标函数与含义</h3>
+<p>标准的 SFT 目标就是最大化模型在目标序列上的条件概率，等价于最小化负对数似然：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{SFT}}(\theta)
+= -\sum_{i=1}^N \log p_\theta(\mathbf{y}_i \mid \mathbf{x}_i)
+\]</span></p>
+<p>进一步展开一条样本的 log 概率：</p>
+<p><span class="math display">\[
+\log p_\theta(\mathbf{y}_i \mid \mathbf{x}_i)
+= \sum_{t=1}^{T_i}
+  \log p_\theta(y_{i,t} \mid \mathbf{x}_i, y_{i,&lt;t})
+\]</span></p>
+<ul>
+<li><span class="math inline">\(T_i\)</span>：第 <span class="math inline">\(i\)</span> 条样本输出序列的长度。</li>
+<li><span class="math inline">\(y_{i,t}\)</span>：第 <span class="math inline">\(i\)</span> 条样本在时间步 <span class="math inline">\(t\)</span> 的目标 token。</li>
+<li><span class="math inline">\(y_{i,&lt;t}\)</span>：第 <span class="math inline">\(t\)</span> 步之前已经生成的 token 序列。</li>
+</ul>
+<p>因此，<span class="math inline">\(\mathcal{L}_{\text{SFT}}\)</span> 本质上就是所有 token 的交叉熵损失之和。</p>
+<p>关键的一点是：在大多数数据集中，<span class="math inline">\(\mathbf{y}_i\)</span> 里<strong>只有最终答案或者很短的解释</strong>。模型能不能写出细致的推理轨迹，完全取决于数据中有没有这样的示例，训练目标本身并<strong>没有显式鼓励「过程好不好」</strong>。</p>
+<p>这就是 DeepSeek-R1 要突破的第一道限制。</p>
+<hr>
+</section>
+</section>
+<section id="deepseek-r1-的整体训练流程" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="deepseek-r1-的整体训练流程"><span class="header-section-number">3</span> DeepSeek-R1 的整体训练流程</h2>
+<p>从宏观上看，DeepSeek-R1 相对于普通 SFT，大致多做了三件事：</p>
+<ol type="1">
+<li>让模型显式生成推理轨迹，而不是直接给答案。</li>
+<li>训练一个<strong>奖励模型</strong>，对推理轨迹的质量打分。</li>
+<li>用强化学习（policy gradient 一类方法）对原模型进行二次优化，让它更倾向于生成高分轨迹。</li>
+</ol>
+<p>下面从「数据流」的视角看一遍。</p>
+<section id="预训练与基础-sft" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="预训练与基础-sft"><span class="header-section-number">3.1</span> 预训练与基础 SFT</h3>
+<p>这一阶段和普通大模型相似：</p>
+<ul>
+<li>先在海量无标注文本上做语言模型预训练，得到基础模型 <span class="math inline">\(M_{\text{base}}\)</span>。</li>
+<li>再在任务相关的数据集上做一次 SFT，得到一个初始模型 <span class="math inline">\(M_{\text{sft}}\)</span>。</li>
+</ul>
+<p>此时的 <span class="math inline">\(M_{\text{sft}}\)</span> 已经能解决不少任务，也能写出一些简单的「因为…所以…」式解释，但推理质量和稳定性都有限。</p>
+</section>
+<section id="生成推理轨迹" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="生成推理轨迹"><span class="header-section-number">3.2</span> 生成推理轨迹</h3>
+<p>接下来，用 <span class="math inline">\(M_{\text{sft}}\)</span> 在大量题目上自动生成推理轨迹。</p>
+<p>对于一道题目 <span class="math inline">\(\mathbf{x}\)</span>，我们希望模型输出的序列可以拆成：</p>
+<p><span class="math display">\[
+\mathbf{y} = [\mathbf{y}^{(r)}, \mathbf{y}^{(a)}]
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{y}^{(r)}\)</span>：推理部分（reasoning），由一串 token 组成。</li>
+<li><span class="math inline">\(\mathbf{y}^{(a)}\)</span>：最终答案部分（answer），也是一串 token。</li>
+</ul>
+<p>在张量层面，如果一次生成 <span class="math inline">\(B\)</span> 条样本，可以记为：</p>
+<ul>
+<li>推理序列：<span class="math inline">\(\mathbf{Y}^{(r)} \in \mathbb{R}^{B \times T_r}\)</span>。</li>
+<li>答案序列：<span class="math inline">\(\mathbf{Y}^{(a)} \in \mathbb{R}^{B \times T_a}\)</span>。</li>
+<li>整体输出：<span class="math inline">\(\mathbf{Y} \in \mathbb{R}^{B \times T}\)</span>，其中 <span class="math inline">\(T = T_r + T_a\)</span>。</li>
+</ul>
+<p>也就是说，每条样本变成了「题目 + 推理 + 答案」的完整文本。</p>
+</section>
+<section id="训练奖励模型" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="训练奖励模型"><span class="header-section-number">3.3</span> 训练奖励模型</h3>
+<p>有了大量自动生成的推理轨迹，就可以训练一个奖励模型 <span class="math inline">\(R_\phi\)</span>：</p>
+<p><span class="math display">\[
+R_\phi(\mathbf{x}, \mathbf{y}) \in \mathbb{R}
+\]</span></p>
+<ul>
+<li>参数 <span class="math inline">\(\phi\)</span>：奖励模型本身的参数（通常也是一个 Transformer）。</li>
+<li>输入：
+<ul>
+<li>题目 token 序列 <span class="math inline">\(\mathbf{x}\)</span>，形状类似 <span class="math inline">\(\mathbb{R}^{T_{\text{in}}}\)</span>。</li>
+<li>模型输出 <span class="math inline">\(\mathbf{y}\)</span>，形状类似 <span class="math inline">\(\mathbb{R}^{T}\)</span>。</li>
+<li>在 batch 中，可以把它们拼成一个张量 <span class="math inline">\(\mathbf{Z} \in \mathbb{R}^{B \times T_{\text{rm}}}\)</span>。</li>
+</ul></li>
+<li>输出：对每条样本的一个标量分数，shape 为 <span class="math inline">\(\mathbb{R}^{B \times 1}\)</span>。</li>
+</ul>
+<p>训练 <span class="math inline">\(R_\phi\)</span> 需要监督信号，主要有两种来源：</p>
+<ol type="1">
+<li>明确标注「这条推理是好还是坏」的样本。</li>
+<li>对同一题目下两条不同推理的偏好比较（哪条更好）。</li>
+</ol>
+<p>常见做法是用偏好学习（preference learning）：给定同一题目的两条推理 <span class="math inline">\(\mathbf{y}^{(1)}\)</span>、<span class="math inline">\(\mathbf{y}^{(2)}\)</span>，如果标注者认为 <span class="math inline">\(\mathbf{y}^{(1)}\)</span> 更好，就训练 <span class="math inline">\(R_\phi\)</span> 让 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(1)})\)</span> 大于 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(2)})\)</span>。</p>
+</section>
+<section id="强化学习优化策略" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="强化学习优化策略"><span class="header-section-number">3.4</span> 强化学习优化策略</h3>
+<p>有了奖励模型之后，就可以把原来的语言模型视作一个策略：</p>
+<ul>
+<li>策略：<span class="math inline">\(\pi_\theta(\mathbf{y} \mid \mathbf{x})\)</span>，表示给定题目 <span class="math inline">\(\mathbf{x}\)</span> 时，生成一条完整输出 <span class="math inline">\(\mathbf{y}\)</span> 的概率。</li>
+<li>奖励：<span class="math inline">\(R(\mathbf{x}, \mathbf{y})\)</span>，由 <span class="math inline">\(R_\phi\)</span> 和一些规则（如长度惩罚、答案对错）共同定义。</li>
+</ul>
+<p>我们想最大化期望奖励：</p>
+<p><span class="math display">\[
+J(\theta) =
+\mathbb{E}_{\mathbf{x} \sim \mathcal{D},\,
+  \mathbf{y} \sim \pi_\theta(\cdot \mid \mathbf{x})}
+  \left[ R(\mathbf{x}, \mathbf{y}) \right]
+\]</span></p>
+<p>训练时，通常采用类似 PPO / GRPO 的策略梯度方法：用旧策略采样轨迹，计算奖励，再用加权的 log-prob 梯度更新参数。</p>
+<p>直观理解就是：用奖励模型来告诉语言模型「哪些推理写法更好」，然后不断鼓励模型多走这些高分路径。</p>
+<hr>
+</section>
+</section>
+<section id="推理轨迹如何形式化思考过程" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="推理轨迹如何形式化思考过程"><span class="header-section-number">4</span> 推理轨迹：如何形式化「思考过程」</h2>
+<p>为了训练和评估方便，我们需要把「推理过程」形式化，而不是仅仅当成一段模糊的文本。</p>
+<section id="输出拆分为推理与答案" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="输出拆分为推理与答案"><span class="header-section-number">4.1</span> 输出拆分为推理与答案</h3>
+<p>对于一道题目 <span class="math inline">\(\mathbf{x}\)</span>，模型输出的整个序列写作：</p>
+<p><span class="math display">\[
+\mathbf{y} = [\mathbf{y}^{(r)}, \mathbf{y}^{(a)}]
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{y}^{(r)} = [y^{(r)}_1, \dots, y^{(r)}_{T_r}]\)</span>：
+<ul>
+<li>推理部分的 token 序列。</li>
+<li>在 batch 中 shape 为 <span class="math inline">\(\mathbb{R}^{B \times T_r}\)</span>。</li>
+</ul></li>
+<li><span class="math inline">\(\mathbf{y}^{(a)} = [y^{(a)}_1, \dots, y^{(a)}_{T_a}]\)</span>：
+<ul>
+<li>最终答案部分的 token 序列。</li>
+<li>在 batch 中 shape 为 <span class="math inline">\(\mathbb{R}^{B \times T_a}\)</span>。</li>
+</ul></li>
+</ul>
+<p>生成时，策略先生成 <span class="math inline">\(\mathbf{y}^{(r)}\)</span>，再在它的基础上生成 <span class="math inline">\(\mathbf{y}^{(a)}\)</span>。</p>
+</section>
+<section id="用几何题示范一条完整轨迹" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="用几何题示范一条完整轨迹"><span class="header-section-number">4.2</span> 用几何题示范一条完整轨迹</h3>
+<p>还是刚才那道正方形面积的题。</p>
+<ul>
+<li><p>题目：<span class="math inline">\(\mathbf{x}\)</span>。</p></li>
+<li><p>推理部分 <span class="math inline">\(\mathbf{y}^{(r)}\)</span> 如下：</p>
+<pre class="text"><code>题目给出正方形的对角线长度 d = 10。
+设正方形的边长为 a。
+正方形的两条边与对角线构成一个直角三角形，
+根据勾股定理，有：
+  d² = a² + a² = 2a²
+因此：
+  a² = d² / 2 = 100 / 2 = 50</code></pre></li>
+<li><p>答案部分 <span class="math inline">\(\mathbf{y}^{(a)}\)</span>：</p>
+<pre class="text"><code>正方形的面积等于边长的平方，
+所以面积 A = a² = 50。</code></pre></li>
+</ul>
+<p>在训练中，DeepSeek-R1 会把「题目 + 推理 + 答案」整体送入奖励模型，请它从<strong>整体逻辑</strong>的角度给出评分，而不是只看最后一行数字。</p>
+<hr>
+</section>
+</section>
+<section id="奖励模型给推理过程打分" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="奖励模型给推理过程打分"><span class="header-section-number">5</span> 奖励模型：给推理过程打分</h2>
+<p>现在重点看奖励模型 <span class="math inline">\(R_\phi\)</span>，它不只是判断「答案对不对」，而是对整条推理轨迹进行更细致的评价。</p>
+<section id="输入张量和-shape" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="输入张量和-shape"><span class="header-section-number">5.1</span> 输入张量和 shape</h3>
+<p>在一个 batch 内，奖励模型的输入可以表示为：</p>
+<p><span class="math display">\[
+\mathbf{Z} \in \mathbb{R}^{B \times T_{\text{rm}}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(B\)</span>：batch size。</li>
+<li><span class="math inline">\(T_{\text{rm}}\)</span>：奖励模型看到的总长度（包含题目、推理、答案）。</li>
+</ul>
+<p>奖励模型通常也是一个 Transformer，把整段序列编码成隐藏表示：</p>
+<p><span class="math display">\[
+\mathbf{H}_{\text{rm}} \in \mathbb{R}^{B \times T_{\text{rm}} \times d_{\text{rm}}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(d_{\text{rm}}\)</span>：奖励模型的隐藏维度。</li>
+</ul>
+<p>接着通常取最后一个位置或做 pooling，得到每条样本的向量：</p>
+<p><span class="math display">\[
+\mathbf{h}_{\text{rm}} \in \mathbb{R}^{B \times d_{\text{rm}}}
+\]</span></p>
+<p>再接一个线性层输出标量分数：</p>
+<p><span class="math display">\[
+R_\phi(\mathbf{x}, \mathbf{y}) \in \mathbb{R}^{B \times 1}
+\]</span></p>
+<p>对第 <span class="math inline">\(b\)</span> 条样本来说，<span class="math inline">\(R_\phi(\mathbf{x}_b, \mathbf{y}_b)\)</span> 就是这条推理轨迹的综合得分。</p>
+</section>
+<section id="答案正确性奖励" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="答案正确性奖励"><span class="header-section-number">5.2</span> 答案正确性奖励</h3>
+<p>最直观的一部分奖励来自最终答案是否正确，可以抽象成：</p>
+<p><span class="math display">\[
+r_{\text{correct}}(\mathbf{x}, \mathbf{y}) =
+\begin{cases}
+1, &amp; \text{如果答案正确} \\
+0, &amp; \text{否则}
+\end{cases}
+\]</span></p>
+<p>这里的「答案正确」通常由一个外部评测器给出：</p>
+<ul>
+<li>数学题：解析出最后答案，和标准答案对比。</li>
+<li>编程题：运行代码，统计通过的测试用例数量。</li>
+</ul>
+</section>
+<section id="过程奖励process-reward" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="过程奖励process-reward"><span class="header-section-number">5.3</span> 过程奖励（process reward）</h3>
+<p>更关键的一部分，是对推理过程本身的评价。这个奖励不直接看最终答案，而是看过程是否：</p>
+<ul>
+<li>条理清晰。</li>
+<li>步骤完整。</li>
+<li>没有明显逻辑错误。</li>
+</ul>
+<p>可以直接用奖励模型输出来作为过程奖励：</p>
+<p><span class="math display">\[
+r_{\text{process}}(\mathbf{x}, \mathbf{y})
+= R_\phi(\mathbf{x}, \mathbf{y})
+\]</span></p>
+<p>训练 <span class="math inline">\(R_\phi\)</span> 时常用偏好数据：对同一道题目下两条推理 <span class="math inline">\(\mathbf{y}^{(1)}, \mathbf{y}^{(2)}\)</span>，如果标注者更偏好 <span class="math inline">\(\mathbf{y}^{(1)}\)</span>，就希望 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(1)})\)</span> 大于 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(2)})\)</span>。</p>
+<p>可以用类似 Bradley–Terry 的形式构造损失：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{rm}}(\phi) =
+-\log \sigma\Big(
+R_\phi(\mathbf{x}, \mathbf{y}^{(1)})
+- R_\phi(\mathbf{x}, \mathbf{y}^{(2)})
+\Big)
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\sigma(\cdot)\)</span>：sigmoid 函数。</li>
+<li>当 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(1)})\)</span> 明显大于 <span class="math inline">\(R_\phi(\mathbf{x}, \mathbf{y}^{(2)})\)</span> 时，这个损失就很小。</li>
+</ul>
+</section>
+<section id="长度惩罚" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="长度惩罚"><span class="header-section-number">5.4</span> 长度惩罚</h3>
+<p>为了避免模型用「水字数」的方式获取高分，一般还会对长度做惩罚：</p>
+<p><span class="math display">\[
+r_{\text{length}}(\mathbf{y})
+= -\lambda \cdot \frac{T(\mathbf{y})}{T_{\max}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(T(\mathbf{y})\)</span>：这条轨迹的总 token 数（推理 + 答案）。</li>
+<li><span class="math inline">\(T_{\max}\)</span>：设定的最大合理长度。</li>
+<li><span class="math inline">\(\lambda\)</span>：一个正的标量超参数，控制惩罚强弱。</li>
+</ul>
+<p>这个项并不是让推理越短越好，而是防止模型为了多拿 process reward 而无限啰嗦。</p>
+</section>
+<section id="奖励加权组合" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="奖励加权组合"><span class="header-section-number">5.5</span> 奖励加权组合</h3>
+<p>最终，总奖励通常是几项加权求和：</p>
+<p><span class="math display">\[
+R_{\text{total}}(\mathbf{x}, \mathbf{y})
+= w_1 r_{\text{correct}}
++ w_2 r_{\text{process}}
++ w_3 r_{\text{length}}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(w_1, w_2, w_3\)</span>：三个非负权重（标量），用来平衡答案正确性、过程质量和长度控制。</li>
+</ul>
+<p>在实现中，<span class="math inline">\(r_{\text{correct}}\)</span> 和 <span class="math inline">\(r_{\text{length}}\)</span> 可以通过规则快速算出， <span class="math inline">\(r_{\text{process}}\)</span> 则完全依赖训练好的奖励模型。</p>
+<hr>
+</section>
+</section>
+<section id="强化学习阶段让模型走高分路径" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="强化学习阶段让模型走高分路径"><span class="header-section-number">6</span> 强化学习阶段：让模型走高分路径</h2>
+<p>有了奖励函数，就可以进入强化学习阶段，把语言模型当成在离散空间上做多步决策的策略。</p>
+<section id="把语言模型看成-mdp" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="把语言模型看成-mdp"><span class="header-section-number">6.1</span> 把语言模型看成 MDP</h3>
+<p>可以把整个生成过程看成一个马尔可夫决策过程（MDP）：</p>
+<ul>
+<li><p>状态 <span class="math inline">\(s_t\)</span>：</p>
+<ul>
+<li>当前已经生成的 token 序列（包含题目和此前所有输出）。</li>
+</ul></li>
+<li><p>动作 <span class="math inline">\(a_t\)</span>：</p>
+<ul>
+<li>在时间步 <span class="math inline">\(t\)</span> 选择的下一个 token。</li>
+</ul></li>
+<li><p>策略 <span class="math inline">\(\pi_\theta(a_t \mid s_t)\)</span>：</p>
+<ul>
+<li>给定当前状态 <span class="math inline">\(s_t\)</span>，选择动作 <span class="math inline">\(a_t\)</span> 的概率。</li>
+</ul></li>
+<li><p>轨迹：</p>
+<p><span class="math display">\[
+\tau = (s_0, a_0, s_1, a_1, \dots, s_T, a_T)
+\]</span></p></li>
+<li><p>总奖励 <span class="math inline">\(R(\tau)\)</span>：</p>
+<ul>
+<li>对应我们前面定义的 <span class="math inline">\(R_{\text{total}}(\mathbf{x}, \mathbf{y})\)</span>。</li>
+</ul></li>
+</ul>
+<p>在一个 batch 里，如果一次生成 <span class="math inline">\(B\)</span> 条轨迹，它们的 token 序列可以堆成一个张量：</p>
+<p><span class="math display">\[
+\mathbf{Y} \in \mathbb{R}^{B \times T}
+\]</span></p>
+<ul>
+<li>第 <span class="math inline">\(b\)</span> 行 <span class="math inline">\(\mathbf{Y}_{b,:}\)</span> 就是第 <span class="math inline">\(b\)</span> 条样本的完整输出。</li>
+</ul>
+</section>
+<section id="策略梯度目标与直觉" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="策略梯度目标与直觉"><span class="header-section-number">6.2</span> 策略梯度目标与直觉</h3>
+<p>强化学习的目标是最大化期望奖励：</p>
+<p><span class="math display">\[
+J(\theta) =
+\mathbb{E}_{\mathbf{x} \sim \mathcal{D},\,
+  \mathbf{y} \sim \pi_\theta(\cdot \mid \mathbf{x})}
+  \left[ R_{\text{total}}(\mathbf{x}, \mathbf{y}) \right]
+\]</span></p>
+<p>使用策略梯度（Policy Gradient），可以写出梯度估计：</p>
+<p><span class="math display">\[
+\nabla_\theta J(\theta)
+\approx
+\mathbb{E}_{\mathbf{x}, \mathbf{y}}
+\left[
+  A(\mathbf{x}, \mathbf{y})\,
+  \nabla_\theta \log \pi_\theta(\mathbf{y} \mid \mathbf{x})
+\right]
+\]</span></p>
+<ul>
+<li><span class="math inline">\(A(\mathbf{x}, \mathbf{y})\)</span>：advantage（优势函数），通常是总奖励减去某个基线，表示「比期望好多少」。</li>
+<li><span class="math inline">\(\log \pi_\theta(\mathbf{y} \mid \mathbf{x})\)</span>：
+<ul>
+<li>可以进一步拆成所有 token log-prob 的和。</li>
+</ul></li>
+</ul>
+<p>DeepSeek-R1 采用的是类似 PPO / GRPO 的改进方法：</p>
+<ul>
+<li>用旧策略 <span class="math inline">\(\pi_{\theta_{\text{old}}}\)</span> 采样一批轨迹。</li>
+<li>在更新时加入「概率比值裁剪」等项，限制每次更新的步子不要迈得太大。</li>
+</ul>
+<p>直观来看，训练循环就是反复做三件事：</p>
+<ol type="1">
+<li>让当前模型自己解题、写推理。</li>
+<li>用奖励模型和规则给每条解答打分。</li>
+<li>调整模型参数，让高分解答出现得更频繁。</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="工程细节让训练真正跑起来" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="工程细节让训练真正跑起来"><span class="header-section-number">7</span> 工程细节：让训练真正跑起来</h2>
+<p>上面说的是「理论层面」的结构，真正要把 DeepSeek-R1 训出来，还要在工程上处理好几个关键问题。</p>
+<section id="采样策略与多样性" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="采样策略与多样性"><span class="header-section-number">7.1</span> 采样策略与多样性</h3>
+<p>如果在采样推理轨迹时温度太低、<code>top_p</code> 太小，模型会反复输出几乎一样的推理；如果温度太高，又会产生大量质量参差不齐的文本。</p>
+<p>合理的做法是：</p>
+<ul>
+<li>在采样阶段保持一定多样性，让奖励模型有足够多的「好/坏样本」可以区分。</li>
+<li>在强化学习阶段，靠奖励信号慢慢把分布收紧到「一簇高质量推理模式」上。</li>
+</ul>
+<p>这和 AlphaGo 里「自对弈产生多样棋谱 + 价值网络筛选」的组合思路类似。</p>
+</section>
+<section id="课程式训练" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="课程式训练"><span class="header-section-number">7.2</span> 课程式训练</h3>
+<p>如果一上来就把所有难题丢给模型做 RL，很容易什么也学不会。</p>
+<p>因此 DeepSeek-R1 会采用类似 Curriculum Learning 的策略：</p>
+<ul>
+<li>先在相对简单、推理链较短的题目上做强化学习。</li>
+<li>随着效果提升，再逐步加入更难、推理更长的题目。</li>
+</ul>
+<p>这就像先教会模型「一步题、两步题」，再教它「多步题」。</p>
+</section>
+<section id="计算成本与效率" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="计算成本与效率"><span class="header-section-number">7.3</span> 计算成本与效率</h3>
+<p>生成推理轨迹、训练奖励模型和做 RL 更新，都是非常耗算力的步骤。</p>
+<p>为了让整个流程可行，需要做一些权衡：</p>
+<ul>
+<li>限制推理轨迹的最大长度 <span class="math inline">\(T_{\max}\)</span>，避免序列过长导致成本爆炸。</li>
+<li>控制奖励模型的规模 <span class="math inline">\(d_{\text{rm}}\)</span> 以及层数，让其评估开销在可接受范围内。</li>
+<li>对 RL 更新步数、batch 大小做精心设计，避免在收益递减区间持续烧算力。</li>
+</ul>
+<p>这些工程细节在论文里可能只占几行，但对实际复现效果非常关键。</p>
+<hr>
+</section>
+</section>
+<section id="总结从-deepseek-r1-学到什么" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="总结从-deepseek-r1-学到什么"><span class="header-section-number">8</span> 总结：从 DeepSeek-R1 学到什么</h2>
+<p>把整条线索串起来，我们可以看到 DeepSeek-R1 带来的，不只是「分数更高」，更重要的是一种方法论上的升级：</p>
+<ul>
+<li>在<strong>问题层面</strong>，正视了「只给答案不写过程」这一类大模型的核心短板。</li>
+<li>在<strong>建模层面</strong>，把推理轨迹当成一等公民，用奖励模型显式评价过程质量。</li>
+<li>在<strong>优化层面</strong>，用强化学习让模型偏向那些「过程合理、答案正确、长度适中」的解题路径。</li>
+<li>在<strong>工程层面</strong>，通过采样策略、课程设计和算力权衡，把这一整套理论真正跑了起来。</li>
+</ul>
+<p>对我们这些使用和研究大模型的人来说，DeepSeek-R1 给出的最重要启发之一是：</p>
+<blockquote class="blockquote">
+<p>不再满足于「给我一个结果」，而是系统地训练模型去「把想法说出来，并且说得越来越好」。</p>
+</blockquote>
+<p>这种「先让模型把思考过程显性化，再对过程本身施加优化目标」的范式，很可能会成为今后推理增强类模型的通用模板。</p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

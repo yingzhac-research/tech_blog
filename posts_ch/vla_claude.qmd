@@ -1,0 +1,589 @@
+---
+title: "Vision-Language-Action 模型：让机器人理解世界并行动"
+description: 深入理解 VLA 模型的架构设计、数学原理、Action Tokenization 的三种形态，以及知识指导的触觉 VLA。
+date: 2025-11-26
+categories: [深度学习, 机器人, 多模态, 具身智能]
+---
+
+## 引言：从感知到行动的鸿沟
+
+在过去几年里，大语言模型（LLM）和视觉语言模型（VLM）在理解和生成方面取得了令人瞩目的进展。GPT-4V 可以描述图片内容，Claude 可以分析复杂的视觉场景。但是，当我们试图让这些模型控制一个真实的机器人时，会遇到一个根本性的问题：**理解世界和在世界中行动是两回事**。
+
+想象一下，你对一个机器人说："把红色的苹果轻轻放进篮子里"。这个看似简单的指令，实际上需要机器人：
+
+1. **视觉理解**：识别场景中的苹果和篮子
+2. **语言理解**：解析"轻轻放进"这个指令的含义
+3. **动作规划**：规划一条避障的运动轨迹
+4. **力控制**：控制抓取力度，避免捏碎苹果
+5. **时序执行**：在连续的时间步上精确控制关节
+
+传统的方法是分模块设计：一个模块负责感知，一个模块负责规划，一个模块负责控制。但这种方法存在信息损失——感知模块看到的丰富信息，经过层层抽象后传递给控制模块时，可能已经丢失了关键细节。
+
+**Vision-Language-Action（VLA）模型**的出现，正是为了弥合这个鸿沟。它的核心思想是：**用一个统一的端到端模型，直接从原始感知（图像、语言指令）映射到机器人动作**。
+
+### 本文的学习路线图
+
+这篇文章将带你深入理解 VLA 模型的方方面面：
+
+**第一部分：历史演进与动机**（第2节）
+- 从行为克隆到端到端学习的技术脉络
+- 传统机器人控制的痛点
+- VLA 范式如何一举解决这些问题
+
+**第二部分：VLA 核心架构**（第3节）
+- 视觉编码器：DINOv2 和 SigLIP 的双流设计
+- 语言骨干：如何复用预训练 LLM
+- 动作解码器：从 token 到连续控制信号
+- 完整的数学推导和张量维度标注
+
+**第三部分：Action Tokenization 的三种形态**（第4节）
+- **Code Token（VLAC）**：生成代码作为动作表示
+- **Key Pose Token（VLAKP）**：关键帧稀疏表示
+- **Dense Pose Token（VLADP）**：密集离散化与连续扩散
+
+**第四部分：知识指导的触觉 VLA**（第5节）
+- 为什么视觉不够？触觉的必要性
+- Tactile-VLA 架构：混合位置-力控制器
+- VLM 先验知识如何迁移到物理交互
+
+准备好了吗？让我们从机器人学习的历史演进开始这段探索之旅。
+
+## 历史演进：从手工规则到端到端学习
+
+### 传统机器人控制的痛点
+
+在 VLA 出现之前，机器人控制主要依赖分层架构：
+
+```
+感知层 → 规划层 → 控制层
+```
+
+这种架构有几个根本性的问题：
+
+**问题一：信息瓶颈**
+
+感知层需要把丰富的视觉信息压缩成有限的符号表示（如物体的位姿），传递给规划层。这个过程会丢失很多细节——纹理、光照、遮挡关系等。当这些细节对任务成功至关重要时（比如判断一个物体是否易碎），系统就会失败。
+
+**问题二：领域迁移困难**
+
+每个模块都是针对特定环境设计的。换一个场景、换一种物体、换一个机器人平台，整个系统都需要重新调试。这导致机器人的泛化能力极差。
+
+**问题三：缺乏常识推理**
+
+当用户说"拿一个能用来敲钉子的东西"，传统系统无法理解"石头可以当锤子用"这种常识推理。它只能识别预定义的物体类别，无法进行开放世界的语义理解。
+
+### 语言模型带来的启示
+
+2023年，Google DeepMind 发布了 RT-2（Robotics Transformer 2），首次展示了一个令人惊叹的现象：**把大型视觉语言模型微调到机器人数据上后，模型可以执行从未见过的指令**。
+
+例如，RT-2 可以理解"把可以用来灭火的东西放到恐龙旁边"这样的复杂指令，即使训练数据中从未出现过这种任务。模型能够推理出"水瓶可以灭火"，然后执行正确的动作。
+
+这说明：**VLM 在大规模互联网数据上学到的世界知识，可以迁移到机器人控制任务中**。
+
+### VLA 范式的诞生
+
+VLA 模型的核心洞察是：**把机器人动作表示为语言 token，统一到 VLM 的训练框架中**。
+
+具体来说：
+
+1. 图像通过视觉编码器变成一系列 patch embeddings
+2. 语言指令通过 tokenizer 变成文本 embeddings
+3. 机器人状态（关节角度、速度等）编码为 proprioceptive embeddings
+4. **机器人动作离散化为 action tokens**
+
+这些多模态 token 统一输入到一个 decoder-only Transformer 中，训练目标和语言模型一样：**预测下一个 token**。
+
+这个设计的美妙之处在于：
+
+- **统一表示**：感知、语言、动作都在同一个表示空间中
+- **预训练迁移**：可以复用 VLM 的预训练权重，继承其语义理解能力
+- **端到端优化**：从感知到动作的整个pipeline都是可微分的
+
+### VLA 发展时间线
+
+VLA 领域的发展可以分为三个阶段：
+
+| 阶段 | 时间 | 代表工作 | 里程碑 |
+|------|------|---------|--------|
+| 早期探索 | 2022-2023 Q2 | PaLM-E, RT-1 | 验证可行性 |
+| 快速增长 | 2023 Q3-2024 Q3 | RT-2, OpenVLA | 开源模型涌现 |
+| 成熟应用 | 2024 Q4-至今 | π0, GR00T N1 | 工业级部署 |
+
+## VLA 核心架构详解
+
+现在，让我们深入 VLA 模型的内部结构。我们以 OpenVLA 为例，因为它是目前最具代表性的开源 VLA 模型，完整的代码和权重都可以获取。
+
+### 整体架构
+
+OpenVLA 的架构可以分为三个核心组件：
+
+$$
+\underbrace{\text{视觉编码器}}_{\text{DINOv2 + SigLIP}} \rightarrow \underbrace{\text{投影层}}_{\text{Linear}} \rightarrow \underbrace{\text{语言模型骨干}}_{\text{Llama-2 7B}} \rightarrow \underbrace{\text{动作 Token}}_{\text{256 bins}}
+$$
+
+让我们逐一解析每个组件。
+
+### 视觉编码器：双流融合
+
+OpenVLA 使用两个预训练的视觉编码器，它们各有专长：
+
+**DINOv2**（约 300M 参数）：
+
+- 使用自监督学习训练（不需要标注）
+- 擅长捕捉空间关系和几何结构
+- 对物体的位置、形状、遮挡关系敏感
+
+**SigLIP**（约 400M 参数）：
+
+- 使用图像-文本对进行对比学习
+- 特征与语言语义对齐
+- 擅长识别物体类别和属性
+
+你可能会问：**为什么需要两个编码器？**
+
+这是一个权衡的设计。DINOv2 在空间推理上更强，但缺乏语言对齐；SigLIP 在语义理解上更强，但空间细节可能不够。通过融合两者，模型可以同时获得两方面的能力。
+
+数学上，给定输入图像 $\mathbf{I} \in \mathbb{R}^{H \times W \times 3}$（OpenVLA 使用 $H = W = 224$），两个编码器分别输出：
+
+$$
+\mathbf{V}_{\text{DINO}} = f_{\text{DINO}}(\mathbf{I}) \in \mathbb{R}^{N_p \times d_{\text{DINO}}}
+$$
+
+$$
+\mathbf{V}_{\text{SigLIP}} = f_{\text{SigLIP}}(\mathbf{I}) \in \mathbb{R}^{N_p \times d_{\text{SigLIP}}}
+$$
+
+其中：
+- $N_p = (H/P)^2$ 是 patch 数量（$P$ 是 patch 大小，通常为 14 或 16）
+- $d_{\text{DINO}}$, $d_{\text{SigLIP}}$ 是各自的隐藏维度
+
+融合策略是简单的拼接：
+
+$$
+\mathbf{V}_{\text{fused}} = [\mathbf{V}_{\text{DINO}}; \mathbf{V}_{\text{SigLIP}}] \in \mathbb{R}^{N_p \times (d_{\text{DINO}} + d_{\text{SigLIP}})}
+$$
+
+然后通过一个线性投影层映射到语言模型的维度：
+
+$$
+\mathbf{V} = \mathbf{V}_{\text{fused}} \mathbf{W}_{\text{proj}} \in \mathbb{R}^{N_p \times d_{\text{LLM}}}
+$$
+
+对于 OpenVLA，最终得到约 275 个视觉 token，每个维度为 $d_{\text{LLM}} = 4096$（Llama-2 7B 的隐藏维度）。
+
+### 语言模型骨干
+
+OpenVLA 使用 Llama-2 7B 作为主干网络。这个选择基于几个考虑：
+
+1. **开源可用**：Llama-2 的权重公开可获取
+2. **规模适中**：7B 参数在单 GPU 上可以运行
+3. **预训练充分**：在大规模文本上训练，具备丰富的世界知识
+
+输入到 Llama-2 的序列是：
+
+$$
+[\underbrace{\text{视觉 tokens}}_{\sim 275 \text{ tokens}}; \underbrace{\text{语言 tokens}}_{\text{指令长度}}; \underbrace{\text{动作 tokens}}_{\text{7 tokens}}]
+$$
+
+模型的训练目标是标准的下一个 token 预测：
+
+$$
+\mathcal{L} = -\sum_{t} \log p_\theta(a_t \mid \mathbf{V}, \mathbf{T}, a_{<t})
+$$
+
+其中 $\mathbf{V}$ 是视觉 token，$\mathbf{T}$ 是文本 token，$a_{<t}$ 是之前的动作 token。
+
+### 动作 Token 化：256 bins 离散化
+
+这是 VLA 最关键的设计之一：**如何把连续的机器人动作表示为离散的 token？**
+
+OpenVLA 采用均匀离散化策略。对于一个 7 自由度的机械臂（6 DoF 位姿 + 1 夹爪），动作空间是：
+
+$$
+\mathbf{a} = (\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw}, \text{gripper}) \in \mathbb{R}^7
+$$
+
+每个维度被离散化为 256 个 bins：
+
+$$
+a_i^{\text{discrete}} = \text{quantize}(a_i, 256) = \left\lfloor \frac{a_i - a_i^{\min}}{a_i^{\max} - a_i^{\min}} \times 255 \right\rfloor
+$$
+
+其中 $a_i^{\min}$ 和 $a_i^{\max}$ 是训练数据中第 1 和第 99 百分位数（而不是最大最小值，以减少离群点的影响）。
+
+**为什么选择 256 bins？**
+
+这是精度和词表大小的权衡：
+
+- 256 = $2^8$，正好是 8 位分辨率
+- 对于机器人控制，8 位精度（约 0.4% 的相对误差）通常足够
+- 更多 bins 会增加词表大小，导致 token embedding 矩阵膨胀
+
+**Token 映射策略**
+
+OpenVLA 复用 Llama-2 词表中最不常用的 256 个 token 来表示动作。这样做的好处是不需要扩展词表，可以直接使用预训练的 embedding 矩阵。
+
+最终，一个完整的动作被编码为 7 个 token 的序列，例如：
+
+```
+"1 128 91 241 5 101 127"
+```
+
+这个字符串的含义是：
+- "1"：继续执行（非终止）
+- "128 91 241"：末端执行器的位移
+- "5 101 127"：末端执行器的旋转
+- 最后一位表示夹爪状态
+
+### 训练目标与损失函数
+
+VLA 的训练使用标准的交叉熵损失：
+
+$$
+\mathcal{L}_{\text{CE}} = -\sum_{i=1}^{7} \log p_\theta(a_i \mid \mathbf{V}, \mathbf{T}, a_{<i})
+$$
+
+对于每个动作维度 $i$，模型预测 256 个类别上的概率分布，损失是预测分布和真实 bin 的交叉熵。
+
+值得注意的是，这和语言模型的训练完全相同——只是预测的 token 变成了动作 bin 而不是词汇。
+
+### 推理过程
+
+在推理时，模型自回归地生成动作 token：
+
+**Step 1**: 编码视觉和语言输入
+
+$$
+\mathbf{h}_0 = \text{LLM}(\mathbf{V}, \mathbf{T})
+$$
+
+**Step 2**: 依次生成 7 个动作 token
+
+$$
+\begin{aligned}
+a_1 &\sim p_\theta(\cdot \mid \mathbf{h}_0) \\
+a_2 &\sim p_\theta(\cdot \mid \mathbf{h}_0, a_1) \\
+&\vdots \\
+a_7 &\sim p_\theta(\cdot \mid \mathbf{h}_0, a_1, \ldots, a_6)
+\end{aligned}
+$$
+
+**Step 3**: 反量化为连续动作
+
+$$
+a_i^{\text{continuous}} = \frac{a_i^{\text{discrete}}}{255} \times (a_i^{\max} - a_i^{\min}) + a_i^{\min}
+$$
+
+**Step 4**: 发送到机器人执行
+
+整个推理过程在现代 GPU 上只需要几十毫秒，足以支持实时控制。
+
+## Action Tokenization 的三种形态
+
+你在问题中提到了三种不同的动作 token 形态：VLAC、VLAKP、VLADP。让我详细解释每一种。
+
+### VLAC：代码作为动作
+
+**动机**：机器人动作本质上是一系列操作，而代码正是描述操作的最自然的方式。
+
+**架构设计**：
+
+VLAC 模型不直接输出关节角度，而是输出可执行的代码片段：
+
+```python
+# VLA 模型的输出示例
+pick_up("red_apple")
+move_to(basket_position)
+place_down(force=0.3)
+```
+
+这些代码通过一个预定义的 API 解释执行，调用底层的运动规划器。
+
+**数学建模**：
+
+设代码 token 序列为 $\mathbf{c} = (c_1, c_2, \ldots, c_L)$，模型优化：
+
+$$
+\mathcal{L}_{\text{VLAC}} = -\sum_{t=1}^{L} \log p_\theta(c_t \mid \mathbf{V}, \mathbf{T}, c_{<t})
+$$
+
+**优势**：
+- 可解释性强：人类可以直接阅读和修改输出
+- 组合泛化：可以通过代码组合实现新任务
+- 高层抽象：不需要关心底层的运动学细节
+
+**局限**：
+- 需要预定义 API，限制了表达能力
+- 难以处理需要精细力控的任务
+- 对 API 设计的质量高度依赖
+
+### VLAKP：关键帧稀疏表示
+
+**动机**：大多数机器人任务可以分解为几个关键姿态（key poses）之间的过渡。
+
+**架构设计**：
+
+VLAKP 只预测关键帧的位姿，中间的轨迹由运动规划器插值生成：
+
+$$
+\mathbf{a}_{\text{VLAKP}} = (\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_K)
+$$
+
+其中 $\mathbf{p}_k \in SE(3)$ 是第 $k$ 个关键帧的 6D 位姿，$K$ 是关键帧数量（通常 3-5 个）。
+
+**Token 化方法**：
+
+每个关键帧被编码为固定数量的 token：
+
+$$
+\mathbf{p}_k \rightarrow (t_1^k, t_2^k, \ldots, t_6^k)
+$$
+
+总共需要 $6K$ 个 token 来描述完整的任务。
+
+**优势**：
+- 输出长度短，推理效率高
+- 天然支持长 horizon 任务
+- 对关键帧之间的执行误差鲁棒
+
+**局限**：
+- 需要额外的运动规划器
+- 难以处理需要连续反馈的任务
+- 关键帧的选择需要先验知识
+
+### VLADP：密集离散化与连续扩散
+
+**动机**：某些任务需要高频、精细的控制，256 bins 的离散化精度不够。
+
+这里又细分为两种技术路线：
+
+#### 路线一：更密集的离散化
+
+直接增加 bins 数量到 1024 或更多，并使用 **Action Chunking** 技术：
+
+$$
+\mathbf{a}_{\text{chunk}} = (\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_H)
+$$
+
+其中 $H$ 是 chunk 大小（如 16 或 32）。模型一次预测未来 $H$ 步的动作，然后执行一部分后再重新预测。
+
+**FAST tokenization** 使用离散余弦变换（DCT）压缩动作序列：
+
+$$
+\mathbf{A}_{\text{DCT}} = \text{DCT}(\mathbf{a}_{\text{chunk}})
+$$
+
+只保留低频系数，大幅减少 token 数量。
+
+#### 路线二：连续扩散/流匹配
+
+以 **π0** 为代表，完全放弃离散 token，使用扩散模型直接输出连续动作：
+
+$$
+\mathbf{a} = f_\theta(\mathbf{z}, \mathbf{V}, \mathbf{T})
+$$
+
+其中 $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 是噪声输入。
+
+**Flow Matching 目标**：
+
+$$
+\mathcal{L}_{\text{FM}} = \mathbb{E}_{t, \mathbf{a}, \mathbf{z}} \left[ \left\| v_\theta(\mathbf{a}_t, t) - (\mathbf{a} - \mathbf{z}) \right\|^2 \right]
+$$
+
+其中 $\mathbf{a}_t = (1-t)\mathbf{z} + t\mathbf{a}$ 是时间 $t$ 的插值。
+
+**π0 的双系统架构**：
+
+π0 结合了 VLM 和扩散模型：
+
+1. **慢系统（VLM）**：理解高层语义，输出条件特征
+2. **快系统（扩散头）**：生成高频连续动作，50Hz 控制频率
+
+$$
+\underbrace{\text{PaliGemma VLM}}_{\text{3B 参数}} \rightarrow \underbrace{\text{Flow Matching Head}}_{\text{300M 参数}} \rightarrow \underbrace{\text{连续动作}}_{\text{50 Hz}}
+$$
+
+**优势**：
+- 可以输出任意精度的连续动作
+- 天然支持多模态动作分布
+- 适合精细操作任务
+
+**局限**：
+- 推理需要多步去噪，延迟较高
+- 架构更复杂，训练更困难
+- 与预训练 LLM 的对齐不如 token 化方法自然
+
+### 三种形态的对比
+
+| 形态 | 输出类型 | 控制频率 | 适用场景 |
+|------|---------|---------|---------|
+| VLAC | 代码 | 低（任务级）| 高层规划、可解释性要求高 |
+| VLAKP | 关键帧 | 中（1-5 Hz）| 抓取、放置等里程碑任务 |
+| VLADP | 连续 | 高（50+ Hz）| 精细操作、力控任务 |
+
+## 知识指导的触觉 VLA
+
+前面讨论的 VLA 模型主要依赖视觉和语言两种模态。但在真实的机器人操作中，**触觉**往往是不可或缺的。
+
+### 为什么视觉不够？
+
+考虑这些场景：
+
+1. **判断物体硬度**：一个苹果和一个网球看起来很像，但需要不同的抓取力
+2. **遮挡情况**：当手指遮住物体时，视觉无法判断是否抓稳
+3. **力控任务**：插入充电器时需要精确的力反馈来检测对齐
+4. **表面质地**：玻璃杯和塑料杯可能外观相似，但滑动摩擦系数不同
+
+这些信息**只有通过触觉才能获取**。
+
+### Tactile-VLA：释放 VLM 的物理知识
+
+2025年发布的 **Tactile-VLA** 提出了一个有趣的发现：**VLM 已经隐含了丰富的物理交互知识，只需要少量示范就能激活这些知识用于触觉任务**。
+
+#### 核心架构
+
+Tactile-VLA 的架构包含四个关键组件：
+
+**1. 多模态编码器**
+
+$$
+\begin{aligned}
+\mathbf{V} &= f_{\text{vision}}(\mathbf{I}) \in \mathbb{R}^{N_v \times d} \\
+\mathbf{T} &= f_{\text{text}}(\text{instruction}) \in \mathbb{R}^{N_t \times d} \\
+\mathbf{S} &= f_{\text{tactile}}(\text{tactile\_image}) \in \mathbb{R}^{N_s \times d} \\
+\mathbf{P} &= f_{\text{proprio}}(\text{joint\_states}) \in \mathbb{R}^{N_p \times d}
+\end{aligned}
+$$
+
+触觉传感器的数据通常是一张接触区域的图像（如 GelSight 传感器），也通过视觉编码器处理。
+
+**2. Token 级融合**
+
+所有模态在 token 级别融合，作为 VLM 的输入前缀：
+
+$$
+\mathbf{H}_{\text{input}} = [\mathbf{V}; \mathbf{T}; \mathbf{S}; \mathbf{P}]
+$$
+
+**3. 触觉感知动作专家**
+
+与标准 VLA 不同，Tactile-VLA 的动作输出包含两部分：
+
+$$
+\mathbf{a} = (\mathbf{a}_{\text{pos}}, \mathbf{a}_{\text{force}})
+$$
+
+- $\mathbf{a}_{\text{pos}} \in \mathbb{R}^6$：目标位姿
+- $\mathbf{a}_{\text{force}} \in \mathbb{R}^6$：目标力/力矩
+
+**4. 混合位置-力控制器**
+
+这是 Tactile-VLA 的关键创新。控制器在笛卡尔空间中同时控制位置和力：
+
+$$
+\boldsymbol{\tau} = \mathbf{J}^T \left[ \mathbf{K}_p (\mathbf{x}_{\text{target}} - \mathbf{x}) + \mathbf{K}_f (\mathbf{f}_{\text{target}} - \mathbf{f}) \right]
+$$
+
+其中：
+- $\boldsymbol{\tau}$ 是关节力矩
+- $\mathbf{J}$ 是雅可比矩阵
+- $\mathbf{K}_p$, $\mathbf{K}_f$ 是位置/力增益矩阵
+- $\mathbf{x}$, $\mathbf{f}$ 是当前位置和力
+- $\mathbf{x}_{\text{target}}$, $\mathbf{f}_{\text{target}}$ 是模型输出的目标
+
+**选择矩阵**：
+
+在某些自由度上控制位置，在另一些自由度上控制力：
+
+$$
+\mathbf{S} = \text{diag}(s_1, s_2, \ldots, s_6), \quad s_i \in \{0, 1\}
+$$
+
+当 $s_i = 1$ 时，第 $i$ 个自由度是力控；否则是位置控制。
+
+#### 知识迁移机制
+
+Tactile-VLA 最有趣的发现是：**VLM 预训练中学到的物理常识可以迁移到触觉任务**。
+
+例如，VLM 在网络文本中学到了：
+- "玻璃是易碎的" → 抓玻璃杯时应该轻柔
+- "鸡蛋很脆弱" → 需要小心的力控
+- "金属是坚硬的" → 可以用更大的力
+
+通过少量触觉示范（few-shot），模型能够：
+1. 将这些语言层面的知识与触觉信号建立对应
+2. 在遇到新物体时，基于语言描述推断合适的力策略
+
+#### 实验结果
+
+在充电器插入任务上：
+
+| 方法 | 成功率 |
+|------|--------|
+| 纯视觉 VLA | 25% |
+| 视觉 + 触觉（简单融合）| 40% |
+| Tactile-VLA | **90%** |
+
+这个巨大的差距说明：**在接触密集型任务中，触觉不是可选的，而是必要的**。
+
+### OmniVTLA：跨传感器泛化
+
+另一个值得关注的工作是 **OmniVTLA**，它解决了一个实际问题：**不同的触觉传感器输出格式完全不同**。
+
+OmniVTLA 使用双路径触觉编码器：
+
+1. **视觉型触觉编码器**：处理 GelSight 等基于视觉的触觉传感器
+2. **力型触觉编码器**：处理力/力矩传感器的数值输出
+
+两者通过语义对齐投影到同一空间，实现跨传感器迁移。
+
+## 总结与展望
+
+### VLA 的核心贡献
+
+VLA 模型代表了机器人学习范式的一次重要转变：
+
+1. **统一表示**：视觉、语言、动作在同一框架下建模
+2. **知识迁移**：互联网规模的 VLM 预训练知识可以服务于机器人
+3. **端到端优化**：避免了模块化设计的信息损失
+
+### 当前的局限
+
+但 VLA 也面临一些挑战：
+
+1. **实时性**：大模型的推理延迟与高频控制的需求之间存在矛盾
+2. **数据效率**：训练一个好的 VLA 需要大量的机器人数据
+3. **安全性**：在开放环境中部署端到端模型存在风险
+4. **可解释性**：难以理解模型的决策过程
+
+### 未来方向
+
+展望未来，VLA 可能会朝以下方向发展：
+
+1. **多机器人协同**：一个 VLA 控制多个机器人完成复杂任务
+2. **仿真到真实迁移**：在仿真中大规模训练，零样本迁移到真实世界
+3. **终身学习**：机器人在部署后持续学习新技能
+4. **物理可信 VLA**：结合物理引擎的先验，提高样本效率和安全性
+
+VLA 模型的出现，让我们看到了通往通用机器人的一条可能路径。正如语言模型统一了 NLP 的各种任务，VLA 有望统一机器人的感知、规划和控制。这是一个令人兴奋的研究方向，期待在未来几年看到更多突破性的进展。
+
+## 参考资源
+
+### 核心论文
+
+- [RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control](https://arxiv.org/abs/2307.15818)
+- [OpenVLA: An Open-Source Vision-Language-Action Model](https://arxiv.org/abs/2406.09246)
+- [π0: A Vision-Language-Action Flow Model for General Robot Control](https://www.physicalintelligence.company/download/pi0.pdf)
+- [Tactile-VLA: Unlocking Vision-Language-Action Model's Physical Knowledge for Tactile Generalization](https://arxiv.org/abs/2507.09160)
+
+### 代码与模型
+
+- [OpenVLA GitHub](https://github.com/openvla/openvla)
+- [VLA Survey 项目主页](https://vla-survey.github.io/)
+- [Awesome-VLA-Papers](https://github.com/Psi-Robot/Awesome-VLA-Papers)
+
+### 综述文章
+
+- [Vision-Language-Action Models for Robotics: A Review Towards Real-World Applications](https://www.techrxiv.org/users/952793/articles/1322104)
+- [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey](https://arxiv.org/html/2508.13073v1)

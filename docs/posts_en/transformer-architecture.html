@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-11-13">
-<meta name="description" content="一篇中文示例文章，用于验证中英文分栏与标签。">
+<meta name="description" content="Understanding the Transformer model with multi-head attention and positional encoding.">
 
-<title>你好，开始使用 Quarto – Tech Notes</title>
+<title>Transformer Architecture — Self-Attention and Beyond – Tech Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,41 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -419,9 +384,12 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#代码示例" id="toc-代码示例" class="nav-link active" data-scroll-target="#代码示例"><span class="header-section-number">1</span> 代码示例</a></li>
-  <li><a href="#行间公式" id="toc-行间公式" class="nav-link" data-scroll-target="#行间公式"><span class="header-section-number">2</span> 行间公式</a></li>
-  <li><a href="#小结" id="toc-小结" class="nav-link" data-scroll-target="#小结"><span class="header-section-number">3</span> 小结</a></li>
+  <li><a href="#self-attention-mechanism" id="toc-self-attention-mechanism" class="nav-link active" data-scroll-target="#self-attention-mechanism"><span class="header-section-number">1</span> Self-Attention Mechanism</a></li>
+  <li><a href="#multi-head-attention" id="toc-multi-head-attention" class="nav-link" data-scroll-target="#multi-head-attention"><span class="header-section-number">2</span> Multi-Head Attention</a></li>
+  <li><a href="#positional-encoding" id="toc-positional-encoding" class="nav-link" data-scroll-target="#positional-encoding"><span class="header-section-number">3</span> Positional Encoding</a></li>
+  <li><a href="#feed-forward-networks" id="toc-feed-forward-networks" class="nav-link" data-scroll-target="#feed-forward-networks"><span class="header-section-number">4</span> Feed-Forward Networks</a></li>
+  <li><a href="#layer-normalization-and-residuals" id="toc-layer-normalization-and-residuals" class="nav-link" data-scroll-target="#layer-normalization-and-residuals"><span class="header-section-number">5</span> Layer Normalization and Residuals</a></li>
+  <li><a href="#key-advantages" id="toc-key-advantages" class="nav-link" data-scroll-target="#key-advantages"><span class="header-section-number">6</span> Key Advantages</a></li>
   </ul>
 </nav>
     </div>
@@ -431,17 +399,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">你好，开始使用 Quarto</h1>
+<h1 class="title">Transformer Architecture — Self-Attention and Beyond</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">demo</div>
-    <div class="quarto-category">tutorial</div>
-    <div class="quarto-category">cn</div>
+    <div class="quarto-category">deep-learning</div>
+    <div class="quarto-category">nlp</div>
+    <div class="quarto-category">transformers</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    一篇中文示例文章，用于验证中英文分栏与标签。
+    Understanding the Transformer model with multi-head attention and positional encoding.
   </div>
 </div>
 
@@ -464,24 +432,62 @@ window.Quarto = {
 </header>
 
 
-<p>这是中文示例文章，用来测试在 <code>posts_ch/</code> 下的中文文章列表、标签以及数学公式/代码高亮。</p>
-<section id="代码示例" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="代码示例"><span class="header-section-number">1</span> 代码示例</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a, b):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(add(<span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="行间公式" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="行间公式"><span class="header-section-number">2</span> 行间公式</h2>
+<p>The Transformer architecture revolutionized natural language processing and has become the foundation for modern large language models. This post explores its key mechanisms.</p>
+<section id="self-attention-mechanism" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="self-attention-mechanism"><span class="header-section-number">1</span> Self-Attention Mechanism</h2>
+<p>The core innovation is <strong>scaled dot-product attention</strong>. Given queries <span class="math inline">\(\mathbf{Q}\)</span>, keys <span class="math inline">\(\mathbf{K}\)</span>, and values <span class="math inline">\(\mathbf{V}\)</span>:</p>
 <p><span class="math display">\[
-\mathcal{L}(\theta)
-= -\sum_i \log p(y_i \mid x_i, \theta)
+\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V},
 \]</span></p>
+<p>where <span class="math inline">\(d_k\)</span> is the key dimension. The scaling factor <span class="math inline">\(\sqrt{d_k}\)</span> prevents gradient vanishing when <span class="math inline">\(d_k\)</span> is large.</p>
 </section>
-<section id="小结" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="小结"><span class="header-section-number">3</span> 小结</h2>
-<p>中文文章放在 <code>posts_ch/</code>；英文文章放在 <code>posts_en/</code>。其它页面（首页、关于、标签）统一保持英文。</p>
+<section id="multi-head-attention" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="multi-head-attention"><span class="header-section-number">2</span> Multi-Head Attention</h2>
+<p>Instead of single attention, we use multiple parallel attention “heads”:</p>
+<p><span class="math display">\[
+\text{MultiHead}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \dots, \text{head}_h)\mathbf{W}^O,
+\]</span></p>
+<p>where each head is computed as:</p>
+<p><span class="math display">\[
+\text{head}_i = \text{Attention}(\mathbf{Q}\mathbf{W}_i^Q, \mathbf{K}\mathbf{W}_i^K, \mathbf{V}\mathbf{W}_i^V).
+\]</span></p>
+<p>The projection matrices <span class="math inline">\(\mathbf{W}_i^Q, \mathbf{W}_i^K, \mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_k}\)</span> allow each head to focus on different representation subspaces.</p>
+</section>
+<section id="positional-encoding" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="positional-encoding"><span class="header-section-number">3</span> Positional Encoding</h2>
+<p>Since Transformers have no inherent notion of sequence order, we add positional encodings:</p>
+<p><span class="math display">\[
+\begin{aligned}
+PE_{(pos, 2i)} &amp;= \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right), \\
+PE_{(pos, 2i+1)} &amp;= \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right).
+\end{aligned}
+\]</span></p>
+<p>This sinusoidal encoding allows the model to learn relative positions.</p>
+</section>
+<section id="feed-forward-networks" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="feed-forward-networks"><span class="header-section-number">4</span> Feed-Forward Networks</h2>
+<p>Each Transformer block includes a position-wise feed-forward network:</p>
+<p><span class="math display">\[
+\text{FFN}(\mathbf{x}) = \max(0, \mathbf{x}\mathbf{W}_1 + \mathbf{b}_1)\mathbf{W}_2 + \mathbf{b}_2,
+\]</span></p>
+<p>applied identically to each position. Typically, the hidden dimension is <span class="math inline">\(4 \times d_{\text{model}}\)</span>.</p>
+</section>
+<section id="layer-normalization-and-residuals" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="layer-normalization-and-residuals"><span class="header-section-number">5</span> Layer Normalization and Residuals</h2>
+<p>Each sub-layer uses residual connections followed by layer normalization:</p>
+<p><span class="math display">\[
+\text{LayerNorm}(\mathbf{x} + \text{Sublayer}(\mathbf{x})).
+\]</span></p>
+<p>This stabilizes training and enables very deep networks.</p>
+</section>
+<section id="key-advantages" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="key-advantages"><span class="header-section-number">6</span> Key Advantages</h2>
+<ul>
+<li><strong>Parallelization</strong>: Unlike RNNs, all positions are processed simultaneously.</li>
+<li><strong>Long-range dependencies</strong>: Direct connections between all positions via attention.</li>
+<li><strong>Flexible</strong>: Scales to billions of parameters (GPT, BERT, etc.).</li>
+</ul>
+<p>The Transformer’s elegant design has become the dominant architecture for sequence modeling, powering everything from machine translation to large language models.</p>
 
 
 </section>

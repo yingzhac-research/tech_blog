@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="会计盈利不等于现金流。本章深入探讨如何将报表上的盈利转化为估值所需的自由现金流，包括税收效应、再投资需求和营运资本管理。">
+
+<title>从盈利到现金流：估值中最关键的转换 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#税收效应有效税率与边际税率的选择" id="toc-税收效应有效税率与边际税率的选择" class="nav-link" data-scroll-target="#税收效应有效税率与边际税率的选择"><span class="header-section-number">2</span> 税收效应：有效税率与边际税率的选择</a>
+  <ul class="collapse">
+  <li><a href="#两种税率的定义" id="toc-两种税率的定义" class="nav-link" data-scroll-target="#两种税率的定义"><span class="header-section-number">2.1</span> 两种税率的定义</a></li>
+  <li><a href="#为什么两者会不同" id="toc-为什么两者会不同" class="nav-link" data-scroll-target="#为什么两者会不同"><span class="header-section-number">2.2</span> 为什么两者会不同？</a></li>
+  <li><a href="#估值时应该用哪个税率" id="toc-估值时应该用哪个税率" class="nav-link" data-scroll-target="#估值时应该用哪个税率"><span class="header-section-number">2.3</span> 估值时应该用哪个税率？</a></li>
+  <li><a href="#案例convoy-inc.-的估值" id="toc-案例convoy-inc.-的估值" class="nav-link" data-scroll-target="#案例convoy-inc.-的估值"><span class="header-section-number">2.4</span> 案例：Convoy Inc.&nbsp;的估值</a></li>
+  </ul></li>
+  <li><a href="#净经营亏损nol的价值" id="toc-净经营亏损nol的价值" class="nav-link" data-scroll-target="#净经营亏损nol的价值"><span class="header-section-number">3</span> 净经营亏损（NOL）的价值</a>
+  <ul class="collapse">
+  <li><a href="#两种处理方法" id="toc-两种处理方法" class="nav-link" data-scroll-target="#两种处理方法"><span class="header-section-number">3.1</span> 两种处理方法</a></li>
+  <li><a href="#案例tesla-motors2011年" id="toc-案例tesla-motors2011年" class="nav-link" data-scroll-target="#案例tesla-motors2011年"><span class="header-section-number">3.2</span> 案例：Tesla Motors（2011年）</a></li>
+  </ul></li>
+  <li><a href="#rd-费用的税收优惠" id="toc-rd-费用的税收优惠" class="nav-link" data-scroll-target="#rd-费用的税收优惠"><span class="header-section-number">4</span> R&amp;D 费用的税收优惠</a>
+  <ul class="collapse">
+  <li><a href="#案例amgen2023年" id="toc-案例amgen2023年" class="nav-link" data-scroll-target="#案例amgen2023年"><span class="header-section-number">4.1</span> 案例：Amgen（2023年）</a></li>
+  </ul></li>
+  <li><a href="#再投资需求" id="toc-再投资需求" class="nav-link" data-scroll-target="#再投资需求"><span class="header-section-number">5</span> 再投资需求</a>
+  <ul class="collapse">
+  <li><a href="#净资本支出" id="toc-净资本支出" class="nav-link" data-scroll-target="#净资本支出"><span class="header-section-number">5.1</span> 净资本支出</a></li>
+  <li><a href="#营运资本变化" id="toc-营运资本变化" class="nav-link" data-scroll-target="#营运资本变化"><span class="header-section-number">5.2</span> 营运资本变化</a></li>
+  </ul></li>
+  <li><a href="#综合再投资率" id="toc-综合再投资率" class="nav-link" data-scroll-target="#综合再投资率"><span class="header-section-number">6</span> 综合再投资率</a></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">7</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">从盈利到现金流：估值中最关键的转换</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    会计盈利不等于现金流。本章深入探讨如何将报表上的盈利转化为估值所需的自由现金流，包括税收效应、再投资需求和营运资本管理。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月30日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你要估值一家公司，你知道要用 DCF 模型折现未来的现金流。但当你打开财务报表时，看到的是净利润、EBIT、EBITDA——这些都是”盈利”指标，而不是”现金流”。</p>
+<p><strong>这里有一个根本性的问题：盈利（Earnings）和现金流（Cash Flow）是一回事吗？</strong></p>
+<p>答案是：绝对不是。</p>
+<p>一家公司可能报告了丰厚的利润，但银行账户里却没有相应的现金。原因很简单：会计准则允许（甚至要求）公司在确认收入和费用时使用权责发生制（Accrual Basis），而非收付实现制。这意味着：</p>
+<ul>
+<li>你卖出了商品但客户还没付款 → 收入已确认，但现金未到账</li>
+<li>你购买了设备 → 现金已支出，但只能分期折旧计入费用</li>
+<li>你预付了一年的租金 → 现金已支出，但费用要分 12 个月摊销</li>
+</ul>
+<p>对投资者来说，真正重要的是现金流——公司实际可以用来偿还债务、支付股息、或再投资的”真金白银”。</p>
+<p>本章将回答三个核心问题：</p>
+<ol type="1">
+<li><strong>税收效应</strong>：应该用哪个税率来计算税后收益？有效税率还是边际税率？</li>
+<li><strong>再投资需求</strong>：公司需要把多少盈利重新投入到业务中才能维持增长？</li>
+<li><strong>营运资本</strong>：为什么存货和应收账款的变化会影响现金流？</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>本章在估值框架中的位置
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在第 9 章，我们学习了如何从财务报表中获取和调整盈利。本章将在此基础上，完成从盈利到现金流的最后两步：估计税收影响，以及量化再投资需求。</p>
+</div>
+</div>
+</section>
+<section id="税收效应有效税率与边际税率的选择" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="税收效应有效税率与边际税率的选择"><span class="header-section-number">2</span> 税收效应：有效税率与边际税率的选择</h2>
+<section id="两种税率的定义" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="两种税率的定义"><span class="header-section-number">2.1</span> 两种税率的定义</h3>
+<p>当我们计算税后经营收入时，需要将税前收益乘以一个税率。但问题是：用哪个税率？</p>
+<p><strong>有效税率（Effective Tax Rate）</strong> 是从利润表中直接计算出来的：</p>
+<p><span class="math display">\[
+\text{有效税率} = \frac{\text{应交税款}}{\text{应税收入}}
+\]</span></p>
+<p>这是一个权责发生制下的税率，反映的是公司在财务报表中确认的税费占应税收入的比例。</p>
+<p><strong>边际税率（Marginal Tax Rate）</strong> 则来自税法，是公司对最后一美元收入需要支付的税率。在美国，2024 年联邦企业所得税率为 21%，加上州税后，大多数盈利企业的边际税率约为 25%。</p>
+</section>
+<section id="为什么两者会不同" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="为什么两者会不同"><span class="header-section-number">2.2</span> 为什么两者会不同？</h3>
+<p>你可能会问：既然大多数上市公司的收入都在最高税率档次，为什么有效税率会和边际税率不同？</p>
+<p>至少有四个原因：</p>
+<ol type="1">
+<li><p><strong>会计准则差异</strong>：许多公司对外报告使用直线折旧法，但报税时使用加速折旧法。这导致报告收入高于应税收入，从而降低有效税率。</p></li>
+<li><p><strong>税收抵免</strong>：政府为鼓励某些投资（如研发、环保设备）提供税收抵免，直接减少应交税款。</p></li>
+<li><p><strong>递延税款</strong>：公司可以将部分税款递延到未来支付。当期有效税率会低于边际税率，但递延税款最终还是要还的。</p></li>
+<li><p><strong>海外收入</strong>：在 2017 年前，美国公司的海外收入在汇回前无需缴纳国内税；2017 年后，即使汇回也无需额外缴税。</p></li>
+</ol>
+<p>下图展示了 2024 年 1 月美国和全球公司有效税率的分布：</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>关键观察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>美国和全球公司的有效税率中位数都在 20%-25% 之间</li>
+<li>相当多的公司有效税率低于 10%</li>
+<li>少数公司有效税率超过 50%</li>
+<li>这张图不包括亏损公司（它们不交税，甚至有”负”有效税率）</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="估值时应该用哪个税率" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="估值时应该用哪个税率"><span class="header-section-number">2.3</span> 估值时应该用哪个税率？</h3>
+<p>这是一个实践中经常让人困惑的问题。Damodaran 的建议是：</p>
+<p><strong>如果必须在整个预测期使用同一个税率，选择边际税率更安全。</strong> 原因是：</p>
+<ul>
+<li>折旧差异会随着资本支出放缓而缩小</li>
+<li>税收抵免很少是永久的</li>
+<li>递延税款最终要支付</li>
+</ul>
+<p><strong>但最佳做法是让税率随时间变化：</strong></p>
+<ul>
+<li>近期：使用有效税率（如 24%）</li>
+<li>远期/终值：逐步过渡到边际税率（如 25%）</li>
+</ul>
+<p>让我们通过一个具体例子来理解这一点。</p>
+</section>
+<section id="案例convoy-inc.-的估值" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="案例convoy-inc.-的估值"><span class="header-section-number">2.4</span> 案例：Convoy Inc.&nbsp;的估值</h3>
+<p>Convoy Inc.&nbsp;是一家电信公司，最近一年的财务数据如下：</p>
+<ul>
+<li>税前经营收入（EBIT）：$150 million</li>
+<li>再投资：$30 million</li>
+<li>有效税率：20%</li>
+<li>边际税率：40%</li>
+<li>资本成本：9%</li>
+<li>预期增长：前 5 年 10%/年，之后 5%/年</li>
+</ul>
+<p><strong>方法一：永远使用有效税率（20%）</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年度</th>
+<th>当前</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>终值年</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税率</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+</tr>
+<tr class="even">
+<td>EBIT</td>
+<td>$150</td>
+<td>$165</td>
+<td>$181.5</td>
+<td>$199.65</td>
+<td>$219.62</td>
+<td>$241.58</td>
+<td>$253.66</td>
+</tr>
+<tr class="odd">
+<td>EBIT(1-t)</td>
+<td>$120</td>
+<td>$132</td>
+<td>$145.2</td>
+<td>$159.72</td>
+<td>$175.69</td>
+<td>$193.26</td>
+<td>$202.92</td>
+</tr>
+<tr class="even">
+<td>再投资</td>
+<td>$30</td>
+<td>$33</td>
+<td>$36.3</td>
+<td>$39.93</td>
+<td>$43.92</td>
+<td>$48.32</td>
+<td>$50.73</td>
+</tr>
+<tr class="odd">
+<td>FCFF</td>
+<td>$90</td>
+<td>$99</td>
+<td>$108.9</td>
+<td>$119.79</td>
+<td>$131.77</td>
+<td>$144.95</td>
+<td>$152.19</td>
+</tr>
+</tbody>
+</table>
+<p>终值 = $152.19 / (9% - 5%) = $3,804.83 million</p>
+<p><strong>公司价值 = $2,935.42 million</strong></p>
+<p>这个估值隐含假设递延税款永远不需要支付——这显然过于乐观。</p>
+<p><strong>方法二：永远使用边际税率（40%）</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年度</th>
+<th>当前</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>终值年</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税率</td>
+<td>20%</td>
+<td>40%</td>
+<td>40%</td>
+<td>40%</td>
+<td>40%</td>
+<td>40%</td>
+<td>40%</td>
+</tr>
+<tr class="even">
+<td>EBIT(1-t)</td>
+<td>$120</td>
+<td>$99</td>
+<td>$108.9</td>
+<td>$119.79</td>
+<td>$131.77</td>
+<td>$144.95</td>
+<td>$152.19</td>
+</tr>
+<tr class="odd">
+<td>FCFF</td>
+<td>$90</td>
+<td>$66</td>
+<td>$72.6</td>
+<td>$79.86</td>
+<td>$87.85</td>
+<td>$96.63</td>
+<td>$101.46</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公司价值 = $1,956.94 million</strong></p>
+<p>如果公司有 $200 million 的累计递延税款，并计划在未来 4 年分期支付，还需要进一步扣除：</p>
+<p><span class="math display">\[
+\text{递延税款现值} = \$50 \times \text{PV(年金, 9\%, 4年)} = \$161.99 \text{ million}
+\]</span></p>
+<p><strong>扣除后公司价值 = $1,794.95 million</strong></p>
+<p><strong>方法三：混合税率（推荐）</strong></p>
+<p>前 5 年使用有效税率，终值计算使用边际税率：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年度</th>
+<th>当前</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>终值年</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税率</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>20%</td>
+<td>40%</td>
+</tr>
+<tr class="even">
+<td>EBIT(1-t)</td>
+<td>$120</td>
+<td>$132</td>
+<td>$145.2</td>
+<td>$159.72</td>
+<td>$175.69</td>
+<td>$193.26</td>
+<td>$152.19</td>
+</tr>
+<tr class="odd">
+<td>FCFF</td>
+<td>$90</td>
+<td>$99</td>
+<td>$108.9</td>
+<td>$119.79</td>
+<td>$131.77</td>
+<td>$144.95</td>
+<td>$101.46</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公司价值 = $2,111.12 million</strong></p>
+<p>扣除递延税款后：<strong>$1,943.67 million</strong></p>
+<blockquote class="blockquote">
+<p><strong>一个自然的问题</strong>：为什么三种方法得出的估值差异如此之大？</p>
+<p>差异来自税收假设的不同。方法一假设公司永远只交 20% 的税，高估了价值；方法二假设公司立刻开始交 40% 的税，可能过于保守；方法三是一个折中，承认短期内公司可以继续享受税收优惠，但长期要回归正常税率。</p>
+</blockquote>
+</section>
+</section>
+<section id="净经营亏损nol的价值" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="净经营亏损nol的价值"><span class="header-section-number">3</span> 净经营亏损（NOL）的价值</h2>
+<p>对于有大量累计亏损的公司，净经营亏损（Net Operating Loss, NOL）可以在未来盈利时抵减应税收入，从而节省税款。这是一种”隐性资产”，需要在估值中考虑。</p>
+<section id="两种处理方法" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="两种处理方法"><span class="header-section-number">3.1</span> 两种处理方法</h3>
+<p><strong>方法一：随时间调整税率</strong></p>
+<p>在公司扭亏为盈的早期年份，税率为零（因为 NOL 可以抵减收入）。一旦 NOL 用尽，税率逐步上升到边际税率。</p>
+<p><strong>方法二：分开计算 NOL 价值</strong></p>
+<p>先不考虑 NOL 进行估值，然后单独加上 NOL 的预期节税价值。</p>
+<p><span class="math display">\[
+\text{NOL 节税价值} = \text{NOL} \times \text{税率}
+\]</span></p>
+<p>但这种简化方法的问题是：它假设节税是确定的和即时的。实际上，公司必须有盈利才能利用 NOL，而未来盈利是不确定的。</p>
+</section>
+<section id="案例tesla-motors2011年" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="案例tesla-motors2011年"><span class="header-section-number">3.2</span> 案例：Tesla Motors（2011年）</h3>
+<p>2011 年的 Tesla 是一个典型的高成长亏损公司：</p>
+<ul>
+<li>2010 年营收：$116.74 million</li>
+<li>2010 年经营亏损：$65.5 million</li>
+<li>累计 NOL：$140.64 million</li>
+</ul>
+<p>我们预测 Tesla 的营收将快速增长，经营利润率将逐步向行业平均（10%）收敛：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年度</th>
+<th>营收</th>
+<th>经营收入</th>
+<th>年末 NOL</th>
+<th>应税收入</th>
+<th>税款</th>
+<th>税率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>当前</td>
+<td>$117</td>
+<td>-$81</td>
+<td>$141</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>$292</td>
+<td>-$125</td>
+<td>$266</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>$584</td>
+<td>-$147</td>
+<td>$413</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>$1,051</td>
+<td>-$142</td>
+<td>$555</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>$1,681</td>
+<td>-$95</td>
+<td>$650</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>$2,354</td>
+<td>-$10</td>
+<td>$661</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>$3,060</td>
+<td>$93</td>
+<td>$568</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>$3,672</td>
+<td>$197</td>
+<td>$371</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>$4,222</td>
+<td>$292</td>
+<td>$79</td>
+<td>$0</td>
+<td>$0</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>$4,645</td>
+<td>$369</td>
+<td>$0</td>
+<td>$289</td>
+<td>$116</td>
+<td>31.4%</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>$4,877</td>
+<td>$421</td>
+<td>$0</td>
+<td>$421</td>
+<td>$168</td>
+<td>40%</td>
+</tr>
+</tbody>
+</table>
+<p>注意几个关键点：</p>
+<ol type="1">
+<li><strong>前 5 年继续亏损</strong>：NOL 不断累积</li>
+<li><strong>第 6-8 年开始盈利</strong>：但因为有累计 NOL，仍不交税</li>
+<li><strong>第 9 年开始交税</strong>：剩余 NOL（$79 million）只能抵减部分收入</li>
+<li><strong>第 10 年起正常交税</strong>：40% 边际税率</li>
+</ol>
+<p>这种方法的优点是：<strong>NOL 的价值已经内嵌在现金流预测中</strong>。通过用资本成本折现，我们同时考虑了时间价值和节税可能无法实现的风险。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>实践建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>对于亏损公司，NOL 处理的关键是保持<strong>内部一致性</strong>：</p>
+<ul>
+<li>如果你在现金流中已经使用零税率（反映 NOL 抵减），就不要再单独加上 NOL 价值</li>
+<li>如果你使用边际税率计算现金流，可以单独计算 NOL 的现值并加回</li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+<section id="rd-费用的税收优惠" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="rd-费用的税收优惠"><span class="header-section-number">4</span> R&amp;D 费用的税收优惠</h2>
+<p>在第 9 章，我们讨论了将 R&amp;D 费用资本化的问题。但这里有一个重要的税收细节：</p>
+<ul>
+<li><strong>会计处理</strong>：如果我们将 R&amp;D 资本化，只能扣除当年的摊销额</li>
+<li><strong>税务处理</strong>：公司可以将全部 R&amp;D 费用在当年抵税</li>
+</ul>
+<p>这个差异创造了额外的税收优惠：</p>
+<p><span class="math display">\[
+\text{额外税收优惠} = (\text{当年 R\&amp;D 费用} - \text{研发资产摊销}) \times \text{税率}
+\]</span></p>
+<section id="案例amgen2023年" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="案例amgen2023年"><span class="header-section-number">4.1</span> 案例：Amgen（2023年）</h3>
+<p>Amgen 2023 年的 R&amp;D 数据：</p>
+<ul>
+<li>当年 R&amp;D 费用：$4,755 million</li>
+<li>研发资产摊销：$4,105 million</li>
+<li>税率：25%</li>
+</ul>
+<p><strong>税务抵扣（实际）：</strong> <span class="math display">\[
+\$4,755 \times 25\% = \$1,189 \text{ million}
+\]</span></p>
+<p><strong>如果只能抵扣摊销（假设）：</strong> <span class="math display">\[
+\$4,105 \times 25\% = \$1,026 \text{ million}
+\]</span></p>
+<p><strong>额外税收优惠：</strong> <span class="math display">\[
+\$1,189 - \$1,026 = \$163 \text{ million}
+\]</span></p>
+<p>调整后的税后经营收入计算：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{调整后税后经营收入} &amp;= \text{经营收入} \times (1 - \text{税率}) + \text{当年 R\&amp;D} - \text{R\&amp;D 摊销} \\
+&amp;= \$7,231 \times (1 - 0.25) + \$4,755 - \$4,105 \\
+&amp;= \$6,073 \text{ million}
+\end{aligned}
+\]</span></p>
+<blockquote class="blockquote">
+<p><strong>为什么这个调整很重要？</strong></p>
+<p>因为 R&amp;D 费用化（而非资本化）给公司带来了真实的现金流优惠。如果我们在估值中将 R&amp;D 资本化以更好地反映公司的真实盈利能力，就必须同时加回这个税收优惠，否则会低估现金流。</p>
+</blockquote>
+</section>
+</section>
+<section id="再投资需求" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="再投资需求"><span class="header-section-number">5</span> 再投资需求</h2>
+<p>现金流是在税后经营收入的基础上，<strong>扣除再投资</strong>后得到的。再投资包括两个主要部分：</p>
+<ol type="1">
+<li><strong>净资本支出</strong>（Net Capital Expenditures）</li>
+<li><strong>营运资本变化</strong>（Change in Working Capital）</li>
+</ol>
+<section id="净资本支出" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="净资本支出"><span class="header-section-number">5.1</span> 净资本支出</h3>
+<p>净资本支出 = 资本支出 - 折旧</p>
+<p>这个定义背后的逻辑是：折旧产生的现金流（通过税盾）可以用来支付部分资本支出，只有超出部分才是真正的现金流出。</p>
+<section id="资本支出的坑" class="level4" data-number="5.1.1">
+<h4 data-number="5.1.1" class="anchored" data-anchor-id="资本支出的坑"><span class="header-section-number">5.1.1</span> 资本支出的”坑”</h4>
+<p>估计资本支出面临三个挑战：</p>
+<ol type="1">
+<li><strong>不平滑性</strong>：公司的资本支出往往是”一块一块”的——今年建厂花大钱，接下来几年支出很少</li>
+<li><strong>定义问题</strong>：会计上的”资本支出”不包括 R&amp;D（被计入费用）和收购（单独列示）</li>
+<li><strong>收购的处理</strong>：通过并购增长的公司，如果不计入收购，会严重低估再投资</li>
+</ol>
+</section>
+<section id="平滑资本支出" class="level4" data-number="5.1.2">
+<h4 data-number="5.1.2" class="anchored" data-anchor-id="平滑资本支出"><span class="header-section-number">5.1.2</span> 平滑资本支出</h4>
+<p><strong>方法一：历史平均法</strong></p>
+<p>对于资本支出不稳定的公司，可以取过去 4-5 年的平均值。</p>
+<p><strong>案例：BYD（2019-2023）</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 15%">
+<col style="width: 18%">
+<col style="width: 22%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年度</th>
+<th>折旧</th>
+<th>资本支出</th>
+<th>净资本支出</th>
+<th>资本支出/折旧</th>
+<th>净资本支出/营收</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2019</td>
+<td>¥8,321</td>
+<td>¥20,627</td>
+<td>¥12,307</td>
+<td>248%</td>
+<td>9.63%</td>
+</tr>
+<tr class="even">
+<td>2020</td>
+<td>¥9,415</td>
+<td>¥11,774</td>
+<td>¥2,359</td>
+<td>125%</td>
+<td>1.51%</td>
+</tr>
+<tr class="odd">
+<td>2021</td>
+<td>¥11,153</td>
+<td>¥37,344</td>
+<td>¥26,191</td>
+<td>335%</td>
+<td>12.12%</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>¥15,189</td>
+<td>¥97,457</td>
+<td>¥82,268</td>
+<td>642%</td>
+<td>19.40%</td>
+</tr>
+<tr class="odd">
+<td>2023</td>
+<td>¥39,108</td>
+<td>¥122,094</td>
+<td>¥82,985</td>
+<td>312%</td>
+<td>13.78%</td>
+</tr>
+<tr class="even">
+<td><strong>平均</strong></td>
+<td></td>
+<td></td>
+<td><strong>¥41,222</strong></td>
+<td><strong>332%</strong></td>
+<td><strong>11.29%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>三种标准化方法：</p>
+<ol type="1">
+<li><strong>简单平均</strong>：净资本支出 = ¥41,222 million</li>
+<li><strong>基于折旧倍数</strong>：¥39,108 × 3.32 - ¥39,108 = ¥90,857 million</li>
+<li><strong>基于营收比例</strong>：¥602,315 × 11.29% = ¥68,984 million</li>
+</ol>
+<p><strong>方法二：行业平均法</strong></p>
+<p>对于历史有限或业务结构变化的公司，可以使用行业平均的资本支出/营收比率。</p>
+</section>
+<section id="收购的处理" class="level4" data-number="5.1.3">
+<h4 data-number="5.1.3" class="anchored" data-anchor-id="收购的处理"><span class="header-section-number">5.1.3</span> 收购的处理</h4>
+<p>收购应该计入资本支出，<strong>无论是用现金还是股票支付</strong>。</p>
+<p>为什么股票收购也要算？因为用股票收购实际上是”跳过了一步”：公司本可以先发行股票筹资，再用现金收购。如果不计入股票收购，会低估公司的真实再投资，同时高估未来增长的可持续性。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>常见错误
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>很多分析师在估值时犯这样的错误：</p>
+<ul>
+<li>使用公司历史的高增长率（其中很大一部分来自收购）</li>
+<li>但在现金流预测中不包含收购支出</li>
+</ul>
+<p>这会导致<strong>高估公司价值</strong>——因为你享受了收购带来的增长，但没有为此付费。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="营运资本变化" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="营运资本变化"><span class="header-section-number">5.2</span> 营运资本变化</h3>
+<p>营运资本的增加会占用现金（负现金流），减少会释放现金（正现金流）。</p>
+<section id="非现金营运资本" class="level4" data-number="5.2.1">
+<h4 data-number="5.2.1" class="anchored" data-anchor-id="非现金营运资本"><span class="header-section-number">5.2.1</span> 非现金营运资本</h4>
+<p>在估值中，我们使用的是<strong>非现金营运资本（Noncash Working Capital）</strong>：</p>
+<p><span class="math display">\[
+\text{非现金营运资本} = (\text{流动资产} - \text{现金}) - (\text{流动负债} - \text{有息债务})
+\]</span></p>
+<p>为什么要做这些调整？</p>
+<ul>
+<li><strong>扣除现金</strong>：现金通常投资于短期证券，能获得公平回报，不是”被占用”的资本</li>
+<li><strong>扣除有息债务</strong>：短期借款会在资本成本中考虑，不应重复计算</li>
+</ul>
+</section>
+<section id="案例marks-and-spencer" class="level4" data-number="5.2.2">
+<h4 data-number="5.2.2" class="anchored" data-anchor-id="案例marks-and-spencer"><span class="header-section-number">5.2.2</span> 案例：Marks and Spencer</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>1999</th>
+<th>2000</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>现金</td>
+<td>$282</td>
+<td>$301</td>
+</tr>
+<tr class="even">
+<td>有价证券</td>
+<td>$204</td>
+<td>$386</td>
+</tr>
+<tr class="odd">
+<td>应收账款</td>
+<td>$1,980</td>
+<td>$2,186</td>
+</tr>
+<tr class="even">
+<td>存货</td>
+<td>$515</td>
+<td>$475</td>
+</tr>
+<tr class="odd">
+<td>其他流动资产</td>
+<td>$271</td>
+<td>$281</td>
+</tr>
+<tr class="even">
+<td><strong>非现金流动资产</strong></td>
+<td><strong>$2,766</strong></td>
+<td><strong>$2,942</strong></td>
+</tr>
+<tr class="odd">
+<td>应付账款</td>
+<td>$215</td>
+<td>$219</td>
+</tr>
+<tr class="even">
+<td>短期债务</td>
+<td>$913</td>
+<td>$1,169</td>
+</tr>
+<tr class="odd">
+<td>其他流动负债</td>
+<td>$903</td>
+<td>$774</td>
+</tr>
+<tr class="even">
+<td><strong>非债务流动负债</strong></td>
+<td><strong>$1,118</strong></td>
+<td><strong>$993</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>营运资本</strong></td>
+<td><strong>$1,221</strong></td>
+<td><strong>$1,467</strong></td>
+</tr>
+<tr class="even">
+<td><strong>非现金营运资本</strong></td>
+<td><strong>$1,648</strong></td>
+<td><strong>$1,949</strong></td>
+</tr>
+</tbody>
+</table>
+<p>注意非现金营运资本比营运资本高得多——这才是真正”被占用”的资本。</p>
+</section>
+<section id="预测营运资本变化" class="level4" data-number="5.2.3">
+<h4 data-number="5.2.3" class="anchored" data-anchor-id="预测营运资本变化"><span class="header-section-number">5.2.3</span> 预测营运资本变化</h4>
+<p>营运资本变化非常不稳定，直接使用某一年的数据可能产生误导。有五种方法：</p>
+<ol type="1">
+<li><strong>用去年变化额 × 增长率</strong>：最不推荐，因为单年变化可能是异常值</li>
+<li><strong>当年非现金营运资本/营收 × 营收变化</strong>：较好</li>
+<li><strong>边际非现金营运资本/营收 × 营收变化</strong>：适用于业务结构变化的公司</li>
+<li><strong>历史平均非现金营运资本/营收 × 营收变化</strong>：可以平滑年度波动</li>
+<li><strong>行业平均</strong>：适用于历史不稳定或规模效应明显的公司</li>
+</ol>
+</section>
+<section id="负营运资本的情况" class="level4" data-number="5.2.4">
+<h4 data-number="5.2.4" class="anchored" data-anchor-id="负营运资本的情况"><span class="header-section-number">5.2.4</span> 负营运资本的情况</h4>
+<p>有些公司（如零售商、科技公司）的非现金营运资本为负——它们用供应商信用作为资金来源。</p>
+<p><strong>短期内这是可以的</strong>：公司可以继续利用这种”免费”资金。</p>
+<p><strong>但长期估值时要谨慎</strong>：</p>
+<ol type="1">
+<li>供应商信用并非真正免费（可能损失现金折扣）</li>
+<li>评级机构和会计师将负营运资本视为风险信号</li>
+<li>不能假设负营运资本会无限增长——终值计算时应假设营运资本变化为零或为正</li>
+</ol>
+</section>
+</section>
+</section>
+<section id="综合再投资率" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="综合再投资率"><span class="header-section-number">6</span> 综合再投资率</h2>
+<p>我们已经讨论了再投资的各个组成部分。但 Damodaran 建议：<strong>在大多数情况下，估计一个综合的再投资数字比分别预测各项更好。</strong></p>
+<p><span class="math display">\[
+\text{再投资} = \text{资本支出} - \text{折旧} + \Delta\text{非现金营运资本} + \text{收购} + (\text{R\&amp;D} - \text{R\&amp;D摊销})
+\]</span></p>
+<p>这可以进一步转化为<strong>再投资率</strong>：</p>
+<p><span class="math display">\[
+\text{再投资率} = \frac{\text{再投资}}{\text{税后经营收入}}
+\]</span></p>
+<p>然后，自由现金流可以简洁地表示为：</p>
+<p><span class="math display">\[
+\text{FCFF} = \text{EBIT}(1-t) \times (1 - \text{再投资率})
+\]</span></p>
+<p>为什么综合再投资比分项预测更好？</p>
+<ol type="1">
+<li><strong>估计更简单</strong>：综合数字比各分项更稳定</li>
+<li><strong>避免不一致</strong>：分项预测容易违反会计恒等式（如折旧超过资本支出）</li>
+<li><strong>便于讲故事</strong>：综合再投资更容易与公司战略叙事联系起来</li>
+<li><strong>与投入资本挂钩</strong>：再投资 = 投入资本的变化，便于追踪资本回报率</li>
+</ol>
+</section>
+<section id="总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结"><span class="header-section-number">7</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>税率选择</strong>：短期可用有效税率，终值计算必须用边际税率</li>
+<li><strong>NOL 处理</strong>：将 NOL 的节税效益内嵌在现金流预测中，同时考虑时间价值和实现风险</li>
+<li><strong>R&amp;D 税收优惠</strong>：资本化 R&amp;D 时，要加回费用化带来的额外税收优惠</li>
+<li><strong>净资本支出</strong>：需要平滑处理，包含收购，无论是现金还是股票支付</li>
+<li><strong>营运资本</strong>：使用非现金营运资本，关注其与营收的比例关系</li>
+<li><strong>综合再投资率</strong>：比分项预测更简单、更稳健、更有意义</li>
+</ul>
+</div>
+</div>
+<p>本章回答了开头提出的问题：如何将会计盈利转化为估值所需的现金流。关键的 takeaway 是：</p>
+<p><strong>现金流 = 税后经营收入 × (1 - 再投资率)</strong></p>
+<p>其中税率要随时间向边际税率收敛，再投资率要反映公司维持增长所需的全部再投资（包括资本支出、营运资本和收购）。</p>
+<p>在下一章，我们将探讨再投资率与增长率之间的关系——一个更深层次的问题：公司再投资多少、投得多好，决定了它能增长多快。</p>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>税率选择</strong>：一家跨国公司在低税率国家（如爱尔兰）有大量业务，有效税率只有 12%，而母国边际税率为 25%。你在估值时应该如何处理税率？会一直使用 12% 吗？</p></li>
+<li><p><strong>NOL 的价值</strong>：两家公司都有 $100 million 的 NOL，边际税率都是 25%。公司 A 预计明年就能盈利，公司 B 预计 5 年后才能盈利。这两家公司的 NOL 价值相同吗？为什么？</p></li>
+<li><p><strong>收购与增长</strong>：一家公司过去 5 年靠收购实现了 20% 的年均增长，但内生增长只有 5%。你在估值时预期未来 5 年增长 15%，但没有在资本支出中包含收购。这个估值有什么问题？</p></li>
+<li><p><strong>负营运资本</strong>：Amazon 长期维持负的非现金营运资本。在估值 Amazon 时，你可以假设这种情况会永远持续吗？如果不能，应该如何处理？</p></li>
+<li><p><strong>再投资与增长的关系</strong>：如果一家公司的再投资率为 50%，资本回报率（ROIC）为 20%，它的可持续增长率是多少？（提示：增长率 = 再投资率 × ROIC）</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
