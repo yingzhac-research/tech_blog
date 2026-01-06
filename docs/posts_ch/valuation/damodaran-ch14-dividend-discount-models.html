@@ -1,0 +1,2680 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="股权的价值究竟由什么决定？本章从最基础的股息折现模型出发，扩展到增强版DDM和FCFE模型，构建完整的股权估值框架。">
+
+<title>【第14章】股权内在价值模型：从股息到自由现金流 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#ddm-的理论基础" id="toc-ddm-的理论基础" class="nav-link" data-scroll-target="#ddm-的理论基础"><span class="header-section-number">2</span> DDM 的理论基础</a>
+  <ul class="collapse">
+  <li><a href="#从第一性原理出发" id="toc-从第一性原理出发" class="nav-link" data-scroll-target="#从第一性原理出发"><span class="header-section-number">2.1</span> 从第一性原理出发</a></li>
+  <li><a href="#但我买股票是为了赚价差不是为了股息" id="toc-但我买股票是为了赚价差不是为了股息" class="nav-link" data-scroll-target="#但我买股票是为了赚价差不是为了股息"><span class="header-section-number">2.2</span> “但我买股票是为了赚价差，不是为了股息”</a></li>
+  </ul></li>
+  <li><a href="#gordon-增长模型最简单的-ddm" id="toc-gordon-增长模型最简单的-ddm" class="nav-link" data-scroll-target="#gordon-增长模型最简单的-ddm"><span class="header-section-number">3</span> Gordon 增长模型：最简单的 DDM</a>
+  <ul class="collapse">
+  <li><a href="#从无穷级数到简洁公式" id="toc-从无穷级数到简洁公式" class="nav-link" data-scroll-target="#从无穷级数到简洁公式"><span class="header-section-number">3.1</span> 从无穷级数到简洁公式</a></li>
+  <li><a href="#模型的直觉" id="toc-模型的直觉" class="nav-link" data-scroll-target="#模型的直觉"><span class="header-section-number">3.2</span> 模型的直觉</a></li>
+  <li><a href="#案例con-edison" id="toc-案例con-edison" class="nav-link" data-scroll-target="#案例con-edison"><span class="header-section-number">3.3</span> 案例：Con Edison</a></li>
+  <li><a href="#gordon-模型的敏感性" id="toc-gordon-模型的敏感性" class="nav-link" data-scroll-target="#gordon-模型的敏感性"><span class="header-section-number">3.4</span> Gordon 模型的敏感性</a></li>
+  <li><a href="#增长率的上限约束" id="toc-增长率的上限约束" class="nav-link" data-scroll-target="#增长率的上限约束"><span class="header-section-number">3.5</span> 增长率的上限约束</a></li>
+  </ul></li>
+  <li><a href="#增长的价值分解" id="toc-增长的价值分解" class="nav-link" data-scroll-target="#增长的价值分解"><span class="header-section-number">4</span> 增长的价值分解</a></li>
+  <li><a href="#两阶段-ddm" id="toc-两阶段-ddm" class="nav-link" data-scroll-target="#两阶段-ddm"><span class="header-section-number">5</span> 两阶段 DDM</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要两阶段" id="toc-为什么需要两阶段" class="nav-link" data-scroll-target="#为什么需要两阶段"><span class="header-section-number">5.1</span> 为什么需要两阶段？</a></li>
+  <li><a href="#公式推导" id="toc-公式推导" class="nav-link" data-scroll-target="#公式推导"><span class="header-section-number">5.2</span> 公式推导</a></li>
+  <li><a href="#案例procter-gamble" id="toc-案例procter-gamble" class="nav-link" data-scroll-target="#案例procter-gamble"><span class="header-section-number">5.3</span> 案例：Procter &amp; Gamble</a></li>
+  </ul></li>
+  <li><a href="#h-模型更平滑的过渡" id="toc-h-模型更平滑的过渡" class="nav-link" data-scroll-target="#h-模型更平滑的过渡"><span class="header-section-number">6</span> H 模型：更平滑的过渡</a>
+  <ul class="collapse">
+  <li><a href="#两阶段模型的问题" id="toc-两阶段模型的问题" class="nav-link" data-scroll-target="#两阶段模型的问题"><span class="header-section-number">6.1</span> 两阶段模型的问题</a></li>
+  <li><a href="#h-模型的设计" id="toc-h-模型的设计" class="nav-link" data-scroll-target="#h-模型的设计"><span class="header-section-number">6.2</span> H 模型的设计</a></li>
+  <li><a href="#案例vodafone" id="toc-案例vodafone" class="nav-link" data-scroll-target="#案例vodafone"><span class="header-section-number">6.3</span> 案例：Vodafone</a></li>
+  </ul></li>
+  <li><a href="#三阶段-ddm" id="toc-三阶段-ddm" class="nav-link" data-scroll-target="#三阶段-ddm"><span class="header-section-number">7</span> 三阶段 DDM</a>
+  <ul class="collapse">
+  <li><a href="#适用场景" id="toc-适用场景" class="nav-link" data-scroll-target="#适用场景"><span class="header-section-number">7.1</span> 适用场景</a></li>
+  <li><a href="#案例jp-morgan" id="toc-案例jp-morgan" class="nav-link" data-scroll-target="#案例jp-morgan"><span class="header-section-number">7.2</span> 案例：JP Morgan</a></li>
+  </ul></li>
+  <li><a href="#增强版股息折现模型" id="toc-增强版股息折现模型" class="nav-link" data-scroll-target="#增强版股息折现模型"><span class="header-section-number">8</span> 增强版股息折现模型</a>
+  <ul class="collapse">
+  <li><a href="#股票回购的崛起" id="toc-股票回购的崛起" class="nav-link" data-scroll-target="#股票回购的崛起"><span class="header-section-number">8.1</span> 股票回购的崛起</a></li>
+  <li><a href="#增强版股息公式" id="toc-增强版股息公式" class="nav-link" data-scroll-target="#增强版股息公式"><span class="header-section-number">8.2</span> 增强版股息公式</a></li>
+  <li><a href="#考虑债务发行的调整" id="toc-考虑债务发行的调整" class="nav-link" data-scroll-target="#考虑债务发行的调整"><span class="header-section-number">8.3</span> 考虑债务发行的调整</a></li>
+  <li><a href="#案例coca-cola-增强版估值" id="toc-案例coca-cola-增强版估值" class="nav-link" data-scroll-target="#案例coca-cola-增强版估值"><span class="header-section-number">8.4</span> 案例：Coca-Cola 增强版估值</a></li>
+  <li><a href="#案例sp-500-整体估值" id="toc-案例sp-500-整体估值" class="nav-link" data-scroll-target="#案例sp-500-整体估值"><span class="header-section-number">8.5</span> 案例：S&amp;P 500 整体估值</a></li>
+  </ul></li>
+  <li><a href="#从股息到自由现金流fcfe-模型" id="toc-从股息到自由现金流fcfe-模型" class="nav-link" data-scroll-target="#从股息到自由现金流fcfe-模型"><span class="header-section-number">9</span> 从股息到自由现金流：FCFE 模型</a>
+  <ul class="collapse">
+  <li><a href="#ddm-的根本局限" id="toc-ddm-的根本局限" class="nav-link" data-scroll-target="#ddm-的根本局限"><span class="header-section-number">9.1</span> DDM 的根本局限</a></li>
+  <li><a href="#fcfe-的定义" id="toc-fcfe-的定义" class="nav-link" data-scroll-target="#fcfe-的定义"><span class="header-section-number">9.2</span> FCFE 的定义</a></li>
+  <li><a href="#理解-fcfe-公式" id="toc-理解-fcfe-公式" class="nav-link" data-scroll-target="#理解-fcfe-公式"><span class="header-section-number">9.3</span> 理解 FCFE 公式</a></li>
+  <li><a href="#案例levi-strauss-fcfe-计算" id="toc-案例levi-strauss-fcfe-计算" class="nav-link" data-scroll-target="#案例levi-strauss-fcfe-计算"><span class="header-section-number">9.4</span> 案例：Levi Strauss FCFE 计算</a></li>
+  <li><a href="#为什么公司支付低于-fcfe" id="toc-为什么公司支付低于-fcfe" class="nav-link" data-scroll-target="#为什么公司支付低于-fcfe"><span class="header-section-number">9.5</span> 为什么公司支付低于 FCFE？</a></li>
+  </ul></li>
+  <li><a href="#fcfe-估值模型" id="toc-fcfe-估值模型" class="nav-link" data-scroll-target="#fcfe-估值模型"><span class="header-section-number">10</span> FCFE 估值模型</a>
+  <ul class="collapse">
+  <li><a href="#恒定增长-fcfe-模型" id="toc-恒定增长-fcfe-模型" class="nav-link" data-scroll-target="#恒定增长-fcfe-模型"><span class="header-section-number">10.1</span> 恒定增长 FCFE 模型</a></li>
+  <li><a href="#案例volkswagen-恒定增长-fcfe" id="toc-案例volkswagen-恒定增长-fcfe" class="nav-link" data-scroll-target="#案例volkswagen-恒定增长-fcfe"><span class="header-section-number">10.2</span> 案例：Volkswagen 恒定增长 FCFE</a></li>
+  <li><a href="#两阶段-fcfe-模型" id="toc-两阶段-fcfe-模型" class="nav-link" data-scroll-target="#两阶段-fcfe-模型"><span class="header-section-number">10.3</span> 两阶段 FCFE 模型</a></li>
+  <li><a href="#案例nestlé-两阶段-fcfe" id="toc-案例nestlé-两阶段-fcfe" class="nav-link" data-scroll-target="#案例nestlé-两阶段-fcfe"><span class="header-section-number">10.4</span> 案例：Nestlé 两阶段 FCFE</a></li>
+  <li><a href="#e-模型广义-fcfe-模型" id="toc-e-模型广义-fcfe-模型" class="nav-link" data-scroll-target="#e-模型广义-fcfe-模型"><span class="header-section-number">10.5</span> E 模型（广义 FCFE 模型）</a></li>
+  <li><a href="#案例青岛啤酒-e-模型" id="toc-案例青岛啤酒-e-模型" class="nav-link" data-scroll-target="#案例青岛啤酒-e-模型"><span class="header-section-number">10.6</span> 案例：青岛啤酒 E 模型</a></li>
+  </ul></li>
+  <li><a href="#ddm-vs-fcfe什么时候用哪个" id="toc-ddm-vs-fcfe什么时候用哪个" class="nav-link" data-scroll-target="#ddm-vs-fcfe什么时候用哪个"><span class="header-section-number">11</span> DDM vs FCFE：什么时候用哪个？</a>
+  <ul class="collapse">
+  <li><a href="#两种方法的比较" id="toc-两种方法的比较" class="nav-link" data-scroll-target="#两种方法的比较"><span class="header-section-number">11.1</span> 两种方法的比较</a></li>
+  <li><a href="#估值差异的含义" id="toc-估值差异的含义" class="nav-link" data-scroll-target="#估值差异的含义"><span class="header-section-number">11.2</span> 估值差异的含义</a></li>
+  <li><a href="#选择指南" id="toc-选择指南" class="nav-link" data-scroll-target="#选择指南"><span class="header-section-number">11.3</span> 选择指南</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">12</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">13</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第14章】股权内在价值模型：从股息到自由现金流</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    股权的价值究竟由什么决定？本章从最基础的股息折现模型出发，扩展到增强版DDM和FCFE模型，构建完整的股权估值框架。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月14日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你持有一家公司的股票。这张股票凭证能给你带来什么？</p>
+<p>你不能用它买咖啡，不能住在里面，也不能把它当作艺术品欣赏。<strong>股票本身只是一张纸（或者一串数字）</strong>。</p>
+<p>那么，股票的价值从何而来？</p>
+<p>答案是：<strong>股票让你有权获得公司未来分配给股东的现金</strong>。</p>
+<p>对于大多数投资者来说，这些现金以<strong>股息</strong>（Dividends）的形式出现——公司定期将部分利润分配给股东。当然，你也可以通过<strong>卖出股票</strong>获得现金。但下一个买家愿意付钱买你的股票，也是因为他们期望获得未来的股息（或者更高价格卖给再下一个买家，而那个买家的理由还是股息…）。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>股权估值的核心洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>无论股票被转手多少次，无论中间价格如何波动，<strong>股票的内在价值最终必须来自公司支付给股东的现金流</strong>。这就是股权内在价值模型的理论基础。</p>
+</div>
+</div>
+<p>但这里有一个微妙的问题：公司<strong>实际支付</strong>的股息和公司<strong>能够支付</strong>的股息可能差异很大。一家公司可能有充足的现金流，但选择少分红；另一家公司可能勉强维持高股息。这种差异引出了本章的两大估值方法：</p>
+<ul>
+<li><strong>股息折现模型（DDM）</strong>：基于公司<strong>实际支付</strong>的股息</li>
+<li><strong>自由现金流模型（FCFE）</strong>：基于公司<strong>能够支付</strong>的现金流</li>
+</ul>
+<p>本章将系统探讨这两种方法，帮助你构建完整的股权估值框架。</p>
+</section>
+<section id="ddm-的理论基础" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="ddm-的理论基础"><span class="header-section-number">2</span> DDM 的理论基础</h2>
+<section id="从第一性原理出发" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="从第一性原理出发"><span class="header-section-number">2.1</span> 从第一性原理出发</h3>
+<p>让我们从最基本的问题开始：<strong>当你买入一只股票并永远持有时，你能得到什么？</strong></p>
+<p>答案是：<strong>无限期的股息流</strong>。</p>
+<p>假设公司每年支付股息 <span class="math inline">\(D_1, D_2, D_3, \ldots\)</span>，股权成本（投资者要求的回报率）为 <span class="math inline">\(r\)</span>，那么股票的内在价值就是所有未来股息的现值：</p>
+<p><span class="math display">\[
+P_0 = \sum_{t=1}^{\infty} \frac{D_t}{(1+r)^t} = \frac{D_1}{(1+r)} + \frac{D_2}{(1+r)^2} + \frac{D_3}{(1+r)^3} + \cdots
+\]</span></p>
+<p>这就是<strong>股息折现模型的一般形式</strong>。</p>
+</section>
+<section id="但我买股票是为了赚价差不是为了股息" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="但我买股票是为了赚价差不是为了股息"><span class="header-section-number">2.2</span> “但我买股票是为了赚价差，不是为了股息”</h3>
+<p>你可能会说：“我买股票从来不是为了股息，而是为了低买高卖赚取价差。DDM 和我有什么关系？”</p>
+<p>这个质疑是合理的，但它忽略了一个关键问题：<strong>下一个买家愿意付多少钱？</strong></p>
+<p>假设你今天以价格 <span class="math inline">\(P_0\)</span> 买入股票，一年后以 <span class="math inline">\(P_1\)</span> 卖出，期间收到股息 <span class="math inline">\(D_1\)</span>。你的回报是：</p>
+<p><span class="math display">\[
+\text{回报} = \frac{D_1 + P_1 - P_0}{P_0}
+\]</span></p>
+<p>问题是：<span class="math inline">\(P_1\)</span> 是多少？它取决于买家对未来股息的预期。如果我们递归地展开：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P_0 &amp;= \frac{D_1 + P_1}{1+r} \\
+&amp;= \frac{D_1}{1+r} + \frac{1}{1+r} \times \frac{D_2 + P_2}{1+r} \\
+&amp;= \frac{D_1}{1+r} + \frac{D_2}{(1+r)^2} + \frac{P_2}{(1+r)^2} \\
+&amp;= \cdots \\
+&amp;= \sum_{t=1}^{\infty} \frac{D_t}{(1+r)^t}
+\end{aligned}
+\]</span></p>
+<p>无论你计划持有多久，<strong>股票价格最终都是由无限期的股息流决定的</strong>。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>直觉理解
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>想象一个接力赛：每个投资者都期望从下一个投资者那里获得更高的价格。但这个”击鼓传花”不可能永远进行下去——最终，公司必须以某种形式将价值返还给股东。否则，股票就只是一张永远无法兑现的空头支票。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="gordon-增长模型最简单的-ddm" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="gordon-增长模型最简单的-ddm"><span class="header-section-number">3</span> Gordon 增长模型：最简单的 DDM</h2>
+<section id="从无穷级数到简洁公式" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="从无穷级数到简洁公式"><span class="header-section-number">3.1</span> 从无穷级数到简洁公式</h3>
+<p>DDM 的一般形式需要预测无限期的股息，这在实践中不可行。<strong>Gordon 增长模型</strong>通过一个强假设简化了问题：<strong>假设股息以恒定速度永续增长</strong>。</p>
+<p>如果股息每年增长 <span class="math inline">\(g\)</span>，则股息序列为：</p>
+<p><span class="math display">\[
+D_1, \quad D_1(1+g), \quad D_1(1+g)^2, \quad \ldots
+\]</span></p>
+<p>这是一个等比级数。当 <span class="math inline">\(g &lt; r\)</span> 时，无穷级数收敛：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P_0 &amp;= \frac{D_1}{1+r} + \frac{D_1(1+g)}{(1+r)^2} + \frac{D_1(1+g)^2}{(1+r)^3} + \cdots \\
+&amp;= \frac{D_1}{1+r} \times \frac{1}{1 - \frac{1+g}{1+r}} \\
+&amp;= \frac{D_1}{r - g}
+\end{aligned}
+\]</span></p>
+<p>这就是著名的<strong>Gordon 增长模型</strong>（也称为 Gordon-Shapiro 模型或永续增长模型）：</p>
+<p><span class="math display">\[
+\boxed{P_0 = \frac{D_1}{r - g}}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(P_0\)</span>：股票当前价值</li>
+<li><span class="math inline">\(D_1\)</span>：下一年预期股息（<span class="math inline">\(= D_0 \times (1+g)\)</span>）</li>
+<li><span class="math inline">\(r\)</span>：股权成本（投资者要求的回报率）</li>
+<li><span class="math inline">\(g\)</span>：股息永续增长率</li>
+</ul>
+</section>
+<section id="模型的直觉" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="模型的直觉"><span class="header-section-number">3.2</span> 模型的直觉</h3>
+<p>让我们用直觉来理解这个公式。</p>
+<p><strong><span class="math inline">\(r - g\)</span> 是什么？</strong></p>
+<p><span class="math inline">\(r - g\)</span> 可以理解为”调整后的折现率”。如果没有增长（<span class="math inline">\(g = 0\)</span>），永续年金的现值是 <span class="math inline">\(\frac{D}{r}\)</span>。增长率 <span class="math inline">\(g\)</span> 相当于”抵消”了一部分折现率，让现值变大。</p>
+<p><strong>为什么 <span class="math inline">\(g\)</span> 必须小于 <span class="math inline">\(r\)</span>？</strong></p>
+<p>如果 <span class="math inline">\(g \geq r\)</span>，公式给出无穷大或负值——这在经济上没有意义。直觉上：</p>
+<ul>
+<li>如果公司能永远以高于资本成本的速度增长，它的价值确实应该是无限的</li>
+<li>但这在现实中不可能：竞争会侵蚀超额增长，增长最终会放缓</li>
+</ul>
+</section>
+<section id="案例con-edison" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="案例con-edison"><span class="header-section-number">3.3</span> 案例：Con Edison</h3>
+<p>让我们用美国公用事业公司 <strong>Con Edison</strong>（联合爱迪生）来演示 Gordon 模型。公用事业公司是 Gordon 模型的理想候选者——业务稳定、增长缓慢、股息可预测。</p>
+<p><strong>2013 年数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>当前股息（<span class="math inline">\(D_0\)</span>）</td>
+<td><span class="math inline">\(2.52 |
+| 预期增长率（\)</span>g$）</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>0.80</td>
+</tr>
+<tr class="odd">
+<td>无风险利率</td>
+<td>2.75%</td>
+</tr>
+<tr class="even">
+<td>股权风险溢价</td>
+<td>5.5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤一：计算股权成本</strong></p>
+<p><span class="math display">\[
+r = R_f + \beta \times ERP = 2.75\% + 0.80 \times 5.5\% = 7.15\%
+\]</span></p>
+<p><strong>步骤二：计算下一年股息</strong></p>
+<p><span class="math display">\[
+D_1 = D_0 \times (1+g) = 2.52 \times 1.02 = \$2.57
+\]</span></p>
+<p><strong>步骤三：应用 Gordon 模型</strong></p>
+<p><span class="math display">\[
+P_0 = \frac{D_1}{r-g} = \frac{2.57}{0.0715 - 0.02} = \frac{2.57}{0.0515} = \$49.90
+\]</span></p>
+<p><strong>当时 Con Edison 的市价约为 $60</strong>，高于我们的估值。这可能意味着：</p>
+<ol type="1">
+<li>市场预期的增长率高于 2%</li>
+<li>市场使用的股权成本低于 7.15%</li>
+<li>股票被高估了</li>
+</ol>
+</section>
+<section id="gordon-模型的敏感性" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="gordon-模型的敏感性"><span class="header-section-number">3.4</span> Gordon 模型的敏感性</h3>
+<p>Gordon 模型对输入参数极其敏感，尤其是当 <span class="math inline">\(r\)</span> 和 <span class="math inline">\(g\)</span> 接近时。</p>
+<p><strong>案例</strong>：假设 <span class="math inline">\(D_1 = \$2.57\)</span>，<span class="math inline">\(r = 7.15\%\)</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>增长率 <span class="math inline">\(g\)</span></th>
+<th><span class="math inline">\(r - g\)</span></th>
+<th>估值 <span class="math inline">\(P_0\)</span></th>
+<th>估值变化</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1%</td>
+<td>6.15%</td>
+<td>$41.79</td>
+<td>-16%</td>
+</tr>
+<tr class="even">
+<td>2%</td>
+<td>5.15%</td>
+<td>$49.90</td>
+<td>基准</td>
+</tr>
+<tr class="odd">
+<td>3%</td>
+<td>4.15%</td>
+<td>$61.93</td>
+<td>+24%</td>
+</tr>
+<tr class="even">
+<td>4%</td>
+<td>3.15%</td>
+<td>$81.59</td>
+<td>+63%</td>
+</tr>
+<tr class="odd">
+<td>5%</td>
+<td>2.15%</td>
+<td>$119.53</td>
+<td>+140%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>观察</strong>：当 <span class="math inline">\(g\)</span> 从 2% 提高到 4%（只增加了 2 个百分点），估值增加 63%！</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>Gordon 模型的危险
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这种极端敏感性是 Gordon 模型最大的风险：</p>
+<ol type="1">
+<li><strong>小误差，大偏差</strong>：对增长率的轻微高估会导致严重的估值高估</li>
+<li><strong>接近爆炸</strong>：当 <span class="math inline">\(g\)</span> 接近 <span class="math inline">\(r\)</span> 时，估值趋于无穷</li>
+<li><strong>虚假精确</strong>：模型给出一个精确的数字，但这个精确性是虚假的</li>
+</ol>
+<p><strong>应对策略</strong>：始终进行敏感性分析，展示估值在不同参数组合下的范围。</p>
+</div>
+</div>
+</section>
+<section id="增长率的上限约束" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="增长率的上限约束"><span class="header-section-number">3.5</span> 增长率的上限约束</h3>
+<p>Gordon 模型中的 <span class="math inline">\(g\)</span> 是<strong>永续增长率</strong>，必须满足严格的约束：</p>
+<p><span class="math display">\[
+g \leq \text{经济长期增长率}
+\]</span></p>
+<p><strong>为什么？</strong></p>
+<p>如果一家公司永远以 6% 的速度增长，而经济只增长 3%，那么在足够长的时间后，这家公司的规模会超过整个经济——这显然不可能。</p>
+<p><strong>实践建议</strong>：</p>
+<ul>
+<li>发达市场：<span class="math inline">\(g\)</span> 通常 ≤ 3-4%（名义值）</li>
+<li>新兴市场：<span class="math inline">\(g\)</span> 可能稍高，但仍应谨慎</li>
+<li>任何 <span class="math inline">\(g &gt; 5\%\)</span> 的假设都需要特别的论证</li>
+</ul>
+</section>
+</section>
+<section id="增长的价值分解" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="增长的价值分解"><span class="header-section-number">4</span> 增长的价值分解</h2>
+<p>Gordon 模型还可以帮助我们理解一个重要概念：<strong>增长的价值是什么？</strong></p>
+<p>我们可以将股票价值分解为两部分：</p>
+<p><span class="math display">\[
+P_0 = \underbrace{\frac{EPS_1}{r}}_{\text{无增长价值}} + \underbrace{PVGO}_{\text{增长机会现值}}
+\]</span></p>
+<p>其中 <strong>PVGO</strong>（Present Value of Growth Opportunities）是增长机会的现值。</p>
+<p><strong>推导</strong>：</p>
+<p>如果公司不增长，将所有盈利作为股息发放，则：</p>
+<p><span class="math display">\[
+\text{无增长价值} = \frac{EPS_1}{r}
+\]</span></p>
+<p>公司的实际价值与无增长价值之差，就是市场对增长机会的定价：</p>
+<p><span class="math display">\[
+PVGO = P_0 - \frac{EPS_1}{r}
+\]</span></p>
+<p><strong>案例</strong>：假设一只股票价格 $50，EPS = $4，股权成本 10%</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{无增长价值} &amp;= \frac{4}{0.10} = \$40 \\
+PVGO &amp;= 50 - 40 = \$10
+\end{aligned}
+\]</span></p>
+<p>这意味着股价中有 20%（$10/$50）来自对未来增长的预期。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>PVGO 的应用
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>PVGO/P 比率高</strong>：市场对增长预期高，估值风险大（增长不及预期会导致大跌）</li>
+<li><strong>PVGO/P 比率低或为负</strong>：市场预期增长有限，可能是价值股</li>
+<li>科技股的 PVGO 通常占比很高，公用事业股则很低</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="两阶段-ddm" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="两阶段-ddm"><span class="header-section-number">5</span> 两阶段 DDM</h2>
+<section id="为什么需要两阶段" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="为什么需要两阶段"><span class="header-section-number">5.1</span> 为什么需要两阶段？</h3>
+<p>Gordon 模型假设股息永续以恒定速度增长。但现实中：</p>
+<ul>
+<li><strong>高增长公司</strong>：当前增长很快，但增长会逐渐放缓</li>
+<li><strong>周期性公司</strong>：增长率在不同阶段差异很大</li>
+<li><strong>转型公司</strong>：当前股息政策可能与未来不同</li>
+</ul>
+<p>两阶段 DDM 将估值分为两个时期：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶段</th>
+<th>时长</th>
+<th>增长率</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>高增长期</strong></td>
+<td>n 年</td>
+<td><span class="math inline">\(g_{高}\)</span>（可以 &gt; <span class="math inline">\(g_{稳定}\)</span>）</td>
+<td>逐年预测股息</td>
+</tr>
+<tr class="even">
+<td><strong>稳定增长期</strong></td>
+<td>永续</td>
+<td><span class="math inline">\(g_{稳定}\)</span>（≤ 经济增长率）</td>
+<td>用 Gordon 模型</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="公式推导" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="公式推导"><span class="header-section-number">5.2</span> 公式推导</h3>
+<p>两阶段模型的估值公式：</p>
+<p><span class="math display">\[
+P_0 = \underbrace{\sum_{t=1}^{n} \frac{D_t}{(1+r)^t}}_{\text{高增长期股息现值}} + \underbrace{\frac{P_n}{(1+r)^n}}_{\text{终值现值}}
+\]</span></p>
+<p>其中终值 <span class="math inline">\(P_n\)</span> 用 Gordon 模型计算：</p>
+<p><span class="math display">\[
+P_n = \frac{D_{n+1}}{r_{稳定} - g_{稳定}}
+\]</span></p>
+</section>
+<section id="案例procter-gamble" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="案例procter-gamble"><span class="header-section-number">5.3</span> 案例：Procter &amp; Gamble</h3>
+<p><strong>宝洁公司（P&amp;G）</strong> 是一家成熟的消费品巨头，当前增长稳健，但预计未来增长将放缓至经济增长水平。</p>
+<p><strong>2013 年数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>当前股息（<span class="math inline">\(D_0\)</span>）</td>
+<td>$2.41</td>
+</tr>
+<tr class="even">
+<td>高增长期</td>
+<td>5 年</td>
+</tr>
+<tr class="odd">
+<td>高增长期增长率</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>稳定期增长率</td>
+<td>2.75%</td>
+</tr>
+<tr class="odd">
+<td>Beta（高增长期）</td>
+<td>0.90</td>
+</tr>
+<tr class="even">
+<td>Beta（稳定期）</td>
+<td>1.00</td>
+</tr>
+<tr class="odd">
+<td>无风险利率</td>
+<td>2.75%</td>
+</tr>
+<tr class="even">
+<td>股权风险溢价</td>
+<td>5.5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤一：计算股权成本</strong></p>
+<p>高增长期：<span class="math inline">\(r_{高} = 2.75\% + 0.90 \times 5.5\% = 7.70\%\)</span></p>
+<p>稳定期：<span class="math inline">\(r_{稳定} = 2.75\% + 1.00 \times 5.5\% = 8.25\%\)</span></p>
+<p><strong>步骤二：预测高增长期股息</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>股息</th>
+<th>折现因子</th>
+<th>现值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>$2.41 × 1.05 = $2.53</td>
+<td>0.9285</td>
+<td>$2.35</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>$2.53 × 1.05 = $2.66</td>
+<td>0.8621</td>
+<td>$2.29</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>$2.66 × 1.05 = $2.79</td>
+<td>0.8005</td>
+<td>$2.23</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>$2.79 × 1.05 = $2.93</td>
+<td>0.7432</td>
+<td>$2.18</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>$2.93 × 1.05 = $3.08</td>
+<td>0.6900</td>
+<td>$2.13</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>$11.18</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤三：计算终值</strong></p>
+<p><span class="math display">\[
+D_6 = D_5 \times (1 + g_{稳定}) = 3.08 \times 1.0275 = \$3.16
+\]</span></p>
+<p><span class="math display">\[
+P_5 = \frac{D_6}{r_{稳定} - g_{稳定}} = \frac{3.16}{0.0825 - 0.0275} = \frac{3.16}{0.055} = \$57.45
+\]</span></p>
+<p><strong>步骤四：折现终值</strong></p>
+<p><span class="math display">\[
+PV(P_5) = \frac{57.45}{(1.077)^5} = \frac{57.45}{1.4497} = \$39.63
+\]</span></p>
+<p><strong>步骤五：汇总</strong></p>
+<p><span class="math display">\[
+P_0 = 11.18 + 39.63 = \$50.81
+\]</span></p>
+<p><strong>分析</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>成分</th>
+<th>现值</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>高增长期股息</td>
+<td>$11.18</td>
+<td>22%</td>
+</tr>
+<tr class="even">
+<td>终值</td>
+<td>$39.63</td>
+<td>78%</td>
+</tr>
+<tr class="odd">
+<td><strong>合计</strong></td>
+<td>$50.81</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<p>即使在两阶段模型中，<strong>终值仍然占估值的大部分</strong>。这再次强调了稳定期假设的重要性。</p>
+</section>
+</section>
+<section id="h-模型更平滑的过渡" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="h-模型更平滑的过渡"><span class="header-section-number">6</span> H 模型：更平滑的过渡</h2>
+<section id="两阶段模型的问题" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="两阶段模型的问题"><span class="header-section-number">6.1</span> 两阶段模型的问题</h3>
+<p>标准的两阶段模型假设增长率从 <span class="math inline">\(g_{高}\)</span> <strong>突然跳跃</strong>到 <span class="math inline">\(g_{稳定}\)</span>。这不太现实——实际中，增长的放缓通常是渐进的。</p>
+</section>
+<section id="h-模型的设计" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="h-模型的设计"><span class="header-section-number">6.2</span> H 模型的设计</h3>
+<p><strong>H 模型</strong>假设增长率从 <span class="math inline">\(g_{高}\)</span> <strong>线性衰减</strong>到 <span class="math inline">\(g_{稳定}\)</span>，过渡期为 2H 年：</p>
+<pre><code>增长率
+   ^
+g高 |----\
+   |     \
+   |      \
+g稳|-------\-----------
+   |
+   +------------------→ 时间
+   0    H    2H</code></pre>
+<p>H 模型的估值公式：</p>
+<p><span class="math display">\[
+P_0 = \frac{D_0 \times (1 + g_{稳定})}{r - g_{稳定}} + \frac{D_0 \times H \times (g_{高} - g_{稳定})}{r - g_{稳定}}
+\]</span></p>
+<p>简化为：</p>
+<p><span class="math display">\[
+P_0 = \frac{D_0}{r - g_{稳定}} \times \left[ (1 + g_{稳定}) + H \times (g_{高} - g_{稳定}) \right]
+\]</span></p>
+<p>其中 H 是增长率从高点衰减到一半所需的年数（总过渡期 = 2H）。</p>
+</section>
+<section id="案例vodafone" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="案例vodafone"><span class="header-section-number">6.3</span> 案例：Vodafone</h3>
+<p><strong>沃达丰（Vodafone）</strong> 是一家全球电信巨头，在新兴市场仍有高增长潜力，但增长正在逐渐放缓。</p>
+<p><strong>2013 年数据</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>当前股息（<span class="math inline">\(D_0\)</span>）</td>
+<td><span class="math inline">\(0.89 |
+| 初始增长率（\)</span>g_{高}<span class="math inline">\(） | 10% |
+| 稳定增长率（\)</span>g_{稳定}<span class="math inline">\(） | 2.75% |
+| 过渡期半程（H） | 5 年 |
+| 股权成本（\)</span>r$）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>H 模型估值</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P_0 &amp;= \frac{0.89}{0.0825 - 0.0275} \times \left[ (1 + 0.0275) + 5 \times (0.10 - 0.0275) \right] \\
+&amp;= \frac{0.89}{0.055} \times \left[ 1.0275 + 5 \times 0.0725 \right] \\
+&amp;= 16.18 \times \left[ 1.0275 + 0.3625 \right] \\
+&amp;= 16.18 \times 1.39 \\
+&amp;= \$22.49
+\end{aligned}
+\]</span></p>
+<p><strong>对比</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>模型</th>
+<th>假设</th>
+<th>估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Gordon（用 <span class="math inline">\(g_{稳定}\)</span>）</td>
+<td>永续 2.75% 增长</td>
+<td><span class="math inline">\(\frac{0.89 \times 1.0275}{0.055} = \$16.63\)</span></td>
+</tr>
+<tr class="even">
+<td>H 模型</td>
+<td>从 10% 线性衰减到 2.75%</td>
+<td>$22.49</td>
+</tr>
+</tbody>
+</table>
+<p>H 模型给出的估值高出 35%，因为它捕捉了过渡期的超额增长价值。</p>
+</section>
+</section>
+<section id="三阶段-ddm" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="三阶段-ddm"><span class="header-section-number">7</span> 三阶段 DDM</h2>
+<section id="适用场景" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="适用场景"><span class="header-section-number">7.1</span> 适用场景</h3>
+<p>对于高增长公司，可能需要三个阶段：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶段</th>
+<th>时长</th>
+<th>增长率</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>高增长期</strong></td>
+<td>n1 年</td>
+<td><span class="math inline">\(g_1\)</span>（高且稳定）</td>
+<td>快速扩张</td>
+</tr>
+<tr class="even">
+<td><strong>过渡期</strong></td>
+<td>n2 年</td>
+<td><span class="math inline">\(g_1 → g_3\)</span>（线性衰减）</td>
+<td>增长放缓</td>
+</tr>
+<tr class="odd">
+<td><strong>稳定期</strong></td>
+<td>永续</td>
+<td><span class="math inline">\(g_3\)</span></td>
+<td>成熟状态</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="案例jp-morgan" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="案例jp-morgan"><span class="header-section-number">7.2</span> 案例：JP Morgan</h3>
+<p><strong>摩根大通（JP Morgan）</strong> 是一家大型金融机构，当前处于高增长阶段，但预计增长将逐步放缓。</p>
+<p><strong>2013 年数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>当前股息（<span class="math inline">\(D_0\)</span>）</td>
+<td>$1.52</td>
+</tr>
+<tr class="even">
+<td>阶段一（高增长期）</td>
+<td>2 年，增长 8%</td>
+</tr>
+<tr class="odd">
+<td>阶段二（过渡期）</td>
+<td>8 年，增长从 8% 线性衰减到 3%</td>
+</tr>
+<tr class="even">
+<td>阶段三（稳定期）</td>
+<td>永续，增长 3%</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>9.2%（高增长）→ 9.2%（稳定）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤一：计算各阶段股息</strong></p>
+<p><strong>阶段一（高增长期，年 1-2）</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>增长率</th>
+<th>股息</th>
+<th>折现因子</th>
+<th>现值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>8%</td>
+<td>$1.64</td>
+<td>0.9158</td>
+<td>$1.50</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>8%</td>
+<td>$1.77</td>
+<td>0.8387</td>
+<td>$1.49</td>
+</tr>
+<tr class="odd">
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>$2.99</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段二（过渡期，年 3-10）</strong>：</p>
+<p>过渡期增长率每年衰减：<span class="math inline">\(\Delta g = \frac{8\% - 3\%}{8} = 0.625\%\)</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>增长率</th>
+<th>股息</th>
+<th>折现因子</th>
+<th>现值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td>7.375%</td>
+<td>$1.90</td>
+<td>0.7681</td>
+<td>$1.46</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>6.75%</td>
+<td>$2.03</td>
+<td>0.7034</td>
+<td>$1.43</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>6.125%</td>
+<td>$2.15</td>
+<td>0.6442</td>
+<td>$1.39</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>5.50%</td>
+<td>$2.27</td>
+<td>0.5900</td>
+<td>$1.34</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>4.875%</td>
+<td>$2.38</td>
+<td>0.5404</td>
+<td>$1.29</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>4.25%</td>
+<td>$2.48</td>
+<td>0.4949</td>
+<td>$1.23</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>3.625%</td>
+<td>$2.57</td>
+<td>0.4533</td>
+<td>$1.16</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>3.00%</td>
+<td>$2.65</td>
+<td>0.4151</td>
+<td>$1.10</td>
+</tr>
+<tr class="odd">
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>$10.40</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤二：计算终值</strong></p>
+<p><span class="math display">\[
+D_{11} = D_{10} \times (1 + g_{稳定}) = 2.65 \times 1.03 = \$2.73
+\]</span></p>
+<p><span class="math display">\[
+P_{10} = \frac{D_{11}}{r_{稳定} - g_{稳定}} = \frac{2.73}{0.092 - 0.03} = \frac{2.73}{0.062} = \$44.03
+\]</span></p>
+<p><span class="math display">\[
+PV(P_{10}) = 44.03 \times 0.4151 = \$18.28
+\]</span></p>
+<p><strong>步骤三：汇总</strong></p>
+<p><span class="math display">\[
+P_0 = 2.99 + 10.40 + 18.28 = \$31.67
+\]</span></p>
+<p><strong>价值构成</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶段</th>
+<th>现值</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>高增长期（年 1-2）</td>
+<td>$2.99</td>
+<td>9.4%</td>
+</tr>
+<tr class="even">
+<td>过渡期（年 3-10）</td>
+<td>$10.40</td>
+<td>32.9%</td>
+</tr>
+<tr class="odd">
+<td>终值</td>
+<td>$18.28</td>
+<td>57.7%</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td>$31.67</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="增强版股息折现模型" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="增强版股息折现模型"><span class="header-section-number">8</span> 增强版股息折现模型</h2>
+<section id="股票回购的崛起" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="股票回购的崛起"><span class="header-section-number">8.1</span> 股票回购的崛起</h3>
+<p>传统 DDM 假设股息是公司返还现金给股东的唯一方式。但在过去几十年，<strong>股票回购</strong>（Stock Buybacks）已成为同样重要甚至更重要的返还方式。</p>
+<p><strong>美国市场数据</strong>（1960-2013）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>时期</th>
+<th>股息占比</th>
+<th>回购占比</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1960-1980</td>
+<td>~95%</td>
+<td>~5%</td>
+</tr>
+<tr class="even">
+<td>1980-2000</td>
+<td>~70%</td>
+<td>~30%</td>
+</tr>
+<tr class="odd">
+<td>2000-2013</td>
+<td>~45%</td>
+<td>~55%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么公司偏好回购？</strong></p>
+<ol type="1">
+<li><strong>税收优势</strong>：股息立即纳税（股息税），回购让股东选择何时实现收益（资本利得税，税率可能更低）</li>
+<li><strong>灵活性</strong>：回购可以随时调整，股息一旦宣布就是承诺</li>
+<li><strong>信号效应</strong>：回购可能被视为管理层对股价低估的信心</li>
+</ol>
+</section>
+<section id="增强版股息公式" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="增强版股息公式"><span class="header-section-number">8.2</span> 增强版股息公式</h3>
+<p>为了在 DDM 中纳入回购，我们定义<strong>增强版股息</strong>：</p>
+<p><span class="math display">\[
+\text{Augmented Dividends} = \text{Dividends} + \text{Stock Buybacks}
+\]</span></p>
+<p>增强版股息支付率：</p>
+<p><span class="math display">\[
+\text{Augmented Payout Ratio} = \frac{\text{Dividends} + \text{Buybacks}}{\text{Net Income}}
+\]</span></p>
+</section>
+<section id="考虑债务发行的调整" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="考虑债务发行的调整"><span class="header-section-number">8.3</span> 考虑债务发行的调整</h3>
+<p>有时公司通过发行新债来支持回购，这种”杠杆型回购”应该调整：</p>
+<p><span class="math display">\[
+\text{Debt-Adjusted Payout} = \frac{\text{Dividends} + \text{Buybacks} - \text{Net Debt Issued}}{\text{Net Income}}
+\]</span></p>
+</section>
+<section id="案例coca-cola-增强版估值" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="案例coca-cola-增强版估值"><span class="header-section-number">8.4</span> 案例：Coca-Cola 增强版估值</h3>
+<p><strong>可口可乐（Coca-Cola）</strong> 是一家典型的成熟公司，同时使用股息和回购返还现金。</p>
+<p><strong>2013 年数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润</td>
+<td>$8,626 百万</td>
+</tr>
+<tr class="even">
+<td>股息</td>
+<td>$5,123 百万</td>
+</tr>
+<tr class="odd">
+<td>股票回购</td>
+<td>$2,952 百万</td>
+</tr>
+<tr class="even">
+<td>流通股数</td>
+<td>4,405 百万股</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>0.80</td>
+</tr>
+<tr class="even">
+<td>无风险利率</td>
+<td>2.75%</td>
+</tr>
+<tr class="odd">
+<td>股权风险溢价</td>
+<td>5.5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>传统 vs 增强版分析</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>传统（仅股息）</th>
+<th>增强版（股息+回购）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>每股回报</td>
+<td>$5,123/4,405 = $1.16</td>
+<td>$8,075/4,405 = $1.83</td>
+</tr>
+<tr class="even">
+<td>支付率</td>
+<td>$5,123/$8,626 = 59.4%</td>
+<td>$8,075/$8,626 = 93.6%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>估值比较</strong>：</p>
+<p>假设 ROE = 20%，股权成本 = 7.15%</p>
+<p><strong>传统 DDM</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+g &amp;= (1 - 59.4\%) \times 20\% = 8.12\% \quad \text{(&gt; r，用两阶段)}
+\end{aligned}
+\]</span></p>
+<p>由于 <span class="math inline">\(g &gt; r\)</span>，需要假设高增长期后回归正常。假设 5 年后增长率降至 2.75%：</p>
+<p><span class="math display">\[
+P_0 \approx \$42 \quad \text{（简化计算）}
+\]</span></p>
+<p><strong>增强版 DDM</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+g &amp;= (1 - 93.6\%) \times 20\% = 1.28\% \\
+D_1^{aug} &amp;= 1.83 \times 1.0128 = \$1.85 \\
+P_0 &amp;= \frac{1.85}{0.0715 - 0.0128} = \frac{1.85}{0.0587} = \$31.52
+\end{aligned}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>为什么增强版估值更低？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>增强版 DDM 认为公司将几乎所有利润返还股东（93.6% 支付率），留存很少，因此增长有限。这反映了一个成熟公司的现实——高回报但低增长。</p>
+<p>两种方法的差异揭示了<strong>股息政策的信号作用</strong>：传统 DDM 可能高估保留大量现金的公司。</p>
+</div>
+</div>
+</section>
+<section id="案例sp-500-整体估值" class="level3" data-number="8.5">
+<h3 data-number="8.5" class="anchored" data-anchor-id="案例sp-500-整体估值"><span class="header-section-number">8.5</span> 案例：S&amp;P 500 整体估值</h3>
+<p>我们还可以用增强版 DDM 估值整个市场。</p>
+<p><strong>2013 年 S&amp;P 500 数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>指数水平</td>
+<td>1,848</td>
+</tr>
+<tr class="even">
+<td>股息收益率</td>
+<td>1.89%</td>
+</tr>
+<tr class="odd">
+<td>股息 + 回购收益率</td>
+<td>4.40%</td>
+</tr>
+<tr class="even">
+<td>预期增长率</td>
+<td>2%</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>8.04%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>传统 DDM</strong>：</p>
+<p><span class="math display">\[
+P_0 = \frac{1848 \times 1.89\% \times 1.02}{0.0804 - 0.02} = \frac{35.62}{0.0604} = 590
+\]</span></p>
+<p>传统 DDM 严重低估市场（590 vs 实际 1,848）。</p>
+<p><strong>增强版 DDM</strong>：</p>
+<p><span class="math display">\[
+P_0 = \frac{1848 \times 4.40\% \times 1.02}{0.0804 - 0.02} = \frac{82.93}{0.0604} = 1,373
+\]</span></p>
+<p>增强版估值（1,373）更接近实际市场水平，但仍有差距，可能反映： - 市场对增长率的预期高于 2% - 股权成本低于我们假设的 8.04%</p>
+</section>
+</section>
+<section id="从股息到自由现金流fcfe-模型" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="从股息到自由现金流fcfe-模型"><span class="header-section-number">9</span> 从股息到自由现金流：FCFE 模型</h2>
+<section id="ddm-的根本局限" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="ddm-的根本局限"><span class="header-section-number">9.1</span> DDM 的根本局限</h3>
+<p>到目前为止，我们一直在讨论基于<strong>实际股息</strong>的估值。但有一个根本问题：</p>
+<blockquote class="blockquote">
+<p><strong>公司实际支付的股息可能与公司能够支付的股息相差甚远。</strong></p>
+</blockquote>
+<p>一家公司可能有大量自由现金流，但选择囤积现金而不分红。另一家公司可能勉强维持高股息，甚至借债分红。</p>
+<p>这就引出了一个更本质的问题：<strong>股权的价值应该基于公司”实际支付”的现金，还是”能够支付”的现金？</strong></p>
+</section>
+<section id="fcfe-的定义" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="fcfe-的定义"><span class="header-section-number">9.2</span> FCFE 的定义</h3>
+<p><strong>股权自由现金流</strong>（Free Cash Flow to Equity, FCFE）是扣除所有再投资需求和债务支付后，<strong>可供分配给股东的现金流</strong>：</p>
+<p><span class="math display">\[
+\boxed{FCFE = \text{Net Income} - \text{Reinvestment} + \text{Net Borrowing}}
+\]</span></p>
+<p>更详细的公式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+FCFE = \text{Net Income} &amp;- (\text{CapEx} - \text{Depreciation}) \\
+&amp;- \Delta \text{Non-cash Working Capital} \\
+&amp;+ (\text{New Debt Issued} - \text{Debt Repaid})
+\end{aligned}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><strong>Net Income</strong>：净利润</li>
+<li><strong>CapEx - Depreciation</strong>：净资本支出（维持和增长业务的投资）</li>
+<li><strong>Δ Non-cash Working Capital</strong>：营运资本变动</li>
+<li><strong>Net Borrowing</strong>：净借款（新发债 - 还债）</li>
+</ul>
+</section>
+<section id="理解-fcfe-公式" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="理解-fcfe-公式"><span class="header-section-number">9.3</span> 理解 FCFE 公式</h3>
+<p>让我们用直觉理解这个公式：</p>
+<ol type="1">
+<li><strong>从净利润开始</strong>：这是股东在概念上”拥有”的利润</li>
+<li><strong>减去净资本支出</strong>：公司需要投资于长期资产（工厂、设备、技术）</li>
+<li><strong>减去营运资本增加</strong>：业务增长需要更多流动资金</li>
+<li><strong>加回净借款</strong>：如果公司借钱，这部分可以分给股东；如果还债，则减少可分配现金</li>
+</ol>
+</section>
+<section id="案例levi-strauss-fcfe-计算" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="案例levi-strauss-fcfe-计算"><span class="header-section-number">9.4</span> 案例：Levi Strauss FCFE 计算</h3>
+<p><strong>2013 年 Levi Strauss 数据</strong>（百万美元）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润</td>
+<td>$229</td>
+</tr>
+<tr class="even">
+<td>资本支出</td>
+<td>$158</td>
+</tr>
+<tr class="odd">
+<td>折旧</td>
+<td>$117</td>
+</tr>
+<tr class="even">
+<td>营运资本变动</td>
+<td>-$19</td>
+</tr>
+<tr class="odd">
+<td>净借款</td>
+<td>-$71</td>
+</tr>
+</tbody>
+</table>
+<p><strong>FCFE 计算</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+FCFE &amp;= 229 - (158 - 117) - (-19) + (-71) \\
+&amp;= 229 - 41 + 19 - 71 \\
+&amp;= \$136 \text{ 百万}
+\end{aligned}
+\]</span></p>
+<p><strong>对比实际股息</strong>：Levi Strauss 当年实际支付股息约 $50 百万</p>
+<p><strong>差异分析</strong>：</p>
+<ul>
+<li>FCFE = $136 百万（公司<strong>能</strong>支付的）</li>
+<li>实际股息 = $50 百万（公司<strong>选择</strong>支付的）</li>
+<li>差额 = $86 百万（囤积的现金）</li>
+</ul>
+</section>
+<section id="为什么公司支付低于-fcfe" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="为什么公司支付低于-fcfe"><span class="header-section-number">9.5</span> 为什么公司支付低于 FCFE？</h3>
+<p>公司选择支付低于 FCFE 的原因：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>原因</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>盈利波动缓冲</strong></td>
+<td>保留现金以应对未来盈利下滑</td>
+</tr>
+<tr class="even">
+<td><strong>投资灵活性</strong></td>
+<td>为未来投资机会预留资金</td>
+</tr>
+<tr class="odd">
+<td><strong>税收考虑</strong></td>
+<td>股息立即纳税，保留现金延迟纳税</td>
+</tr>
+<tr class="even">
+<td><strong>管理层偏好</strong></td>
+<td>更大的”帝国”带来更多控制权</td>
+</tr>
+<tr class="odd">
+<td><strong>债务契约</strong></td>
+<td>贷款协议可能限制股息支付</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>DDM vs FCFE：哪个更准确？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>如果公司股息政策与 FCFE 接近</strong>：两者估值相似</li>
+<li><strong>如果公司囤积大量现金</strong>：FCFE 估值 &gt; DDM 估值，差额代表”囤积折价”</li>
+<li><strong>如果公司过度分红（借债分红）</strong>：DDM 估值可能高估实际价值</li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+<section id="fcfe-估值模型" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="fcfe-估值模型"><span class="header-section-number">10</span> FCFE 估值模型</h2>
+<section id="恒定增长-fcfe-模型" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="恒定增长-fcfe-模型"><span class="header-section-number">10.1</span> 恒定增长 FCFE 模型</h3>
+<p>与 Gordon 增长模型类似，如果 FCFE 以恒定速度增长：</p>
+<p><span class="math display">\[
+P_0 = \frac{FCFE_1}{r - g}
+\]</span></p>
+<p><strong>关键差异</strong>：增长率 <span class="math inline">\(g\)</span> 应该基于公司的<strong>再投资率</strong>和<strong>非现金 ROE</strong>：</p>
+<p><span class="math display">\[
+g = \text{Equity Reinvestment Rate} \times \text{Non-cash ROE}
+\]</span></p>
+<p>其中：</p>
+<p><span class="math display">\[
+\text{Equity Reinvestment Rate} = \frac{\text{Net CapEx} + \Delta WC - \text{Net Borrowing}}{\text{Net Income}}
+\]</span></p>
+</section>
+<section id="案例volkswagen-恒定增长-fcfe" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="案例volkswagen-恒定增长-fcfe"><span class="header-section-number">10.2</span> 案例：Volkswagen 恒定增长 FCFE</h3>
+<p><strong>2013 年 Volkswagen 数据</strong>（百万欧元）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润</td>
+<td>€9,066</td>
+</tr>
+<tr class="even">
+<td>股权账面价值</td>
+<td>€85,029</td>
+</tr>
+<tr class="odd">
+<td>ROE</td>
+<td>10.66%</td>
+</tr>
+<tr class="even">
+<td>资本支出</td>
+<td>€16,355</td>
+</tr>
+<tr class="odd">
+<td>折旧</td>
+<td>€13,986</td>
+</tr>
+<tr class="even">
+<td>营运资本变动</td>
+<td>€2,291</td>
+</tr>
+<tr class="odd">
+<td>净借款</td>
+<td>€2,952</td>
+</tr>
+<tr class="even">
+<td>流通股数</td>
+<td>295.09 百万</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>1.05</td>
+</tr>
+<tr class="even">
+<td>无风险利率</td>
+<td>1.78%</td>
+</tr>
+<tr class="odd">
+<td>股权风险溢价</td>
+<td>6.05%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤一：计算 FCFE</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+FCFE &amp;= 9,066 - (16,355 - 13,986) - 2,291 + 2,952 \\
+&amp;= 9,066 - 2,369 - 2,291 + 2,952 \\
+&amp;= €7,358 \text{ 百万}
+\end{aligned}
+\]</span></p>
+<p>每股 FCFE = €7,358 / 295.09 = €24.93</p>
+<p><strong>步骤二：计算增长率</strong></p>
+<p><span class="math display">\[
+\text{Equity Reinvestment Rate} = \frac{(16,355 - 13,986) + 2,291 - 2,952}{9,066} = \frac{1,708}{9,066} = 18.84\%
+\]</span></p>
+<p><span class="math display">\[
+g = 18.84\% \times 10.66\% = 2.01\%
+\]</span></p>
+<p><strong>步骤三：计算股权成本</strong></p>
+<p><span class="math display">\[
+r = 1.78\% + 1.05 \times 6.05\% = 8.13\%
+\]</span></p>
+<p><strong>步骤四：FCFE 估值</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+FCFE_1 &amp;= 24.93 \times 1.0201 = €25.43 \\
+P_0 &amp;= \frac{25.43}{0.0813 - 0.0201} = \frac{25.43}{0.0612} = €415.52
+\end{aligned}
+\]</span></p>
+<p><strong>当时 Volkswagen 股价约为 €200</strong>，FCFE 模型估值显著高于市价。这可能反映： - 市场对汽车行业周期性风险的担忧 - 公司治理折价（大众的复杂股权结构） - 柴油门事件前的”便宜”定价</p>
+</section>
+<section id="两阶段-fcfe-模型" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="两阶段-fcfe-模型"><span class="header-section-number">10.3</span> 两阶段 FCFE 模型</h3>
+<p>当公司当前增长率高于可持续水平时，使用两阶段模型：</p>
+<p><span class="math display">\[
+P_0 = \sum_{t=1}^{n} \frac{FCFE_t}{(1+r)^t} + \frac{P_n}{(1+r)^n}
+\]</span></p>
+</section>
+<section id="案例nestlé-两阶段-fcfe" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="案例nestlé-两阶段-fcfe"><span class="header-section-number">10.4</span> 案例：Nestlé 两阶段 FCFE</h3>
+<p><strong>雀巢（Nestlé）</strong> 是全球最大的食品公司，当前有稳定增长，但预计长期将趋于经济增长率。</p>
+<p><strong>2013 年数据</strong>（瑞士法郎，百万）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润</td>
+<td>CHF 10,445</td>
+</tr>
+<tr class="even">
+<td>FCFE</td>
+<td>CHF 8,567</td>
+</tr>
+<tr class="odd">
+<td>流通股数</td>
+<td>3,196.5 百万</td>
+</tr>
+<tr class="even">
+<td>高增长期</td>
+<td>5 年</td>
+</tr>
+<tr class="odd">
+<td>高增长期增长率</td>
+<td>6.5%</td>
+</tr>
+<tr class="even">
+<td>稳定期增长率</td>
+<td>2.41%</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>0.85</td>
+</tr>
+<tr class="even">
+<td>无风险利率</td>
+<td>1.19%</td>
+</tr>
+<tr class="odd">
+<td>股权风险溢价</td>
+<td>6.05%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤一：计算股权成本</strong></p>
+<p><span class="math display">\[
+r = 1.19\% + 0.85 \times 6.05\% = 6.33\%
+\]</span></p>
+<p><strong>步骤二：每股 FCFE</strong></p>
+<p><span class="math display">\[
+FCFE_0 = \frac{8,567}{3,196.5} = CHF\text{ }2.68
+\]</span></p>
+<p><strong>步骤三：预测高增长期 FCFE</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>FCFE/股</th>
+<th>折现因子</th>
+<th>现值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>CHF 2.85</td>
+<td>0.9405</td>
+<td>CHF 2.68</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>CHF 3.04</td>
+<td>0.8845</td>
+<td>CHF 2.69</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>CHF 3.24</td>
+<td>0.8318</td>
+<td>CHF 2.69</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>CHF 3.45</td>
+<td>0.7823</td>
+<td>CHF 2.70</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>CHF 3.67</td>
+<td>0.7357</td>
+<td>CHF 2.70</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>CHF 13.46</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤四：终值</strong></p>
+<p><span class="math display">\[
+FCFE_6 = 3.67 \times 1.0241 = CHF\text{ }3.76
+\]</span></p>
+<p><span class="math display">\[
+P_5 = \frac{3.76}{0.0633 - 0.0241} = \frac{3.76}{0.0392} = CHF\text{ }95.92
+\]</span></p>
+<p><span class="math display">\[
+PV(P_5) = 95.92 \times 0.7357 = CHF\text{ }70.57
+\]</span></p>
+<p><strong>步骤五：汇总</strong></p>
+<p><span class="math display">\[
+P_0 = 13.46 + 70.57 = CHF\text{ }84.03
+\]</span></p>
+<p><strong>当时 Nestlé 股价约为 CHF 68</strong>，FCFE 估值略高于市价。</p>
+</section>
+<section id="e-模型广义-fcfe-模型" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="e-模型广义-fcfe-模型"><span class="header-section-number">10.5</span> E 模型（广义 FCFE 模型）</h3>
+<p>对于增长率渐变的公司，可以使用 <strong>E 模型</strong>，类似于 DDM 中的 H 模型：</p>
+<p><span class="math display">\[
+P_0 = \frac{FCFE_0}{r - g_{稳定}} \times \left[ (1 + g_{稳定}) + H \times (g_{高} - g_{稳定}) \right]
+\]</span></p>
+</section>
+<section id="案例青岛啤酒-e-模型" class="level3" data-number="10.6">
+<h3 data-number="10.6" class="anchored" data-anchor-id="案例青岛啤酒-e-模型"><span class="header-section-number">10.6</span> 案例：青岛啤酒 E 模型</h3>
+<p><strong>青岛啤酒（Tsingtao Brewery）</strong> 是中国领先的啤酒品牌，在快速增长的中国消费市场有很大潜力。</p>
+<p><strong>2013 年数据</strong>（港币，百万）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润</td>
+<td>HK$2,746</td>
+</tr>
+<tr class="even">
+<td>FCFE</td>
+<td>HK$1,940</td>
+</tr>
+<tr class="odd">
+<td>流通股数</td>
+<td>1,350 百万</td>
+</tr>
+<tr class="even">
+<td>初始增长率</td>
+<td>12%</td>
+</tr>
+<tr class="odd">
+<td>稳定增长率</td>
+<td>3%</td>
+</tr>
+<tr class="even">
+<td>过渡期半程（H）</td>
+<td>7.5 年</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>10.2%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>每股 FCFE</strong>：</p>
+<p><span class="math display">\[
+FCFE_0 = \frac{1,940}{1,350} = HK\$\text{ }1.44
+\]</span></p>
+<p><strong>E 模型估值</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P_0 &amp;= \frac{1.44}{0.102 - 0.03} \times \left[ (1 + 0.03) + 7.5 \times (0.12 - 0.03) \right] \\
+&amp;= \frac{1.44}{0.072} \times \left[ 1.03 + 7.5 \times 0.09 \right] \\
+&amp;= 20 \times \left[ 1.03 + 0.675 \right] \\
+&amp;= 20 \times 1.705 \\
+&amp;= HK\$\text{ }34.10
+\end{aligned}
+\]</span></p>
+</section>
+</section>
+<section id="ddm-vs-fcfe什么时候用哪个" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="ddm-vs-fcfe什么时候用哪个"><span class="header-section-number">11</span> DDM vs FCFE：什么时候用哪个？</h2>
+<section id="两种方法的比较" class="level3" data-number="11.1">
+<h3 data-number="11.1" class="anchored" data-anchor-id="两种方法的比较"><span class="header-section-number">11.1</span> 两种方法的比较</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>DDM</th>
+<th>FCFE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>估值基础</strong></td>
+<td>实际股息</td>
+<td>潜在可分配现金流</td>
+</tr>
+<tr class="even">
+<td><strong>适用公司</strong></td>
+<td>稳定分红的成熟公司</td>
+<td>任何有正现金流的公司</td>
+</tr>
+<tr class="odd">
+<td><strong>数据需求</strong></td>
+<td>股息历史、增长率</td>
+<td>完整财务报表</td>
+</tr>
+<tr class="even">
+<td><strong>主观性</strong></td>
+<td>较低</td>
+<td>较高（需要预测再投资）</td>
+</tr>
+<tr class="odd">
+<td><strong>股息政策假设</strong></td>
+<td>假设当前政策持续</td>
+<td>假设公司分配所有可用现金</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="估值差异的含义" class="level3" data-number="11.2">
+<h3 data-number="11.2" class="anchored" data-anchor-id="估值差异的含义"><span class="header-section-number">11.2</span> 估值差异的含义</h3>
+<p>当 DDM 和 FCFE 估值出现显著差异时，这个差异本身提供了有价值的信息：</p>
+<p><strong>情况一：FCFE 估值 &gt; DDM 估值</strong></p>
+<p>公司保留的现金超过再投资需要。这可能意味着： - 管理层在囤积现金（可能低效使用） - 存在潜在价值释放机会（激进投资者可能推动更高分红） - 市场可能给予”囤积折价”</p>
+<p><strong>情况二：FCFE 估值 &lt; DDM 估值</strong></p>
+<p>公司支付的股息超过可持续水平。这可能意味着： - 公司在借债分红（不可持续） - 股息面临削减风险 - DDM 可能高估公司价值</p>
+<p><strong>情况三：两者估值接近</strong></p>
+<p>公司股息政策与现金流能力匹配，是健康的信号。</p>
+</section>
+<section id="选择指南" class="level3" data-number="11.3">
+<h3 data-number="11.3" class="anchored" data-anchor-id="选择指南"><span class="header-section-number">11.3</span> 选择指南</h3>
+<pre><code>                        ┌─────────────────┐
+                        │  公司支付股息？  │
+                        └────────┬────────┘
+                                 │
+                    ┌────────────┼────────────┐
+                    │            │            │
+                   Yes          No       不稳定
+                    │            │            │
+                    ▼            ▼            ▼
+            ┌───────────┐  ┌─────────┐  ┌─────────┐
+            │股息=FCFE？ │  │ 用FCFE  │  │ 用FCFE  │
+            └─────┬─────┘  └─────────┘  └─────────┘
+                  │
+         ┌────────┼────────┐
+         │        │        │
+        Yes      No       接近
+         │        │        │
+         ▼        ▼        ▼
+    ┌────────┐ ┌────────┐ ┌────────┐
+    │两者皆可│ │用FCFE  │ │两者皆可│
+    └────────┘ │(DDM参考)│ └────────┘
+               └────────┘</code></pre>
+</section>
+</section>
+<section id="总结" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="总结"><span class="header-section-number">12</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>DDM 的理论基础</strong>：股票价值 = 未来所有股息的现值，这是股权估值的第一性原理</li>
+<li><strong>Gordon 增长模型</strong>：<span class="math inline">\(P_0 = \frac{D_1}{r-g}\)</span>，简洁但对参数高度敏感</li>
+<li><strong>增长的价值</strong>：可分解为无增长价值 + PVGO（增长机会现值）</li>
+<li><strong>多阶段模型</strong>：两阶段、H 模型、三阶段处理增长率随时间变化</li>
+<li><strong>增强版 DDM</strong>：纳入股票回购，对现代公司更准确</li>
+<li><strong>FCFE 模型</strong>：基于”能分配”的现金流，比 DDM 更本质</li>
+<li><strong>DDM vs FCFE</strong>：差异揭示公司股息政策是否与现金流匹配</li>
+</ul>
+</div>
+</div>
+<p>本章回答了一个根本问题：<strong>股权的价值从何而来？</strong></p>
+<p>最基本的答案是：来自公司未来支付给股东的现金流。DDM 直接估值实际股息，FCFE 估值潜在可分配现金流。两种方法各有适用场景，而它们的差异本身也提供了重要信息。</p>
+<p>关键的 takeaway 是：<strong>估值不仅要看公司”给”股东多少，更要看公司”能给”股东多少</strong>。对于股息与现金流能力不匹配的公司，FCFE 模型往往能揭示更真实的价值。</p>
+<p>下一章，我们将从股权视角扩展到公司视角，探讨<strong>公司自由现金流（FCFF）模型</strong>——这将让我们能够估值整个企业，而不仅仅是股权部分。</p>
+</section>
+<section id="思考题" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="思考题"><span class="header-section-number">13</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>概念题</strong>：为什么即使你买股票是为了赚取价差而非股息，DDM 仍然是股票估值的理论基础？</p></li>
+<li><p><strong>计算题</strong>：一只股票当前价格 $80，预期明年股息 $3.20，股权成本 10%。使用 Gordon 模型反推市场隐含的永续增长率。这个增长率合理吗？</p></li>
+<li><p><strong>比较分析</strong>：公司 A 的 DDM 估值为 $50，FCFE 估值为 $70。公司 B 的 DDM 估值为 $60，FCFE 估值为 $45。这两家公司的股息政策有什么特点？作为投资者，你更关注哪家公司？</p></li>
+<li><p><strong>敏感性分析</strong>：使用 Gordon 模型，当 <span class="math inline">\(D_1 = \$2\)</span>，<span class="math inline">\(r = 9\%\)</span> 时，计算 <span class="math inline">\(g\)</span> 从 3% 到 7%（每隔 1%）时的估值。你观察到什么规律？这对估值实践有什么启示？</p></li>
+<li><p><strong>模型选择</strong>：以下公司应该使用 Gordon 模型、两阶段 DDM、FCFE 模型，还是增强版 DDM？请说明理由：</p>
+<ul>
+<li><ol type="a">
+<li>公用事业公司：稳定股息，低增长，不回购股票</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>科技巨头：不支付股息，但大量回购股票</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>高增长消费品公司：低股息，高留存，ROE 显著高于股权成本</li>
+</ol></li>
+<li><ol start="4" type="a">
+<li>家族控股公司：有盈利但从不分红</li>
+</ol></li>
+</ul></li>
+<li><p><strong>批判性思考</strong>：有人说”FCFE 模型总是比 DDM 更准确”。你同意吗？在什么情况下 DDM 可能是更好的选择？</p></li>
+</ol>
+<hr>
+<p><em>本文基于 Aswath Damodaran《Investment Valuation》第 14 章的内容进行教学化改写。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

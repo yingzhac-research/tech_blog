@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨如何构建叙事、将叙事转化为数字、以及如何让故事与数据相互验证。">
+
+<title>【第13章】叙事与数字：让估值讲述一个连贯的故事 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#为什么估值需要叙事" id="toc-为什么估值需要叙事" class="nav-link" data-scroll-target="#为什么估值需要叙事"><span class="header-section-number">2</span> 为什么估值需要叙事？</a>
+  <ul class="collapse">
+  <li><a href="#数字的局限性" id="toc-数字的局限性" class="nav-link" data-scroll-target="#数字的局限性"><span class="header-section-number">2.1</span> 数字的局限性</a></li>
+  <li><a href="#叙事的力量" id="toc-叙事的力量" class="nav-link" data-scroll-target="#叙事的力量"><span class="header-section-number">2.2</span> 叙事的力量</a></li>
+  <li><a href="#案例两种估值-tesla-的方式" id="toc-案例两种估值-tesla-的方式" class="nav-link" data-scroll-target="#案例两种估值-tesla-的方式"><span class="header-section-number">2.3</span> 案例：两种估值 Tesla 的方式</a></li>
+  </ul></li>
+  <li><a href="#好叙事的特征" id="toc-好叙事的特征" class="nav-link" data-scroll-target="#好叙事的特征"><span class="header-section-number">3</span> 好叙事的特征</a>
+  <ul class="collapse">
+  <li><a href="#三个基本要求" id="toc-三个基本要求" class="nav-link" data-scroll-target="#三个基本要求"><span class="header-section-number">3.1</span> 三个基本要求</a></li>
+  <li><a href="#叙事的层次" id="toc-叙事的层次" class="nav-link" data-scroll-target="#叙事的层次"><span class="header-section-number">3.2</span> 叙事的层次</a></li>
+  <li><a href="#叙事的谱系" id="toc-叙事的谱系" class="nav-link" data-scroll-target="#叙事的谱系"><span class="header-section-number">3.3</span> 叙事的谱系</a></li>
+  </ul></li>
+  <li><a href="#从叙事到数字系统化的转换" id="toc-从叙事到数字系统化的转换" class="nav-link" data-scroll-target="#从叙事到数字系统化的转换"><span class="header-section-number">4</span> 从叙事到数字：系统化的转换</a>
+  <ul class="collapse">
+  <li><a href="#转换框架" id="toc-转换框架" class="nav-link" data-scroll-target="#转换框架"><span class="header-section-number">4.1</span> 转换框架</a></li>
+  <li><a href="#步骤一定义市场" id="toc-步骤一定义市场" class="nav-link" data-scroll-target="#步骤一定义市场"><span class="header-section-number">4.2</span> 步骤一：定义市场</a></li>
+  <li><a href="#步骤二定义竞争优势" id="toc-步骤二定义竞争优势" class="nav-link" data-scroll-target="#步骤二定义竞争优势"><span class="header-section-number">4.3</span> 步骤二：定义竞争优势</a></li>
+  <li><a href="#步骤三转化为财务假设" id="toc-步骤三转化为财务假设" class="nav-link" data-scroll-target="#步骤三转化为财务假设"><span class="header-section-number">4.4</span> 步骤三：转化为财务假设</a></li>
+  <li><a href="#步骤四检验一致性" id="toc-步骤四检验一致性" class="nav-link" data-scroll-target="#步骤四检验一致性"><span class="header-section-number">4.5</span> 步骤四：检验一致性</a></li>
+  </ul></li>
+  <li><a href="#案例uber-的叙事估值2019年ipo" id="toc-案例uber-的叙事估值2019年ipo" class="nav-link" data-scroll-target="#案例uber-的叙事估值2019年ipo"><span class="header-section-number">5</span> 案例：Uber 的叙事估值（2019年IPO）</a>
+  <ul class="collapse">
+  <li><a href="#叙事构建" id="toc-叙事构建" class="nav-link" data-scroll-target="#叙事构建"><span class="header-section-number">5.1</span> 叙事构建</a></li>
+  <li><a href="#叙事到数字的转换" id="toc-叙事到数字的转换" class="nav-link" data-scroll-target="#叙事到数字的转换"><span class="header-section-number">5.2</span> 叙事到数字的转换</a></li>
+  <li><a href="#财务预测" id="toc-财务预测" class="nav-link" data-scroll-target="#财务预测"><span class="header-section-number">5.3</span> 财务预测</a></li>
+  <li><a href="#估值结果" id="toc-估值结果" class="nav-link" data-scroll-target="#估值结果"><span class="header-section-number">5.4</span> 估值结果</a></li>
+  <li><a href="#事后检验2024-年视角" id="toc-事后检验2024-年视角" class="nav-link" data-scroll-target="#事后检验2024-年视角"><span class="header-section-number">5.5</span> 事后检验（2024 年视角）</a></li>
+  </ul></li>
+  <li><a href="#叙事的测试与约束" id="toc-叙事的测试与约束" class="nav-link" data-scroll-target="#叙事的测试与约束"><span class="header-section-number">6</span> 叙事的测试与约束</a>
+  <ul class="collapse">
+  <li><a href="#三种测试" id="toc-三种测试" class="nav-link" data-scroll-target="#三种测试"><span class="header-section-number">6.1</span> 三种测试</a></li>
+  <li><a href="#情景分析多个叙事" id="toc-情景分析多个叙事" class="nav-link" data-scroll-target="#情景分析多个叙事"><span class="header-section-number">6.2</span> 情景分析：多个叙事</a></li>
+  <li><a href="#关键假设的敏感性" id="toc-关键假设的敏感性" class="nav-link" data-scroll-target="#关键假设的敏感性"><span class="header-section-number">6.3</span> 关键假设的敏感性</a></li>
+  </ul></li>
+  <li><a href="#叙事的更新" id="toc-叙事的更新" class="nav-link" data-scroll-target="#叙事的更新"><span class="header-section-number">7</span> 叙事的更新</a>
+  <ul class="collapse">
+  <li><a href="#叙事不是一成不变的" id="toc-叙事不是一成不变的" class="nav-link" data-scroll-target="#叙事不是一成不变的"><span class="header-section-number">7.1</span> 叙事不是一成不变的</a></li>
+  <li><a href="#更新的原则" id="toc-更新的原则" class="nav-link" data-scroll-target="#更新的原则"><span class="header-section-number">7.2</span> 更新的原则</a></li>
+  <li><a href="#案例netflix-叙事的演变" id="toc-案例netflix-叙事的演变" class="nav-link" data-scroll-target="#案例netflix-叙事的演变"><span class="header-section-number">7.3</span> 案例：Netflix 叙事的演变</a></li>
+  </ul></li>
+  <li><a href="#叙事的陷阱" id="toc-叙事的陷阱" class="nav-link" data-scroll-target="#叙事的陷阱"><span class="header-section-number">8</span> 叙事的陷阱</a>
+  <ul class="collapse">
+  <li><a href="#陷阱一确认偏误" id="toc-陷阱一确认偏误" class="nav-link" data-scroll-target="#陷阱一确认偏误"><span class="header-section-number">8.1</span> 陷阱一：确认偏误</a></li>
+  <li><a href="#陷阱二叙事过于复杂" id="toc-陷阱二叙事过于复杂" class="nav-link" data-scroll-target="#陷阱二叙事过于复杂"><span class="header-section-number">8.2</span> 陷阱二：叙事过于复杂</a></li>
+  <li><a href="#陷阱三叙事与数字脱节" id="toc-陷阱三叙事与数字脱节" class="nav-link" data-scroll-target="#陷阱三叙事与数字脱节"><span class="header-section-number">8.3</span> 陷阱三：叙事与数字脱节</a></li>
+  <li><a href="#陷阱四拒绝更新" id="toc-陷阱四拒绝更新" class="nav-link" data-scroll-target="#陷阱四拒绝更新"><span class="header-section-number">8.4</span> 陷阱四：拒绝更新</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">9</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">10</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第13章】叙事与数字：让估值讲述一个连贯的故事</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨如何构建叙事、将叙事转化为数字、以及如何让故事与数据相互验证。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月13日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>想象两个分析师同时估值 Uber。</p>
+<p><strong>分析师 A</strong> 打开 Excel，输入收入增长率 25%、营业利润率 15%、资本成本 10%，经过一番计算得出估值 800 亿美元。</p>
+<p><strong>分析师 B</strong> 先花一周时间研究网约车行业、Uber 的竞争地位、自动驾驶的潜在影响，然后写下这样一段话：</p>
+<blockquote class="blockquote">
+<p>“Uber 正在从一家网约车公司转型为城市出行平台。它将利用现有的司机网络和用户基础，扩展到外卖、货运和自动驾驶。随着规模扩大，网络效应将帮助它建立护城河，最终达到类似信用卡网络的盈利能力。”</p>
+</blockquote>
+<p>然后，分析师 B 将这个叙事转化为具体的财务假设：收入增长、利润率路径、再投资需求——最终也得出了一个估值。</p>
+<p><strong>哪个分析师更可能做出好的估值？</strong></p>
+<p>答案几乎总是分析师 B。原因不在于 B 的数字更”准确”，而在于 B 有一个<strong>可以被质疑、被验证、被更新</strong>的叙事框架。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>本章的核心论点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>估值 = 叙事 + 数字</strong></p>
+<ul>
+<li>没有叙事的数字是无根之木——你不知道假设从何而来，也不知道何时应该修改</li>
+<li>没有数字的叙事是空中楼阁——美好的故事可能在财务上完全不可行</li>
+<li>优秀的估值将两者结合：用叙事赋予数字意义，用数字约束叙事边界</li>
+</ul>
+</div>
+</div>
+<p>本章将探讨：</p>
+<ul>
+<li>为什么估值需要叙事？</li>
+<li>好叙事具备哪些特征？</li>
+<li>如何将叙事系统地转化为估值输入？</li>
+<li>如何测试和约束你的叙事？</li>
+<li>当新信息出现时，如何更新叙事？</li>
+</ul>
+</section>
+<section id="为什么估值需要叙事" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="为什么估值需要叙事"><span class="header-section-number">2</span> 为什么估值需要叙事？</h2>
+<section id="数字的局限性" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="数字的局限性"><span class="header-section-number">2.1</span> 数字的局限性</h3>
+<p>DCF 模型需要大量输入：收入增长率、营业利润率、资本支出、营运资本、折现率……每一个输入都需要一个数字。</p>
+<p>但这些数字从何而来？</p>
+<p>如果你只是机械地使用历史平均值或行业中位数，你实际上是在假设”未来和过去一样”或”这家公司和行业平均一样”。这些可能是对的，但更可能是错的。</p>
+<p><strong>数字本身不会告诉你</strong>：</p>
+<ul>
+<li>为什么这家公司能增长 20%？</li>
+<li>为什么利润率会从 5% 提升到 15%？</li>
+<li>为什么竞争对手不会抢走市场份额？</li>
+</ul>
+<p>只有叙事才能回答这些问题。</p>
+</section>
+<section id="叙事的力量" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="叙事的力量"><span class="header-section-number">2.2</span> 叙事的力量</h3>
+<p>叙事不是”讲故事骗人”，而是<strong>将复杂的商业现实简化为可理解的逻辑链条</strong>。</p>
+<p>一个好的叙事具有以下功能：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>赋予意义</strong></td>
+<td>解释为什么假设是这个数字，而不是另一个</td>
+</tr>
+<tr class="even">
+<td><strong>建立联系</strong></td>
+<td>将不同的假设串联成一个连贯的整体</td>
+</tr>
+<tr class="odd">
+<td><strong>便于沟通</strong></td>
+<td>让非财务人士也能理解估值的逻辑</td>
+</tr>
+<tr class="even">
+<td><strong>便于更新</strong></td>
+<td>当新信息出现时，知道应该修改哪些假设</td>
+</tr>
+<tr class="odd">
+<td><strong>暴露风险</strong></td>
+<td>明确估值依赖哪些关键假设</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="案例两种估值-tesla-的方式" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="案例两种估值-tesla-的方式"><span class="header-section-number">2.3</span> 案例：两种估值 Tesla 的方式</h3>
+<p><strong>方式一：纯数字</strong></p>
+<ul>
+<li>2024 年收入：$97B</li>
+<li>假设增长率：15%</li>
+<li>假设利润率：12%</li>
+<li>假设 WACC：9%</li>
+<li>终值倍数：10x EBITDA</li>
+<li>估值结果：$XXX</li>
+</ul>
+<p>问题：为什么是 15% 增长？为什么是 12% 利润率？如果明年销量下滑，应该调整哪个数字？</p>
+<p><strong>方式二：叙事驱动</strong></p>
+<blockquote class="blockquote">
+<p>“Tesla 不只是一家汽车公司，它是能源转型的核心参与者。在电动车领域，它拥有品牌、技术和规模优势，将在全球电动车渗透率从 15% 提升到 50% 的过程中保持 20%+ 的市场份额。同时，它的能源业务（储能、太阳能）将成为第二增长曲线。随着规模扩大和电池成本下降，利润率将逐步提升至传统豪华车水平（15%+）。”</p>
+</blockquote>
+<p>这个叙事直接映射到财务假设：</p>
+<ul>
+<li><strong>收入增长</strong> = 电动车市场增长 × Tesla 市场份额 + 能源业务增长</li>
+<li><strong>利润率路径</strong> = 规模效应 + 电池成本曲线 → 逐步提升至 15%</li>
+<li><strong>资本支出</strong> = 新工厂建设 + 电池产能扩张</li>
+</ul>
+<p>现在，当新信息出现时（比如中国市场竞争加剧），你知道应该调整”市场份额”假设，而不是随意调整增长率。</p>
+</section>
+</section>
+<section id="好叙事的特征" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="好叙事的特征"><span class="header-section-number">3</span> 好叙事的特征</h2>
+<section id="三个基本要求" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="三个基本要求"><span class="header-section-number">3.1</span> 三个基本要求</h3>
+<p>Damodaran 认为，一个有效的估值叙事必须满足三个条件：</p>
+<p><strong>1. 可能（Possible）</strong></p>
+<p>叙事描述的情景在物理和逻辑上必须是可能的。</p>
+<ul>
+<li>✅ “Uber 将成为城市出行的主导平台”——可能</li>
+<li>❌ “Uber 明年收入增长 1000%”——不可能</li>
+</ul>
+<p><strong>2. 可信（Plausible）</strong></p>
+<p>叙事必须有证据支持，不能只是一厢情愿。</p>
+<ul>
+<li>✅ “Tesla 的电池成本将继续下降”——有历史趋势和技术路径支持</li>
+<li>❌ “这家初创公司将击败所有竞争对手”——没有证据</li>
+</ul>
+<p><strong>3. 可检验（Testable）</strong></p>
+<p>叙事必须能够被数据验证或证伪。</p>
+<ul>
+<li>✅ “Netflix 将在 3 年内达到 3 亿订阅用户”——可以事后检验</li>
+<li>❌ “这家公司有优秀的企业文化”——太模糊，无法检验</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>可能 vs 可信
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>“可能”的标准很低——只要不违反物理定律或逻辑。“可信”的标准更高——需要有证据支持。</p>
+<p>初创公司估值中常见的错误是：讲一个”可能”的故事（技术上可行），但忽略它是否”可信”（是否有证据表明这家公司能做到）。</p>
+</div>
+</div>
+</section>
+<section id="叙事的层次" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="叙事的层次"><span class="header-section-number">3.2</span> 叙事的层次</h3>
+<p>一个完整的估值叙事通常包含多个层次：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>层次</th>
+<th>问题</th>
+<th>示例（Amazon）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>使命/愿景</strong></td>
+<td>公司想成为什么？</td>
+<td>“地球上最以客户为中心的公司”</td>
+</tr>
+<tr class="even">
+<td><strong>市场定位</strong></td>
+<td>在哪些市场竞争？</td>
+<td>电商、云计算、数字广告、物流</td>
+</tr>
+<tr class="odd">
+<td><strong>竞争优势</strong></td>
+<td>为什么能赢？</td>
+<td>规模、飞轮效应、技术投资</td>
+</tr>
+<tr class="even">
+<td><strong>增长路径</strong></td>
+<td>收入如何增长？</td>
+<td>现有市场渗透 + 新市场扩张</td>
+</tr>
+<tr class="odd">
+<td><strong>盈利路径</strong></td>
+<td>如何实现盈利？</td>
+<td>云计算高利润率 + 广告业务 + 规模效应</td>
+</tr>
+<tr class="even">
+<td><strong>风险因素</strong></td>
+<td>什么可能出错？</td>
+<td>监管、竞争、资本支出压力</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="叙事的谱系" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="叙事的谱系"><span class="header-section-number">3.3</span> 叙事的谱系</h3>
+<p>对同一家公司，不同的人可能有完全不同的叙事。这不是问题——关键是你的叙事要<strong>内部一致且可检验</strong>。</p>
+<p><strong>案例：Uber 的三种叙事</strong></p>
+<p><strong>叙事 A：城市出行垄断者</strong> &gt; Uber 将主导城市出行市场，建立类似 Visa/Mastercard 的双边网络效应。最终达到 20%+ 的营业利润率。</p>
+<p><strong>叙事 B：低利润的交通公司</strong> &gt; 网约车市场进入门槛低，Uber 面临持续的价格竞争。它更像出租车公司而非科技公司，利润率将保持在个位数。</p>
+<p><strong>叙事 C：自动驾驶颠覆者（或被颠覆者）</strong> &gt; 自动驾驶将彻底改变出行行业。Uber 要么成功转型为自动驾驶平台，要么被 Waymo 等公司颠覆。</p>
+<p>这三个叙事都是”可能”的，但它们导向完全不同的估值。选择哪个叙事，取决于你对行业和公司的判断。</p>
+</section>
+</section>
+<section id="从叙事到数字系统化的转换" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="从叙事到数字系统化的转换"><span class="header-section-number">4</span> 从叙事到数字：系统化的转换</h2>
+<section id="转换框架" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="转换框架"><span class="header-section-number">4.1</span> 转换框架</h3>
+<p>Damodaran 提出了一个将叙事系统化转换为估值输入的框架：</p>
+<pre><code>叙事元素 → 财务驱动因素 → 估值输入</code></pre>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>叙事元素</th>
+<th>财务驱动因素</th>
+<th>估值输入</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>市场规模和增长</td>
+<td>收入潜力</td>
+<td>收入增长率</td>
+</tr>
+<tr class="even">
+<td>竞争优势/护城河</td>
+<td>定价能力、成本优势</td>
+<td>营业利润率</td>
+</tr>
+<tr class="odd">
+<td>规模效应</td>
+<td>边际成本递减</td>
+<td>利润率改善路径</td>
+</tr>
+<tr class="even">
+<td>资本密集度</td>
+<td>增长所需投资</td>
+<td>再投资率、资本周转率</td>
+</tr>
+<tr class="odd">
+<td>商业风险</td>
+<td>现金流波动性</td>
+<td>Beta、资本成本</td>
+</tr>
+<tr class="even">
+<td>财务风险</td>
+<td>杠杆水平</td>
+<td>债务比率、利息覆盖率</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="步骤一定义市场" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="步骤一定义市场"><span class="header-section-number">4.2</span> 步骤一：定义市场</h3>
+<p>叙事的第一步是定义公司的<strong>目标市场</strong>（Total Addressable Market, TAM）。</p>
+<p><strong>常见陷阱</strong>：把 TAM 定义得太大或太小。</p>
+<ul>
+<li><strong>太大</strong>：“我们的 TAM 是全球零售市场，10 万亿美元”——但你不可能拿到 10 万亿</li>
+<li><strong>太小</strong>：“我们只做高端有机狗粮”——可能限制了增长想象空间</li>
+</ul>
+<p><strong>正确的方法</strong>：</p>
+<ol type="1">
+<li>从当前业务出发，定义核心市场</li>
+<li>考虑合理的市场扩张路径</li>
+<li>为每个市场估计规模和增长率</li>
+<li>估计公司可能获取的市场份额</li>
+</ol>
+<p><strong>案例：Uber 的市场定义</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>市场</th>
+<th>2024 年规模</th>
+<th>2034 年预测</th>
+<th>Uber 份额假设</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>全球网约车</td>
+<td>$200B</td>
+<td>$400B</td>
+<td>25%</td>
+</tr>
+<tr class="even">
+<td>外卖配送</td>
+<td>$150B</td>
+<td>$350B</td>
+<td>20%</td>
+</tr>
+<tr class="odd">
+<td>货运物流</td>
+<td>$100B</td>
+<td>$200B</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td><strong>合计可获取市场</strong></td>
+<td></td>
+<td></td>
+<td><strong>$200B+</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="步骤二定义竞争优势" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="步骤二定义竞争优势"><span class="header-section-number">4.3</span> 步骤二：定义竞争优势</h3>
+<p>市场规模只是潜力，能否实现取决于<strong>竞争优势</strong>。</p>
+<p>问自己：<strong>为什么这家公司能赢？为什么竞争对手不能复制？</strong></p>
+<p>常见的竞争优势来源：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>优势类型</th>
+<th>描述</th>
+<th>财务影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>网络效应</strong></td>
+<td>用户越多，产品越有价值</td>
+<td>高市场份额、定价能力</td>
+</tr>
+<tr class="even">
+<td><strong>规模经济</strong></td>
+<td>规模越大，单位成本越低</td>
+<td>利润率随规模提升</td>
+</tr>
+<tr class="odd">
+<td><strong>品牌</strong></td>
+<td>消费者愿意支付溢价</td>
+<td>高利润率</td>
+</tr>
+<tr class="even">
+<td><strong>技术/专利</strong></td>
+<td>竞争对手无法复制</td>
+<td>暂时的超额利润</td>
+</tr>
+<tr class="odd">
+<td><strong>转换成本</strong></td>
+<td>客户更换供应商成本高</td>
+<td>客户留存率高</td>
+</tr>
+<tr class="even">
+<td><strong>监管壁垒</strong></td>
+<td>牌照、许可等限制进入</td>
+<td>竞争有限</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>竞争优势的持久性
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>大多数竞争优势都是<strong>暂时的</strong>。技术会被超越，品牌会过时，监管会放开。</p>
+<p>在估值中，你需要判断： 1. 优势能持续多久？（影响高增长期的长度） 2. 优势被侵蚀后，公司会变成什么样子？（影响稳定期的假设）</p>
+</div>
+</div>
+</section>
+<section id="步骤三转化为财务假设" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="步骤三转化为财务假设"><span class="header-section-number">4.4</span> 步骤三：转化为财务假设</h3>
+<p>现在，将叙事转化为具体的财务数字。</p>
+<p><strong>收入增长率</strong></p>
+<p><span class="math display">\[
+\text{收入增长} = \text{市场增长} + \text{份额变化} + \text{新市场进入}
+\]</span></p>
+<p><strong>案例</strong>：如果你的叙事是”Uber 将在网约车市场从 20% 份额增长到 30%，同时市场本身以 8% 年增长”：</p>
+<p><span class="math display">\[
+\text{收入增长} \approx 8\% + \frac{30\% - 20\%}{20\%} \times \frac{1}{5} = 8\% + 10\% = 18\%
+\]</span></p>
+<p>（假设份额增长分 5 年实现）</p>
+<p><strong>营业利润率</strong></p>
+<p>利润率假设应该与竞争优势叙事一致：</p>
+<ul>
+<li><strong>强护城河</strong> → 利润率可以高于行业平均</li>
+<li><strong>弱护城河</strong> → 利润率趋向行业平均</li>
+<li><strong>无护城河</strong> → 利润率可能低于行业平均</li>
+</ul>
+<p><strong>再投资率</strong></p>
+<p>再投资率应该与增长叙事一致：</p>
+<p><span class="math display">\[
+\text{再投资率} = \frac{g}{\text{ROIC}}
+\]</span></p>
+<p>如果你的叙事强调”轻资产模式”，那么 ROIC 应该较高，再投资率较低。如果强调”重资产扩张”，则相反。</p>
+</section>
+<section id="步骤四检验一致性" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="步骤四检验一致性"><span class="header-section-number">4.5</span> 步骤四：检验一致性</h3>
+<p>转化完成后，检验各项假设是否相互一致：</p>
+<p><strong>一致性检查清单</strong>：</p>
+<ul class="task-list">
+<li><label><input type="checkbox">收入增长是否与市场规模假设匹配？（不能假设收入超过 TAM）</label></li>
+<li><label><input type="checkbox">利润率是否与竞争优势叙事一致？</label></li>
+<li><label><input type="checkbox">再投资率是否支持假设的增长？（<span class="math inline">\(g = \text{再投资率} \times \text{ROIC}\)</span>）</label></li>
+<li><label><input type="checkbox">资本成本是否反映了业务风险？</label></li>
+<li><label><input type="checkbox">稳定期假设是否合理？（增长率 ≤ 经济增长率，ROIC 趋向 WACC）</label></li>
+</ul>
+</section>
+</section>
+<section id="案例uber-的叙事估值2019年ipo" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="案例uber-的叙事估值2019年ipo"><span class="header-section-number">5</span> 案例：Uber 的叙事估值（2019年IPO）</h2>
+<p>让我们用 Uber 2019 年 IPO 时的情况，演示完整的叙事到估值转换过程。</p>
+<section id="叙事构建" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="叙事构建"><span class="header-section-number">5.1</span> 叙事构建</h3>
+<p><strong>背景</strong>：2019 年，Uber 准备上市。它是全球最大的网约车平台，同时在外卖（Uber Eats）和货运（Uber Freight）领域扩张。公司仍在亏损，但增长迅速。</p>
+<p><strong>Damodaran 的叙事</strong>：</p>
+<blockquote class="blockquote">
+<p>“Uber 是一家<strong>城市出行公司</strong>，而非科技公司。它将在网约车和外卖市场获得显著份额，但这些市场竞争激烈，进入门槛有限。Uber 的网络效应存在但不够强——司机和乘客都可以同时使用多个平台（multi-homing）。长期来看，Uber 将成为一家盈利的出行公司，但不会像 Google 或 Facebook 那样拥有垄断性利润率。”</p>
+</blockquote>
+</section>
+<section id="叙事到数字的转换" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="叙事到数字的转换"><span class="header-section-number">5.2</span> 叙事到数字的转换</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>叙事元素</th>
+<th>转化假设</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“城市出行公司，非科技公司”</td>
+<td>稳定期利润率：10%（介于出租车和科技公司之间）</td>
+</tr>
+<tr class="even">
+<td>“网约车和外卖市场获得显著份额”</td>
+<td>2028 年收入：$100B</td>
+</tr>
+<tr class="odd">
+<td>“竞争激烈，进入门槛有限”</td>
+<td>收入增长期：10 年（相对较短）</td>
+</tr>
+<tr class="even">
+<td>“网络效应存在但不强”</td>
+<td>稳定期 ROIC：略高于 WACC</td>
+</tr>
+<tr class="odd">
+<td>“不会像 Google 那样”</td>
+<td>不使用科技公司倍数</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="财务预测" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="财务预测"><span class="header-section-number">5.3</span> 财务预测</h3>
+<p><strong>收入预测</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>收入（$B）</th>
+<th>增长率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2018（实际）</td>
+<td>11.3</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>14.1</td>
+<td>25%</td>
+</tr>
+<tr class="odd">
+<td>2020</td>
+<td>17.7</td>
+<td>25%</td>
+</tr>
+<tr class="even">
+<td>2021</td>
+<td>21.6</td>
+<td>22%</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>26.0</td>
+<td>20%</td>
+</tr>
+<tr class="even">
+<td>2023</td>
+<td>30.7</td>
+<td>18%</td>
+</tr>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>递减</td>
+</tr>
+<tr class="even">
+<td>2028</td>
+<td>57.9</td>
+<td>8%</td>
+</tr>
+<tr class="odd">
+<td>终值年</td>
+<td>61.4</td>
+<td>2.5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>利润率路径</strong>：</p>
+<ul>
+<li>2018 年：-22%（亏损）</li>
+<li>逐步改善</li>
+<li>2028 年（稳定期）：10%</li>
+</ul>
+<p><strong>资本成本</strong>：12%（反映高风险的新兴公司）</p>
+</section>
+<section id="估值结果" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="估值结果"><span class="header-section-number">5.4</span> 估值结果</h3>
+<p><span class="math display">\[
+\text{企业价值} = \text{显式期现值} + \text{终值现值} = \$54B
+\]</span></p>
+<p>减去债务，加上现金：</p>
+<p><span class="math display">\[
+\text{股权价值} \approx \$54B
+\]</span></p>
+<p><strong>对比 IPO 定价</strong>：Uber IPO 估值约 $75B</p>
+<p>Damodaran 的结论：<strong>Uber IPO 定价过高</strong>，市场对其”科技公司”叙事过于乐观。</p>
+</section>
+<section id="事后检验2024-年视角" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="事后检验2024-年视角"><span class="header-section-number">5.5</span> 事后检验（2024 年视角）</h3>
+<p>让我们看看叙事的哪些部分被验证，哪些被证伪：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>假设</th>
+<th>预测</th>
+<th>实际</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>收入增长</td>
+<td>25% → 8%</td>
+<td>受疫情冲击后强劲反弹，2023 年收入 $37B</td>
+<td>略低于预期</td>
+</tr>
+<tr class="even">
+<td>利润率路径</td>
+<td>逐步转正</td>
+<td>2023 年首次实现全年盈利</td>
+<td>符合预期</td>
+</tr>
+<tr class="odd">
+<td>竞争格局</td>
+<td>激烈竞争</td>
+<td>北美双寡头（Uber + Lyft），其他市场激烈</td>
+<td>符合预期</td>
+</tr>
+<tr class="even">
+<td>科技公司叙事</td>
+<td>持怀疑态度</td>
+<td>市场逐渐接受”出行公司”定位</td>
+<td>符合预期</td>
+</tr>
+</tbody>
+</table>
+<p><strong>股价表现</strong>：Uber IPO 价格 $45，一度跌至 $15（2020 年），2024 年约 $70</p>
+<p>叙事总体上被验证，但时间线受到 COVID 影响而偏离。</p>
+</section>
+</section>
+<section id="叙事的测试与约束" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="叙事的测试与约束"><span class="header-section-number">6</span> 叙事的测试与约束</h2>
+<section id="三种测试" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="三种测试"><span class="header-section-number">6.1</span> 三种测试</h3>
+<p>每个叙事都应该经受三种测试：</p>
+<p><strong>测试一：历史检验</strong></p>
+<p>叙事与公司历史表现是否一致？</p>
+<ul>
+<li>如果你预测利润率将提升到 20%，但公司历史上从未超过 10%，需要解释为什么未来会不同</li>
+<li>如果你预测增长加速，但历史上增长一直在放缓，需要特别的理由</li>
+</ul>
+<p><strong>测试二：行业比较</strong></p>
+<p>叙事与行业状况是否一致？</p>
+<ul>
+<li>你预测的利润率是否高于行业最佳表现者？如果是，为什么这家公司能做到？</li>
+<li>你预测的增长率是否超过整个行业增速？这在数学上意味着市场份额必须提升</li>
+</ul>
+<p><strong>测试三：宏观约束</strong></p>
+<p>叙事是否违反宏观经济约束？</p>
+<ul>
+<li>永续增长率不能超过经济增长率</li>
+<li>市场份额不能超过 100%</li>
+<li>公司规模不能超过整体市场</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>“报纸测试”
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>一个实用的检验方法：想象你的叙事被写成报纸头条。</p>
+<ul>
+<li>“Uber 成为全球最大的出行公司，利润率超过 Apple”——这个头条可信吗？</li>
+<li>“Tesla 十年后销量超过 Toyota + VW + GM 之和”——这个头条可信吗？</li>
+</ul>
+<p>如果头条听起来荒谬，你的叙事可能需要调整。</p>
+</div>
+</div>
+</section>
+<section id="情景分析多个叙事" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="情景分析多个叙事"><span class="header-section-number">6.2</span> 情景分析：多个叙事</h3>
+<p>当你对未来高度不确定时，可以构建<strong>多个情景</strong>，每个情景对应一个不同的叙事：</p>
+<p><strong>案例：Tesla 的三个情景</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>叙事</th>
+<th>概率</th>
+<th>估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>乐观</strong></td>
+<td>Tesla 主导全球电动车市场，能源业务爆发，自动驾驶实现</td>
+<td>25%</td>
+<td>$1,500B</td>
+</tr>
+<tr class="even">
+<td><strong>基准</strong></td>
+<td>Tesla 保持领先但份额下降，能源业务稳定增长</td>
+<td>50%</td>
+<td>$600B</td>
+</tr>
+<tr class="odd">
+<td><strong>悲观</strong></td>
+<td>中国竞争者崛起，Tesla 边缘化</td>
+<td>25%</td>
+<td>$200B</td>
+</tr>
+</tbody>
+</table>
+<p><strong>期望价值</strong> = 25% × $1,500B + 50% × $600B + 25% × $200B = <strong>$625B</strong></p>
+<p>情景分析的价值不在于给出一个”精确”的数字，而在于<strong>让你思考可能出错的地方</strong>。</p>
+</section>
+<section id="关键假设的敏感性" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="关键假设的敏感性"><span class="header-section-number">6.3</span> 关键假设的敏感性</h3>
+<p>识别叙事中的<strong>关键假设</strong>——那些小幅变化就会大幅影响估值的假设。</p>
+<p><strong>案例</strong>：对于 Uber，关键假设可能是：</p>
+<ol type="1">
+<li><strong>稳定期利润率</strong>（从 8% 到 12%，估值变化 40%+）</li>
+<li><strong>收入增长持续期</strong>（从 8 年到 12 年，估值变化 30%+）</li>
+<li><strong>资本成本</strong>（从 10% 到 14%，估值变化 35%+）</li>
+</ol>
+<p>对这些关键假设，你应该： - 明确解释为什么选择这个数字 - 测试不同数值下的估值变化 - 准备在新信息出现时更新</p>
+</section>
+</section>
+<section id="叙事的更新" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="叙事的更新"><span class="header-section-number">7</span> 叙事的更新</h2>
+<section id="叙事不是一成不变的" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="叙事不是一成不变的"><span class="header-section-number">7.1</span> 叙事不是一成不变的</h3>
+<p>估值不是”一次性”的练习。随着时间推移和新信息出现，叙事应该被更新。</p>
+<p><strong>触发叙事更新的事件</strong>：</p>
+<ul>
+<li><strong>财报发布</strong>：实际业绩与预期的差异</li>
+<li><strong>战略变化</strong>：新产品、新市场、并购</li>
+<li><strong>竞争动态</strong>：竞争对手的行动</li>
+<li><strong>宏观变化</strong>：利率、监管、技术趋势</li>
+</ul>
+</section>
+<section id="更新的原则" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="更新的原则"><span class="header-section-number">7.2</span> 更新的原则</h3>
+<p><strong>原则一：区分噪音和信号</strong></p>
+<p>不是每条新闻都需要更新叙事。问自己：这个信息是否改变了公司的<strong>长期基本面</strong>？</p>
+<ul>
+<li>季度收入略低于预期 → 可能是噪音</li>
+<li>主要竞争对手推出颠覆性产品 → 可能需要更新叙事</li>
+</ul>
+<p><strong>原则二：更新叙事，不只是数字</strong></p>
+<p>当需要调整估值时，先更新叙事，再更新数字。这确保了变化是有理由的，而非随意的。</p>
+<p><strong>错误的做法</strong>： &gt; “这季度收入低了，我把增长率从 20% 调到 18%”</p>
+<p><strong>正确的做法</strong>： &gt; “这季度收入低于预期，主要因为新市场扩张放缓。这让我重新评估市场进入难度，我现在认为公司需要更长时间才能达到目标规模。因此，我将高增长期延长 2 年，但降低每年的增长率假设。”</p>
+<p><strong>原则三：保持一致性</strong></p>
+<p>更新一个假设时，检查是否需要同步更新相关假设。</p>
+<p>例如，如果你因为竞争加剧而降低利润率预期，可能也需要： - 降低增长预期（价格战影响收入） - 提高资本成本（业务风险上升） - 调整再投资假设（可能需要更多投资来应对竞争）</p>
+</section>
+<section id="案例netflix-叙事的演变" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="案例netflix-叙事的演变"><span class="header-section-number">7.3</span> 案例：Netflix 叙事的演变</h3>
+<p><strong>2010 年叙事</strong>： &gt; “Netflix 正在从 DVD 邮寄转型为流媒体。它将成为电视的颠覆者，像 HBO 一样生产原创内容。”</p>
+<p><strong>2015 年叙事更新</strong>： &gt; “Netflix 的流媒体转型成功。国际扩张是下一个增长引擎。内容成本上升，但规模效应将带来利润率改善。”</p>
+<p><strong>2020 年叙事更新</strong>： &gt; “Netflix 面临 Disney+、HBO Max 等强大竞争者。增长放缓，需要寻找新的收入来源（广告、游戏）。”</p>
+<p><strong>2024 年叙事</strong>： &gt; “流媒体市场已成熟，Netflix 是明确的领导者之一。增长来自提价、广告业务和账户共享打击。利润率开始兑现。”</p>
+<p>每次更新都反映了新的信息和竞争动态，同时保持了核心逻辑的连贯性。</p>
+</section>
+</section>
+<section id="叙事的陷阱" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="叙事的陷阱"><span class="header-section-number">8</span> 叙事的陷阱</h2>
+<section id="陷阱一确认偏误" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="陷阱一确认偏误"><span class="header-section-number">8.1</span> 陷阱一：确认偏误</h3>
+<p>你可能只关注支持你叙事的信息，忽略相反的证据。</p>
+<p><strong>对策</strong>： - 主动寻找反面证据 - 问自己：“什么信息能证伪我的叙事？” - 与持不同观点的人讨论</p>
+</section>
+<section id="陷阱二叙事过于复杂" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="陷阱二叙事过于复杂"><span class="header-section-number">8.2</span> 陷阱二：叙事过于复杂</h3>
+<p>试图在一个叙事中涵盖太多元素，导致难以追踪和更新。</p>
+<p><strong>对策</strong>： - 聚焦 3-5 个核心驱动因素 - 其他因素可以在敏感性分析中处理</p>
+</section>
+<section id="陷阱三叙事与数字脱节" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="陷阱三叙事与数字脱节"><span class="header-section-number">8.3</span> 陷阱三：叙事与数字脱节</h3>
+<p>叙事很美好，但数字不支持；或者数字很详细，但与叙事无关。</p>
+<p><strong>对策</strong>： - 为每个关键数字写一句话解释它来自叙事的哪个部分 - 检查数字是否与叙事逻辑一致</p>
+</section>
+<section id="陷阱四拒绝更新" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="陷阱四拒绝更新"><span class="header-section-number">8.4</span> 陷阱四：拒绝更新</h3>
+<p>一旦确立叙事，就固守不变，即使证据表明它已经错了。</p>
+<p><strong>对策</strong>： - 设定明确的”检查点”：什么情况下需要重新评估？ - 记录最初的叙事和假设，便于事后复盘</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>Damodaran 的忠告
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“你可以是一个固执的估值者，坚持自己的观点直到被证明是错的；也可以是一个灵活的估值者，随着新信息不断调整。但你不能两者兼得——在有利信息时坚持，在不利信息时调整。这不是灵活，这是偏见。”</p>
+</blockquote>
+</div>
+</div>
+</section>
+</section>
+<section id="总结" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="总结"><span class="header-section-number">9</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>估值 = 叙事 + 数字</strong>：没有叙事的数字是无根之木，没有数字的叙事是空中楼阁</li>
+<li><strong>好叙事的标准</strong>：可能、可信、可检验</li>
+<li><strong>叙事到数字的转换</strong>：市场 → 竞争优势 → 财务假设，保持内部一致性</li>
+<li><strong>叙事的测试</strong>：历史检验、行业比较、宏观约束</li>
+<li><strong>叙事的更新</strong>：区分噪音和信号，更新叙事而非只更新数字</li>
+<li><strong>避免陷阱</strong>：确认偏误、过度复杂、叙事数字脱节、拒绝更新</li>
+</ul>
+</div>
+</div>
+<p>本章我们回答了一个根本问题：<strong>估值的假设从何而来？</strong> 答案是：从一个关于公司未来的<strong>连贯叙事</strong>。</p>
+<p>关键的 takeaway 是：<strong>让你的估值讲述一个故事</strong>。这个故事应该回答：这家公司是谁？它要去哪里？它凭什么能到达那里？然后，将这个故事系统地转化为财务假设，并在新信息出现时不断更新。</p>
+<p>从第 14 章开始，我们将进入估值的核心模型部分——从股息折现模型到自由现金流模型，从股权估值到公司估值。但无论使用哪种模型，叙事与数字的结合始终是估值的灵魂。</p>
+</section>
+<section id="思考题" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="思考题"><span class="header-section-number">10</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>叙事构建</strong>：选择一家你熟悉的公司，写一段 3-5 句话的估值叙事。这个叙事满足”可能、可信、可检验”的标准吗？</p></li>
+<li><p><strong>叙事分歧</strong>：对于同一家公司（如 Tesla 或 Amazon），乐观者和悲观者的叙事分歧通常在哪里？这些分歧如何反映在财务假设中？</p></li>
+<li><p><strong>叙事更新</strong>：想象你在 2019 年持有 Airbnb 的叙事估值。COVID-19 爆发后，你会如何更新叙事？哪些核心假设需要改变，哪些可以保持不变？</p></li>
+<li><p><strong>叙事陷阱</strong>：回顾一个你曾经做过的投资决策。事后看，你的叙事有什么问题？你是否陷入了确认偏误或其他陷阱？</p></li>
+<li><p><strong>叙事与市场</strong>：当你的叙事估值与市场价格差异很大时（如你估值 $50，市场价格 $100），这意味着什么？你应该如何处理这种分歧？</p></li>
+</ol>
+<hr>
+<p><em>本文基于 Aswath Damodaran《Investment Valuation》第 13 章及其著作《Narrative and Numbers》的内容进行教学化改写。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

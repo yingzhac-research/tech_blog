@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="深入解析市盈率（PE）、PEG比率和EV/EBITDA等盈利倍数的内在逻辑、决定因素与比较应用，揭示这些看似简单的指标背后的估值智慧。">
+
+<title>【第18章】盈利倍数：从 PE 到 EV/EBITDA 的估值艺术 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#市盈率pe-ratio最熟悉的陌生人" id="toc-市盈率pe-ratio最熟悉的陌生人" class="nav-link" data-scroll-target="#市盈率pe-ratio最熟悉的陌生人"><span class="header-section-number">2</span> 市盈率（PE Ratio）：最熟悉的陌生人</a>
+  <ul class="collapse">
+  <li><a href="#pe-的定义与变体" id="toc-pe-的定义与变体" class="nav-link" data-scroll-target="#pe-的定义与变体"><span class="header-section-number">2.1</span> PE 的定义与变体</a></li>
+  <li><a href="#pe-的跨截面分布" id="toc-pe-的跨截面分布" class="nav-link" data-scroll-target="#pe-的跨截面分布"><span class="header-section-number">2.2</span> PE 的跨截面分布</a></li>
+  <li><a href="#pe-的决定因素从-dcf-模型推导" id="toc-pe-的决定因素从-dcf-模型推导" class="nav-link" data-scroll-target="#pe-的决定因素从-dcf-模型推导"><span class="header-section-number">2.3</span> PE 的决定因素：从 DCF 模型推导</a></li>
+  <li><a href="#pe-与增长的关系" id="toc-pe-与增长的关系" class="nav-link" data-scroll-target="#pe-与增长的关系"><span class="header-section-number">2.4</span> PE 与增长的关系</a></li>
+  <li><a href="#pe-与风险的关系" id="toc-pe-与风险的关系" class="nav-link" data-scroll-target="#pe-与风险的关系"><span class="header-section-number">2.5</span> PE 与风险的关系</a></li>
+  <li><a href="#pe-比较的正确方法" id="toc-pe-比较的正确方法" class="nav-link" data-scroll-target="#pe-比较的正确方法"><span class="header-section-number">2.6</span> PE 比较的正确方法</a></li>
+  </ul></li>
+  <li><a href="#peg-比率尝试控制增长" id="toc-peg-比率尝试控制增长" class="nav-link" data-scroll-target="#peg-比率尝试控制增长"><span class="header-section-number">3</span> PEG 比率：尝试控制增长</a>
+  <ul class="collapse">
+  <li><a href="#peg-的定义" id="toc-peg-的定义" class="nav-link" data-scroll-target="#peg-的定义"><span class="header-section-number">3.1</span> PEG 的定义</a></li>
+  <li><a href="#peg-的决定因素" id="toc-peg-的决定因素" class="nav-link" data-scroll-target="#peg-的决定因素"><span class="header-section-number">3.2</span> PEG 的决定因素</a></li>
+  <li><a href="#正确使用-peg" id="toc-正确使用-peg" class="nav-link" data-scroll-target="#正确使用-peg"><span class="header-section-number">3.3</span> 正确使用 PEG</a></li>
+  </ul></li>
+  <li><a href="#pe-的其他变体" id="toc-pe-的其他变体" class="nav-link" data-scroll-target="#pe-的其他变体"><span class="header-section-number">4</span> PE 的其他变体</a>
+  <ul class="collapse">
+  <li><a href="#相对-perelative-pe" id="toc-相对-perelative-pe" class="nav-link" data-scroll-target="#相对-perelative-pe"><span class="header-section-number">4.1</span> 相对 PE（Relative PE）</a></li>
+  <li><a href="#前瞻-peprice-to-future-earnings" id="toc-前瞻-peprice-to-future-earnings" class="nav-link" data-scroll-target="#前瞻-peprice-to-future-earnings"><span class="header-section-number">4.2</span> 前瞻 PE（Price-to-Future Earnings）</a></li>
+  <li><a href="#研发费用调整后的-pe" id="toc-研发费用调整后的-pe" class="nav-link" data-scroll-target="#研发费用调整后的-pe"><span class="header-section-number">4.3</span> 研发费用调整后的 PE</a></li>
+  </ul></li>
+  <li><a href="#evebitda-倍数公司价值视角" id="toc-evebitda-倍数公司价值视角" class="nav-link" data-scroll-target="#evebitda-倍数公司价值视角"><span class="header-section-number">5</span> EV/EBITDA 倍数：公司价值视角</a>
+  <ul class="collapse">
+  <li><a href="#为什么使用-evebitda" id="toc-为什么使用-evebitda" class="nav-link" data-scroll-target="#为什么使用-evebitda"><span class="header-section-number">5.1</span> 为什么使用 EV/EBITDA？</a></li>
+  <li><a href="#定义" id="toc-定义" class="nav-link" data-scroll-target="#定义"><span class="header-section-number">5.2</span> 定义</a></li>
+  <li><a href="#evebitda-的决定因素" id="toc-evebitda-的决定因素" class="nav-link" data-scroll-target="#evebitda-的决定因素"><span class="header-section-number">5.3</span> EV/EBITDA 的决定因素</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">6</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">7</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第18章】盈利倍数：从 PE 到 EV/EBITDA 的估值艺术</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入解析市盈率（PE）、PEG比率和EV/EBITDA等盈利倍数的内在逻辑、决定因素与比较应用，揭示这些看似简单的指标背后的估值智慧。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月18日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你正在比较两家公司：A 公司市盈率 15 倍，B 公司市盈率 30 倍。你会得出什么结论？</p>
+<p>“B 公司太贵了，A 公司更值得买。”——这是最直觉的反应。</p>
+<p>但等等，如果 A 公司增长率只有 3%，而 B 公司增长率高达 25% 呢？如果 A 公司所在行业风险很高，而 B 公司业务稳定呢？</p>
+<p><strong>市盈率（Price-Earnings Ratio，PE）是估值中使用最广泛、也最容易被误用的指标。</strong> 它的简洁性使其成为从 IPO 定价到市场判断的首选工具，但人们往往忽视了它与公司基本面之间的内在联系，从而导致严重的估值错误。</p>
+<p>本章将深入探讨：</p>
+<ul>
+<li>PE 比率的<strong>真正决定因素</strong>是什么？为什么同一行业的公司 PE 可以相差数倍？</li>
+<li>如何用 <strong>PEG 比率</strong>控制增长差异？它真的能”中和”增长效应吗？</li>
+<li>什么时候应该使用 <strong>EV/EBITDA</strong> 而非 PE？</li>
+<li>如何在<strong>跨时间、跨国家、跨行业</strong>的比较中正确使用这些倍数？</li>
+</ul>
+</section>
+<section id="市盈率pe-ratio最熟悉的陌生人" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="市盈率pe-ratio最熟悉的陌生人"><span class="header-section-number">2</span> 市盈率（PE Ratio）：最熟悉的陌生人</h2>
+<section id="pe-的定义与变体" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="pe-的定义与变体"><span class="header-section-number">2.1</span> PE 的定义与变体</h3>
+<p>市盈率的基本定义非常简单：</p>
+<p><span class="math display">\[
+\text{PE} = \frac{\text{每股市价（Market Price per Share）}}{\text{每股盈利（Earnings per Share）}}
+\]</span></p>
+<p>或者用总量形式：</p>
+<p><span class="math display">\[
+\text{PE} = \frac{\text{股权市值（Market Value of Equity）}}{\text{净利润（Net Income）}}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>PE 的一致性要求
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PE 比率在定义上是<strong>一致的</strong>：分子是股权价值，分母是股权盈利（净利润）。这与后面要讨论的 EV/EBITDA 形成对比——后者是<strong>公司价值倍数</strong>，分子是企业价值，分母是税息折旧摊销前利润。</p>
+</div>
+</div>
+<p>虽然定义简单，但实际应用中 PE 有多种变体，取决于你使用哪种”盈利”：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>PE 类型</th>
+<th>分母定义</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>当前 PE（Current PE）</strong></td>
+<td>最近一个完整财年的 EPS</td>
+<td>最常用，但可能过时</td>
+</tr>
+<tr class="even">
+<td><strong>滚动 PE（Trailing PE）</strong></td>
+<td>过去 12 个月的 EPS</td>
+<td>反映最新情况</td>
+</tr>
+<tr class="odd">
+<td><strong>前瞻 PE（Forward PE）</strong></td>
+<td>下一年预期 EPS</td>
+<td>体现增长预期</td>
+</tr>
+<tr class="even">
+<td><strong>稀释 PE（Diluted PE）</strong></td>
+<td>考虑期权和可转债稀释后的 EPS</td>
+<td>更保守的估计</td>
+</tr>
+</tbody>
+</table>
+<p>对于<strong>高增长、高风险公司</strong>，不同定义的 PE 可能差异巨大。这是因为：</p>
+<ol type="1">
+<li><strong>盈利波动性</strong>：前瞻 EPS 可能显著高于（或低于）滚动 EPS</li>
+<li><strong>员工期权和限制性股票</strong>：高增长公司通常有大量未行权期权，稀释 EPS 与基本 EPS 差距明显</li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>跨公司比较的陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>当比较不同公司的 PE 时，很难确保”盈利”的定义完全一致：</p>
+<ul>
+<li><strong>并购会计</strong>：不同公司对商誉的处理可能不同</li>
+<li><strong>期权稀释</strong>：深度价内期权和勉强价内期权被同等对待</li>
+<li><strong>费用化 vs 资本化</strong>：研发费用的处理方式影响当期盈利</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="pe-的跨截面分布" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="pe-的跨截面分布"><span class="header-section-number">2.2</span> PE 的跨截面分布</h3>
+<p>在使用 PE 比率之前，理解其在市场中的<strong>分布特征</strong>至关重要。图 18.1 展示了 2024 年 1 月美国股票的 PE 分布：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>统计量</th>
+<th>当前 PE</th>
+<th>滚动 PE</th>
+<th>前瞻 PE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>平均值</td>
+<td>121.65</td>
+<td>52.28</td>
+<td>31.98</td>
+</tr>
+<tr class="even">
+<td>第一四分位数</td>
+<td>8.19</td>
+<td>9.34</td>
+<td>11.19</td>
+</tr>
+<tr class="odd">
+<td><strong>中位数</strong></td>
+<td>14.95</td>
+<td>17.08</td>
+<td>16.85</td>
+</tr>
+<tr class="even">
+<td>第三四分位数</td>
+<td>29.89</td>
+<td>32.71</td>
+<td>27.20</td>
+</tr>
+<tr class="odd">
+<td>最大值</td>
+<td>103,000</td>
+<td>6,471</td>
+<td>2,183</td>
+</tr>
+<tr class="even">
+<td>有效样本数</td>
+<td>2,817</td>
+<td>2,779</td>
+<td>2,363</td>
+</tr>
+<tr class="odd">
+<td>缺失样本数</td>
+<td>3,601</td>
+<td>3,639</td>
+<td>4,055</td>
+</tr>
+</tbody>
+</table>
+<p>几个关键观察：</p>
+<ol type="1">
+<li><strong>严重右偏分布</strong>：平均值远高于中位数，因为 PE 不能为负，但可以非常高</li>
+<li><strong>当前 PE &gt; 滚动 PE &gt; 前瞻 PE</strong>：反映市场对未来盈利增长的预期</li>
+<li><strong>大量缺失值</strong>：负盈利的公司无法计算 PE，前瞻 PE 还需要分析师覆盖</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>实践建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在使用 PE 做比较时，<strong>中位数</strong>通常比平均值更有参考价值。一家 PE 为 103,000 的公司就能把整个行业的平均 PE 拉高数倍。</p>
+</div>
+</div>
+<p>全球市场的 PE 分布也呈现类似的偏态特征。2024 年初各地区的中位 PE 显示：</p>
+<ul>
+<li><strong>东欧和拉丁美洲</strong>：PE 最低（被视为高风险）</li>
+<li><strong>中国和印度</strong>：PE 较高（高增长预期）</li>
+<li><strong>美国</strong>：中位 PE 17.08</li>
+</ul>
+</section>
+<section id="pe-的决定因素从-dcf-模型推导" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="pe-的决定因素从-dcf-模型推导"><span class="header-section-number">2.3</span> PE 的决定因素：从 DCF 模型推导</h3>
+<p>这里是本章最核心的内容：<strong>PE 比率不是凭空出现的数字，它可以从现金流折现模型中严格推导出来。</strong></p>
+<section id="稳定增长公司的-pe" class="level4" data-number="2.3.1">
+<h4 data-number="2.3.1" class="anchored" data-anchor-id="稳定增长公司的-pe"><span class="header-section-number">2.3.1</span> 稳定增长公司的 PE</h4>
+<p>回顾第 14 章的稳定增长股利折现模型：</p>
+<p><span class="math display">\[
+P_0 = \frac{D_1}{k_e - g} = \frac{\text{EPS}_1 \times \text{Payout ratio}}{k_e - g}
+\]</span></p>
+<p>两边除以当前盈利 <span class="math inline">\(\text{EPS}_0\)</span>，并注意 <span class="math inline">\(\text{EPS}_1 = \text{EPS}_0 \times (1 + g)\)</span>：</p>
+<p><span class="math display">\[
+\text{Trailing PE} = \frac{P_0}{\text{EPS}_0} = \frac{\text{Payout ratio} \times (1 + g)}{k_e - g}
+\]</span></p>
+<p>如果用预期盈利计算：</p>
+<p><span class="math display">\[
+\text{Forward PE} = \frac{P_0}{\text{EPS}_1} = \frac{\text{Payout ratio}}{k_e - g}
+\]</span></p>
+<p><strong>这个公式揭示了 PE 的三个基本决定因素：</strong></p>
+<ol type="1">
+<li><strong>派息率（Payout ratio）</strong>：派息率越高，PE 越高</li>
+<li><strong>风险（通过 <span class="math inline">\(k_e\)</span>）</strong>：风险越高，PE 越低</li>
+<li><strong>增长率（<span class="math inline">\(g\)</span>）</strong>：增长率越高，PE 越高</li>
+</ol>
+<p>进一步，我们可以用<strong>股权回报率（ROE）</strong> 来替代派息率。因为：</p>
+<p><span class="math display">\[
+\text{Payout ratio} = 1 - \frac{g}{\text{ROE}}
+\]</span></p>
+<p>代入得：</p>
+<p><span class="math display">\[
+\text{Forward PE} = \frac{1 - \frac{g}{\text{ROE}}}{k_e - g}
+\]</span></p>
+<p><strong>这意味着 PE 还取决于公司创造价值的能力（ROE vs 资本成本）。</strong></p>
+</section>
+<section id="两阶段增长公司的-pe" class="level4" data-number="2.3.2">
+<h4 data-number="2.3.2" class="anchored" data-anchor-id="两阶段增长公司的-pe"><span class="header-section-number">2.3.2</span> 两阶段增长公司的 PE</h4>
+<p>对于处于高增长阶段的公司，我们需要使用两阶段模型。推导过程较为复杂，最终结果为：</p>
+<p><span class="math display">\[
+\text{Trailing PE} = \frac{\text{Payout}_{\text{hg}} \times (1+g) \times \left(1 - \frac{(1+g)^n}{(1+k_{e,\text{hg}})^n}\right)}{k_{e,\text{hg}} - g} + \frac{(1+g)^n \times (1+g_{\text{st}}) \times \text{Payout}_{\text{st}}}{(k_{e,\text{st}} - g_{\text{st}})(1+k_{e,\text{hg}})^n}
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(g\)</span> = 高增长期的增长率</li>
+<li><span class="math inline">\(g_{\text{st}}\)</span> = 稳定增长期的增长率</li>
+<li><span class="math inline">\(k_{e,\text{hg}}\)</span> = 高增长期的股权成本</li>
+<li><span class="math inline">\(k_{e,\text{st}}\)</span> = 稳定增长期的股权成本</li>
+<li><span class="math inline">\(n\)</span> = 高增长期的年数</li>
+<li><span class="math inline">\(\text{Payout}_{\text{hg}}\)</span>, <span class="math inline">\(\text{Payout}_{\text{st}}\)</span> = 两个阶段的派息率</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>从这个公式可以看出，PE 比率由以下因素决定：</p>
+<ol type="1">
+<li><strong>高增长期和稳定期的派息率（或 ROE）</strong>：给定增长率，ROE 越高，PE 越高</li>
+<li><strong>风险（折现率）</strong>：风险越高，PE 越低；增长更可预测的公司 PE 更高</li>
+<li><strong>两个阶段的预期增长率</strong>：增长率越高，PE 越高（前提是 ROE &gt; 资本成本）</li>
+</ol>
+</div>
+</div>
+<p>让我们用一个具体例子来理解。</p>
+<p><strong>案例：两阶段模型下的 PE 估计</strong></p>
+<p>假设一家公司具有以下特征：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>高增长期（5年）</th>
+<th>稳定期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>增长率</td>
+<td>20%</td>
+<td>4%</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>20%</td>
+<td>60%</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr class="even">
+<td>股权成本</td>
+<td>9.5%</td>
+<td>9.5%</td>
+</tr>
+</tbody>
+</table>
+<p>代入公式计算：</p>
+<p><span class="math display">\[
+\text{Trailing PE} = \frac{0.20 \times 1.20 \times \left(1 - \frac{1.20^5}{1.095^5}\right)}{0.095 - 0.20} + \frac{1.20^5 \times 1.04 \times 0.60}{(0.095 - 0.04) \times 1.095^5} = 19.26
+\]</span></p>
+<p>这家公司的<strong>内在 PE</strong> 为 19.26 倍。</p>
+<p>隐含的 ROE 可以验证：</p>
+<ul>
+<li>高增长期 ROE = 20% / (1 - 20%) = 25%</li>
+<li>稳定期 ROE = 4% / (1 - 60%) = 10%</li>
+</ul>
+</section>
+</section>
+<section id="pe-与增长的关系" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="pe-与增长的关系"><span class="header-section-number">2.4</span> PE 与增长的关系</h3>
+<p>直觉上，高增长公司应该有更高的 PE。但这个关系有多强？让我们量化它。</p>
+<p>使用上面的例子，如果我们改变高增长期的增长率，PE 会如何变化？</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>高增长期增长率</th>
+<th>内在 PE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5%</td>
+<td>~11</td>
+</tr>
+<tr class="even">
+<td>10%</td>
+<td>~14</td>
+</tr>
+<tr class="odd">
+<td>15%</td>
+<td>~17</td>
+</tr>
+<tr class="even">
+<td>20%</td>
+<td>19.26</td>
+</tr>
+<tr class="odd">
+<td>25%</td>
+<td>~22</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键发现：PE 对增长率的敏感度取决于利率环境。</strong></p>
+<p>在<strong>低利率环境</strong>下，PE 对增长率更敏感。这是因为增长带来的是未来现金流，而低利率意味着这些未来现金流的现值更高。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>盈利惊喜与股价反应
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这解释了一个市场现象：在低利率环境中，盈利惊喜（无论正面还是负面）会导致<strong>更剧烈的股价波动</strong>。因为盈利惊喜改变了投资者对增长率的预期，而低利率放大了这种改变对价值的影响。</p>
+</div>
+</div>
+</section>
+<section id="pe-与风险的关系" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="pe-与风险的关系"><span class="header-section-number">2.5</span> PE 与风险的关系</h3>
+<p>风险通过股权成本影响 PE：<strong>更高的风险意味着更高的股权成本，从而导致更低的 PE。</strong></p>
+<p>继续使用之前的例子，如果 Beta 从 1.0 增加到 1.5，股权成本从 9.5% 上升到 12%：</p>
+<p><span class="math display">\[
+\text{Trailing PE}_{\beta=1.5} = \frac{0.20 \times 1.20 \times \left(1 - \frac{1.20^5}{1.12^5}\right)}{0.12 - 0.20} + \frac{1.20^5 \times 1.04 \times 0.60}{(0.12 - 0.04) \times 1.12^5} = 12.25
+\]</span></p>
+<p>Beta 从 1.0 增加到 1.5，PE 从 19.26 <strong>下降到 12.25</strong>，降幅约 36%！</p>
+<p>一个重要的推论：<strong>对于高风险公司，降低风险可能比提高增长更能增加价值。</strong></p>
+<p>在极高风险水平下，不同增长率公司的 PE 差异会缩小。这意味着，如果一家公司既被视为高风险又有高增长潜力，<strong>降低风险的价值提升效果可能大于提高增长。</strong></p>
+</section>
+<section id="pe-比较的正确方法" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="pe-比较的正确方法"><span class="header-section-number">2.6</span> PE 比较的正确方法</h3>
+<p>掌握了 PE 的决定因素后，我们可以更智慧地使用 PE 进行比较。</p>
+<section id="跨时间比较市场-pe-的历史分析" class="level4" data-number="2.6.1">
+<h4 data-number="2.6.1" class="anchored" data-anchor-id="跨时间比较市场-pe-的历史分析"><span class="header-section-number">2.6.1</span> 跨时间比较：市场 PE 的历史分析</h4>
+<p>分析师经常将市场当前 PE 与历史平均值比较，得出市场高估或低估的结论。但这种做法需要谨慎，因为<strong>基本面会随时间变化</strong>：</p>
+<ul>
+<li><strong>利率上升</strong> → 股权成本上升 → PE 应该下降</li>
+<li><strong>风险偏好增加</strong> → 风险溢价下降 → PE 应该上升</li>
+<li><strong>增长预期提高</strong> → PE 应该上升</li>
+<li><strong>ROE 提高</strong> → 给定增长率下派息率更高 → PE 应该上升</li>
+</ul>
+<p><strong>案例：S&amp;P 500 的 PE 与利率</strong></p>
+<p>1960-2023 年的数据显示，<strong>盈利收益率（EP，即 PE 的倒数）与 10 年期国债利率高度正相关</strong>（相关系数 0.69）。</p>
+<p>回归分析得出：</p>
+<p><span class="math display">\[
+\text{EP} = 0.0350 + 0.5576 \times \text{T-bond rate} - 0.1161 \times (\text{T-bond} - \text{T-bill})
+\]</span></p>
+<ul>
+<li>国债利率每上升 1%，EP 上升 0.56%（PE 下降）</li>
+<li>收益率曲线越陡峭，PE 越高（可能因为陡峭曲线预示经济增长）</li>
+</ul>
+<p>2024 年初，根据这个模型：</p>
+<p><span class="math display">\[
+\text{Predicted EP} = 0.0350 + 0.5576 \times 0.0388 - 0.1161 \times (0.0388 - 0.0461) = 5.75\%
+\]</span></p>
+<p><span class="math display">\[
+\text{Predicted PE} = 1 / 0.0575 = 17.40
+\]</span></p>
+<p>而实际 S&amp;P 500 PE 为 21.71，显示市场可能<strong>略高估</strong>。</p>
+</section>
+<section id="跨国家比较" class="level4" data-number="2.6.2">
+<h4 data-number="2.6.2" class="anchored" data-anchor-id="跨国家比较"><span class="header-section-number">2.6.2</span> 跨国家比较</h4>
+<p>直接比较不同国家的 PE 可能产生误导。你应该预期：</p>
+<ul>
+<li><strong>实际利率较高的国家</strong> → PE 较低</li>
+<li><strong>预期实际增长较高的国家</strong> → PE 较高</li>
+<li><strong>被视为风险较高的国家</strong> → PE 较低</li>
+<li><strong>公司 ROE 较高的国家</strong> → PE 较高</li>
+</ul>
+<p><strong>案例：2000 年 7 月发达市场比较</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>国家</th>
+<th>PE</th>
+<th>股息率</th>
+<th>10年利率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>日本</td>
+<td>52.25</td>
+<td>0.71%</td>
+<td>1.85%</td>
+</tr>
+<tr class="even">
+<td>瑞典</td>
+<td>32.39</td>
+<td>1.11%</td>
+<td>5.26%</td>
+</tr>
+<tr class="odd">
+<td>美国</td>
+<td>25.14</td>
+<td>1.10%</td>
+<td>5.85%</td>
+</tr>
+<tr class="even">
+<td>比利时</td>
+<td>14.74</td>
+<td>2.66%</td>
+<td>5.70%</td>
+</tr>
+</tbody>
+</table>
+<p>日本的高 PE 并不一定意味着高估——其超低利率可以部分解释。回归分析可以帮助我们控制这些基本面差异。</p>
+</section>
+<section id="行业内公司比较" class="level4" data-number="2.6.3">
+<h4 data-number="2.6.3" class="anchored" data-anchor-id="行业内公司比较"><span class="header-section-number">2.6.3</span> 行业内公司比较</h4>
+<p>最常见的 PE 应用是在同一行业内比较公司。但即使在同一行业，公司的增长、风险和派息特征也可能差异很大。</p>
+<p><strong>方法一：主观调整</strong></p>
+<p>选择可比公司，计算行业平均 PE，然后主观调整。问题是：如果知道一家公司增长更快，应该给多高的溢价？</p>
+<p><strong>方法二：回归分析</strong></p>
+<p>更科学的方法是使用回归来控制差异：</p>
+<p><span class="math display">\[
+\text{PE} = a + b_1 \times \text{Growth} + b_2 \times \text{Beta} + b_3 \times \text{Payout}
+\]</span></p>
+<p>然后用这个模型预测每家公司的”应有” PE，与实际 PE 比较来判断高估或低估。</p>
+<p><strong>案例：2000 年全球电信公司</strong></p>
+<p>对 24 家全球电信公司回归得：</p>
+<p><span class="math display">\[
+\text{PE} = 13.12 + 121.22 \times \text{Growth} - 13.85 \times \text{Emerging market dummy} \quad R^2 = 66\%
+\]</span></p>
+<ul>
+<li>增长率每高 1%，PE 高 1.21</li>
+<li>新兴市场公司 PE 平均低 13.85</li>
+</ul>
+<p>用这个模型，可以识别出哪些公司相对于其基本面被高估或低估。</p>
+</section>
+<section id="全市场回归" class="level4" data-number="2.6.4">
+<h4 data-number="2.6.4" class="anchored" data-anchor-id="全市场回归"><span class="header-section-number">2.6.4</span> 全市场回归</h4>
+<p>将可比公司范围扩大到整个市场，可以获得更大样本和更稳健的估计。</p>
+<p>2024 年 1 月美国市场回归：</p>
+<p><span class="math display">\[
+\text{PE} = -2.11 + 69.57 \times \text{Growth} + 20.76 \times \text{Beta} + 11.38 \times \text{Payout} \quad R^2 = 33.4\%
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>回归方法的局限
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>多重共线性</strong>：增长、风险、派息率相互关联</li>
+<li><strong>非线性关系</strong>：PE 与基本面的关系可能不是线性的</li>
+<li><strong>不稳定性</strong>：系数会随时间变化</li>
+<li><strong>低 R²</strong>：大量噪音存在于 PE 比率中</li>
+</ol>
+</div>
+</div>
+<p><strong>市场对增长的定价随时间变化</strong></p>
+<p>一个有趣的观察：回归中增长系数反映了市场愿意为增长支付的”价格”。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>增长系数</th>
+<th>股权风险溢价</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2000</td>
+<td>2.11</td>
+<td>2.05%</td>
+</tr>
+<tr class="even">
+<td>2002</td>
+<td>1.00</td>
+<td>3.62%</td>
+</tr>
+<tr class="odd">
+<td>2009</td>
+<td>0.78</td>
+<td>6.43%</td>
+</tr>
+<tr class="even">
+<td>2021</td>
+<td>2.28</td>
+<td>4.72%</td>
+</tr>
+<tr class="odd">
+<td>2024</td>
+<td>0.70</td>
+<td>4.60%</td>
+</tr>
+</tbody>
+</table>
+<p>2000 年网络泡沫顶峰时，市场愿意为增长支付高价，同时风险溢价很低——难怪高增长、高风险公司估值疯狂。2009 年金融危机后，情况完全相反。</p>
+</section>
+</section>
+</section>
+<section id="peg-比率尝试控制增长" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="peg-比率尝试控制增长"><span class="header-section-number">3</span> PEG 比率：尝试控制增长</h2>
+<section id="peg-的定义" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="peg-的定义"><span class="header-section-number">3.1</span> PEG 的定义</h3>
+<p>许多分析师使用 <strong>PEG 比率</strong>来控制增长差异：</p>
+<p><span class="math display">\[
+\text{PEG} = \frac{\text{PE}}{\text{预期 EPS 增长率（绝对值）}}
+\]</span></p>
+<p>例如，PE 为 20、增长率为 10% 的公司，PEG = 20/10 = 2。</p>
+<p>最简单的规则是：<strong>PEG &lt; 1 表示低估</strong>。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>一致性要求
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>计算 PEG 时必须保持一致：</p>
+<ul>
+<li>如果增长率基于当前盈利，使用当前 PE</li>
+<li>如果增长率基于滚动盈利，使用滚动 PE</li>
+<li><strong>永远不要用前瞻 PE</strong>——会导致增长被重复计算</li>
+</ul>
+<p>例如，一家公司当前 EPS $1.50，预期明年翻倍到 $3.00，之后 5 年每年增长 5%。</p>
+<ul>
+<li>5 年复合增长率 = <span class="math inline">\([(2 \times 1.05^4)]^{1/5} - 1\)</span> = 19.44%</li>
+<li>错误的 PEG = (30/3) / 19.44 = 0.51 ← 增长被计算了两次！</li>
+<li>正确的 PEG = (30/1.50) / 19.44 = 1.03</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="peg-的决定因素" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="peg-的决定因素"><span class="header-section-number">3.2</span> PEG 的决定因素</h3>
+<p>一个常见的误解是 PEG 能”中和”增长效应。<strong>这是错误的。</strong></p>
+<p>从 PE 的公式出发，除以增长率：</p>
+<p><span class="math display">\[
+\text{PEG} = \frac{\text{PE}}{g} = \frac{\text{Payout} \times (1+g) \times \left(1 - \frac{(1+g)^n}{(1+k_e)^n}\right)}{(k_e - g) \times g} + \frac{(1+g)^n \times (1+g_{\text{st}}) \times \text{Payout}_{\text{st}}}{g \times (k_{e,\text{st}} - g_{\text{st}}) \times (1+k_e)^n}
+\]</span></p>
+<p>增长率不但没有消失，反而更深地嵌入了公式中！</p>
+<p><strong>PEG 与增长的关系是非单调的：</strong></p>
+<ul>
+<li>随着增长率从很低水平上升，PEG <strong>先下降</strong></li>
+<li>到达某个点后，PEG <strong>开始上升</strong></li>
+<li>增长率极低或极高的公司 PEG 都较高</li>
+</ul>
+<p><strong>PEG 与风险的关系：</strong></p>
+<ul>
+<li>风险越高，PEG 越<strong>低</strong></li>
+<li>这意味着直接比较不同风险公司的 PEG 会导致<strong>错误地认为高风险公司被低估</strong></li>
+</ul>
+<p><strong>PEG 与 ROE 的关系：</strong></p>
+<ul>
+<li>同样增长率下，ROE 越高（派息率越高），PEG 越<strong>高</strong></li>
+<li>高 ROE 代表”高质量增长”</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>PEG 比较的陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>直接比较 PEG 可能导致：</p>
+<ol type="1">
+<li>错误地认为<strong>高风险公司被低估</strong>（因为高风险 → 低 PEG）</li>
+<li>错误地认为<strong>低 ROE 公司被低估</strong>（因为低 ROE → 低 PEG）</li>
+<li>对<strong>极端增长率公司</strong>的错误判断</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="正确使用-peg" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="正确使用-peg"><span class="header-section-number">3.3</span> 正确使用 PEG</h3>
+<p>正确的方法是像 PE 一样，使用<strong>回归分析</strong>来控制差异：</p>
+<p><span class="math display">\[
+\text{PEG} = a + b_1 \times \ln(\text{Growth}) + b_2 \times \text{Beta} + b_3 \times \text{Payout}
+\]</span></p>
+<p>注意使用 <span class="math inline">\(\ln(\text{Growth})\)</span> 而非 Growth，因为 PEG 与增长的关系是非线性的。</p>
+<p>2024 年美国市场的 PEG 回归：</p>
+<p><span class="math display">\[
+\text{PEG} = 0.24 + 0.87 \times \text{Payout} - 0.58 \times \ln(g) - 1.28 \times \text{Beta} \quad R^2 = 8.6\%
+\]</span></p>
+<p>低 R² 说明 PEG 是一个<strong>噪音很大的指标</strong>，使用时需要格外谨慎。</p>
+</section>
+</section>
+<section id="pe-的其他变体" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="pe-的其他变体"><span class="header-section-number">4</span> PE 的其他变体</h2>
+<section id="相对-perelative-pe" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="相对-perelative-pe"><span class="header-section-number">4.1</span> 相对 PE（Relative PE）</h3>
+<p>相对 PE 是公司 PE 相对于市场 PE 的比值：</p>
+<p><span class="math display">\[
+\text{Relative PE} = \frac{\text{公司当前 PE}}{\text{市场当前 PE}}
+\]</span></p>
+<p><strong>用途：</strong></p>
+<ol type="1">
+<li>与公司<strong>历史相对 PE</strong> 比较：福特的历史平均相对 PE 是 0.50，如果现在是 0.41，可能被低估</li>
+<li><strong>跨市场比较</strong>：当不同市场 PE 水平差异大时，相对 PE 更具可比性</li>
+</ol>
+<p><strong>注意</strong>：相对 PE 也是增长、风险、派息率的函数，只是相对于市场来表达。</p>
+</section>
+<section id="前瞻-peprice-to-future-earnings" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="前瞻-peprice-to-future-earnings"><span class="header-section-number">4.2</span> 前瞻 PE（Price-to-Future Earnings）</h3>
+<p>对于当前亏损的公司，可以使用<strong>未来某年的预期盈利</strong>来计算 PE：</p>
+<p><span class="math display">\[
+\text{Forward PE} = \frac{\text{当前价格}}{\text{第 N 年预期 EPS}}
+\]</span></p>
+<p><strong>案例：Amylin Pharmaceuticals（2011年5月）</strong></p>
+<ul>
+<li>当前股价：$13.28</li>
+<li>当前 EPS：-$1.05（亏损）</li>
+<li>2016 年预期 EPS：$1.25</li>
+</ul>
+<p><span class="math display">\[
+\text{Forward PE} = \frac{13.28}{1.25} = 10.62
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>前瞻 PE 的使用要求
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这个 10.62 <strong>不能</strong>与其他公司当前的 PE 比较！必须为所有可比公司计算相同年份的前瞻 PE。</p>
+</div>
+</div>
+</section>
+<section id="研发费用调整后的-pe" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="研发费用调整后的-pe"><span class="header-section-number">4.3</span> 研发费用调整后的 PE</h3>
+<p>对于研发密集型公司（如科技公司），当期盈利被研发费用压低，导致 PE 虚高。</p>
+<p>简单调整：</p>
+<p><span class="math display">\[
+\text{PE}_{\text{pre-R\&amp;D}} = \frac{\text{股权市值}}{\text{净利润} + \text{R\&amp;D 费用}}
+\]</span></p>
+<p>更完整的调整（第 9 章的方法）：</p>
+<p><span class="math display">\[
+\text{PE}_{\text{adjusted}} = \frac{\text{股权市值}}{\text{净利润} + \text{R\&amp;D 费用} - \text{研发资产摊销}}
+\]</span></p>
+</section>
+</section>
+<section id="evebitda-倍数公司价值视角" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="evebitda-倍数公司价值视角"><span class="header-section-number">5</span> EV/EBITDA 倍数：公司价值视角</h2>
+<section id="为什么使用-evebitda" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="为什么使用-evebitda"><span class="header-section-number">5.1</span> 为什么使用 EV/EBITDA？</h3>
+<p>过去二十年，<strong>EV/EBITDA</strong> 成为越来越受欢迎的估值倍数，原因包括：</p>
+<ol type="1">
+<li><strong>更少的负值</strong>：EBITDA 为负的公司远少于 EPS 为负的公司</li>
+<li><strong>消除折旧差异</strong>：不同折旧方法不影响 EBITDA</li>
+<li><strong>跨杠杆可比</strong>：分子是公司价值，分母是债前盈利，便于比较不同资本结构的公司</li>
+</ol>
+<p>这个倍数特别适用于<strong>资本密集型、长建设周期</strong>的行业，如电信、机场、收费公路等。</p>
+</section>
+<section id="定义" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="定义"><span class="header-section-number">5.2</span> 定义</h3>
+<p><span class="math display">\[
+\text{EV/EBITDA} = \frac{\text{股权市值} + \text{债务市值} - \text{现金}}{\text{EBITDA}}
+\]</span></p>
+<p><strong>为什么要减去现金？</strong> 因为现金产生的利息收入不计入 EBITDA，不减现金会高估倍数。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>交叉持股的复杂性
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>EV/EBITDA 对有交叉持股的公司计算起来很复杂：</p>
+<ul>
+<li><strong>少数股权投资</strong>：市值包含持股价值，但 EBITDA 不包含被投资公司收入 → 倍数虚高</li>
+<li><strong>合并子公司</strong>：EBITDA 包含 100% 子公司收入，但市值只反映你的份额 → 倍数虚低</li>
+</ul>
+<p>需要仔细调整才能得到正确的倍数。</p>
+</div>
+</div>
+</section>
+<section id="evebitda-的决定因素" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="evebitda-的决定因素"><span class="header-section-number">5.3</span> EV/EBITDA 的决定因素</h3>
+<p>从自由现金流模型出发：</p>
+<p><span class="math display">\[
+\text{EV} = \frac{\text{FCFF}_1}{k_c - g}
+\]</span></p>
+<p>其中：</p>
+<p><span class="math display">\[
+\text{FCFF} = \text{EBITDA} \times (1-t) - \text{DA} \times (1-t) - \text{Reinvestment}
+\]</span></p>
+<p>整理得：</p>
+<p><span class="math display">\[
+\frac{\text{EV}}{\text{EBITDA}} = \frac{(1-t) - \frac{\text{DA}}{\text{EBITDA}} \times (1-t) - \frac{\text{Reinvestment}}{\text{EBITDA}}}{k_c - g}
+\]</span></p>
+<p><strong>五个决定因素：</strong></p>
+<ol type="1">
+<li><strong>税率</strong>：税率越低，EV/EBITDA 越高</li>
+<li><strong>折旧/EBITDA</strong>：这个比例越高，EV/EBITDA 越低</li>
+<li><strong>再投资需求</strong>：再投资/EBITDA 越高，倍数越低</li>
+<li><strong>资本成本</strong>：资本成本越低，倍数越高</li>
+<li><strong>增长率</strong>：增长率越高，倍数越高</li>
+</ol>
+<p><strong>关键洞察：EV/EBITDA 与超额回报的关系</strong></p>
+<p>当 ROIC = WACC 时，增长不创造价值，EV/EBITDA 与增长率无关。</p>
+<ul>
+<li>ROIC &gt; WACC → 增长率越高，EV/EBITDA 越高</li>
+<li>ROIC &lt; WACC → 增长率越高，EV/EBITDA <strong>越低</strong>（增长在毁灭价值）</li>
+</ul>
+<p><strong>案例：钢铁公司 EV/EBITDA 比较（2001年）</strong></p>
+<p>对 27 家美国钢铁公司回归：</p>
+<p><span class="math display">\[
+\text{EV/EBITDA} = 8.64 - 8.07 \times \text{Tax rate} - 7.19 \times \frac{\text{DA}}{\text{EBITDA}} \quad R^2 = 35.1\%
+\]</span></p>
+<p>Birmingham Steel 的预测值：</p>
+<p><span class="math display">\[
+\text{Predicted EV/EBITDA} = 8.64 - 8.07 \times 0 - 7.19 \times 0.5192 = 4.91
+\]</span></p>
+<p>实际值 5.60，<strong>高估约 14%</strong>。</p>
+</section>
+</section>
+<section id="总结" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="总结"><span class="header-section-number">6</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>PE 不是独立的数字</strong>：它由增长率、风险和派息率（ROE）共同决定，可以从 DCF 模型严格推导</li>
+<li><strong>直接比较 PE 是危险的</strong>：必须控制基本面差异，回归分析是更科学的方法</li>
+<li><strong>PEG 并不能”中和”增长</strong>：高风险、低 ROE 公司的低 PEG 可能只是反映基本面劣势</li>
+<li><strong>EV/EBITDA 适合资本密集型公司</strong>：特别是当折旧方法差异大、基础设施投资已完成时</li>
+<li><strong>市场对增长和风险的定价随时间变化</strong>：反映了贪婪与恐惧的博弈</li>
+</ul>
+</div>
+</div>
+<p>本章回答了开头的问题：<strong>不能简单地比较 A 公司的 PE 15 和 B 公司的 PE 30。</strong> 我们需要知道：</p>
+<ul>
+<li>它们的增长预期是否不同？</li>
+<li>它们的风险水平是否相当？</li>
+<li>它们的盈利质量（ROE）是否相似？</li>
+</ul>
+<p>只有在控制了这些因素之后，才能得出有意义的估值结论。</p>
+</section>
+<section id="思考题" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="思考题"><span class="header-section-number">7</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>PE 与利率</strong>：如果美联储大幅加息，你预期市场整体 PE 会如何变化？高增长股票和低增长股票受到的影响相同吗？</p></li>
+<li><p><strong>PEG 的陷阱</strong>：一位分析师发现某科技公司 PEG 只有 0.8，远低于行业平均的 1.5，于是建议买入。你会如何评估这个建议？需要哪些额外信息？</p></li>
+<li><p><strong>EV/EBITDA vs PE</strong>：在什么情况下，两个倍数可能给出相反的估值信号（一个显示低估，另一个显示高估）？</p></li>
+<li><p><strong>跨国比较</strong>：中国股市的平均 PE 是 20，印度是 25，日本是 15。能否据此判断日本股市最便宜？为什么？</p></li>
+<li><p><strong>增长的质量</strong>：两家公司都预期 15% 的增长，但 A 公司 ROE 30%，B 公司 ROE 10%。它们应该有相同的 PE 吗？为什么？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

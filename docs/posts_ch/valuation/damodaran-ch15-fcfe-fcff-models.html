@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="深入理解 FCFF 估值的两大方法框架：资本成本法与 APV 法，探讨杠杆如何影响企业价值">
+
+<title>【第15章】企业估值：资本成本法与调整现值法 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#企业自由现金流fcff" id="toc-企业自由现金流fcff" class="nav-link" data-scroll-target="#企业自由现金流fcff"><span class="header-section-number">2</span> 企业自由现金流（FCFF）</a>
+  <ul class="collapse">
+  <li><a href="#什么是-fcff" id="toc-什么是-fcff" class="nav-link" data-scroll-target="#什么是-fcff"><span class="header-section-number">2.1</span> 什么是 FCFF？</a></li>
+  <li><a href="#fcff-的两种计算方法" id="toc-fcff-的两种计算方法" class="nav-link" data-scroll-target="#fcff-的两种计算方法"><span class="header-section-number">2.2</span> FCFF 的两种计算方法</a></li>
+  <li><a href="#fcff-vs-其他现金流指标" id="toc-fcff-vs-其他现金流指标" class="nav-link" data-scroll-target="#fcff-vs-其他现金流指标"><span class="header-section-number">2.3</span> FCFF vs 其他现金流指标</a></li>
+  <li><a href="#fcfe-与-fcff-的增长率差异" id="toc-fcfe-与-fcff-的增长率差异" class="nav-link" data-scroll-target="#fcfe-与-fcff-的增长率差异"><span class="header-section-number">2.4</span> FCFE 与 FCFF 的增长率差异</a></li>
+  </ul></li>
+  <li><a href="#资本成本法wacc-折现-fcff" id="toc-资本成本法wacc-折现-fcff" class="nav-link" data-scroll-target="#资本成本法wacc-折现-fcff"><span class="header-section-number">3</span> 资本成本法：WACC 折现 FCFF</a>
+  <ul class="collapse">
+  <li><a href="#稳定增长模型" id="toc-稳定增长模型" class="nav-link" data-scroll-target="#稳定增长模型"><span class="header-section-number">3.1</span> 稳定增长模型</a></li>
+  <li><a href="#案例telesp巴西电信稳定增长估值" id="toc-案例telesp巴西电信稳定增长估值" class="nav-link" data-scroll-target="#案例telesp巴西电信稳定增长估值"><span class="header-section-number">3.2</span> 案例：Telesp（巴西电信）稳定增长估值</a></li>
+  <li><a href="#一般化的-fcff-模型" id="toc-一般化的-fcff-模型" class="nav-link" data-scroll-target="#一般化的-fcff-模型"><span class="header-section-number">3.3</span> 一般化的 FCFF 模型</a></li>
+  <li><a href="#市值权重与循环推理" id="toc-市值权重与循环推理" class="nav-link" data-scroll-target="#市值权重与循环推理"><span class="header-section-number">3.4</span> 市值权重与循环推理</a></li>
+  <li><a href="#资本成本法的局限" id="toc-资本成本法的局限" class="nav-link" data-scroll-target="#资本成本法的局限"><span class="header-section-number">3.5</span> 资本成本法的局限</a></li>
+  </ul></li>
+  <li><a href="#调整现值法apv" id="toc-调整现值法apv" class="nav-link" data-scroll-target="#调整现值法apv"><span class="header-section-number">4</span> 调整现值法（APV）</a>
+  <ul class="collapse">
+  <li><a href="#apv-的三个组成部分" id="toc-apv-的三个组成部分" class="nav-link" data-scroll-target="#apv-的三个组成部分"><span class="header-section-number">4.1</span> APV 的三个组成部分</a></li>
+  <li><a href="#第一步无杠杆企业价值" id="toc-第一步无杠杆企业价值" class="nav-link" data-scroll-target="#第一步无杠杆企业价值"><span class="header-section-number">4.2</span> 第一步：无杠杆企业价值</a></li>
+  <li><a href="#第二步税盾的现值" id="toc-第二步税盾的现值" class="nav-link" data-scroll-target="#第二步税盾的现值"><span class="header-section-number">4.3</span> 第二步：税盾的现值</a></li>
+  <li><a href="#第三步预期破产成本" id="toc-第三步预期破产成本" class="nav-link" data-scroll-target="#第三步预期破产成本"><span class="header-section-number">4.4</span> 第三步：预期破产成本</a></li>
+  <li><a href="#案例j.-crew-杠杆收购估值" id="toc-案例j.-crew-杠杆收购估值" class="nav-link" data-scroll-target="#案例j.-crew-杠杆收购估值"><span class="header-section-number">4.5</span> 案例：J. Crew 杠杆收购估值</a></li>
+  <li><a href="#apv-vs-资本成本法" id="toc-apv-vs-资本成本法" class="nav-link" data-scroll-target="#apv-vs-资本成本法"><span class="header-section-number">4.6</span> APV vs 资本成本法</a></li>
+  </ul></li>
+  <li><a href="#分部估值sum-of-the-parts" id="toc-分部估值sum-of-the-parts" class="nav-link" data-scroll-target="#分部估值sum-of-the-parts"><span class="header-section-number">5</span> 分部估值：Sum of the Parts</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要分部估值" id="toc-为什么需要分部估值" class="nav-link" data-scroll-target="#为什么需要分部估值"><span class="header-section-number">5.1</span> 为什么需要分部估值？</a></li>
+  <li><a href="#案例ge-分部估值2018年" id="toc-案例ge-分部估值2018年" class="nav-link" data-scroll-target="#案例ge-分部估值2018年"><span class="header-section-number">5.2</span> 案例：GE 分部估值（2018年）</a></li>
+  </ul></li>
+  <li><a href="#杠杆效应与最优资本结构" id="toc-杠杆效应与最优资本结构" class="nav-link" data-scroll-target="#杠杆效应与最优资本结构"><span class="header-section-number">6</span> 杠杆效应与最优资本结构</a>
+  <ul class="collapse">
+  <li><a href="#资本成本与企业价值的关系" id="toc-资本成本与企业价值的关系" class="nav-link" data-scroll-target="#资本成本与企业价值的关系"><span class="header-section-number">6.1</span> 资本成本与企业价值的关系</a></li>
+  <li><a href="#资本成本如何随债务变化" id="toc-资本成本如何随债务变化" class="nav-link" data-scroll-target="#资本成本如何随债务变化"><span class="header-section-number">6.2</span> 资本成本如何随债务变化？</a></li>
+  <li><a href="#案例disney-最优资本结构2024年5月" id="toc-案例disney-最优资本结构2024年5月" class="nav-link" data-scroll-target="#案例disney-最优资本结构2024年5月"><span class="header-section-number">6.3</span> 案例：Disney 最优资本结构（2024年5月）</a></li>
+  <li><a href="#经营利润与最优债务的互动" id="toc-经营利润与最优债务的互动" class="nav-link" data-scroll-target="#经营利润与最优债务的互动"><span class="header-section-number">6.4</span> 经营利润与最优债务的互动</a></li>
+  </ul></li>
+  <li><a href="#fcfe-vs-fcff何时用哪个" id="toc-fcfe-vs-fcff何时用哪个" class="nav-link" data-scroll-target="#fcfe-vs-fcff何时用哪个"><span class="header-section-number">7</span> FCFE vs FCFF：何时用哪个？</a>
+  <ul class="collapse">
+  <li><a href="#两种方法何时一致" id="toc-两种方法何时一致" class="nav-link" data-scroll-target="#两种方法何时一致"><span class="header-section-number">7.1</span> 两种方法何时一致？</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">8</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">9</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第15章】企业估值：资本成本法与调整现值法</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入理解 FCFF 估值的两大方法框架：资本成本法与 APV 法，探讨杠杆如何影响企业价值
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月15日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>在上一章，我们学习了两种股权估值方法：股息折现模型（DDM）和股权自由现金流模型（FCFE）。这两种方法都是从<strong>股东视角</strong>出发，计算属于股东的现金流，用股权成本折现，直接得到股权价值。</p>
+<p>但在实践中，你可能会遇到这样的困境：</p>
+<p><strong>如果一家公司的资本结构正在剧烈变化——比如刚经历杠杆收购，或者正在大规模去杠杆——FCFE 模型还好用吗？</strong></p>
+<p>答案是：理论上可以，但实践中非常困难。原因在于，当债务水平快速变化时，利息支出、本金偿还、新增借款都在不断波动，预测 FCFE 变得极其复杂。更重要的是，股权价值在高杠杆企业中只是总价值的一小部分，对增长和风险假设极其敏感。</p>
+<p>这就引出了本章的核心思路：<strong>为什么不先估计整个企业的价值，再减去债务，得到股权价值？</strong></p>
+<p>这种”先整体后部分”的方法就是<strong>企业估值（Firm Valuation）</strong>。本章将深入探讨两种主要的企业估值方法：</p>
+<ol type="1">
+<li><strong>资本成本法（Cost of Capital Approach）</strong>：用 WACC 折现 FCFF</li>
+<li><strong>调整现值法（APV, Adjusted Present Value）</strong>：先算无杠杆价值，再加减债务影响</li>
+</ol>
+<p>同时，我们还将探讨一个更深层的问题：<strong>杠杆如何影响企业价值？是否存在最优资本结构？</strong></p>
+</section>
+<section id="企业自由现金流fcff" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="企业自由现金流fcff"><span class="header-section-number">2</span> 企业自由现金流（FCFF）</h2>
+<section id="什么是-fcff" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="什么是-fcff"><span class="header-section-number">2.1</span> 什么是 FCFF？</h3>
+<p><strong>企业自由现金流（Free Cash Flow to the Firm, FCFF）</strong>是企业在满足经营和投资需求后，可以分配给<strong>所有资本提供者</strong>（包括股东、债权人、优先股股东）的现金流。</p>
+<p>让我们用一个直观的类比来理解：</p>
+<p>想象你是一家餐厅的”上帝视角”观察者。你不关心餐厅的钱最终流向老板还是银行，你只关心：餐厅经营本身产生了多少现金？如果餐厅不用偿还任何贷款，它能产生多少现金流？</p>
+<p>这就是 FCFF 的本质——<strong>剥离融资决策影响后的经营现金流</strong>。</p>
+</section>
+<section id="fcff-的两种计算方法" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="fcff-的两种计算方法"><span class="header-section-number">2.2</span> FCFF 的两种计算方法</h3>
+<p>有两种方式计算 FCFF：</p>
+<p><strong>方法一：从各方现金流加总</strong></p>
+<p><span class="math display">\[
+\text{FCFF} = \text{FCFE} + \text{利息费用}(1 - t) + \text{本金偿还} - \text{新增债务} + \text{优先股股息}
+\]</span></p>
+<p>这实际上是”逆向工程”——把之前扣除的债务相关现金流加回来。</p>
+<p><strong>方法二：从 EBIT 出发（更常用）</strong></p>
+<p><span class="math display">\[
+\text{FCFF} = \text{EBIT}(1 - t) + \text{折旧} - \text{资本支出} - \Delta\text{营运资本}
+\]</span></p>
+<p>由于这个现金流是在支付利息之前计算的，因此也被称为<strong>无杠杆现金流（Unlevered Cash Flow）</strong>。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>关键设计：避免重复计算税盾
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>你可能注意到，FCFF 的计算中<strong>没有</strong>包含利息的税盾收益。这是故意的设计——因为我们用的是<strong>税后</strong>债务成本（在 WACC 中），税盾已经体现在折现率中了。如果在现金流中再加一次税盾，就会重复计算。</p>
+</div>
+</div>
+</section>
+<section id="fcff-vs-其他现金流指标" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="fcff-vs-其他现金流指标"><span class="header-section-number">2.3</span> FCFF vs 其他现金流指标</h3>
+<p>实践中有多种现金流指标，它们与 FCFF 的关系如下：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>现金流指标</th>
+<th>定义</th>
+<th>隐含假设</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FCFF</td>
+<td>EBIT(1-t) + 折旧 - 资本支出 - Δ营运资本</td>
+<td>无假设，最完整</td>
+</tr>
+<tr class="even">
+<td>FCFE</td>
+<td>FCFF - 利息(1-t) - 本金偿还 + 新增债务</td>
+<td>折现得股权价值</td>
+</tr>
+<tr class="odd">
+<td>EBITDA</td>
+<td>FCFF + EBIT×t + 资本支出 + Δ营运资本</td>
+<td>无税、企业会逐渐萎缩</td>
+</tr>
+<tr class="even">
+<td>EBIT(1-t)</td>
+<td>FCFF + 净资本支出 + Δ营运资本</td>
+<td>无再投资增长</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>EBITDA 的误用
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>EBITDA 经常被用作”现金流”的替代指标，但它忽略了税负、资本支出和营运资本需求。如果你用 EBITDA 折现来估值，隐含的假设是：（1）企业不交税；（2）企业不进行任何再投资。这对任何希望持续经营的企业都是荒谬的假设。</p>
+</div>
+</div>
+</section>
+<section id="fcfe-与-fcff-的增长率差异" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="fcfe-与-fcff-的增长率差异"><span class="header-section-number">2.4</span> FCFE 与 FCFF 的增长率差异</h3>
+<p>一个微妙但重要的问题是：FCFE 和 FCFF 的增长率会相同吗？</p>
+<p>回顾基本增长公式：</p>
+<p><span class="math display">\[
+\text{净利润增长率} = \text{股权再投资率} \times \text{股权回报率（ROE）}
+\]</span></p>
+<p><span class="math display">\[
+\text{经营利润增长率} = \text{再投资率} \times \text{投入资本回报率（ROIC）}
+\]</span></p>
+<p>由于财务杠杆可以放大 ROE：</p>
+<p><span class="math display">\[
+\text{ROE} = \text{ROIC} + \frac{D}{E}(\text{ROIC} - \text{税后债务成本})
+\]</span></p>
+<p>当 ROIC 超过税后债务成本时，ROE 会高于 ROIC，这会导致<strong>净利润增长率高于经营利润增长率</strong>。</p>
+<p>但在<strong>稳定增长期</strong>，两者必须收敛。想想看：如果营业收入每年增长 5%，而净利润每年增长 6%，那么净利润终将超过营业收入，进而超过总收入——这显然不可能。</p>
+</section>
+</section>
+<section id="资本成本法wacc-折现-fcff" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="资本成本法wacc-折现-fcff"><span class="header-section-number">3</span> 资本成本法：WACC 折现 FCFF</h2>
+<p>资本成本法的核心思想是：用加权平均资本成本（WACC）折现企业自由现金流，得到企业价值（Enterprise Value）。</p>
+<p>这个价值中已经<strong>内嵌</strong>了债务的税盾收益（通过税后债务成本）和债务带来的风险（通过更高的股权成本和债务成本）。</p>
+<section id="稳定增长模型" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="稳定增长模型"><span class="header-section-number">3.1</span> 稳定增长模型</h3>
+<p>对于一家以稳定增长率永续增长的企业：</p>
+<p><span class="math display">\[
+\text{企业价值} = \frac{\text{FCFF}_1}{\text{WACC} - g_n}
+\]</span></p>
+<p>其中： - <span class="math inline">\(\text{FCFF}_1\)</span> 是下一年的预期企业自由现金流 - <span class="math inline">\(g_n\)</span> 是永续增长率 - WACC 是加权平均资本成本</p>
+<p><strong>使用条件：</strong></p>
+<ol type="1">
+<li><strong>增长率约束</strong>：<span class="math inline">\(g_n\)</span> 必须小于或等于经济增长率（名义或实际，取决于 WACC 的度量方式）</li>
+<li><strong>再投资率一致性</strong>：再投资率应与增长率一致</li>
+</ol>
+<p><span class="math display">\[
+\text{稳定期再投资率} = \frac{g_n}{\text{ROIC}}
+\]</span></p>
+<ol start="3" type="1">
+<li><strong>资本成本特征</strong>：Beta 应接近 1（建议在 0.8-1.2 之间）</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>为什么稳定增长模型对 WACC 更敏感？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>相比 DDM 或 FCFE 模型，FCFF 模型使用 WACC 作为折现率。由于 WACC 通常显著低于股权成本（因为债务成本较低），分母更小，意味着模型对增长率假设更敏感。如果说在股权模型中保持增长率低于无风险利率是好习惯，那么在企业模型中就更加重要了。</p>
+</div>
+</div>
+</section>
+<section id="案例telesp巴西电信稳定增长估值" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="案例telesp巴西电信稳定增长估值"><span class="header-section-number">3.2</span> 案例：Telesp（巴西电信）稳定增长估值</h3>
+<p>让我们看一个真实案例。Telesp 是一家为巴西圣保罗州提供本地电信服务的公司。2010 年的关键数据：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EBIT</td>
+<td>3,544 百万 BR</td>
+</tr>
+<tr class="even">
+<td>有效税率</td>
+<td>30%</td>
+</tr>
+<tr class="odd">
+<td>资本支出</td>
+<td>1,659 百万 BR</td>
+</tr>
+<tr class="even">
+<td>折旧</td>
+<td>1,914 百万 BR</td>
+</tr>
+<tr class="odd">
+<td>营运资本增加</td>
+<td>1,119 百万 BR</td>
+</tr>
+</tbody>
+</table>
+<p><strong>第一步：计算再投资率</strong></p>
+<p><span class="math display">\[
+\text{再投资} = \text{资本支出} - \text{折旧} + \Delta\text{营运资本} = 1,659 - 1,914 + 1,119 = 864
+\]</span></p>
+<p><span class="math display">\[
+\text{再投资率} = \frac{864}{3,544 \times (1-0.30)} = 34.82\%
+\]</span></p>
+<p><strong>第二步：计算投入资本回报率</strong></p>
+<p>使用 2009 年末的投入资本计算：</p>
+<p><span class="math display">\[
+\text{ROIC} = \frac{3,544 \times (1-0.30)}{10,057 + 8,042 - 2,277} = 15.68\%
+\]</span></p>
+<p><strong>第三步：计算预期增长率</strong></p>
+<p><span class="math display">\[
+g = 34.82\% \times 15.68\% = 5.46\%
+\]</span></p>
+<p><strong>第四步：计算资本成本</strong></p>
+<ul>
+<li>无风险利率（巴西）：7%</li>
+<li>Beta：0.8</li>
+<li>股权风险溢价：8%（包含巴西国家风险）</li>
+<li>股权成本：<span class="math inline">\(7\% + 0.8 \times 8\% = 13.40\%\)</span></li>
+<li>税前债务成本：9.50%</li>
+<li>债务比率：20.07%</li>
+</ul>
+<p><span class="math display">\[
+\text{WACC} = 13.40\% \times 79.93\% + 9.50\% \times (1-0.30) \times 20.07\% = 12.05\%
+\]</span></p>
+<p><strong>第五步：计算企业价值</strong></p>
+<p>2010 年 FCFF = 3,544 × (1-0.30) + 1,914 - 1,659 - 1,119 = 1,617 百万 BR</p>
+<p><span class="math display">\[
+\text{经营资产价值} = \frac{1,617 \times 1.0546}{0.1205 - 0.0546} = 25,901 \text{ 百万 BR}
+\]</span></p>
+<p><strong>第六步：计算股权价值</strong></p>
+<p><span class="math display">\[
+\text{股权价值} = 25,901 + 1,557(\text{现金}) - 5,519(\text{债务}) = 21,939 \text{ 百万 BR}
+\]</span></p>
+<p>当时 Telesp 的市值为 21,982 百万 BR，说明公司估值合理。</p>
+</section>
+<section id="一般化的-fcff-模型" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="一般化的-fcff-模型"><span class="header-section-number">3.3</span> 一般化的 FCFF 模型</h3>
+<p>对于大多数公司，我们使用两阶段或三阶段模型：</p>
+<p><span class="math display">\[
+\text{经营资产价值} = \sum_{t=1}^{n} \frac{\text{FCFF}_t}{(1+\text{WACC}_{hg})^t} + \frac{\text{FCFF}_{n+1}}{(\text{WACC}_{st} - g_n)(1+\text{WACC}_{hg})^n}
+\]</span></p>
+<p>其中 <span class="math inline">\(hg\)</span> 表示高增长期，<span class="math inline">\(st\)</span> 表示稳定期。</p>
+<p>在高增长模型中，有两种变体：</p>
+<p><strong>变体一：利润率稳定</strong></p>
+<p>当预期利润率保持不变时，可以从经营利润出发，使用基本增长公式：</p>
+<p><span class="math display">\[
+\text{预期经营利润增长} = \text{ROIC} \times \text{再投资率}
+\]</span></p>
+<p><strong>变体二：利润率变化</strong></p>
+<p>当利润率在变化（上升或下降）时，需要从收入出发，分三步： 1. 预测收入增长 2. 用目标利润率估算经营利润 3. 基于销售/资本比率估算再投资</p>
+</section>
+<section id="市值权重与循环推理" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="市值权重与循环推理"><span class="header-section-number">3.4</span> 市值权重与循环推理</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>一个微妙的问题
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>计算 WACC 需要债务和股权的市值权重，但这些权重本身就是我们要估算的！这是一个循环推理。</p>
+<p><strong>解决方法：</strong> 1. 用当前市值权重计算 WACC 2. 估值后用新的权重重新计算 WACC 3. 迭代直到收敛</p>
+<p>实践中，如果当前市值与估计值差距不大，迭代带来的差异通常很小。</p>
+</div>
+</div>
+</section>
+<section id="资本成本法的局限" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="资本成本法的局限"><span class="header-section-number">3.5</span> 资本成本法的局限</h3>
+<ol type="1">
+<li><strong>FCFF 不如 FCFE 直观</strong>：大多数人习惯考虑扣除利息后的现金流</li>
+<li><strong>可能掩盖生存问题</strong>：如果 FCFF 为正但 FCFE 为负，企业可能面临融资困境</li>
+<li><strong>隐含假设债务比率稳定</strong>：维持固定市值债务比率意味着成长型公司需要不断发债</li>
+</ol>
+</section>
+</section>
+<section id="调整现值法apv" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="调整现值法apv"><span class="header-section-number">4</span> 调整现值法（APV）</h2>
+<p>调整现值法提供了一种不同的思考框架：<strong>先计算企业在无债务情况下的价值，再逐项加入债务的影响</strong>。</p>
+<section id="apv-的三个组成部分" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="apv-的三个组成部分"><span class="header-section-number">4.1</span> APV 的三个组成部分</h3>
+<p><span class="math display">\[
+\text{企业价值} = \text{无杠杆企业价值} + \text{税盾现值} - \text{预期破产成本}
+\]</span></p>
+<p>让我们逐一理解每个组成部分。</p>
+</section>
+<section id="第一步无杠杆企业价值" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="第一步无杠杆企业价值"><span class="header-section-number">4.2</span> 第一步：无杠杆企业价值</h3>
+<p>假设企业没有债务，用<strong>无杠杆股权成本</strong>折现 FCFF：</p>
+<p><span class="math display">\[
+\text{无杠杆企业价值} = \sum_{t=1}^{\infty} \frac{\text{FCFF}_t}{(1+\rho_u)^t}
+\]</span></p>
+<p>其中 <span class="math inline">\(\rho_u\)</span> 是无杠杆股权成本，通过无杠杆 Beta 计算：</p>
+<p><span class="math display">\[
+\beta_{\text{无杠杆}} = \frac{\beta_{\text{当前}}}{1 + (1-t) \times D/E}
+\]</span></p>
+</section>
+<section id="第二步税盾的现值" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="第二步税盾的现值"><span class="header-section-number">4.3</span> 第二步：税盾的现值</h3>
+<p>债务的主要好处是利息可以抵税。如果假设税盾是永续的：</p>
+<p><span class="math display">\[
+\text{税盾现值} = t_c \times D
+\]</span></p>
+<p>其中 <span class="math inline">\(t_c\)</span> 是边际税率，<span class="math inline">\(D\)</span> 是债务价值。</p>
+<p>对于更复杂的情况（如债务逐年变化），需要逐年计算税盾并折现：</p>
+<p><span class="math display">\[
+\text{税盾现值} = \sum_{t=1}^{n} \frac{\text{利息}_t \times t_c}{(1+k_d)^t}
+\]</span></p>
+</section>
+<section id="第三步预期破产成本" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="第三步预期破产成本"><span class="header-section-number">4.4</span> 第三步：预期破产成本</h3>
+<p>债务不是免费的午餐——它带来破产风险。预期破产成本等于：</p>
+<p><span class="math display">\[
+\text{预期破产成本} = \pi_a \times BC
+\]</span></p>
+<p>其中： - <span class="math inline">\(\pi_a\)</span> = 破产概率 - <span class="math inline">\(BC\)</span> = 破产成本的现值</p>
+<p><strong>如何估计破产概率？</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>债券评级</th>
+<th>1年违约率</th>
+<th>5年违约率</th>
+<th>10年违约率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AAA</td>
+<td>0.00%</td>
+<td>0.35%</td>
+<td>0.70%</td>
+</tr>
+<tr class="even">
+<td>AA</td>
+<td>0.02%</td>
+<td>0.31%</td>
+<td>0.72%</td>
+</tr>
+<tr class="odd">
+<td>A</td>
+<td>0.05%</td>
+<td>0.47%</td>
+<td>1.24%</td>
+</tr>
+<tr class="even">
+<td>BBB</td>
+<td>0.16%</td>
+<td>1.58%</td>
+<td>3.32%</td>
+</tr>
+<tr class="odd">
+<td>BB</td>
+<td>0.61%</td>
+<td>6.52%</td>
+<td>11.78%</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>3.33%</td>
+<td>16.93%</td>
+<td>23.74%</td>
+</tr>
+<tr class="odd">
+<td>CCC/C</td>
+<td>27.08%</td>
+<td>46.19%</td>
+<td>50.38%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>破产成本有多大？</strong></p>
+<ul>
+<li><strong>直接成本</strong>（律师费、清算费等）：约为企业价值的 5%</li>
+<li><strong>间接成本</strong>（客户流失、供应商撤离、员工离职等）：可能高达企业价值的 25-30%</li>
+</ul>
+</section>
+<section id="案例j.-crew-杠杆收购估值" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="案例j.-crew-杠杆收购估值"><span class="header-section-number">4.5</span> 案例：J. Crew 杠杆收购估值</h3>
+<p>2010 年，J. Crew（一家美国服装零售商）被私募股权基金以 27 亿美元收购，其中 18.5 亿来自债务（评级 BB，税前债务成本 7%）。</p>
+<p><strong>第一步：无杠杆企业价值</strong></p>
+<ul>
+<li>无杠杆 Beta：1.00（专业零售行业平均）</li>
+<li>无杠杆股权成本：<span class="math inline">\(3.5\% + 1.00 \times 5\% = 8.5\%\)</span></li>
+<li>EBIT：2.30 亿美元</li>
+<li>税率：35%</li>
+<li>永续增长率：3.5%</li>
+<li>ROIC：14%</li>
+<li>再投资率：<span class="math inline">\(3.5\%/14\% = 25\%\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{FCFF}_1 = 230 \times 1.035 \times (1-0.35) \times (1-0.25) = 116.05 \text{ 百万}
+\]</span></p>
+<p><span class="math display">\[
+\text{无杠杆企业价值} = \frac{116.05}{0.085 - 0.035} = 2,321 \text{ 百万}
+\]</span></p>
+<p><strong>第二步：税盾现值</strong></p>
+<p>假设债务按以下计划偿还至第 10 年的 5 亿美元：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>年初债务</th>
+<th>利息费用</th>
+<th>税盾</th>
+<th>税盾现值（<span class="citation" data-cites="7">@7</span>%）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1,850</td>
+<td>129.50</td>
+<td>45.33</td>
+<td>42.36</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1,700</td>
+<td>119.00</td>
+<td>41.65</td>
+<td>36.38</td>
+</tr>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>500</td>
+<td>35.00</td>
+<td>12.25</td>
+<td>6.23</td>
+</tr>
+<tr class="odd">
+<td>永续</td>
+<td>500</td>
+<td>35.00</td>
+<td>12.25</td>
+<td>88.96</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>305.45</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>第三步：预期破产成本</strong></p>
+<p>假设破产成本为企业价值的 30%，破产概率为 20%（因为高杠杆）：</p>
+<p><span class="math display">\[
+\text{预期破产成本} = (2,321 + 305) \times 30\% \times 20\% = 158 \text{ 百万}
+\]</span></p>
+<p><strong>最终估值</strong></p>
+<p><span class="math display">\[
+\text{J. Crew 价值} = 2,321 + 305 - 158 = 2,469 \text{ 百万}
+\]</span></p>
+<p>以 27 亿美元的收购价，私募投资者需要大幅提升经营利润才能赚钱。</p>
+</section>
+<section id="apv-vs-资本成本法" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="apv-vs-资本成本法"><span class="header-section-number">4.6</span> APV vs 资本成本法</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>比较维度</th>
+<th>资本成本法</th>
+<th>APV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税盾处理</td>
+<td>内嵌在 WACC 中</td>
+<td>单独计算</td>
+</tr>
+<tr class="even">
+<td>破产成本</td>
+<td>隐含在债务成本中</td>
+<td>显式估计</td>
+</tr>
+<tr class="odd">
+<td>债务假设</td>
+<td>固定债务比率</td>
+<td>固定债务金额</td>
+</tr>
+<tr class="even">
+<td>适用场景</td>
+<td>稳定的资本结构</td>
+<td>杠杆收购、债务变化大</td>
+</tr>
+<tr class="odd">
+<td>精确度</td>
+<td>更简单</td>
+<td>更灵活但更复杂</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>APV 常见错误
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>许多使用 APV 的人会忽略预期破产成本，只计算无杠杆价值加税盾。这样做会得出”债务越多越好”的荒谬结论——因为债务看起来只有好处没有坏处！</p>
+</div>
+</div>
+</section>
+</section>
+<section id="分部估值sum-of-the-parts" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="分部估值sum-of-the-parts"><span class="header-section-number">5</span> 分部估值：Sum of the Parts</h2>
+<p>对于多元化企业，我们可能需要分别估值各个业务板块，然后加总。这就是<strong>分部估值（Sum of the Parts, SOTP）</strong>。</p>
+<section id="为什么需要分部估值" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="为什么需要分部估值"><span class="header-section-number">5.1</span> 为什么需要分部估值？</h3>
+<ol type="1">
+<li><strong>基本面差异</strong>：不同业务的风险、增长、盈利能力可能差异巨大</li>
+<li><strong>增长差异</strong>：如果某些业务增长快于其他业务，合并估值可能失真</li>
+<li><strong>交易需求</strong>：剥离或出售部分业务时需要单独估值</li>
+<li><strong>管理需求</strong>：评估各业务单元的价值创造能力</li>
+</ol>
+</section>
+<section id="案例ge-分部估值2018年" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="案例ge-分部估值2018年"><span class="header-section-number">5.2</span> 案例：GE 分部估值（2018年）</h3>
+<p>2018 年的 GE 是一家典型的多元化企业，业务涵盖电力、可再生能源、油气、航空、医疗、运输、照明和金融服务。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>业务</th>
+<th>收入</th>
+<th>EBIT利润率</th>
+<th>ROIC</th>
+<th>资本成本</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>电力</td>
+<td>360亿</td>
+<td>4.68%</td>
+<td>3.85%</td>
+<td>4.91%</td>
+</tr>
+<tr class="even">
+<td>可再生能源</td>
+<td>103亿</td>
+<td>4.00%</td>
+<td>6.19%</td>
+<td>6.88%</td>
+</tr>
+<tr class="odd">
+<td>油气</td>
+<td>172亿</td>
+<td>-1.78%</td>
+<td>-0.83%</td>
+<td>8.82%</td>
+</tr>
+<tr class="even">
+<td>航空</td>
+<td>274亿</td>
+<td>21.19%</td>
+<td>22.59%</td>
+<td>8.52%</td>
+</tr>
+<tr class="odd">
+<td>医疗</td>
+<td>191亿</td>
+<td>15.00%</td>
+<td>16.18%</td>
+<td>7.97%</td>
+</tr>
+<tr class="even">
+<td>运输</td>
+<td>42亿</td>
+<td>16.56%</td>
+<td>25.17%</td>
+<td>7.49%</td>
+</tr>
+<tr class="odd">
+<td>照明</td>
+<td>20亿</td>
+<td>1.59%</td>
+<td>7.16%</td>
+<td>8.50%</td>
+</tr>
+<tr class="even">
+<td>金融服务</td>
+<td>91亿</td>
+<td>-77.40%</td>
+<td>-7.30%</td>
+<td>3.64%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键洞察：</strong></p>
+<ul>
+<li>航空、医疗、运输是<strong>价值创造者</strong>（ROIC &gt; 资本成本）</li>
+<li>电力、油气、金融服务是<strong>价值毁灭者</strong>（ROIC &lt; 资本成本）</li>
+<li>GE 的问题不是整体能力不行，而是被低效业务拖累</li>
+</ul>
+<p>分部估值让我们清楚看到：GE 的战略路径应该是收缩或出售低利润业务，专注于高回报业务。</p>
+</section>
+</section>
+<section id="杠杆效应与最优资本结构" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="杠杆效应与最优资本结构"><span class="header-section-number">6</span> 杠杆效应与最优资本结构</h2>
+<p>资本成本法和 APV 法都暗示了一个重要问题：<strong>是否存在最优债务比率，使企业价值最大化？</strong></p>
+<section id="资本成本与企业价值的关系" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="资本成本与企业价值的关系"><span class="header-section-number">6.1</span> 资本成本与企业价值的关系</h3>
+<p>如果假设经营现金流不受融资决策影响，那么：</p>
+<p><span class="math display">\[
+\text{企业价值} = \sum_{t=1}^{\infty} \frac{\text{FCFF}_t}{(1+\text{WACC})^t}
+\]</span></p>
+<p>当 WACC 下降时，企业价值上升。因此，<strong>最小化 WACC 就能最大化企业价值</strong>（在现金流不变的前提下）。</p>
+</section>
+<section id="资本成本如何随债务变化" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="资本成本如何随债务变化"><span class="header-section-number">6.2</span> 资本成本如何随债务变化？</h3>
+<p>当债务增加时，有两个相反的力量：</p>
+<p><strong>降低资本成本的力量：</strong> - 债务成本通常低于股权成本 - 利息可以抵税</p>
+<p><strong>提高资本成本的力量：</strong> - 更高的财务风险推高股权 Beta - 违约风险上升推高债务成本</p>
+<p>这两种力量的博弈决定了最优债务比率的位置。</p>
+</section>
+<section id="案例disney-最优资本结构2024年5月" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="案例disney-最优资本结构2024年5月"><span class="header-section-number">6.3</span> 案例：Disney 最优资本结构（2024年5月）</h3>
+<p><strong>当前状况：</strong> - 债务市值：504 亿美元（含经营租赁） - 股权市值：1,836 亿美元 - 债务比率：21.53% - 无杠杆 Beta：0.947 - 债券评级：A- - EBIT（调整后）：101.56 亿美元</p>
+<p><strong>不同债务比率下的资本成本：</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>债务比率</th>
+<th>杠杆 Beta</th>
+<th>股权成本</th>
+<th>评级</th>
+<th>债务成本(税后)</th>
+<th>WACC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0%</td>
+<td>0.95</td>
+<td>9.02%</td>
+<td>AAA</td>
+<td>3.82%</td>
+<td>9.02%</td>
+</tr>
+<tr class="even">
+<td>10%</td>
+<td>1.03</td>
+<td>9.40%</td>
+<td>AAA</td>
+<td>3.82%</td>
+<td>8.84%</td>
+</tr>
+<tr class="odd">
+<td>20%</td>
+<td>1.12</td>
+<td>9.87%</td>
+<td>A</td>
+<td>4.18%</td>
+<td>8.73%</td>
+</tr>
+<tr class="even">
+<td><strong>30%</strong></td>
+<td>1.25</td>
+<td>10.48%</td>
+<td>A-</td>
+<td>4.28%</td>
+<td><strong>8.62%</strong></td>
+</tr>
+<tr class="odd">
+<td>40%</td>
+<td>1.42</td>
+<td>11.29%</td>
+<td>B+</td>
+<td>5.73%</td>
+<td>9.06%</td>
+</tr>
+<tr class="even">
+<td>50%</td>
+<td>1.75</td>
+<td>12.86%</td>
+<td>C</td>
+<td>18.07%</td>
+<td>15.45%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键发现：</strong></p>
+<ul>
+<li>最优债务比率约为 <strong>30%</strong>，此时 WACC 最低（8.62%）</li>
+<li>Disney 当前债务比率（21.53%）略低于最优</li>
+<li>超过 40% 后，评级快速下降，成本急剧上升</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>最优≠唯一解
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>最优资本结构是一个<strong>范围</strong>而非精确点。从 20% 到 40%，WACC 变化不大（8.62%-9.06%）。这意味着公司有一定的灵活空间，不必精确追求某个债务比率。</p>
+</div>
+</div>
+</section>
+<section id="经营利润与最优债务的互动" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="经营利润与最优债务的互动"><span class="header-section-number">6.4</span> 经营利润与最优债务的互动</h3>
+<p>上述分析假设经营利润不受债务影响，但现实中可能不是这样。当评级降至投资级以下，公司可能面临：</p>
+<ul>
+<li>客户流失（担心供货中断）</li>
+<li>供应商要求更苛刻的付款条件</li>
+<li>人才流失</li>
+</ul>
+<p>如果经营利润随债务增加而下降，那么<strong>最优债务比率可能低于单纯最小化 WACC 的结果</strong>。在这种情况下，我们需要在每个债务水平计算企业价值，选择价值最大化的点。</p>
+</section>
+</section>
+<section id="fcfe-vs-fcff何时用哪个" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="fcfe-vs-fcff何时用哪个"><span class="header-section-number">7</span> FCFE vs FCFF：何时用哪个？</h2>
+<p>理论上，两种方法应该得出相同的股权价值。但实践中，选择取决于具体情况：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情境</th>
+<th>推荐方法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>资本结构稳定</td>
+<td>两者皆可</td>
+<td>结果一致，FCFF 更简单</td>
+</tr>
+<tr class="even">
+<td>杠杆率大幅变化</td>
+<td>FCFF/APV</td>
+<td>避免复杂的债务流预测</td>
+</tr>
+<tr class="odd">
+<td>高杠杆公司</td>
+<td>FCFF</td>
+<td>股权是总价值的小部分，对假设敏感</td>
+</tr>
+<tr class="even">
+<td>金融公司</td>
+<td>FCFE</td>
+<td>债务是原材料，难以定义 FCFF</td>
+</tr>
+<tr class="odd">
+<td>杠杆收购分析</td>
+<td>APV</td>
+<td>债务计划明确，可显式计算税盾</td>
+</tr>
+<tr class="even">
+<td>并购估值</td>
+<td>FCFF</td>
+<td>便于比较不同融资结构的交易</td>
+</tr>
+</tbody>
+</table>
+<section id="两种方法何时一致" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="两种方法何时一致"><span class="header-section-number">7.1</span> 两种方法何时一致？</h3>
+<p>要使 FCFE 和 FCFF 模型给出相同的股权价值，需要满足以下条件：</p>
+<ol type="1">
+<li><strong>资本结构稳定</strong>：债务/股权比率保持不变</li>
+<li><strong>利息费用等于债务市值乘以债务成本</strong></li>
+<li><strong>没有影响净利润但不影响经营利润的非经常项目</strong></li>
+</ol>
+<p>在简单的永续增长情境下，如果：</p>
+<ul>
+<li>企业价值 = FCFF/(WACC - g)</li>
+<li>股权价值 = 企业价值 - 债务</li>
+</ul>
+<p>那么通过代数推导可以证明，这与直接用 FCFE 折现得到的股权价值相等。</p>
+</section>
+</section>
+<section id="总结" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="总结"><span class="header-section-number">8</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>FCFF</strong> 是分配给所有资本提供者的现金流，计算公式为 EBIT(1-t) + 折旧 - 资本支出 - Δ营运资本</li>
+<li><strong>资本成本法</strong> 用 WACC 折现 FCFF，税盾隐含在税后债务成本中</li>
+<li><strong>APV 法</strong> 分三步：无杠杆价值 + 税盾现值 - 预期破产成本</li>
+<li><strong>分部估值</strong> 适用于多元化企业，可识别价值创造者和价值毁灭者</li>
+<li><strong>最优资本结构</strong> 是使 WACC 最小化（或企业价值最大化）的债务比率</li>
+<li><strong>两种方法等价</strong> 当资本结构稳定且假设一致时，FCFE 和 FCFF 应得到相同的股权价值</li>
+</ul>
+</div>
+</div>
+<p>本章我们回答了开头的问题：当资本结构剧烈变化时，<strong>先估计企业价值、再减去债务</strong>是更实用的方法。FCFF 模型让我们能够聚焦于经营能力，而 APV 法则让我们能够显式分析债务的利弊。</p>
+<p>关键的 takeaway 是：<strong>债务是一把双刃剑——税盾是收益，破产风险是成本，最优资本结构是两者的平衡点。</strong></p>
+</section>
+<section id="思考题" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="思考题"><span class="header-section-number">9</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>EBITDA 的问题</strong>：一位分析师用 EBITDA 除以 WACC 来估算企业价值。这个方法有什么问题？这样做隐含了什么假设？</p></li>
+<li><p><strong>APV 与 WACC 的差异</strong>：如果一家公司使用 APV 法和资本成本法得到不同的企业价值，可能是什么原因？两者的差异在什么情况下会最大？</p></li>
+<li><p><strong>最优资本结构的约束</strong>：一家科技初创公司的管理层听说”债务可以降低资本成本”，打算大幅举债。从本章学到的知识，你会给他们什么建议？</p></li>
+<li><p><strong>分部估值的应用</strong>：假设一家企业集团的某个业务部门 ROIC 为 8%，资本成本为 10%。这个业务是否应该被剥离？在什么情况下答案会不同？</p></li>
+<li><p><strong>实务中的选择</strong>：你正在为一家刚完成杠杆收购的公司估值，该公司计划在未来 5 年大幅偿还债务。你会选择 FCFE、FCFF（资本成本法）还是 APV？请解释你的选择。</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

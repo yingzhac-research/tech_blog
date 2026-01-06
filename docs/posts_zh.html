@@ -85,7 +85,8 @@ ul.task-list li input[type="checkbox"] {
 
     const options = {
       valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
+      page: 25,
+    pagination: { item: "<li class='page-item'><a class='page page-link' href='#'></a></li>" },
       searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
@@ -410,7 +411,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(20)</span></div><div class="category" data-category="QmV0YQ==">Beta <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y24=">cn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVlcFNlZWs=">DeepSeek <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTY=">R&amp;D资本化 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V0FDQw==">WACC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJTlBJUU4JUFFJUExJUU4JUIwJTgzJUU2JTk1JUI0">会计调整 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJUIwJUU1JTgwJUJD">估值 <span class="quarto-category-count">(12)</span></div><div class="category" data-category="JUU1JTgwJUJBJUU1JThBJUExJUU2JTg4JTkwJUU2JTlDJUFD">债务成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE">具身智能 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgx">多模态 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThC">大模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThC">大语言模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw">强化学习 <span class="quarto-category-count">(4)</span></div><div class="category" data-category="JUU2JThBJTk1JUU4JUI1JTg0">投资 <span class="quarto-category-count">(9)</span></div><div class="category" data-category="JUU2JThFJUE4JUU3JTkwJTg2">推理 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="JUU2JTk1JUIwJUU1JUFEJUE2">数学 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3">无风险利率 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJB">机器人 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC">概率模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw">深度学习 <span class="quarto-category-count">(5)</span></div><div class="category" data-category="JUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThC">生成模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU3JTlCJTg4JUU1JTg4JUE5">盈利 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JUJCJThGJUU4JTkwJUE1JUU3JUE3JTlGJUU4JUI1JTgx">经营租赁 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3">股权风险溢价 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JUI1JTg0JUU2JTlDJUFDJUU2JTg4JTkwJUU2JTlDJUFD">资本成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JTg3JTkxJUU4JTlFJThE">金融 <span class="quarto-category-count">(9)</span></div><div class="category" data-category="JUU5JUEzJThFJUU5JTk5JUE5">风险 <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(29)</span></div><div class="category" data-category="QmV0YQ==">Beta <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y24=">cn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVlcFNlZWs=">DeepSeek <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTY=">R&amp;D资本化 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V0FDQw==">WACC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJTlBJUU4JUFFJUExJUU4JUIwJTgzJUU2JTk1JUI0">会计调整 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJUIwJUU1JTgwJUJD">估值 <span class="quarto-category-count">(21)</span></div><div class="category" data-category="JUU1JTgwJUJBJUU1JThBJUExJUU2JTg4JTkwJUU2JTlDJUFD">债务成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE">具身智能 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgx">多模态 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThC">大模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThC">大语言模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw">强化学习 <span class="quarto-category-count">(4)</span></div><div class="category" data-category="JUU2JThBJTk1JUU4JUI1JTg0">投资 <span class="quarto-category-count">(18)</span></div><div class="category" data-category="JUU2JThFJUE4JUU3JTkwJTg2">推理 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="JUU2JTk1JUIwJUU1JUFEJUE2">数学 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3">无风险利率 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJB">机器人 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC">概率模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw">深度学习 <span class="quarto-category-count">(5)</span></div><div class="category" data-category="JUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThC">生成模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU3JTlCJTg4JUU1JTg4JUE5">盈利 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JUJCJThGJUU4JTkwJUE1JUU3JUE3JTlGJUU4JUI1JTgx">经营租赁 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3">股权风险溢价 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JUI1JTg0JUU2JTlDJUFDJUU2JTg4JTkwJUU2JTlDJUFD">资本成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JTg3JTkxJUU4JTlFJThE">金融 <span class="quarto-category-count">(18)</span></div><div class="category" data-category="JUU5JUEzJThFJUU5JTk5JUE5">风险 <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -441,7 +442,7 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw" data-listing-date-sort="1767070800000" data-listing-file-modified-sort="1764160541666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1286">
+<div class="quarto-post image-right" data-index="0" data-categories="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw" data-listing-date-sort="1767675600000" data-listing-file-modified-sort="1764160541666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1286">
 <div class="thumbnail"><a href="./posts_ch/vla-survey.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -469,7 +470,7 @@ window.Quarto = {
 <div class="metadata">
 <a href="./posts_ch/vla-survey.html" class="no-external">
 <div class="listing-date">
-Dec 30, 2025
+Jan 6, 2026
 </div>
 <div class="listing-author">
 在此填写作者
@@ -477,7 +478,279 @@ Dec 30, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765429200000" data-listing-file-modified-sort="1767096044300" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
+<div class="quarto-post image-right" data-index="1" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766120400000" data-listing-file-modified-sort="1767700653347" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2019">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">【第19章】账面价值倍数：从 PBV 到 Tobin’s Q 的价值发现</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">
+<p>深入解析市净率（PBV）、企业价值/账面资本比率和托宾Q的内在逻辑，揭示ROE如何成为账面价值倍数的核心驱动因素，以及如何在实践中发现价值投资机会。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">
+<div class="listing-date">
+Dec 19, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766034000000" data-listing-file-modified-sort="1767698560569" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1260">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">【第18章】盈利倍数：从 PE 到 EV/EBITDA 的估值艺术</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">
+<p>深入解析市盈率（PE）、PEG比率和EV/EBITDA等盈利倍数的内在逻辑、决定因素与比较应用，揭示这些看似简单的指标背后的估值智慧。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">
+<div class="listing-date">
+Dec 18, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765947600000" data-listing-file-modified-sort="1767342861062" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="742">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">【第17章】相对估值的基本原理：倍数的正确使用方法</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">
+<p>理解相对估值的本质、倍数的四步检验框架、如何选择可比公司并控制差异</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">
+<div class="listing-date">
+Dec 17, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765861200000" data-listing-file-modified-sort="1767257298624" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="981">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">【第16章】从股权价值到每股价值：估值的最后一公里</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">
+<p>处理期权稀释、多类股份、交叉持股等复杂问题，正确计算每股内在价值</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">
+<div class="listing-date">
+Dec 16, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="5" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765774800000" data-listing-file-modified-sort="1767357788310" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1065">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">【第15章】企业估值：资本成本法与调整现值法</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">
+<p>深入理解 FCFF 估值的两大方法框架：资本成本法与 APV 法，探讨杠杆如何影响企业价值</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">
+<div class="listing-date">
+Dec 15, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="6" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765688400000" data-listing-file-modified-sort="1767358656794" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2645">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">【第14章】股权内在价值模型：从股息到自由现金流</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">
+<p>股权的价值究竟由什么决定？本章从最基础的股息折现模型出发，扩展到增强版DDM和FCFE模型，构建完整的股权估值框架。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">
+<div class="listing-date">
+Dec 14, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="7" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765602000000" data-listing-file-modified-sort="1767240429783" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="836">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">【第13章】叙事与数字：让估值讲述一个连贯的故事</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">
+<p>估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨如何构建叙事、将叙事转化为数字、以及如何让故事与数据相互验证。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">
+<div class="listing-date">
+Dec 13, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="8" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765515600000" data-listing-file-modified-sort="1767238745231" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="696">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">【第12章】终值：DCF估值中最重要却最容易出错的环节</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">
+<p>我们不可能永远预测现金流。终值（Terminal Value）解决了’预测期之后’的估值问题，但它也是估值中最容易被滥用的地方。本章深入探讨终值的三种方法、关键假设和常见陷阱。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">
+<div class="listing-date">
+Dec 12, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="9" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765429200000" data-listing-file-modified-sort="1767096044300" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch11-estimating-growth.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -511,7 +784,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765342800000" data-listing-file-modified-sort="1767096042955" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
+<div class="quarto-post image-right" data-index="10" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765342800000" data-listing-file-modified-sort="1767096042955" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch10-earnings-to-cashflows.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -545,7 +818,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU3JTlCJTg4JUU1JTg4JUE5JTJDUiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTYlMkMlRTclQkIlOEYlRTglOTAlQTUlRTclQTclOUYlRTglQjUlODElMkMlRTQlQkMlOUElRTglQUUlQTElRTglQjAlODMlRTYlOTUlQjQ=" data-listing-date-sort="1765256400000" data-listing-file-modified-sort="1767096041703" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="812">
+<div class="quarto-post image-right" data-index="11" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU3JTlCJTg4JUU1JTg4JUE5JTJDUiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTYlMkMlRTclQkIlOEYlRTglOTAlQTUlRTclQTclOUYlRTglQjUlODElMkMlRTQlQkMlOUElRTglQUUlQTElRTglQjAlODMlRTYlOTUlQjQ=" data-listing-date-sort="1765256400000" data-listing-file-modified-sort="1767096041703" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="812">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch9-measuring-earnings.html" class="no-external">
 
 <img loading="lazy" src="./posts_ch/valuation/images/ch9-measuring-earnings.png" class="thumbnail-image">
@@ -583,7 +856,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDQmV0YSUyQyVFOCVCNSU4NCVFNiU5QyVBQyVFNiU4OCU5MCVFNiU5QyVBQyUyQ1dBQ0MlMkMlRTUlODAlQkElRTUlOEElQTElRTYlODglOTAlRTYlOUMlQUM=" data-listing-date-sort="1765170000000" data-listing-file-modified-sort="1767096040512" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="635">
+<div class="quarto-post image-right" data-index="12" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDQmV0YSUyQyVFOCVCNSU4NCVFNiU5QyVBQyVFNiU4OCU5MCVFNiU5QyVBQyUyQ1dBQ0MlMkMlRTUlODAlQkElRTUlOEElQTElRTYlODglOTAlRTYlOUMlQUM=" data-listing-date-sort="1765170000000" data-listing-file-modified-sort="1767096040512" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="635">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch8-risk-parameters-cost-of-capital.html" class="no-external">
 
 <img loading="lazy" src="./posts_ch/valuation/images/ch8-cost-of-capital.png" class="thumbnail-image">
@@ -621,7 +894,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU5JUEzJThFJUU5JTk5JUE5JTJDJUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3JTJDJUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3" data-listing-date-sort="1765083600000" data-listing-file-modified-sort="1767096039588" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="516">
+<div class="quarto-post image-right" data-index="13" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU5JUEzJThFJUU5JTk5JUE5JTJDJUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3JTJDJUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3" data-listing-date-sort="1765083600000" data-listing-file-modified-sort="1767096039588" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="516">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch7-riskless-rates-erp.html" class="no-external">
 
 <img loading="lazy" src="./posts_ch/valuation/images/ch7-risk-premiums.png" class="thumbnail-image">
@@ -657,7 +930,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764997200000" data-listing-file-modified-sort="1767096011348" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="395">
+<div class="quarto-post image-right" data-index="14" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764997200000" data-listing-file-modified-sort="1767096011348" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="395">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch6-market-efficiency.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -691,7 +964,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764910800000" data-listing-file-modified-sort="1767096010296" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="1000">
+<div class="quarto-post image-right" data-index="15" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764910800000" data-listing-file-modified-sort="1767096010296" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="1000">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch5-option-pricing.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -725,7 +998,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764824400000" data-listing-file-modified-sort="1767096009227" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
+<div class="quarto-post image-right" data-index="16" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764824400000" data-listing-file-modified-sort="1767096009227" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch4-risk-basics.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -759,7 +1032,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764738000000" data-listing-file-modified-sort="1767096008180" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="993">
+<div class="quarto-post image-right" data-index="17" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764738000000" data-listing-file-modified-sort="1767096008180" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="993">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch3-financial-statements.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -793,7 +1066,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764651600000" data-listing-file-modified-sort="1767096007147" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="995">
+<div class="quarto-post image-right" data-index="18" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764651600000" data-listing-file-modified-sort="1767415297560" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1042">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch2-valuation-approaches.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -827,7 +1100,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="11" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764565200000" data-listing-file-modified-sort="1767096006257" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
+<div class="quarto-post image-right" data-index="19" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764565200000" data-listing-file-modified-sort="1767096006257" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch1-valuation-intro.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -861,7 +1134,41 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="12" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE" data-listing-date-sort="1764133200000" data-listing-file-modified-sort="1764201897664" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="885">
+<div class="quarto-post image-right" data-index="20" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764478800000" data-listing-file-modified-sort="1767702028666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="80" data-listing-word-count-sort="15830">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">【导读】Damodaran 估值体系全景：从哲学到实践的完整地图</a>
+</h3>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">
+<p>Investment Valuation 全书架构解析，理解 Damodaran 估值思想的核心脉络：为什么估值既是科学也是艺术，DCF 如何统一所有估值方法，以及 34 章内容如何构成一个完整的知识体系。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">
+<div class="listing-date">
+Nov 30, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="21" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE" data-listing-date-sort="1764133200000" data-listing-file-modified-sort="1764201897664" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="885">
 <div class="thumbnail"><a href="./posts_ch/vla_claude.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -894,7 +1201,7 @@ Nov 26, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="13" data-categories="ZGVtbyUyQ3R1dG9yaWFsJTJDY24=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="24">
+<div class="quarto-post image-right" data-index="22" data-categories="ZGVtbyUyQ3R1dG9yaWFsJTJDY24=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="24">
 <div class="thumbnail"><a href="./posts_ch/你好-开始使用.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -925,7 +1232,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="14" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="166">
+<div class="quarto-post image-right" data-index="23" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="166">
 <div class="thumbnail"><a href="./posts_ch/变分自编码器.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -956,7 +1263,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="15" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JTk1JUIwJUU1JUFEJUE2" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175330" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="120">
+<div class="quarto-post image-right" data-index="24" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JTk1JUIwJUU1JUFEJUE2" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175330" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="120">
 <div class="thumbnail"><a href="./posts_ch/扩散模型简介.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -987,7 +1294,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="16" data-categories="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2JTJDRGVlcFNlZWs=" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763248351047" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="767">
+<div class="quarto-post image-right" data-index="25" data-categories="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2JTJDRGVlcFNlZWs=" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763248351047" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="767">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-cn.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1020,7 +1327,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="17" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763466677380" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5266">
+<div class="quarto-post image-right" data-index="26" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763466677380" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5266">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-codex.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1053,7 +1360,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="18" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763458756493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6534">
+<div class="quarto-post image-right" data-index="27" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763458756493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6534">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-详解.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1086,7 +1393,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="19" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1736917200000" data-listing-file-modified-sort="1767096557303" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
+<div class="quarto-post image-right" data-index="28" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1736917200000" data-listing-file-modified-sort="1767096557303" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
 <div class="thumbnail"><a href="./posts_ch/valuation/估值导论-达摩达兰.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1122,6 +1429,9 @@ Ying
 </div>
 </div>
 <div class="listing-no-matching d-none">No matching items</div>
+<nav id="listing-pagination" class="listing-pagination" aria-label="Page Navigation">
+  <ul class="pagination"></ul>
+</nav>
 </div></main> <!-- /main -->
 ﻿<script>
 

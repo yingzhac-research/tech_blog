@@ -1,0 +1,2471 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="深入解析市净率（PBV）、企业价值/账面资本比率和托宾Q的内在逻辑，揭示ROE如何成为账面价值倍数的核心驱动因素，以及如何在实践中发现价值投资机会。">
+
+<title>【第19章】账面价值倍数：从 PBV 到 Tobin’s Q 的价值发现 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#市净率pbv账面价值的市场定价" id="toc-市净率pbv账面价值的市场定价" class="nav-link" data-scroll-target="#市净率pbv账面价值的市场定价"><span class="header-section-number">2</span> 市净率（PBV）：账面价值的市场定价</a>
+  <ul class="collapse">
+  <li><a href="#什么是账面价值" id="toc-什么是账面价值" class="nav-link" data-scroll-target="#什么是账面价值"><span class="header-section-number">2.1</span> 什么是账面价值？</a></li>
+  <li><a href="#pbv-的定义与变体" id="toc-pbv-的定义与变体" class="nav-link" data-scroll-target="#pbv-的定义与变体"><span class="header-section-number">2.2</span> PBV 的定义与变体</a></li>
+  <li><a href="#为什么分析师使用账面价值" id="toc-为什么分析师使用账面价值" class="nav-link" data-scroll-target="#为什么分析师使用账面价值"><span class="header-section-number">2.3</span> 为什么分析师使用账面价值？</a></li>
+  <li><a href="#回购和收购对-pbv-的影响" id="toc-回购和收购对-pbv-的影响" class="nav-link" data-scroll-target="#回购和收购对-pbv-的影响"><span class="header-section-number">2.4</span> 回购和收购对 PBV 的影响</a></li>
+  <li><a href="#pbv-的跨截面分布" id="toc-pbv-的跨截面分布" class="nav-link" data-scroll-target="#pbv-的跨截面分布"><span class="header-section-number">2.5</span> PBV 的跨截面分布</a></li>
+  </ul></li>
+  <li><a href="#pbv-的决定因素从-dcf-推导" id="toc-pbv-的决定因素从-dcf-推导" class="nav-link" data-scroll-target="#pbv-的决定因素从-dcf-推导"><span class="header-section-number">3</span> PBV 的决定因素：从 DCF 推导</a>
+  <ul class="collapse">
+  <li><a href="#稳定增长公司的-pbv" id="toc-稳定增长公司的-pbv" class="nav-link" data-scroll-target="#稳定增长公司的-pbv"><span class="header-section-number">3.1</span> 稳定增长公司的 PBV</a></li>
+  <li><a href="#vodafone-案例稳定增长公司的-pbv-估算" id="toc-vodafone-案例稳定增长公司的-pbv-估算" class="nav-link" data-scroll-target="#vodafone-案例稳定增长公司的-pbv-估算"><span class="header-section-number">3.2</span> Vodafone 案例：稳定增长公司的 PBV 估算</a></li>
+  <li><a href="#jenapharm-案例私有化估值" id="toc-jenapharm-案例私有化估值" class="nav-link" data-scroll-target="#jenapharm-案例私有化估值"><span class="header-section-number">3.3</span> Jenapharm 案例：私有化估值</a></li>
+  <li><a href="#高增长公司的-pbv" id="toc-高增长公司的-pbv" class="nav-link" data-scroll-target="#高增长公司的-pbv"><span class="header-section-number">3.4</span> 高增长公司的 PBV</a></li>
+  <li><a href="#高增长公司案例两阶段模型" id="toc-高增长公司案例两阶段模型" class="nav-link" data-scroll-target="#高增长公司案例两阶段模型"><span class="header-section-number">3.5</span> 高增长公司案例：两阶段模型</a></li>
+  <li><a href="#nestle-案例用-fcfe-替代股息" id="toc-nestle-案例用-fcfe-替代股息" class="nav-link" data-scroll-target="#nestle-案例用-fcfe-替代股息"><span class="header-section-number">3.6</span> Nestle 案例：用 FCFE 替代股息</a></li>
+  </ul></li>
+  <li><a href="#pbv-与-roe-的核心关系" id="toc-pbv-与-roe-的核心关系" class="nav-link" data-scroll-target="#pbv-与-roe-的核心关系"><span class="header-section-number">4</span> PBV 与 ROE 的核心关系</a>
+  <ul class="collapse">
+  <li><a href="#roe-变化对-pbv-的影响" id="toc-roe-变化对-pbv-的影响" class="nav-link" data-scroll-target="#roe-变化对-pbv-的影响"><span class="header-section-number">4.1</span> ROE 变化对 PBV 的影响</a></li>
+  <li><a href="#pbv-与超额回报的关系" id="toc-pbv-与超额回报的关系" class="nav-link" data-scroll-target="#pbv-与超额回报的关系"><span class="header-section-number">4.2</span> PBV 与超额回报的关系</a></li>
+  <li><a href="#roe-的决定因素porter-五力框架" id="toc-roe-的决定因素porter-五力框架" class="nav-link" data-scroll-target="#roe-的决定因素porter-五力框架"><span class="header-section-number">4.3</span> ROE 的决定因素：Porter 五力框架</a></li>
+  </ul></li>
+  <li><a href="#pbv-的应用从市场到个股" id="toc-pbv-的应用从市场到个股" class="nav-link" data-scroll-target="#pbv-的应用从市场到个股"><span class="header-section-number">5</span> PBV 的应用：从市场到个股</a>
+  <ul class="collapse">
+  <li><a href="#市场层面pbv-与-roe-的历史关系" id="toc-市场层面pbv-与-roe-的历史关系" class="nav-link" data-scroll-target="#市场层面pbv-与-roe-的历史关系"><span class="header-section-number">5.1</span> 市场层面：PBV 与 ROE 的历史关系</a></li>
+  <li><a href="#行业内比较矩阵法与回归法" id="toc-行业内比较矩阵法与回归法" class="nav-link" data-scroll-target="#行业内比较矩阵法与回归法"><span class="header-section-number">5.2</span> 行业内比较：矩阵法与回归法</a></li>
+  <li><a href="#欧洲服装公司案例分析" id="toc-欧洲服装公司案例分析" class="nav-link" data-scroll-target="#欧洲服装公司案例分析"><span class="header-section-number">5.3</span> 欧洲服装公司案例分析</a></li>
+  <li><a href="#跨市场回归" id="toc-跨市场回归" class="nav-link" data-scroll-target="#跨市场回归"><span class="header-section-number">5.4</span> 跨市场回归</a></li>
+  <li><a href="#nike-案例使用市场回归" id="toc-nike-案例使用市场回归" class="nav-link" data-scroll-target="#nike-案例使用市场回归"><span class="header-section-number">5.5</span> Nike 案例：使用市场回归</a></li>
+  <li><a href="#时间序列比较ibm-的兴衰" id="toc-时间序列比较ibm-的兴衰" class="nav-link" data-scroll-target="#时间序列比较ibm-的兴衰"><span class="header-section-number">5.6</span> 时间序列比较：IBM 的兴衰</a></li>
+  <li><a href="#有形账面价值与非现金-pbv" id="toc-有形账面价值与非现金-pbv" class="nav-link" data-scroll-target="#有形账面价值与非现金-pbv"><span class="header-section-number">5.7</span> 有形账面价值与非现金 PBV</a></li>
+  </ul></li>
+  <li><a href="#投资策略中的-pbv" id="toc-投资策略中的-pbv" class="nav-link" data-scroll-target="#投资策略中的-pbv"><span class="header-section-number">6</span> 投资策略中的 PBV</a>
+  <ul class="collapse">
+  <li><a href="#超额回报的证据" id="toc-超额回报的证据" class="nav-link" data-scroll-target="#超额回报的证据"><span class="header-section-number">6.1</span> 超额回报的证据</a></li>
+  <li><a href="#benjamin-graham-的选股标准" id="toc-benjamin-graham-的选股标准" class="nav-link" data-scroll-target="#benjamin-graham-的选股标准"><span class="header-section-number">6.2</span> Benjamin Graham 的选股标准</a></li>
+  <li><a href="#pbv-作为风险代理" id="toc-pbv-作为风险代理" class="nav-link" data-scroll-target="#pbv-作为风险代理"><span class="header-section-number">6.3</span> PBV 作为风险代理？</a></li>
+  </ul></li>
+  <li><a href="#企业价值账面资本比率value-to-book" id="toc-企业价值账面资本比率value-to-book" class="nav-link" data-scroll-target="#企业价值账面资本比率value-to-book"><span class="header-section-number">7</span> 企业价值/账面资本比率（Value-to-Book）</a>
+  <ul class="collapse">
+  <li><a href="#定义" id="toc-定义" class="nav-link" data-scroll-target="#定义"><span class="header-section-number">7.1</span> 定义</a></li>
+  <li><a href="#分布特征" id="toc-分布特征" class="nav-link" data-scroll-target="#分布特征"><span class="header-section-number">7.2</span> 分布特征</a></li>
+  <li><a href="#从-dcf-推导-evic" id="toc-从-dcf-推导-evic" class="nav-link" data-scroll-target="#从-dcf-推导-evic"><span class="header-section-number">7.3</span> 从 DCF 推导 EV/IC</a></li>
+  <li><a href="#应用估值矩阵" id="toc-应用估值矩阵" class="nav-link" data-scroll-target="#应用估值矩阵"><span class="header-section-number">7.4</span> 应用：估值矩阵</a></li>
+  <li><a href="#evic-的市场回归" id="toc-evic-的市场回归" class="nav-link" data-scroll-target="#evic-的市场回归"><span class="header-section-number">7.5</span> EV/IC 的市场回归</a></li>
+  <li><a href="#何时使用-evic-而非-pbv" id="toc-何时使用-evic-而非-pbv" class="nav-link" data-scroll-target="#何时使用-evic-而非-pbv"><span class="header-section-number">7.6</span> 何时使用 EV/IC 而非 PBV？</a></li>
+  </ul></li>
+  <li><a href="#托宾-qtobins-q" id="toc-托宾-qtobins-q" class="nav-link" data-scroll-target="#托宾-qtobins-q"><span class="header-section-number">8</span> 托宾 Q（Tobin’s Q）</a>
+  <ul class="collapse">
+  <li><a href="#定义-1" id="toc-定义-1" class="nav-link" data-scroll-target="#定义-1"><span class="header-section-number">8.1</span> 定义</a></li>
+  <li><a href="#实际应用的局限" id="toc-实际应用的局限" class="nav-link" data-scroll-target="#实际应用的局限"><span class="header-section-number">8.2</span> 实际应用的局限</a></li>
+  <li><a href="#应用场景" id="toc-应用场景" class="nav-link" data-scroll-target="#应用场景"><span class="header-section-number">8.3</span> 应用场景</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">9</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">10</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第19章】账面价值倍数：从 PBV 到 Tobin’s Q 的价值发现</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入解析市净率（PBV）、企业价值/账面资本比率和托宾Q的内在逻辑，揭示ROE如何成为账面价值倍数的核心驱动因素，以及如何在实践中发现价值投资机会。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月19日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你在筛选股票时发现一家公司，股价只有账面价值的 0.8 倍——也就是说，你可以用 80 分钱买到 1 块钱的”净资产”。这是捡便宜的绝佳机会吗？</p>
+<p>很多投资者会本能地认为”低于账面价值就是低估”，但这种直觉往往是危险的。<strong>一家公司的股价低于账面价值，可能恰恰是因为它的资产根本不值账面价值那么多</strong>——如果公司的资产回报率（ROE）低于股东要求的回报率，那么每投入一块钱的账面资本，实际上在损毁价值。</p>
+<p><strong>市净率（Price-to-Book Value Ratio，PBV）是价值投资者最钟爱的指标之一，但也是最容易被误用的指标之一。</strong> 从本杰明·格雷厄姆到沃伦·巴菲特，价值投资大师们都强调”用低于账面价值的价格买入”，但他们同时也强调”护城河”——也就是公司维持高 ROE 的能力。</p>
+<p>本章将深入探讨：</p>
+<ul>
+<li>PBV 的<strong>真正决定因素</strong>是什么？为什么 ROE 是核心？</li>
+<li>如何从 DCF 模型<strong>推导</strong> PBV 与基本面的关系？</li>
+<li><strong>何时</strong>低 PBV 是低估，何时只是对低质量的合理定价？</li>
+<li><strong>企业价值/账面资本比率</strong>与 PBV 有什么区别？何时更适用？</li>
+<li><strong>托宾 Q</strong>（Tobin’s Q）这个学术概念有什么实际意义？</li>
+</ul>
+</section>
+<section id="市净率pbv账面价值的市场定价" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="市净率pbv账面价值的市场定价"><span class="header-section-number">2</span> 市净率（PBV）：账面价值的市场定价</h2>
+<section id="什么是账面价值" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="什么是账面价值"><span class="header-section-number">2.1</span> 什么是账面价值？</h3>
+<p>在深入 PBV 之前，我们需要理解”账面价值”（Book Value）这个概念。</p>
+<p><strong>股权的账面价值 = 资产的账面价值 − 负债的账面价值</strong></p>
+<p>在美国会计准则下，资产的账面价值是<strong>原始购买价格减去累计折旧</strong>。这意味着：</p>
+<ol type="1">
+<li>账面价值反映的是<strong>历史成本</strong>，而非当前市场价值</li>
+<li>随着资产老化，账面价值会下降</li>
+<li>如果资产的盈利能力显著变化（上升或下降），账面价值可能与真实价值严重脱节</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>账面价值的”历史成本”本质
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>想象一家公司 10 年前以 100 万美元购买了一台设备，按 10 年直线折旧。今天的账面价值是 0，但这台设备可能仍在高效运转，每年创造 20 万美元的现金流。</p>
+<p>反过来，另一家公司 5 年前以 500 万美元购买了最新技术，账面价值还有 250 万，但这项技术已经过时，几乎没有产出。</p>
+<p>这就是账面价值与真实价值脱节的典型例子。</p>
+</div>
+</div>
+</section>
+<section id="pbv-的定义与变体" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="pbv-的定义与变体"><span class="header-section-number">2.2</span> PBV 的定义与变体</h3>
+<p>市净率的基本定义非常简单：</p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{每股市价（Price per Share）}}{\text{每股账面价值（Book Value of Equity per Share）}}
+\]</span></p>
+<p>或者用总量形式：</p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{股权市值（Market Capitalization）}}{\text{股权账面价值（Book Value of Equity）}}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>PBV 的一致性要求
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PBV 是一个<strong>股权倍数</strong>——分子是股权市值，分母是股权账面价值。计算时需要注意：</p>
+<ul>
+<li><strong>不要包含优先股</strong>：账面价值应只包含普通股股东权益</li>
+<li><strong>多类别股票</strong>：如果有多类股票，应使用所有普通股的总市值和总账面价值</li>
+<li><strong>期权稀释</strong>：技术上应将管理层期权和可转债期权的市值加入分子</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="为什么分析师使用账面价值" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="为什么分析师使用账面价值"><span class="header-section-number">2.3</span> 为什么分析师使用账面价值？</h3>
+<p>投资者使用 PBV 有几个原因：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>稳定性</strong></td>
+<td>账面价值比盈利更稳定，不会像 EPS 那样剧烈波动</td>
+</tr>
+<tr class="even">
+<td><strong>直观性</strong></td>
+<td>提供一个简单的”成本基准”来对比市场价格</td>
+</tr>
+<tr class="odd">
+<td><strong>普适性</strong></td>
+<td>即使盈利为负的公司也能计算 PBV（负账面价值的公司远少于负盈利的公司）</td>
+</tr>
+<tr class="even">
+<td><strong>跨公司可比</strong></td>
+<td>在会计准则一致的前提下，可以跨公司比较</td>
+</tr>
+</tbody>
+</table>
+<p>但 PBV 也有明显的<strong>缺陷</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>缺陷</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>会计差异</strong></td>
+<td>折旧方法、资产减值等会计选择影响账面价值</td>
+</tr>
+<tr class="even">
+<td><strong>跨国不可比</strong></td>
+<td>不同国家的会计准则差异导致账面价值不可比</td>
+</tr>
+<tr class="odd">
+<td><strong>对服务/科技公司意义有限</strong></td>
+<td>缺乏有形资产的公司，账面价值意义不大</td>
+</tr>
+<tr class="even">
+<td><strong>可能为负</strong></td>
+<td>持续亏损的公司账面价值可能为负</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="回购和收购对-pbv-的影响" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="回购和收购对-pbv-的影响"><span class="header-section-number">2.4</span> 回购和收购对 PBV 的影响</h3>
+<p>近年来，<strong>股票回购</strong>和<strong>并购</strong>对账面价值产生了显著影响，值得特别关注。</p>
+<p><strong>股票回购的影响</strong>：</p>
+<p>当公司回购股票时，账面权益会减少相应金额。举个例子：</p>
+<ul>
+<li>公司市值 1 亿美元，账面价值 5000 万美元，PBV = 2.0</li>
+<li>公司借款 2500 万美元回购股票</li>
+<li>市值和账面价值都下降 2500 万美元</li>
+<li>新 PBV = 7500 万 / 2500 万 = <strong>3.0</strong></li>
+</ul>
+<p>回购”人为”提高了 PBV！这意味着在比较积极回购与不回购的公司时，需要谨慎。</p>
+<p><strong>收购的影响</strong>：</p>
+<p>收购时，购买价格超过目标公司账面价值的部分会计入<strong>商誉（Goodwill）</strong>。商誉的处理方式会影响账面价值和 PBV：</p>
+<ul>
+<li>商誉需要定期进行减值测试</li>
+<li>减值损失会降低账面价值</li>
+<li>大量收购的公司账面价值中可能包含大量商誉</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>调整方法
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果要跨公司比较 PBV，可以考虑：</p>
+<ol type="1">
+<li><strong>剔除商誉</strong>：使用有形账面价值（Tangible Book Value）</li>
+<li><strong>加回回购</strong>：将历史回购金额加回账面价值</li>
+</ol>
+<p><span class="math display">\[
+\text{调整后账面价值} = \text{账面价值} - \text{商誉} + \text{历史回购金额}
+\]</span></p>
+</div>
+</div>
+</section>
+<section id="pbv-的跨截面分布" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="pbv-的跨截面分布"><span class="header-section-number">2.5</span> PBV 的跨截面分布</h3>
+<p>理解 PBV 在市场中的分布特征至关重要。图 19.1 展示了 2024 年 1 月美国和全球公司的 PBV 分布：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>统计量</th>
+<th>美国</th>
+<th>全球</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>平均值</strong></td>
+<td>9.94</td>
+<td>6.15</td>
+</tr>
+<tr class="even">
+<td><strong>中位数</strong></td>
+<td>1.62</td>
+<td>1.49</td>
+</tr>
+<tr class="odd">
+<td>最大值</td>
+<td>极高</td>
+<td>极高</td>
+</tr>
+<tr class="even">
+<td>负账面价值公司数</td>
+<td>~2,000</td>
+<td>更多</td>
+</tr>
+</tbody>
+</table>
+<p>几个关键观察：</p>
+<ol type="1">
+<li><strong>严重右偏分布</strong>：平均值远高于中位数，因为存在极高 PBV 的公司</li>
+<li><strong>负账面价值</strong>：美国约 2,000 家公司账面价值为负，无法计算 PBV</li>
+<li><strong>负账面价值的原因</strong>：多数情况下是股票回购和资产减值的结果，而非真正陷入困境</li>
+</ol>
+</section>
+</section>
+<section id="pbv-的决定因素从-dcf-推导" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="pbv-的决定因素从-dcf-推导"><span class="header-section-number">3</span> PBV 的决定因素：从 DCF 推导</h2>
+<section id="稳定增长公司的-pbv" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="稳定增长公司的-pbv"><span class="header-section-number">3.1</span> 稳定增长公司的 PBV</h3>
+<p>要理解 PBV 的真正驱动因素，我们需要回到 DCF 模型。从稳定增长的股息折现模型出发：</p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{\text{预期股息}}{\text{股权成本} - \text{预期增长率}} = \frac{\text{净利润} \times \text{派息率}}{k_e - g}
+\]</span></p>
+<p>定义 ROE = 净利润 / 期初账面价值，将净利润改写为：</p>
+<p><span class="math display">\[
+\text{净利润} = \text{账面价值} \times \text{ROE}
+\]</span></p>
+<p>代入得：</p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{\text{账面价值} \times \text{ROE} \times \text{派息率}}{k_e - g}
+\]</span></p>
+<p>两边同除以账面价值，得到 <strong>PBV 的基本公式</strong>：</p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{ROE} \times \text{派息率}}{k_e - g}
+\]</span></p>
+<p>进一步，利用增长率与 ROE 的关系：</p>
+<p><span class="math display">\[
+g = (1 - \text{派息率}) \times \text{ROE}
+\]</span></p>
+<p>可以推导出<strong>更简洁的形式</strong>：</p>
+<p><span class="math display">\[
+\boxed{\text{PBV} = \frac{\text{ROE} - g}{k_e - g}}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心洞察：PBV = 1 的临界条件
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>从公式可以看出：</p>
+<ul>
+<li>当 <strong>ROE = <span class="math inline">\(k_e\)</span></strong>（股权成本）时，<strong>PBV = 1</strong></li>
+<li>当 <strong>ROE &gt; <span class="math inline">\(k_e\)</span></strong> 时，<strong>PBV &gt; 1</strong>——公司创造超额回报，市价高于账面</li>
+<li>当 <strong>ROE &lt; <span class="math inline">\(k_e\)</span></strong> 时，<strong>PBV &lt; 1</strong>——公司损毁价值，市价低于账面</li>
+</ul>
+<p><strong>PBV 的本质是市场对公司创造超额回报能力的定价。</strong></p>
+</div>
+</div>
+</section>
+<section id="vodafone-案例稳定增长公司的-pbv-估算" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="vodafone-案例稳定增长公司的-pbv-估算"><span class="header-section-number">3.2</span> Vodafone 案例：稳定增长公司的 PBV 估算</h3>
+<p>让我们用 Vodafone 的数据来演示这个公式。假设 Vodafone 已进入稳定增长阶段：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润（2010）</td>
+<td>7,968 百万英镑</td>
+</tr>
+<tr class="even">
+<td>股息（2010）</td>
+<td>4,468 百万英镑</td>
+</tr>
+<tr class="odd">
+<td>账面价值（2009年末）</td>
+<td>90,810 百万英镑</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>4,468 / 7,968 = <strong>55.82%</strong></td>
+</tr>
+<tr class="odd">
+<td>ROE</td>
+<td>7,968 / 90,810 = <strong>8.77%</strong></td>
+</tr>
+<tr class="even">
+<td>预期增长率</td>
+<td>(1 − 0.5582) × 8.77% = <strong>3.88%</strong></td>
+</tr>
+<tr class="odd">
+<td>无风险利率</td>
+<td>4%</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>4% + 1.0 × 5% = <strong>9.0%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>计算 PBV</strong>（两种方法结果相同）：</p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{ROE} \times \text{派息率}}{k_e - g} = \frac{0.0877 \times 0.5582}{0.09 - 0.0388} = 0.96
+\]</span></p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{ROE} - g}{k_e - g} = \frac{0.0877 - 0.0388}{0.09 - 0.0388} = 0.96
+\]</span></p>
+<p><strong>解读</strong>：Vodafone 的 PBV 略低于 1，因为其 ROE（8.77%）低于股权成本（9%）。市场合理地给予其低于账面价值的定价。</p>
+</section>
+<section id="jenapharm-案例私有化估值" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="jenapharm-案例私有化估值"><span class="header-section-number">3.3</span> Jenapharm 案例：私有化估值</h3>
+<p>1991 年德国统一后，Treuhandanstalt（德国私有化机构）需要为东德制药公司 Jenapharm 定价。这是 PBV 在私有化中的实际应用：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>预期净利润（1991）</td>
+<td>900 万德国马克</td>
+</tr>
+<tr class="even">
+<td>账面价值（1990年末）</td>
+<td>5,800 万德国马克</td>
+</tr>
+<tr class="odd">
+<td>ROE</td>
+<td>9 / 58 = <strong>15.52%</strong></td>
+</tr>
+<tr class="even">
+<td>预期增长率</td>
+<td><strong>5%</strong>（长期）</td>
+</tr>
+<tr class="odd">
+<td>无风险利率</td>
+<td>7%</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>1.25（高于行业平均 1.05，反映更高风险）</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>7% + 1.25 × 3.5% = <strong>11.375%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>计算 PBV</strong>：</p>
+<p><span class="math display">\[
+\text{PBV} = \frac{\text{ROE} - g}{k_e - g} = \frac{0.1552 - 0.05}{0.11375 - 0.05} = 1.65
+\]</span></p>
+<p><strong>估计市值</strong>：</p>
+<p><span class="math display">\[
+\text{市值} = \text{PBV} \times \text{账面价值} = 1.65 \times 5800 = 9570 \text{ 万德国马克}
+\]</span></p>
+</section>
+<section id="高增长公司的-pbv" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="高增长公司的-pbv"><span class="header-section-number">3.4</span> 高增长公司的 PBV</h3>
+<p>对于高增长公司，我们需要使用两阶段模型。从两阶段股息折现模型推导：</p>
+<p><span class="math display">\[
+\frac{\text{Price}}{\text{Book}} = \text{ROE}_{hg} \times \left[ \frac{\text{派息率}_{hg} \times \left(1 - \frac{(1+g)^n}{(1+k_{e,hg})^n}\right)}{k_{e,hg} - g} + \frac{(1+g)^{n-1}(1+g_{st}) \times \text{派息率}_{st}}{(k_{e,st} - g_{st})(1+k_{e,hg})^n} \right]
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(\text{ROE}_{hg}\)</span> = 高增长期的 ROE</li>
+<li><span class="math inline">\(g\)</span> = 高增长期的增长率</li>
+<li><span class="math inline">\(g_{st}\)</span> = 稳定期的增长率</li>
+<li><span class="math inline">\(k_{e,hg}\)</span>, <span class="math inline">\(k_{e,st}\)</span> = 高增长期和稳定期的股权成本</li>
+<li><span class="math inline">\(n\)</span> = 高增长期年数</li>
+</ul>
+<p><strong>PBV 的决定因素</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>因素</th>
+<th>对 PBV 的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ROE</strong></td>
+<td>正相关——ROE 越高，PBV 越高</td>
+</tr>
+<tr class="even">
+<td><strong>派息率</strong></td>
+<td>正相关（给定增长率）</td>
+</tr>
+<tr class="odd">
+<td><strong>风险（通过 <span class="math inline">\(k_e\)</span>）</strong></td>
+<td>负相关——风险越高，PBV 越低</td>
+</tr>
+<tr class="even">
+<td><strong>增长率</strong></td>
+<td>正相关——增长越快，PBV 越高</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="高增长公司案例两阶段模型" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="高增长公司案例两阶段模型"><span class="header-section-number">3.5</span> 高增长公司案例：两阶段模型</h3>
+<p>假设一家公司具有以下特征：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>高增长期（5年）</th>
+<th>稳定期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>EPS 增长率</td>
+<td>20%</td>
+<td>4%</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>20%</td>
+<td>60%</td>
+</tr>
+<tr class="odd">
+<td>ROE</td>
+<td>25%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>9.5%</td>
+<td>9.5%</td>
+</tr>
+</tbody>
+</table>
+<p>验证增长率的一致性： - 高增长期：<span class="math inline">\(g = (1 - 0.20) \times 25\% = 20\%\)</span> ✓ - 稳定期：<span class="math inline">\(g = (1 - 0.60) \times 10\% = 4\%\)</span> ✓</p>
+<p><strong>计算 PBV</strong>：</p>
+<p><span class="math display">\[
+\frac{\text{Price}}{\text{Book}} = 0.25 \times \left[ \frac{0.20 \times \left(1 - \frac{(1.20)^5}{(1.095)^5}\right)}{0.095 - 0.20} + \frac{(1.20)^4(1.04)(0.60)}{(0.095 - 0.04)(1.095)^5} \right] = 4.01
+\]</span></p>
+<p>这家高增长公司的 PBV 为 4.01，远高于稳定增长公司的水平。</p>
+</section>
+<section id="nestle-案例用-fcfe-替代股息" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="nestle-案例用-fcfe-替代股息"><span class="header-section-number">3.6</span> Nestle 案例：用 FCFE 替代股息</h3>
+<p>如果公司不按照其支付能力支付股息，我们可以用 FCFE 替代股息。以 Nestle 为例：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>高增长期（5年）</th>
+<th>稳定期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ROE</td>
+<td>21.35%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>股权再投资率</td>
+<td>37.17%</td>
+<td>25%</td>
+</tr>
+<tr class="odd">
+<td>FCFE/净利润</td>
+<td>62.83%</td>
+<td>75%</td>
+</tr>
+<tr class="even">
+<td>预期增长率</td>
+<td>7.94%</td>
+<td>2.5%</td>
+</tr>
+<tr class="odd">
+<td>股权成本</td>
+<td>6.90%</td>
+<td>6.90%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>计算 PBV</strong>：</p>
+<p><span class="math display">\[
+\frac{\text{Price}}{\text{Book}} = 0.2135 \times \left[ \frac{0.6283 \times \left(1 - \frac{(1.0794)^5}{(1.069)^5}\right)}{0.069 - 0.0794} + \frac{(1.0794)^4(1.025)(0.75)}{(0.069 - 0.025)(1.069)^5} \right] = 4.27
+\]</span></p>
+</section>
+</section>
+<section id="pbv-与-roe-的核心关系" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="pbv-与-roe-的核心关系"><span class="header-section-number">4</span> PBV 与 ROE 的核心关系</h2>
+<section id="roe-变化对-pbv-的影响" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="roe-变化对-pbv-的影响"><span class="header-section-number">4.1</span> ROE 变化对 PBV 的影响</h3>
+<p>ROE 的变化对 PBV 有<strong>双重影响</strong>：</p>
+<ol type="1">
+<li><strong>直接影响</strong>：通过 PBV 公式中的 ROE 项</li>
+<li><strong>间接影响</strong>：通过改变可持续增长率 <span class="math inline">\(g = (1 - \text{派息率}) \times \text{ROE}\)</span></li>
+</ol>
+<p>让我们看一个具体例子。假设前面那家高增长公司的 ROE 从 25% 下降到 12%：</p>
+<p><strong>新的增长率</strong>：<span class="math inline">\(g = 0.8 \times 12\% = 9.6\%\)</span>（而非 20%）</p>
+<p><strong>新的 PBV</strong>：</p>
+<p><span class="math display">\[
+\frac{\text{Price}}{\text{Book}} = 0.12 \times \left[ \frac{0.20 \times \left(1 - \frac{(1.096)^5}{(1.095)^5}\right)}{0.095 - 0.096} + \frac{(1.096)^4(1.04)(0.60)}{(0.095 - 0.04)(1.095)^5} \right] = 1.36
+\]</span></p>
+<p><strong>PBV 从 4.01 暴跌至 1.36</strong>！ROE 下降 13 个百分点（从 25% 到 12%），导致 PBV 下降约 66%。</p>
+</section>
+<section id="pbv-与超额回报的关系" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="pbv-与超额回报的关系"><span class="header-section-number">4.2</span> PBV 与超额回报的关系</h3>
+<p>图 19.2 展示了 PBV 与”超额股权回报”（ROE − 股权成本）之间的关系：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>ROE − 股权成本</th>
+<th>PBV（近似）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>−4.50%</td>
+<td>0.5</td>
+</tr>
+<tr class="even">
+<td>−0.50%</td>
+<td>0.9</td>
+</tr>
+<tr class="odd">
+<td>5.50%</td>
+<td>2.5</td>
+</tr>
+<tr class="even">
+<td>10.50%</td>
+<td>4.0</td>
+</tr>
+<tr class="odd">
+<td>15.50%</td>
+<td>5.5</td>
+</tr>
+<tr class="even">
+<td>20.50%</td>
+<td>7.0</td>
+</tr>
+<tr class="odd">
+<td>25.50%</td>
+<td>8.5</td>
+</tr>
+<tr class="even">
+<td>30.50%</td>
+<td>9.5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心洞察</strong>：当 ROE = 股权成本时，PBV = 1。超额回报每增加 5 个百分点，PBV 大约增加 1.5-2.0。</p>
+</section>
+<section id="roe-的决定因素porter-五力框架" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="roe-的决定因素porter-五力框架"><span class="header-section-number">4.3</span> ROE 的决定因素：Porter 五力框架</h3>
+<p>ROE 与股权成本的差异衡量了公司获取<strong>超额回报</strong>的能力。这种能力从何而来？Michael Porter 的五力框架提供了分析框架：</p>
+<p><strong>五种竞争力量</strong>：</p>
+<ol type="1">
+<li><p><strong>新进入者威胁</strong></p>
+<ul>
+<li>规模经济</li>
+<li>成本优势</li>
+<li>资本要求</li>
+<li>产品差异化</li>
+<li>分销渠道</li>
+<li>政府和法律壁垒</li>
+</ul></li>
+<li><p><strong>供应商议价能力</strong></p></li>
+<li><p><strong>买方议价能力</strong></p>
+<ul>
+<li>购买量占总成本的比例</li>
+<li>买方盈利能力</li>
+<li>产品对买方的重要性</li>
+</ul></li>
+<li><p><strong>替代品威胁</strong></p>
+<ul>
+<li>买方替代倾向</li>
+<li>替代品的相对价格表现</li>
+</ul></li>
+<li><p><strong>行业内竞争</strong></p>
+<ul>
+<li>集中度</li>
+<li>产品差异化</li>
+<li>产能过剩</li>
+<li>固定成本/可变成本比率</li>
+</ul></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>护城河（Moat）概念
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>价值投资者将持续的竞争优势称为”护城河”。在本章的框架中，护城河的强度由两个因素决定：</p>
+<ol type="1">
+<li><strong>ROE 的水平</strong>：护城河越强，ROE 越高</li>
+<li><strong>ROE 的持续性</strong>：护城河越宽，高 ROE 能维持越久</li>
+</ol>
+</div>
+</div>
+</section>
+</section>
+<section id="pbv-的应用从市场到个股" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="pbv-的应用从市场到个股"><span class="header-section-number">5</span> PBV 的应用：从市场到个股</h2>
+<section id="市场层面pbv-与-roe-的历史关系" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="市场层面pbv-与-roe-的历史关系"><span class="header-section-number">5.1</span> 市场层面：PBV 与 ROE 的历史关系</h3>
+<p>图 19.4 展示了 S&amp;P 500 从 1980 年到 2023 年的 PBV 和 ROE 变化：</p>
+<p><strong>关键观察</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>时期</th>
+<th>趋势</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1980-2000</td>
+<td>PBV 和 ROE 同步上升（科技股涌入）</td>
+</tr>
+<tr class="even">
+<td>2001-2010</td>
+<td>PBV 和 ROE 同步下降</td>
+</tr>
+<tr class="odd">
+<td>2011-2021</td>
+<td>PBV 和 ROE 再次上升（低利率贡献）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>解读</strong>：市场整体的 PBV 由企业整体的超额回报能力决定。低利率降低了股权成本，从而推高了 PBV。</p>
+</section>
+<section id="行业内比较矩阵法与回归法" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="行业内比较矩阵法与回归法"><span class="header-section-number">5.2</span> 行业内比较：矩阵法与回归法</h3>
+<p><strong>矩阵法</strong>：</p>
+<p>将公司按 PBV 和 ROE（或超额回报）分类：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>低超额回报</th>
+<th>高超额回报</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>高 PBV</strong></td>
+<td><strong>高估</strong></td>
+<td>合理定价</td>
+</tr>
+<tr class="even">
+<td><strong>低 PBV</strong></td>
+<td>合理定价</td>
+<td><strong>低估</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>值得关注的是不匹配的公司</strong>：</p>
+<ul>
+<li><strong>低 PBV + 高 ROE</strong> → 潜在低估</li>
+<li><strong>高 PBV + 低 ROE</strong> → 潜在高估</li>
+</ul>
+<p><strong>回归法</strong>：</p>
+<p>可以用回归模型量化 PBV 与 ROE 的关系：</p>
+<p><span class="math display">\[
+\text{PBV} = a + b \times \text{ROE}
+\]</span></p>
+<p>如果关系显著，可以用回归预测每家公司的”合理” PBV，然后比较实际 PBV 与预测 PBV。</p>
+</section>
+<section id="欧洲服装公司案例分析" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="欧洲服装公司案例分析"><span class="header-section-number">5.3</span> 欧洲服装公司案例分析</h3>
+<p>表 19.3 展示了 2024 年 5 月市值超过 10 亿美元的 27 家欧洲服装公司：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>PBV</th>
+<th>ROE</th>
+<th>公司</th>
+<th>PBV</th>
+<th>ROE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LVMH</td>
+<td>5.88</td>
+<td>24.87%</td>
+<td>Pandora A/S</td>
+<td>23.11</td>
+<td>121.57%</td>
+</tr>
+<tr class="even">
+<td>Hermès</td>
+<td>14.71</td>
+<td>28.36%</td>
+<td>Swatch Group</td>
+<td>0.76</td>
+<td>7.12%</td>
+</tr>
+<tr class="odd">
+<td>Christian Dior</td>
+<td>5.77</td>
+<td>29.28%</td>
+<td>Hugo Boss</td>
+<td>2.54</td>
+<td>19.61%</td>
+</tr>
+<tr class="even">
+<td>Kering</td>
+<td>2.51</td>
+<td>19.61%</td>
+<td>Brunello Cucinelli</td>
+<td>13.94</td>
+<td>25.95%</td>
+</tr>
+<tr class="odd">
+<td>adidas</td>
+<td>8.53</td>
+<td>2.75%</td>
+<td>Burberry</td>
+<td>3.24</td>
+<td>23.54%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>散点图分析</strong>表明 PBV 与 ROE 呈正相关。回归结果：</p>
+<p><span class="math display">\[
+\text{PBV} = 3.05 + 14.64 \times \text{ROE} \quad R^2 = 47.0\%
+\]</span></p>
+<p>加入预期增长率后：</p>
+<p><span class="math display">\[
+\text{PBV} = 1.66 + 14.44 \times \text{ROE} + 11.73 \times g_{EPS} \quad R^2 = 58.9\%
+\]</span></p>
+<p><strong>估值分析结果</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>实际 PBV</th>
+<th>预测 PBV</th>
+<th>高估/低估</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Swatch（最低估）</strong></td>
+<td>0.76</td>
+<td>3.18</td>
+<td>−76.20%</td>
+</tr>
+<tr class="even">
+<td>Hermès</td>
+<td>14.71</td>
+<td>7.02</td>
+<td>+109.47%</td>
+</tr>
+<tr class="odd">
+<td><strong>Capri Holdings（最高估）</strong></td>
+<td>2.52</td>
+<td>0.46</td>
+<td>+443.76%</td>
+</tr>
+<tr class="even">
+<td>Hugo Boss</td>
+<td>2.54</td>
+<td>6.49</td>
+<td>−60.91%</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="跨市场回归" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="跨市场回归"><span class="header-section-number">5.4</span> 跨市场回归</h3>
+<p>表 19.6 展示了 2024 年初不同地区的 PBV 市场回归结果：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 40%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>地区</th>
+<th>回归方程</th>
+<th><span class="math inline">\(R^2\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>美国</td>
+<td>PBV = 2.10 + 6.07 <span class="math inline">\(g_{EPS}\)</span> + 0.69 Beta + 5.09 ROE − 0.33 Payout</td>
+<td>21.9%</td>
+</tr>
+<tr class="even">
+<td>欧洲</td>
+<td>PBV = 1.20 + 3.25 <span class="math inline">\(g_{EPS}\)</span> + 0.06 Beta + 5.78 ROE + 1.36 Payout</td>
+<td>17.1%</td>
+</tr>
+<tr class="odd">
+<td>日本</td>
+<td>PBV = 0.05 + 0.48 <span class="math inline">\(g_{EPS}\)</span> + 0.78 Beta + 10.30 ROE + 0.10 Payout</td>
+<td>34.9%</td>
+</tr>
+<tr class="even">
+<td>澳新加</td>
+<td>PBV = 3.07 + 1.60 <span class="math inline">\(g_{EPS}\)</span> − 1.49 Beta + 9.50 ROE + 1.80 Payout</td>
+<td>32.9%</td>
+</tr>
+<tr class="odd">
+<td>新兴市场</td>
+<td>PBV = 0.99 + 1.80 <span class="math inline">\(g_{EPS}\)</span> − 0.13 Beta + 5.52 ROE − 0.09 Payout</td>
+<td>36.9%</td>
+</tr>
+<tr class="even">
+<td>全球</td>
+<td>PBV = 2.29 + 3.12 <span class="math inline">\(g_{EPS}\)</span> − 0.16 Beta + 6.61 ROE − 0.29 Payout</td>
+<td>19.8%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心发现</strong>：ROE 在所有市场都是 PBV 的最显著解释变量。</p>
+</section>
+<section id="nike-案例使用市场回归" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="nike-案例使用市场回归"><span class="header-section-number">5.5</span> Nike 案例：使用市场回归</h3>
+<p>假设 2024 年初对 Nike 进行估值：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>账面价值</td>
+<td>140.04 亿美元</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>41.76%</td>
+</tr>
+<tr class="odd">
+<td>预期增长率</td>
+<td>12.37%</td>
+</tr>
+<tr class="even">
+<td>ROE</td>
+<td>36.38%</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>1.06</td>
+</tr>
+</tbody>
+</table>
+<p><strong>美国市场回归</strong>：</p>
+<p><span class="math display">\[
+\text{预测 PBV} = 2.10 + 6.07(0.1237) + 0.69(1.06) + 5.09(0.3638) - 0.33(0.4176) = 5.0
+\]</span></p>
+<p><strong>全球回归</strong>：</p>
+<p><span class="math display">\[
+\text{预测 PBV} = 2.29 + 3.12(0.1237) - 0.16(1.06) + 6.61(0.3638) - 0.29(0.4176) = 4.7
+\]</span></p>
+<p>Nike 当时实际 PBV 为 <strong>11.10</strong>，显著高于预测值，暗示可能被高估。</p>
+</section>
+<section id="时间序列比较ibm-的兴衰" class="level3" data-number="5.6">
+<h3 data-number="5.6" class="anchored" data-anchor-id="时间序列比较ibm-的兴衰"><span class="header-section-number">5.6</span> 时间序列比较：IBM 的兴衰</h3>
+<p>IBM 提供了 ROE 与 PBV 关系的经典案例：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>时期</th>
+<th>ROE</th>
+<th>PBV</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1983</td>
+<td>25%</td>
+<td>3.0×</td>
+<td>道琼斯最高 PBV 之一</td>
+</tr>
+<tr class="even">
+<td>1992-1993</td>
+<td>负值</td>
+<td>~1.0×</td>
+<td>ROE 崩溃</td>
+</tr>
+<tr class="odd">
+<td>1999</td>
+<td>高</td>
+<td>9.0×</td>
+<td>Gerstner 改革成功</td>
+</tr>
+<tr class="even">
+<td>2001-2010</td>
+<td>持续高</td>
+<td>高</td>
+<td>维持高 ROE 和高 PBV</td>
+</tr>
+</tbody>
+</table>
+<p><strong>投资启示</strong>：在低点买入 IBM 的投资者，押注的是 ROE 的改善。随着公司从”低 PBV/低 ROE”象限移动到”高 PBV/高 ROE”象限，股价大幅上涨。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>当前 ROE vs 预期 ROE
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在所有比较中，我们使用的是当前 ROE。但市场定价反映的是<strong>预期未来 ROE</strong>。</p>
+<p>两种调整方法：</p>
+<ol type="1">
+<li><strong>历史平均法</strong>：使用 3-5 年平均 ROE，减少波动影响</li>
+<li><strong>均值回归法</strong>：将当前 ROE 向行业平均推移，反映竞争压力</li>
+</ol>
+<p>例如，一家软件公司当前 ROE 35%，行业平均 20%。预测 ROE 可以是两者的加权平均，权重取决于竞争优势的持续性。</p>
+</div>
+</div>
+</section>
+<section id="有形账面价值与非现金-pbv" class="level3" data-number="5.7">
+<h3 data-number="5.7" class="anchored" data-anchor-id="有形账面价值与非现金-pbv"><span class="header-section-number">5.7</span> 有形账面价值与非现金 PBV</h3>
+<p>一些价值投资者偏好使用<strong>有形账面价值</strong>：</p>
+<p><span class="math display">\[
+\text{有形账面价值} = \text{账面价值} - \text{商誉}
+\]</span></p>
+<p>相应地：</p>
+<p><span class="math display">\[
+\text{有形 ROE} = \frac{\text{净利润}}{\text{账面价值} - \text{商誉}}
+\]</span></p>
+<p><strong>优点</strong>：剔除了收购中可能的溢价支付</p>
+<p><strong>注意</strong>：商誉反映了控制权溢价、协同效应，也可能包含过度支付。持续过度支付收购的公司，其股权实际上价值更低。</p>
+</section>
+</section>
+<section id="投资策略中的-pbv" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="投资策略中的-pbv"><span class="header-section-number">6</span> 投资策略中的 PBV</h2>
+<section id="超额回报的证据" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="超额回报的证据"><span class="header-section-number">6.1</span> 超额回报的证据</h3>
+<p>多项研究证实了低 PBV 股票的超额回报：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>研究</th>
+<th>时期</th>
+<th>发现</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rosenberg, Reid &amp; Lanstein (1985)</td>
+<td>1973-1984</td>
+<td>高账面/市值比组合月超额回报 36 个基点</td>
+</tr>
+<tr class="even">
+<td>Fama &amp; French (1992)</td>
+<td>1963-1990</td>
+<td>最低 PBV 组月回报 1.83%，最高 PBV 组仅 0.30%</td>
+</tr>
+<tr class="odd">
+<td>Chan, Hamao &amp; Lakonishok (1991)</td>
+<td>日本</td>
+<td>账面/市值比显著解释股票回报</td>
+</tr>
+<tr class="even">
+<td>Capaul, Rowley &amp; Sharpe (1993)</td>
+<td>1981-1992 全球</td>
+<td>低 PBV 组合在所有市场都有超额回报</td>
+</tr>
+</tbody>
+</table>
+<p><strong>不同国家的年化超额回报</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>国家</th>
+<th>低 PBV 组合超额回报</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>法国</td>
+<td>3.26%</td>
+</tr>
+<tr class="even">
+<td>日本</td>
+<td>3.43%</td>
+</tr>
+<tr class="odd">
+<td>德国</td>
+<td>1.39%</td>
+</tr>
+<tr class="even">
+<td>瑞士</td>
+<td>1.17%</td>
+</tr>
+<tr class="odd">
+<td>英国</td>
+<td>1.09%</td>
+</tr>
+<tr class="even">
+<td>美国</td>
+<td>1.06%</td>
+</tr>
+<tr class="odd">
+<td>全球</td>
+<td>1.88%</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="benjamin-graham-的选股标准" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="benjamin-graham-的选股标准"><span class="header-section-number">6.2</span> Benjamin Graham 的选股标准</h3>
+<p>本杰明·格雷厄姆在其经典著作中将”股价低于账面价值的三分之二”作为选股标准之一。</p>
+<p>但本章的分析表明，<strong>单纯的低 PBV 不足以识别低估</strong>。真正的低估是：</p>
+<p><span class="math display">\[
+\text{低估} = \text{低 PBV} + \text{高 ROE（预期）}
+\]</span></p>
+</section>
+<section id="pbv-作为风险代理" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="pbv-作为风险代理"><span class="header-section-number">6.3</span> PBV 作为风险代理？</h3>
+<p>Fama 和 French (1992) 提出，低 PBV 股票的高回报可能是<strong>风险补偿</strong>，而非定价错误。</p>
+<p><strong>反驳</strong>：</p>
+<ul>
+<li>低 PBV 股票组合的杠杆和盈利波动性与高 PBV 组合相似</li>
+<li>没有明确证据表明低 PBV 股票面临更高的系统性风险</li>
+</ul>
+<p>这仍然是学术界争论的问题。</p>
+</section>
+</section>
+<section id="企业价值账面资本比率value-to-book" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="企业价值账面资本比率value-to-book"><span class="header-section-number">7</span> 企业价值/账面资本比率（Value-to-Book）</h2>
+<section id="定义" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="定义"><span class="header-section-number">7.1</span> 定义</h3>
+<p>企业价值/账面资本比率是 PBV 的公司价值版本：</p>
+<p><span class="math display">\[
+\text{企业价值/账面资本} = \frac{\text{股权市值} + \text{债务市值}}{\text{股权账面价值} + \text{债务账面价值}}
+\]</span></p>
+<p>如果使用<strong>企业价值（EV）</strong>作为分子（扣除现金），分母也应相应调整为<strong>投入资本（Invested Capital）</strong>：</p>
+<p><span class="math display">\[
+\text{EV/IC} = \frac{\text{股权市值} + \text{债务市值} - \text{现金}}{\text{股权账面} + \text{债务账面} - \text{现金}}
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>一致性要求
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>两种常见错误：</p>
+<ol type="1">
+<li><strong>使用总资产作为分母</strong>：总资产包含流动负债，会低估比率</li>
+<li><strong>分子扣现金但分母不扣</strong>：导致比率偏低</li>
+</ol>
+<p>正确做法：分子分母对现金的处理保持一致。</p>
+</div>
+</div>
+</section>
+<section id="分布特征" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="分布特征"><span class="header-section-number">7.2</span> 分布特征</h3>
+<p>2024 年 1 月 EV/IC 的分布：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>统计量</th>
+<th>美国</th>
+<th>全球</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>中位数</td>
+<td>1.97</td>
+<td>1.54</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优点</strong>：负投入资本的公司比负账面权益的公司更少，样本损失更小。</p>
+</section>
+<section id="从-dcf-推导-evic" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="从-dcf-推导-evic"><span class="header-section-number">7.3</span> 从 DCF 推导 EV/IC</h3>
+<p>从 FCFF 估值模型出发，对于稳定增长公司：</p>
+<p><span class="math display">\[
+\text{企业价值} = \frac{\text{FCFF}_1}{k_c - g} = \frac{\text{EBIT}(1-t) \times (1 - \text{再投资率})}{k_c - g}
+\]</span></p>
+<p>定义 ROIC = EBIT(1−t) / 投入资本，可得：</p>
+<p><span class="math display">\[
+\frac{\text{EV}}{\text{IC}} = \frac{\text{ROIC} \times (1 - \text{再投资率})}{k_c - g}
+\]</span></p>
+<p>利用 <span class="math inline">\(\text{再投资率} = g / \text{ROIC}\)</span>，简化为：</p>
+<p><span class="math display">\[
+\boxed{\frac{\text{EV}}{\text{IC}} = \frac{\text{ROIC} - g}{k_c - g}}
+\]</span></p>
+<p>这与 PBV 的公式结构完全相同，只是：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>PBV</th>
+<th>EV/IC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ROE</td>
+<td>ROIC</td>
+</tr>
+<tr class="even">
+<td>股权成本 <span class="math inline">\(k_e\)</span></td>
+<td>资本成本 <span class="math inline">\(k_c\)</span></td>
+</tr>
+<tr class="odd">
+<td>派息率</td>
+<td>1 − 再投资率</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="应用估值矩阵" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="应用估值矩阵"><span class="header-section-number">7.4</span> 应用：估值矩阵</h3>
+<p>图 19.10 展示了 EV/IC 的估值矩阵：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>低资本回报差（ROIC − <span class="math inline">\(k_c\)</span>）</th>
+<th>高资本回报差</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>高 EV/IC</strong></td>
+<td><strong>高估</strong></td>
+<td>合理定价</td>
+</tr>
+<tr class="even">
+<td><strong>低 EV/IC</strong></td>
+<td>合理定价</td>
+<td><strong>低估</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="evic-的市场回归" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="evic-的市场回归"><span class="header-section-number">7.5</span> EV/IC 的市场回归</h3>
+<p>表 19.8 展示了 2024 年初的 EV/IC 市场回归：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 40%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>地区</th>
+<th>回归方程</th>
+<th><span class="math inline">\(R^2\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>美国</td>
+<td>EV/IC = 5.78 + 0.66 <span class="math inline">\(g_{Revenue}\)</span> + 0.57 ROIC − 6.20 DFR</td>
+<td>44.2%</td>
+</tr>
+<tr class="even">
+<td>欧洲</td>
+<td>EV/IC = 3.56 + 2.82 <span class="math inline">\(g_{Revenue}\)</span> + 4.10 ROIC − 3.54 DFR</td>
+<td>51.7%</td>
+</tr>
+<tr class="odd">
+<td>日本</td>
+<td>EV/IC = 3.55 + 1.22 <span class="math inline">\(g_{Revenue}\)</span> + 0.64 ROIC − 4.30 DFR</td>
+<td>41.1%</td>
+</tr>
+<tr class="even">
+<td>新兴市场</td>
+<td>EV/IC = 3.29 + 1.25 <span class="math inline">\(g_{Revenue}\)</span> + 0.96 ROIC − 3.76 DFR</td>
+<td>50.1%</td>
+</tr>
+<tr class="odd">
+<td>全球</td>
+<td>EV/IC = 4.70 + 0.70 <span class="math inline">\(g_{Revenue}\)</span> + 0.86 ROIC − 5.00 DFR</td>
+<td>44.3%</td>
+</tr>
+</tbody>
+</table>
+<p>其中 DFR = 债务/资本比率（市值）。</p>
+</section>
+<section id="何时使用-evic-而非-pbv" class="level3" data-number="7.6">
+<h3 data-number="7.6" class="anchored" data-anchor-id="何时使用-evic-而非-pbv"><span class="header-section-number">7.6</span> 何时使用 EV/IC 而非 PBV？</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情况</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>高杠杆或杠杆波动大</td>
+<td>EV/IC（ROE 波动太大）</td>
+</tr>
+<tr class="even">
+<td>负账面权益</td>
+<td>EV/IC（仍可计算）</td>
+</tr>
+<tr class="odd">
+<td>需要跨资本结构比较</td>
+<td>EV/IC（不受杠杆影响）</td>
+</tr>
+<tr class="even">
+<td>一般情况</td>
+<td>PBV 或 EV/IC 均可</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>ROE、ROIC、ROA 的区别
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>分子</th>
+<th>分母</th>
+<th>比较基准</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ROE</strong></td>
+<td>净利润</td>
+<td>股权账面价值</td>
+<td>股权成本</td>
+</tr>
+<tr class="even">
+<td><strong>ROIC</strong></td>
+<td>EBIT(1−t)</td>
+<td>投入资本（债务+股权−现金）</td>
+<td>资本成本</td>
+</tr>
+<tr class="odd">
+<td><strong>ROA</strong></td>
+<td>净利润或 EBIT</td>
+<td>总资产</td>
+<td>不明确（不推荐使用）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议</strong>：使用当年利润除以上年末账面价值。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="托宾-qtobins-q" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="托宾-qtobins-q"><span class="header-section-number">8</span> 托宾 Q（Tobin’s Q）</h2>
+<section id="定义-1" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="定义-1"><span class="header-section-number">8.1</span> 定义</h3>
+<p>诺贝尔经济学奖得主 James Tobin 提出的指标：</p>
+<p><span class="math display">\[
+\text{Tobin's Q} = \frac{\text{资产市值}}{\text{资产重置成本}}
+\]</span></p>
+<p><strong>理论基础</strong>：</p>
+<ul>
+<li>如果 Q &lt; 1，市场认为公司的资产不值其重置成本——可能管理不善</li>
+<li>如果 Q &gt; 1，公司从资产中创造的价值超过重置成本——效率优势</li>
+</ul>
+<p><strong>与超额回报的关系</strong>：</p>
+<p>当资产回报率 = 资本成本时，投资 NPV = 0，资产市值 = 重置成本，Q = 1。</p>
+</section>
+<section id="实际应用的局限" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="实际应用的局限"><span class="header-section-number">8.2</span> 实际应用的局限</h3>
+<p><strong>主要问题</strong>：</p>
+<ol type="1">
+<li><strong>重置成本难以估计</strong>：特别是非标准化资产</li>
+<li><strong>数据获取困难</strong>：需要大量额外信息</li>
+<li><strong>通胀和技术变化</strong>：
+<ul>
+<li>通胀时期，重置成本上升，Q 下降</li>
+<li>技术进步使重置成本下降，Q 上升</li>
+</ul></li>
+</ol>
+<p><strong>实践中的简化</strong>：</p>
+<p><span class="math display">\[
+\text{Tobin's Q} \approx \frac{\text{股权市值} + \text{债务市值}}{\text{总资产账面价值}}
+\]</span></p>
+<p>这实际上就是 EV/IC 的变体。</p>
+</section>
+<section id="应用场景" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="应用场景"><span class="header-section-number">8.3</span> 应用场景</h3>
+<p><strong>最适合</strong>：</p>
+<ul>
+<li>成熟公司，资产大部分已到位</li>
+<li>可以合理估计重置成本的行业（如钢铁、公用事业）</li>
+<li>作为管理效率的衡量指标</li>
+</ul>
+<p><strong>不适合</strong>：</p>
+<ul>
+<li>高增长公司（市值包含大量增长期权）</li>
+<li>无形资产为主的公司</li>
+</ul>
+<p><strong>学术研究发现</strong>（Lang, Stulz &amp; Walkling, 1991）：</p>
+<ul>
+<li>低 Q 公司更可能被收购进行重组</li>
+<li>高 Q 公司作为收购方时，股东获益更多</li>
+</ul>
+</section>
+</section>
+<section id="总结" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="总结"><span class="header-section-number">9</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>PBV 的本质</strong>：市场对公司创造超额股权回报能力的定价</li>
+<li><strong>核心公式</strong>：<span class="math inline">\(\text{PBV} = \frac{\text{ROE} - g}{k_e - g}\)</span></li>
+<li><strong>临界点</strong>：当 ROE = 股权成本时，PBV = 1</li>
+<li><strong>识别低估</strong>：低 PBV + 高 ROE = 潜在低估；高 PBV + 低 ROE = 潜在高估</li>
+<li><strong>EV/IC</strong>：公司价值版本的 PBV，适合高杠杆或负账面权益公司</li>
+<li><strong>Tobin’s Q</strong>：理论优雅但实践困难，更多用于学术研究</li>
+</ul>
+</div>
+</div>
+<p>本章的核心信息可以概括为一句话：<strong>不要因为 PBV 低就认为股票便宜——只有当 ROE 高于股权成本时，低 PBV 才是真正的便宜。</strong></p>
+<p>这与 PE 分析（第 18 章）的逻辑是一致的：单看倍数高低没有意义，必须结合其基本面决定因素——对于 PBV，这个决定因素就是 ROE。</p>
+</section>
+<section id="思考题" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="思考题"><span class="header-section-number">10</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>一家公司的 PBV 为 0.8，ROE 为 5%，股权成本为 10%。这家公司是低估还是合理定价？</strong>请计算其”合理” PBV 并解释。</p></li>
+<li><p><strong>股票回购如何影响 PBV 和 ROE？</strong> 如果一家公司借款回购股票，对这两个指标分别有什么影响？</p></li>
+<li><p><strong>为什么高增长科技公司往往有很高的 PBV，而传统制造业公司 PBV 普遍较低？</strong> 用本章的框架解释。</p></li>
+<li><p><strong>在什么情况下，你会选择使用 EV/IC 而非 PBV 进行估值比较？</strong> 请举例说明。</p></li>
+<li><p><strong>如果你发现一家公司的 PBV 显著高于其行业平均，但其 ROE 与行业平均相近，这可能意味着什么？</strong> 提出至少两种可能的解释。</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
