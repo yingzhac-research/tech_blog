@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ultrathink_guide – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#damodaran-估值系列-ultrathink-使用指南" id="toc-damodaran-估值系列-ultrathink-使用指南" class="nav-link active" data-scroll-target="#damodaran-估值系列-ultrathink-使用指南"><span class="header-section-number">1</span> Damodaran 估值系列 Ultrathink 使用指南</a>
+  <ul class="collapse">
+  <li><a href="#ultrathink-模式的效果分析" id="toc-ultrathink-模式的效果分析" class="nav-link" data-scroll-target="#ultrathink-模式的效果分析"><span class="header-section-number">1.1</span> 1. Ultrathink 模式的效果分析</a>
+  <ul class="collapse">
+  <li><a href="#基准对比ch21-ultrathink-vs-其他章节" id="toc-基准对比ch21-ultrathink-vs-其他章节" class="nav-link" data-scroll-target="#基准对比ch21-ultrathink-vs-其他章节"><span class="header-section-number">1.1.1</span> 基准对比：Ch21 (Ultrathink) vs 其他章节</a></li>
+  <li><a href="#ultrathink-的核心价值" id="toc-ultrathink-的核心价值" class="nav-link" data-scroll-target="#ultrathink-的核心价值"><span class="header-section-number">1.1.2</span> Ultrathink 的核心价值</a></li>
+  <li><a href="#判断标准" id="toc-判断标准" class="nav-link" data-scroll-target="#判断标准"><span class="header-section-number">1.1.3</span> 判断标准</a></li>
+  </ul></li>
+  <li><a href="#需要完善的已完成章节" id="toc-需要完善的已完成章节" class="nav-link" data-scroll-target="#需要完善的已完成章节"><span class="header-section-number">1.2</span> 2. 需要完善的已完成章节</a>
+  <ul class="collapse">
+  <li><a href="#覆盖度分析文章行数-pdf-行数" id="toc-覆盖度分析文章行数-pdf-行数" class="nav-link" data-scroll-target="#覆盖度分析文章行数-pdf-行数"><span class="header-section-number">1.2.1</span> 覆盖度分析（文章行数 / PDF 行数）</a></li>
+  <li><a href="#完善优先级排序" id="toc-完善优先级排序" class="nav-link" data-scroll-target="#完善优先级排序"><span class="header-section-number">1.2.2</span> 完善优先级排序</a></li>
+  <li><a href="#各章节可能遗漏的内容" id="toc-各章节可能遗漏的内容" class="nav-link" data-scroll-target="#各章节可能遗漏的内容"><span class="header-section-number">1.2.3</span> 各章节可能遗漏的内容</a></li>
+  </ul></li>
+  <li><a href="#未完成章节的-ultrathink-推荐" id="toc-未完成章节的-ultrathink-推荐" class="nav-link" data-scroll-target="#未完成章节的-ultrathink-推荐"><span class="header-section-number">1.3</span> 3. 未完成章节的 Ultrathink 推荐</a>
+  <ul class="collapse">
+  <li><a href="#强烈推荐-ultrathink框架需根本性调整" id="toc-强烈推荐-ultrathink框架需根本性调整" class="nav-link" data-scroll-target="#强烈推荐-ultrathink框架需根本性调整"><span class="header-section-number">1.3.1</span> 🔴 强烈推荐 Ultrathink（框架需根本性调整）</a></li>
+  <li><a href="#已完成的-ultrathink-章节" id="toc-已完成的-ultrathink-章节" class="nav-link" data-scroll-target="#已完成的-ultrathink-章节"><span class="header-section-number">1.3.2</span> ✅ 已完成的 Ultrathink 章节</a></li>
+  <li><a href="#建议-ultrathink数学复杂或多方法并行" id="toc-建议-ultrathink数学复杂或多方法并行" class="nav-link" data-scroll-target="#建议-ultrathink数学复杂或多方法并行"><span class="header-section-number">1.3.3</span> 🟡 建议 Ultrathink（数学复杂或多方法并行）</a></li>
+  <li><a href="#普通模式可能足够" id="toc-普通模式可能足够" class="nav-link" data-scroll-target="#普通模式可能足够"><span class="header-section-number">1.3.4</span> 🟢 普通模式可能足够</a></li>
+  </ul></li>
+  <li><a href="#改写操作指南" id="toc-改写操作指南" class="nav-link" data-scroll-target="#改写操作指南"><span class="header-section-number">1.4</span> 4. 改写操作指南</a>
+  <ul class="collapse">
+  <li><a href="#改写已完成章节的步骤" id="toc-改写已完成章节的步骤" class="nav-link" data-scroll-target="#改写已完成章节的步骤"><span class="header-section-number">1.4.1</span> 改写已完成章节的步骤</a></li>
+  <li><a href="#写新章节的步骤" id="toc-写新章节的步骤" class="nav-link" data-scroll-target="#写新章节的步骤"><span class="header-section-number">1.4.2</span> 写新章节的步骤</a></li>
+  <li><a href="#参考文件" id="toc-参考文件" class="nav-link" data-scroll-target="#参考文件"><span class="header-section-number">1.4.3</span> 参考文件</a></li>
+  </ul></li>
+  <li><a href="#快速参考所有章节状态" id="toc-快速参考所有章节状态" class="nav-link" data-scroll-target="#快速参考所有章节状态"><span class="header-section-number">1.5</span> 5. 快速参考：所有章节状态</a></li>
+  <li><a href="#确保原创性避免变成翻译复述" id="toc-确保原创性避免变成翻译复述" class="nav-link" data-scroll-target="#确保原创性避免变成翻译复述"><span class="header-section-number">1.6</span> 6. 确保原创性：避免变成翻译/复述</a>
+  <ul class="collapse">
+  <li><a href="#核心问题" id="toc-核心问题" class="nav-link" data-scroll-target="#核心问题"><span class="header-section-number">1.6.1</span> 核心问题</a></li>
+  <li><a href="#翻译-vs-教学再创作的区别" id="toc-翻译-vs-教学再创作的区别" class="nav-link" data-scroll-target="#翻译-vs-教学再创作的区别"><span class="header-section-number">1.6.2</span> 翻译 vs 教学再创作的区别</a></li>
+  <li><a href="#确保原创性的-6-个策略" id="toc-确保原创性的-6-个策略" class="nav-link" data-scroll-target="#确保原创性的-6-个策略"><span class="header-section-number">1.6.3</span> 确保原创性的 6 个策略</a></li>
+  <li><a href="#写作后检查清单" id="toc-写作后检查清单" class="nav-link" data-scroll-target="#写作后检查清单"><span class="header-section-number">1.6.4</span> 写作后检查清单</a></li>
+  <li><a href="#平衡原则" id="toc-平衡原则" class="nav-link" data-scroll-target="#平衡原则"><span class="header-section-number">1.6.5</span> 平衡原则</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="damodaran-估值系列-ultrathink-使用指南" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Damodaran 估值系列 Ultrathink 使用指南</h1>
+<p>本文档总结了 ultrathink 模式对文章质量的影响分析，以及各章节的 ultrathink 推荐。</p>
+<section id="ultrathink-模式的效果分析" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="ultrathink-模式的效果分析"><span class="header-section-number">1.1</span> 1. Ultrathink 模式的效果分析</h2>
+<section id="基准对比ch21-ultrathink-vs-其他章节" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="基准对比ch21-ultrathink-vs-其他章节"><span class="header-section-number">1.1.1</span> 基准对比：Ch21 (Ultrathink) vs 其他章节</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>Ch21 (Ultrathink)</th>
+<th>普通模式章节</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>案例数量</strong></td>
+<td>8 个完整案例</td>
+<td>3-5 个</td>
+</tr>
+<tr class="even">
+<td><strong>文章/PDF 比例</strong></td>
+<td>20.6%</td>
+<td>7-15%</td>
+</tr>
+<tr class="odd">
+<td><strong>计算完整性</strong></td>
+<td>逐年展开，过渡期详细</td>
+<td>简化或省略中间步骤</td>
+</tr>
+<tr class="even">
+<td><strong>时事整合</strong></td>
+<td>SVB 2023 危机深度分析</td>
+<td>较少时事连接</td>
+</tr>
+<tr class="odd">
+<td><strong>多视角对比</strong></td>
+<td>“好银行 vs 坏银行”表格</td>
+<td>单向阐述</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ultrathink-的核心价值" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="ultrathink-的核心价值"><span class="header-section-number">1.1.2</span> Ultrathink 的核心价值</h3>
+<p>不是”写更多”，而是”想更深”：</p>
+<ol type="1">
+<li><strong>穷尽性</strong>：不遗漏 PDF 中的任何主要内容</li>
+<li><strong>连接性</strong>：将理论框架与现实事件对接</li>
+<li><strong>可操作性</strong>：给出明确的估值检查指标</li>
+</ol>
+</section>
+<section id="判断标准" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="判断标准"><span class="header-section-number">1.1.3</span> 判断标准</h3>
+<p>问自己：“这一章是否需要<strong>重新定义</strong>估值的基本概念（现金流、折现率、终值）？”</p>
+<ul>
+<li>如果是 → Ultrathink</li>
+<li>如果只是<strong>应用已有框架</strong>到新场景 → 普通模式</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="需要完善的已完成章节" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="需要完善的已完成章节"><span class="header-section-number">1.2</span> 2. 需要完善的已完成章节</h2>
+<section id="覆盖度分析文章行数-pdf-行数" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="覆盖度分析文章行数-pdf-行数"><span class="header-section-number">1.2.1</span> 覆盖度分析（文章行数 / PDF 行数）</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>PDF 行数</th>
+<th>文章行数</th>
+<th>比例</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ch18</strong> 盈利倍数</td>
+<td>9,182</td>
+<td>~1,900</td>
+<td><strong>~20%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="even">
+<td><strong>Ch11</strong> 估计增长</td>
+<td>6,823</td>
+<td>~1,300</td>
+<td><strong>~19%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td><strong>Ch15</strong> FCFF/APV</td>
+<td>4,627</td>
+<td>~1,166</td>
+<td><strong>~25%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="even">
+<td><strong>Ch13</strong> 叙事与数字</td>
+<td>5,245</td>
+<td>~1,238</td>
+<td><strong>~23.6%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td><strong>Ch8</strong> 风险参数</td>
+<td>~3,500</td>
+<td>~1,134</td>
+<td><strong>~32%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="even">
+<td><strong>Ch5</strong> 期权定价</td>
+<td>2,965</td>
+<td>~1,044</td>
+<td><strong>~35%</strong></td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td>Ch21 金融服务 (基准)</td>
+<td>4,504</td>
+<td>927</td>
+<td>20.6%</td>
+<td>✅ 已完成</td>
+</tr>
+<tr class="even">
+<td>Ch14 DDM</td>
+<td>5,282</td>
+<td>1,045</td>
+<td>19.8%</td>
+<td>✅ 良好</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="完善优先级排序" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="完善优先级排序"><span class="header-section-number">1.2.2</span> 完善优先级排序</h3>
+<pre><code>已完善:
+✅ Ch5 期权定价 (534 → 1,044 行，~35%) ← 2026-01-08 完善
+   - 添加：连续时间输入转换（离散利率→连续利率、波动率年化）
+   - 添加：Black-Scholes→Binomial 参数转换公式 + 伊藤引理解释
+   - 添加：AT&amp;T 短期/长期期权股息调整完整案例 (Illustration 5.3-5.4)
+   - 添加：伪美式估值多除息日案例 (Illustration 5.5)
+   - 添加：Avatek 权证稀释调整案例 (Illustration 5.6)
+   - 添加：Put-Call Parity 估值案例 (Illustration 5.7)
+   - 添加：Jump Diffusion Model (Cox-Ross 1976, Merton 1976)
+   - 添加：Barrier Options 四种类型详解
+✅ Ch8 风险参数 (521 → 1,134 行，~32%) ← 2026-01-07 完善
+   - 添加：Bloomberg Beta 调整公式、Beta 估算选择详解
+   - 添加：新兴市场 Beta（Nokia/HEX、Enka 案例）
+   - 添加：经营杠杆公式 + Vans Shoes 案例
+   - 添加：会计 Beta（Boeing 案例）
+   - 添加：Lambda 完整部分（Embraer 案例）
+   - 添加：小公司溢价争议、混合证券、净债务 vs 总债务
+   - 添加：业界最佳实践调查（Bruner et al. 1998）
+✅ Ch13 叙事与数字 (10.9% → 23.6%) ← 2026-01-07 完善
+✅ Ch15 FCFF/APV (12.1% → 25%) ← 2026-01-07 完善
+✅ Ch11 估计增长 (~19%)
+✅ Ch18 盈利倍数 (~20%)</code></pre>
+</section>
+<section id="各章节可能遗漏的内容" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="各章节可能遗漏的内容"><span class="header-section-number">1.2.3</span> 各章节可能遗漏的内容</h3>
+<section id="ch15-fcffapv-已完善-2026-01-07" class="level4" data-number="1.2.3.1">
+<h4 data-number="1.2.3.1" class="anchored" data-anchor-id="ch15-fcffapv-已完善-2026-01-07"><span class="header-section-number">1.2.3.1</span> Ch15 FCFF/APV ✅ 已完善 (2026-01-07)</h4>
+<ul>
+<li><del>APV 方法的完整案例</del> → 已添加 J.Crew LBO 案例</li>
+<li><del>资本结构变化时的估值调整</del> → 已添加 Disney 最优资本结构完整案例</li>
+<li><del>FCFF 与 FCFE 估值结果一致性验证</del> → 已添加等价性证明</li>
+<li>新增：Target 经营租赁资本化案例</li>
+<li>新增：Amgen R&amp;D 资本化案例</li>
+<li>新增：Net Debt vs Gross Debt 讨论</li>
+<li>新增：分部估值详细步骤 + GE 案例扩展</li>
+<li>新增：APV vs WACC 深度对比</li>
+</ul>
+</section>
+<section id="ch13-叙事与数字-已完善-2026-01-07" class="level4" data-number="1.2.3.2">
+<h4 data-number="1.2.3.2" class="anchored" data-anchor-id="ch13-叙事与数字-已完善-2026-01-07"><span class="header-section-number">1.2.3.2</span> Ch13 叙事与数字 ✅ 已完善 (2026-01-07)</h4>
+<ul>
+<li><del>3P 测试详细解读</del> → 已添加实践应用表格、不同层次的估值方法</li>
+<li><del>故事→数字映射框架</del> → 已添加完整 ASCII 图 + 详细映射表 + 具体案例</li>
+<li><del>生命周期各阶段详解</del> → 已添加六阶段估值挑战表、投资含义、数学直觉</li>
+<li>新增：Tesla/Musk 关键人物依赖深度案例</li>
+<li>新增：Theranos 欺诈案例（3P 测试反面教材）</li>
+<li>新增：2022 科技估值寒冬案例（资本获取断裂）</li>
+<li>新增：跨章节联系（Ch8-12、Ch14-20）</li>
+<li>新增：批判性讨论（四个局限 + 思考框架）</li>
+<li>新增：中国市场本土化（比亚迪、美团、恒大案例）</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="未完成章节的-ultrathink-推荐" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="未完成章节的-ultrathink-推荐"><span class="header-section-number">1.3</span> 3. 未完成章节的 Ultrathink 推荐</h2>
+<section id="强烈推荐-ultrathink框架需根本性调整" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="强烈推荐-ultrathink框架需根本性调整"><span class="header-section-number">1.3.1</span> 🔴 强烈推荐 Ultrathink（框架需根本性调整）</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>主题</th>
+<th>推荐理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ch24</strong></td>
+<td>私有公司估值</td>
+<td>流动性折价、控制权溢价、关键人物折价；税务考量</td>
+</tr>
+<tr class="even">
+<td><strong>Ch25</strong></td>
+<td>并购估值</td>
+<td>协同效应量化、控制权价值、换股比例</td>
+</tr>
+<tr class="odd">
+<td><strong>Ch30</strong></td>
+<td>困境公司股权</td>
+<td>股权作为看涨期权；违约概率；债务重组</td>
+</tr>
+</tbody>
+</table>
+<p><strong>共同特征</strong>：估值框架需要根本性调整，不能简单套用标准 DCF。</p>
+</section>
+<section id="已完成的-ultrathink-章节" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="已完成的-ultrathink-章节"><span class="header-section-number">1.3.2</span> ✅ 已完成的 Ultrathink 章节</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 31%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>主题</th>
+<th>完成日期</th>
+<th>核心案例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ch22</strong></td>
+<td>亏损公司估值</td>
+<td>2026-01-08</td>
+<td>多种亏损类型处理、正常化盈利、生存概率调整</td>
+</tr>
+<tr class="even">
+<td><strong>Ch23</strong></td>
+<td>初创公司估值</td>
+<td>2026-01-08</td>
+<td>Airbnb 2020 IPO 完整估值（7步框架、敏感性分析）</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="建议-ultrathink数学复杂或多方法并行" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="建议-ultrathink数学复杂或多方法并行"><span class="header-section-number">1.3.3</span> 🟡 建议 Ultrathink（数学复杂或多方法并行）</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>主题</th>
+<th>推荐理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ch28</strong></td>
+<td>延迟期权</td>
+<td>实物期权理论应用；Black-Scholes 映射到实物资产</td>
+</tr>
+<tr class="even">
+<td><strong>Ch29</strong></td>
+<td>扩张/放弃期权</td>
+<td>战略灵活性估值；多阶段投资决策</td>
+</tr>
+<tr class="odd">
+<td><strong>Ch33</strong></td>
+<td>概率方法</td>
+<td>情景分析、决策树、蒙特卡洛模拟三种方法并行</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="普通模式可能足够" class="level3" data-number="1.3.4">
+<h3 data-number="1.3.4" class="anchored" data-anchor-id="普通模式可能足够"><span class="header-section-number">1.3.4</span> 🟢 普通模式可能足够</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>主题</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ch26</td>
+<td>房地产估值</td>
+<td>方法相对标准化（除非涉及 REITs）</td>
+</tr>
+<tr class="even">
+<td>Ch27</td>
+<td>其他资产估值</td>
+<td>可能是多种资产的简要介绍</td>
+</tr>
+<tr class="odd">
+<td>Ch31-32</td>
+<td>价值提升</td>
+<td>主要是应用已有框架</td>
+</tr>
+<tr class="even">
+<td>Ch34</td>
+<td>总结</td>
+<td>复习性质</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="改写操作指南" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="改写操作指南"><span class="header-section-number">1.4</span> 4. 改写操作指南</h2>
+<section id="改写已完成章节的步骤" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="改写已完成章节的步骤"><span class="header-section-number">1.4.1</span> 改写已完成章节的步骤</h3>
+<ol type="1">
+<li><strong>阅读完整 PDF</strong>：位于 <code>DamodaranChapters/ChapX [章节名].pdf</code></li>
+<li><strong>对照现有文章</strong>：检查遗漏的章节、案例、公式</li>
+<li><strong>补充遗漏内容</strong>：
+<ul>
+<li>确保 PDF 中所有主要章节都覆盖</li>
+<li>使用 PDF 中的真实公司案例</li>
+<li>完整展示计算过程</li>
+</ul></li>
+<li><strong>覆盖度检查</strong>：目标 ≥ 90%</li>
+</ol>
+</section>
+<section id="写新章节的步骤" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="写新章节的步骤"><span class="header-section-number">1.4.2</span> 写新章节的步骤</h3>
+<ol type="1">
+<li>开启 ultrathink 模式（如果在推荐列表中）</li>
+<li>完整阅读对应 PDF</li>
+<li>提取章节结构、案例、公式</li>
+<li>按写作指南撰写</li>
+<li>覆盖度检查</li>
+</ol>
+</section>
+<section id="参考文件" class="level3" data-number="1.4.3">
+<h3 data-number="1.4.3" class="anchored" data-anchor-id="参考文件"><span class="header-section-number">1.4.3</span> 参考文件</h3>
+<ul>
+<li><strong>写作指南</strong>：<code>.claude/skills/damodaran-series-guide/skill.md</code></li>
+<li><strong>已完成章节</strong>：<code>posts_ch/valuation/damodaran-ch*.qmd</code></li>
+<li><strong>PDF 原文</strong>：<code>DamodaranChapters/Chap*.pdf</code></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="快速参考所有章节状态" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="快速参考所有章节状态"><span class="header-section-number">1.5</span> 5. 快速参考：所有章节状态</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>状态</th>
+<th>Ultrathink</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ch0-Ch7</td>
+<td>✅ 已完成</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Ch8</td>
+<td>✅ 已完成</td>
+<td>✅ 已完善 (Microsoft, Boeing, Embraer, Vans Shoes, Nokia, Enka)</td>
+</tr>
+<tr class="odd">
+<td>Ch9-Ch10</td>
+<td>✅ 已完成</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Ch11</td>
+<td>✅ 已完成</td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td>Ch12</td>
+<td>✅ 已完成</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Ch13</td>
+<td>✅ 已完成</td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td>Ch14</td>
+<td>✅ 已完成</td>
+<td>良好</td>
+</tr>
+<tr class="even">
+<td>Ch15</td>
+<td>✅ 已完成</td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td>Ch16-Ch17</td>
+<td>✅ 已完成</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Ch18</td>
+<td>✅ 已完成</td>
+<td>✅ 已完善</td>
+</tr>
+<tr class="odd">
+<td>Ch19-Ch20</td>
+<td>✅ 已完成</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>Ch21</td>
+<td>✅ 已完成</td>
+<td>Ultrathink 基准</td>
+</tr>
+<tr class="odd">
+<td>Ch22</td>
+<td>✅ 已完成</td>
+<td>🔴 Ultrathink (亏损公司估值)</td>
+</tr>
+<tr class="even">
+<td>Ch23</td>
+<td>✅ 已完成</td>
+<td>🔴 Ultrathink (Airbnb IPO 案例)</td>
+</tr>
+<tr class="odd">
+<td>Ch24-Ch25</td>
+<td>⏳ 待写</td>
+<td>🔴 强烈推荐</td>
+</tr>
+<tr class="even">
+<td>Ch26</td>
+<td>✅ 已完成</td>
+<td>Ultrathink (711 Third Avenue 完整DCF案例)</td>
+</tr>
+<tr class="odd">
+<td>Ch27</td>
+<td>⏳ 待写</td>
+<td>🟢 普通模式</td>
+</tr>
+<tr class="even">
+<td>Ch28-Ch30</td>
+<td>⏳ 待写</td>
+<td>🟡 建议使用</td>
+</tr>
+<tr class="odd">
+<td>Ch31-Ch32</td>
+<td>⏳ 待写</td>
+<td>🟢 普通模式</td>
+</tr>
+<tr class="even">
+<td>Ch33</td>
+<td>⏳ 待写</td>
+<td>🟡 建议使用</td>
+</tr>
+<tr class="odd">
+<td>Ch34</td>
+<td>⏳ 待写</td>
+<td>🟢 普通模式</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="确保原创性避免变成翻译复述" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="确保原创性避免变成翻译复述"><span class="header-section-number">1.6</span> 6. 确保原创性：避免变成翻译/复述</h2>
+<section id="核心问题" class="level3" data-number="1.6.1">
+<h3 data-number="1.6.1" class="anchored" data-anchor-id="核心问题"><span class="header-section-number">1.6.1</span> 核心问题</h3>
+<p>Ultrathink 模式能确保高覆盖度，但可能导致文章变成 PDF 的”翻译”或”复述”。如何在覆盖度和原创性之间取得平衡？</p>
+</section>
+<section id="翻译-vs-教学再创作的区别" class="level3" data-number="1.6.2">
+<h3 data-number="1.6.2" class="anchored" data-anchor-id="翻译-vs-教学再创作的区别"><span class="header-section-number">1.6.2</span> 翻译 vs 教学再创作的区别</h3>
+<p>以”债务是原材料”为例：</p>
+<p><strong>❌ 纯翻译/复述</strong>： &gt; “对于银行来说，债务是原材料。银行以较低的利率吸收存款，然后以较高的利率发放贷款，赚取利差。”</p>
+<p><strong>✅ 教学再创作</strong>： &gt; 对于制造业公司，债务是<strong>资本来源</strong>——公司从股东和债权人那里筹集资金，然后投资于工厂、设备。 &gt; &gt; 但对于银行而言，债务是<strong>原材料</strong>。 &gt; &gt; 想象一下：银行以 2% 的利率吸收存款，然后以 6% 的利率发放贷款。这个 4% 的利差就是银行的”毛利润”。 &gt; &gt; <strong>这带来了什么问题？</strong> &gt; 1. 无法计算企业价值… &gt; 2. 无法计算 WACC…</p>
+<p><strong>区别</strong>：加入对比、具体数字、追问”so what”。</p>
+</section>
+<section id="确保原创性的-6-个策略" class="level3" data-number="1.6.3">
+<h3 data-number="1.6.3" class="anchored" data-anchor-id="确保原创性的-6-个策略"><span class="header-section-number">1.6.3</span> 确保原创性的 6 个策略</h3>
+<section id="策略-1结构重组按教学逻辑而非原书顺序" class="level4" data-number="1.6.3.1">
+<h4 data-number="1.6.3.1" class="anchored" data-anchor-id="策略-1结构重组按教学逻辑而非原书顺序"><span class="header-section-number">1.6.3.1</span> 策略 1：结构重组——按教学逻辑而非原书顺序</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>原书逻辑</th>
+<th>教学逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>定义 → 公式 → 案例</td>
+<td><strong>问题</strong> → 直觉 → 公式 → 案例 → 反思</td>
+</tr>
+<tr class="even">
+<td>按主题线性排列</td>
+<td>按”为什么需要这个？“组织</td>
+</tr>
+</tbody>
+</table>
+<p>每个章节以一个<strong>引发思考的问题</strong>开头，而不是定义。</p>
+</section>
+<section id="策略-2直觉先行先用自然语言再用公式" class="level4" data-number="1.6.3.2">
+<h4 data-number="1.6.3.2" class="anchored" data-anchor-id="策略-2直觉先行先用自然语言再用公式"><span class="header-section-number">1.6.3.2</span> 策略 2：直觉先行——先用自然语言，再用公式</h4>
+<p><strong>原书风格</strong>： &gt; FCFE = Net Income - (CapEx - Depreciation) - ΔWC + (New Debt - Debt Repaid)</p>
+<p><strong>教学风格</strong>： &gt; 想象你是一家公司的股东。公司赚了 100 万净利润，但这 100 万不能全给你。为什么？ &gt; - 公司要买新设备（资本支出） &gt; - 公司要囤货、给客户赊账（营运资本） &gt; - 但公司也能借新债来补充 &gt; &gt; 所以，<strong>真正能给股东的 = 净利润 - 再投资需求 + 净借款</strong></p>
+</section>
+<section id="策略-3跨章节联系damodaran-很少做的事" class="level4" data-number="1.6.3.3">
+<h4 data-number="1.6.3.3" class="anchored" data-anchor-id="策略-3跨章节联系damodaran-很少做的事"><span class="header-section-number">1.6.3.3</span> 策略 3：跨章节联系——Damodaran 很少做的事</h4>
+<p>示例： &gt; “在第 14 章，我们学习了 DDM 适用于’稳定增长、高派息’的公司。银行恰好符合这两个条件——这就是为什么 DDM 在银行估值中如此重要。”</p>
+<blockquote class="blockquote">
+<p>“PE 的决定因素（增长、风险、派息率）与 Ch14 DDM 的输入参数完全一致——这不是巧合，因为 PE 就是从 DDM 推导出来的。”</p>
+</blockquote>
+</section>
+<section id="策略-4更新案例-添加中国亚洲视角" class="level4" data-number="1.6.3.4">
+<h4 data-number="1.6.3.4" class="anchored" data-anchor-id="策略-4更新案例-添加中国亚洲视角"><span class="header-section-number">1.6.3.4</span> 策略 4：更新案例 &amp; 添加中国/亚洲视角</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>原书案例</th>
+<th>可补充的视角</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>HSBC, Goldman Sachs</td>
+<td>工商银行、招商银行</td>
+</tr>
+<tr class="even">
+<td>SVB 危机</td>
+<td>包商银行、恒大债务危机</td>
+</tr>
+<tr class="odd">
+<td>美国保险公司 PE</td>
+<td>中国平安、中国人寿</td>
+</tr>
+</tbody>
+</table>
+<p>不是替换原书案例，而是<strong>补充</strong>更相关的案例。</p>
+</section>
+<section id="策略-5批判性讨论深挖方法的局限性" class="level4" data-number="1.6.3.5">
+<h4 data-number="1.6.3.5" class="anchored" data-anchor-id="策略-5批判性讨论深挖方法的局限性"><span class="header-section-number">1.6.3.5</span> 策略 5：批判性讨论——深挖方法的局限性</h4>
+<p><strong>原书</strong>（一笔带过）： &gt; “Gordon 模型假设永续增长，这在现实中可能不成立。”</p>
+<p><strong>教学文章</strong>（深入讨论）： &gt; <strong>Gordon 模型的三个致命假设</strong>： &gt; &gt; 1. <strong>永续增长</strong>：没有公司能永远增长。即使是可口可乐，增长率也在下降。 &gt; 2. <strong>增长率 &lt; 折现率</strong>：如果 g ≥ r，公式给出无穷大——数学上对，经济上无意义。 &gt; 3. <strong>稳定的派息率</strong>：现实中，公司会根据投资机会调整派息。 &gt; &gt; <strong>这意味着什么？</strong> Gordon 模型最适合成熟的公用事业公司，而不是高增长科技股。</p>
+</section>
+<section id="策略-6insight-blocks提炼核心智慧" class="level4" data-number="1.6.3.6">
+<h4 data-number="1.6.3.6" class="anchored" data-anchor-id="策略-6insight-blocks提炼核心智慧"><span class="header-section-number">1.6.3.6</span> 策略 6：Insight Blocks——提炼核心智慧</h4>
+<p>这是文章的<strong>独特标签</strong>。不是复述，而是<strong>提炼和升华</strong>：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">`✶ Insight ─────────────────────────────────────`</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>**Damodaran 的核心洞察**：</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>金融服务公司估值的本质是**股权估值**。当你无法定义债务和营业利润时，</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>WACC 和 FCFF 就没有意义。但股权成本、净利润、股息——这些概念在</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>金融公司中同样有效。</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="in">`─────────────────────────────────────────────────`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="写作后检查清单" class="level3" data-number="1.6.4">
+<h3 data-number="1.6.4" class="anchored" data-anchor-id="写作后检查清单"><span class="header-section-number">1.6.4</span> 写作后检查清单</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>检查项</th>
+<th>✅ 通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>开头</strong></td>
+<td>是否以问题/困境开头，而非定义？</td>
+</tr>
+<tr class="even">
+<td><strong>直觉</strong></td>
+<td>每个公式之前是否有自然语言解释？</td>
+</tr>
+<tr class="odd">
+<td><strong>对比</strong></td>
+<td>是否将新概念与已学概念对比？</td>
+</tr>
+<tr class="even">
+<td><strong>So What</strong></td>
+<td>是否解释了”这意味着什么”？</td>
+</tr>
+<tr class="odd">
+<td><strong>局限性</strong></td>
+<td>是否讨论了方法何时不适用？</td>
+</tr>
+<tr class="even">
+<td><strong>Insight</strong></td>
+<td>是否有提炼的核心洞察？</td>
+</tr>
+<tr class="odd">
+<td><strong>跨章节</strong></td>
+<td>是否有与其他章节的联系？</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="平衡原则" class="level3" data-number="1.6.5">
+<h3 data-number="1.6.5" class="anchored" data-anchor-id="平衡原则"><span class="header-section-number">1.6.5</span> 平衡原则</h3>
+<p><strong>覆盖度</strong>回答的是”有没有”——PDF 中的概念、案例、公式是否都涵盖了。</p>
+<p><strong>原创性</strong>回答的是”怎么讲”——是否用教学逻辑重组、是否加入直觉、是否追问”so what”、是否有批判性讨论。</p>
+<p>两者不冲突：你可以 <strong>100% 覆盖原书内容</strong>，同时 <strong>100% 用自己的方式重新组织和解释</strong>。</p>
+<p><strong>最简单的判断标准</strong>：如果读者只读你的文章（不读原书），能否获得比读原书更好的学习体验？</p>
+<hr>
+<p><em>最后更新：2026-01-08（Ch22 亏损公司估值、Ch23 初创公司估值、Ch26 房地产估值完成）</em></p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -400,14 +400,16 @@ window.Quarto = {
   <li><a href="#核心思想复制组合" id="toc-核心思想复制组合" class="nav-link" data-scroll-target="#核心思想复制组合"><span class="header-section-number">4.1</span> 核心思想：复制组合</a></li>
   <li><a href="#单期二叉树模型" id="toc-单期二叉树模型" class="nav-link" data-scroll-target="#单期二叉树模型"><span class="header-section-number">4.2</span> 单期二叉树模型</a></li>
   <li><a href="#具体数值例子" id="toc-具体数值例子" class="nav-link" data-scroll-target="#具体数值例子"><span class="header-section-number">4.3</span> 具体数值例子</a></li>
+  <li><a href="#从-black-scholes-到二叉树参数转换" id="toc-从-black-scholes-到二叉树参数转换" class="nav-link" data-scroll-target="#从-black-scholes-到二叉树参数转换"><span class="header-section-number">4.4</span> 从 Black-Scholes 到二叉树：参数转换</a></li>
   </ul></li>
   <li><a href="#black-scholes-模型连续世界的期权定价" id="toc-black-scholes-模型连续世界的期权定价" class="nav-link" data-scroll-target="#black-scholes-模型连续世界的期权定价"><span class="header-section-number">5</span> Black-Scholes 模型：连续世界的期权定价</a>
   <ul class="collapse">
   <li><a href="#从二叉树到连续" id="toc-从二叉树到连续" class="nav-link" data-scroll-target="#从二叉树到连续"><span class="header-section-number">5.1</span> 从二叉树到连续</a></li>
   <li><a href="#black-scholes-公式" id="toc-black-scholes-公式" class="nav-link" data-scroll-target="#black-scholes-公式"><span class="header-section-number">5.2</span> Black-Scholes 公式</a></li>
-  <li><a href="#公式的直觉解读" id="toc-公式的直觉解读" class="nav-link" data-scroll-target="#公式的直觉解读"><span class="header-section-number">5.3</span> 公式的直觉解读</a></li>
-  <li><a href="#计算实例cisco-期权估值" id="toc-计算实例cisco-期权估值" class="nav-link" data-scroll-target="#计算实例cisco-期权估值"><span class="header-section-number">5.4</span> 计算实例：Cisco 期权估值</a></li>
-  <li><a href="#隐含波动率" id="toc-隐含波动率" class="nav-link" data-scroll-target="#隐含波动率"><span class="header-section-number">5.5</span> 隐含波动率</a></li>
+  <li><a href="#估计输入参数的注意事项" id="toc-估计输入参数的注意事项" class="nav-link" data-scroll-target="#估计输入参数的注意事项"><span class="header-section-number">5.3</span> 估计输入参数的注意事项</a></li>
+  <li><a href="#公式的直觉解读" id="toc-公式的直觉解读" class="nav-link" data-scroll-target="#公式的直觉解读"><span class="header-section-number">5.4</span> 公式的直觉解读</a></li>
+  <li><a href="#计算实例cisco-期权估值" id="toc-计算实例cisco-期权估值" class="nav-link" data-scroll-target="#计算实例cisco-期权估值"><span class="header-section-number">5.5</span> 计算实例：Cisco 期权估值</a></li>
+  <li><a href="#隐含波动率" id="toc-隐含波动率" class="nav-link" data-scroll-target="#隐含波动率"><span class="header-section-number">5.6</span> 隐含波动率</a></li>
   </ul></li>
   <li><a href="#模型的局限性与修正" id="toc-模型的局限性与修正" class="nav-link" data-scroll-target="#模型的局限性与修正"><span class="header-section-number">6</span> 模型的局限性与修正</a>
   <ul class="collapse">
@@ -415,19 +417,26 @@ window.Quarto = {
   <li><a href="#提前行权美式期权" id="toc-提前行权美式期权" class="nav-link" data-scroll-target="#提前行权美式期权"><span class="header-section-number">6.2</span> 提前行权：美式期权</a></li>
   <li><a href="#行权对标的资产的影响权证估值" id="toc-行权对标的资产的影响权证估值" class="nav-link" data-scroll-target="#行权对标的资产的影响权证估值"><span class="header-section-number">6.3</span> 行权对标的资产的影响：权证估值</a></li>
   </ul></li>
-  <li><a href="#期权定价的扩展更复杂的期权类型" id="toc-期权定价的扩展更复杂的期权类型" class="nav-link" data-scroll-target="#期权定价的扩展更复杂的期权类型"><span class="header-section-number">7</span> 期权定价的扩展：更复杂的期权类型</a>
+  <li><a href="#跳跃过程期权定价模型" id="toc-跳跃过程期权定价模型" class="nav-link" data-scroll-target="#跳跃过程期权定价模型"><span class="header-section-number">7</span> 跳跃过程期权定价模型</a>
   <ul class="collapse">
-  <li><a href="#上限期权与障碍期权" id="toc-上限期权与障碍期权" class="nav-link" data-scroll-target="#上限期权与障碍期权"><span class="header-section-number">7.1</span> 上限期权与障碍期权</a></li>
-  <li><a href="#复合期权" id="toc-复合期权" class="nav-link" data-scroll-target="#复合期权"><span class="header-section-number">7.2</span> 复合期权</a></li>
-  <li><a href="#彩虹期权" id="toc-彩虹期权" class="nav-link" data-scroll-target="#彩虹期权"><span class="header-section-number">7.3</span> 彩虹期权</a></li>
+  <li><a href="#当价格不连续变化时" id="toc-当价格不连续变化时" class="nav-link" data-scroll-target="#当价格不连续变化时"><span class="header-section-number">7.1</span> 当价格不连续变化时</a></li>
+  <li><a href="#cox-ross-纯跳跃模型1976" id="toc-cox-ross-纯跳跃模型1976" class="nav-link" data-scroll-target="#cox-ross-纯跳跃模型1976"><span class="header-section-number">7.2</span> Cox-Ross 纯跳跃模型（1976）</a></li>
+  <li><a href="#merton-跳跃扩散模型1976" id="toc-merton-跳跃扩散模型1976" class="nav-link" data-scroll-target="#merton-跳跃扩散模型1976"><span class="header-section-number">7.3</span> Merton 跳跃扩散模型（1976）</a></li>
   </ul></li>
-  <li><a href="#看跌期权与看涨-看跌平价" id="toc-看跌期权与看涨-看跌平价" class="nav-link" data-scroll-target="#看跌期权与看涨-看跌平价"><span class="header-section-number">8</span> 看跌期权与看涨-看跌平价</a>
+  <li><a href="#期权定价的扩展更复杂的期权类型" id="toc-期权定价的扩展更复杂的期权类型" class="nav-link" data-scroll-target="#期权定价的扩展更复杂的期权类型"><span class="header-section-number">8</span> 期权定价的扩展：更复杂的期权类型</a>
   <ul class="collapse">
-  <li><a href="#put-call-parity" id="toc-put-call-parity" class="nav-link" data-scroll-target="#put-call-parity"><span class="header-section-number">8.1</span> Put-Call Parity</a></li>
-  <li><a href="#black-scholes-看跌期权公式" id="toc-black-scholes-看跌期权公式" class="nav-link" data-scroll-target="#black-scholes-看跌期权公式"><span class="header-section-number">8.2</span> Black-Scholes 看跌期权公式</a></li>
+  <li><a href="#上限期权与障碍期权" id="toc-上限期权与障碍期权" class="nav-link" data-scroll-target="#上限期权与障碍期权"><span class="header-section-number">8.1</span> 上限期权与障碍期权</a></li>
+  <li><a href="#复合期权" id="toc-复合期权" class="nav-link" data-scroll-target="#复合期权"><span class="header-section-number">8.2</span> 复合期权</a></li>
+  <li><a href="#彩虹期权" id="toc-彩虹期权" class="nav-link" data-scroll-target="#彩虹期权"><span class="header-section-number">8.3</span> 彩虹期权</a></li>
   </ul></li>
-  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">9</span> 总结</a></li>
-  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">10</span> 思考题</a></li>
+  <li><a href="#看跌期权与看涨-看跌平价" id="toc-看跌期权与看涨-看跌平价" class="nav-link" data-scroll-target="#看跌期权与看涨-看跌平价"><span class="header-section-number">9</span> 看跌期权与看涨-看跌平价</a>
+  <ul class="collapse">
+  <li><a href="#put-call-parity" id="toc-put-call-parity" class="nav-link" data-scroll-target="#put-call-parity"><span class="header-section-number">9.1</span> Put-Call Parity</a></li>
+  <li><a href="#black-scholes-看跌期权公式" id="toc-black-scholes-看跌期权公式" class="nav-link" data-scroll-target="#black-scholes-看跌期权公式"><span class="header-section-number">9.2</span> Black-Scholes 看跌期权公式</a></li>
+  <li><a href="#案例用-put-call-parity-估值看跌期权" id="toc-案例用-put-call-parity-估值看跌期权" class="nav-link" data-scroll-target="#案例用-put-call-parity-估值看跌期权"><span class="header-section-number">9.3</span> 案例：用 Put-Call Parity 估值看跌期权</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">10</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">11</span> 思考题</a></li>
   </ul>
 </nav>
     </div>
@@ -702,11 +711,15 @@ E[\text{收益}] = 0.5 \times (130 - 100) + 0.5 \times 0 = 15
 <p><span class="math display">\[
 \Delta = \frac{60 - 10}{100 - 50} = 1
 \]</span></p>
-<p>复制组合需要买入 1 股股票。借款金额 <span class="math inline">\(B\)</span> 满足：</p>
+<p>复制组合需要买入 1 股股票。借款金额 <span class="math inline">\(B\)</span> 满足上涨时的复制条件：</p>
 <p><span class="math display">\[
-70 \times 1 - B = \frac{60 + 10 \times 0}{1.11} \times \frac{C_u \text{和} C_d \text{的折现}}{...}
+\Delta \times Su - B(1+r) = C_u \implies 1 \times 100 - B \times 1.11 = 60
 \]</span></p>
-<p>更直接地，期权价值 = <span class="math inline">\(70 \times 1 - 36.04 = 33.96\)</span> 美元</p>
+<p>解得：</p>
+<p><span class="math display">\[
+B = \frac{100 - 60}{1.11} = \frac{40}{1.11} = 36.04
+\]</span></p>
+<p>因此，期权价值 = 复制组合成本 = <span class="math inline">\(\Delta \times S - B = 1 \times 70 - 36.04 = 33.96\)</span> 美元</p>
 <p>在 <span class="math inline">\(S = 35\)</span> 节点：</p>
 <p><span class="math display">\[
 \Delta = \frac{10 - 0}{50 - 25} = 0.4
@@ -732,6 +745,72 @@ E[\text{收益}] = 0.5 \times (130 - 100) + 0.5 \times 0 = 15
 <li><strong>Delta 是动态变化的</strong>——在不同节点，复制组合需要不断调整</li>
 <li><strong>期权价值由当前价格决定</strong>，而非预期未来价格（当前价格已经反映了市场预期）</li>
 </ol>
+</div>
+</div>
+</section>
+<section id="从-black-scholes-到二叉树参数转换" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="从-black-scholes-到二叉树参数转换"><span class="header-section-number">4.4</span> 从 Black-Scholes 到二叉树：参数转换</h3>
+<p>在实践中，我们经常需要在 Black-Scholes 和二叉树模型之间切换。如果你已经估计了 Black-Scholes 所需的波动率 <span class="math inline">\(\sigma\)</span>，如何转换为二叉树模型的上涨/下跌因子？</p>
+<p><strong>转换公式</strong>：</p>
+<p><span class="math display">\[
+u = e^{\sigma\sqrt{\Delta t} + (r - \frac{\sigma^2}{2})\Delta t}
+\]</span></p>
+<p><span class="math display">\[
+d = e^{-\sigma\sqrt{\Delta t} + (r - \frac{\sigma^2}{2})\Delta t}
+\]</span></p>
+<p>其中 <span class="math inline">\(\Delta t = T/m\)</span> 是每个时间步长（<span class="math inline">\(T\)</span> 是期权期限，<span class="math inline">\(m\)</span> 是总步数）。</p>
+<p><strong>为什么公式中有 <span class="math inline">\((r - \sigma^2/2)\)</span> 项？</strong> 这是一个常被忽略的细节。在连续时间中，资产价格服从几何布朗运动：</p>
+<p><span class="math display">\[
+\frac{dS}{S} = \mu \, dt + \sigma \, dW
+\]</span></p>
+<p>由于伊藤引理（Itô’s Lemma），<span class="math inline">\(\ln S\)</span> 的漂移项不是 <span class="math inline">\(\mu\)</span>，而是 <span class="math inline">\(\mu - \sigma^2/2\)</span>。在风险中性世界中，<span class="math inline">\(\mu\)</span> 被无风险利率 <span class="math inline">\(r\)</span> 替代，因此漂移变成 <span class="math inline">\(r - \sigma^2/2\)</span>。</p>
+<p><strong>数值示例</strong>：</p>
+<p>假设： - 当前股价 <span class="math inline">\(S = \$30\)</span> - 年化波动率 <span class="math inline">\(\sigma = 40\%\)</span> - 无风险利率 <span class="math inline">\(r = 5\%\)</span> - 期权期限 4 年，每年为一个时间步（<span class="math inline">\(\Delta t = 1\)</span>）</p>
+<p>计算上涨/下跌因子：</p>
+<p><span class="math display">\[
+u = e^{0.40\sqrt{1} + (0.05 - 0.40^2/2) \times 1} = e^{0.40 - 0.03} = e^{0.37} = 1.4477
+\]</span></p>
+<p><span class="math display">\[
+d = e^{-0.40\sqrt{1} + (0.05 - 0.40^2/2) \times 1} = e^{-0.40 - 0.03} = e^{-0.43} = 0.6505
+\]</span></p>
+<p>用这些参数构建四年期二叉树：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>时点</th>
+<th>价格节点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(t=0\)</span></td>
+<td><span class="math inline">\(30.00\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(t=1\)</span></td>
+<td><span class="math inline">\(43.43\)</span> 或 <span class="math inline">\(19.52\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(t=2\)</span></td>
+<td><span class="math inline">\(62.88\)</span>、<span class="math inline">\(28.25\)</span> 或 <span class="math inline">\(12.70\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(t=3\)</span></td>
+<td><span class="math inline">\(91.03\)</span>、<span class="math inline">\(40.90\)</span>、<span class="math inline">\(18.38\)</span> 或 <span class="math inline">\(8.26\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>二叉树与 Black-Scholes 的收敛
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>当时间步数 <span class="math inline">\(m \to \infty\)</span> 时，二叉树模型收敛到 Black-Scholes 模型。实践中，50-100 步通常足够准确。步数越多，计算量越大，但对美式期权的早期行权处理越精确。</p>
 </div>
 </div>
 <hr>
@@ -767,8 +846,48 @@ d_2 = d_1 - \sigma\sqrt{t}
 <li><span class="math inline">\(N(\cdot)\)</span>：标准正态分布的累积分布函数</li>
 </ul>
 </section>
-<section id="公式的直觉解读" class="level3" data-number="5.3">
-<h3 data-number="5.3" class="anchored" data-anchor-id="公式的直觉解读"><span class="header-section-number">5.3</span> 公式的直觉解读</h3>
+<section id="估计输入参数的注意事项" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="估计输入参数的注意事项"><span class="header-section-number">5.3</span> 估计输入参数的注意事项</h3>
+<p>Black-Scholes 模型在<strong>连续时间</strong>（continuous time）框架下运作，这对输入参数有两个重要影响：</p>
+<p><strong>1. 无风险利率的转换</strong></p>
+<p>模型使用连续复利形式的无风险利率。如果你只有年化的离散利率（如国债收益率），需要转换：</p>
+<p><span class="math display">\[
+r_{\text{连续}} = \ln(1 + r_{\text{离散}})
+\]</span></p>
+<p>例如，如果一年期国债利率为 6.2%，则：</p>
+<p><span class="math display">\[
+r_{\text{连续}} = \ln(1.062) = 0.0602 = 6.02\%
+\]</span></p>
+<p><strong>为什么要这样转换？</strong> 因为 Black-Scholes 公式中的 <span class="math inline">\(e^{-rt}\)</span> 假设的是连续复利。如果直接使用离散利率，会导致折现因子的轻微偏差。</p>
+<p><strong>2. 波动率的年化</strong></p>
+<p>模型需要<strong>年化的对数收益率标准差</strong>。如果你使用周收益率或月收益率估计波动率，需要年化：</p>
+<p><span class="math display">\[
+\sigma_{\text{年化}} = \sigma_{\text{周}} \times \sqrt{52} = \sigma_{\text{月}} \times \sqrt{12}
+\]</span></p>
+<p><strong>为什么用 <span class="math inline">\(\sqrt{52}\)</span> 而不是 52？</strong> 这源于一个关键的统计性质：如果收益率没有序列相关性，方差在时间上是<strong>线性叠加</strong>的。因此：</p>
+<p><span class="math display">\[
+\sigma^2_{\text{年}} = 52 \times \sigma^2_{\text{周}} \implies \sigma_{\text{年}} = \sqrt{52} \times \sigma_{\text{周}}
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>实践建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>使用至少 2-3 年的历史价格数据估计波动率</li>
+<li>周收益率比日收益率更稳定（减少噪音）</li>
+<li>如果公司近期有重大事件（如并购），考虑是否使用更短的估计窗口</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="公式的直觉解读" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="公式的直觉解读"><span class="header-section-number">5.4</span> 公式的直觉解读</h3>
 <p>Black-Scholes 公式看起来很复杂，但我们可以将其拆解为两部分：</p>
 <p><span class="math display">\[
 C = \underbrace{S \cdot N(d_1)}_{\text{买入股票}} - \underbrace{K e^{-rt} \cdot N(d_2)}_{\text{借款}}
@@ -791,8 +910,8 @@ C = \underbrace{S \cdot N(d_1)}_{\text{买入股票}} - \underbrace{K e^{-rt} \c
 </div>
 </div>
 </section>
-<section id="计算实例cisco-期权估值" class="level3" data-number="5.4">
-<h3 data-number="5.4" class="anchored" data-anchor-id="计算实例cisco-期权估值"><span class="header-section-number">5.4</span> 计算实例：Cisco 期权估值</h3>
+<section id="计算实例cisco-期权估值" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="计算实例cisco-期权估值"><span class="header-section-number">5.5</span> 计算实例：Cisco 期权估值</h3>
 <p><strong>设定</strong>（2001 年 3 月 6 日）：</p>
 <ul>
 <li>Cisco 股价 <span class="math inline">\(S = 13.62\)</span> 美元</li>
@@ -819,8 +938,8 @@ C = 13.62 \times 0.5085 - 15 \times e^{-0.0463 \times 0.2822} \times 0.3412 = \$
 \]</span></p>
 <p>当时市场价格为 2 美元，略高于模型估值。这可能意味着市场认为的波动率比 81% 更高。</p>
 </section>
-<section id="隐含波动率" class="level3" data-number="5.5">
-<h3 data-number="5.5" class="anchored" data-anchor-id="隐含波动率"><span class="header-section-number">5.5</span> 隐含波动率</h3>
+<section id="隐含波动率" class="level3" data-number="5.6">
+<h3 data-number="5.6" class="anchored" data-anchor-id="隐含波动率"><span class="header-section-number">5.6</span> 隐含波动率</h3>
 <p>如果我们把市场价格代入 Black-Scholes 公式，反推出来的波动率称为<strong>隐含波动率（Implied Volatility）</strong>。</p>
 <p>在上面的例子中，如果期权市价是 2 美元，反推的隐含波动率约为 85.4%。</p>
 <p>隐含波动率是市场对未来波动性的预期，通常被认为比历史波动率更具前瞻性。</p>
@@ -850,6 +969,109 @@ d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2)t}{\sigma\sqrt{t}}
 <li>资产价值以股息收益率折现，反映了持有期权而非股票所错过的股息</li>
 <li>利率被股息收益率抵消，反映了复制组合中持有股票的”隐性收益”</li>
 </ol>
+<section id="案例att-短期期权的股息调整" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="案例att-短期期权的股息调整"><span class="header-section-number">6.1.1</span> 案例：AT&amp;T 短期期权的股息调整</h4>
+<p>2001 年 3 月 6 日，AT&amp;T 股价为 $20.50。考虑一份执行价格为 $20、7 月 20 日到期的看涨期权。基于历史价格，AT&amp;T 股价对数的年化标准差为 60%。在期权期限内，有一笔 $0.15 的股息将在 23 天后支付。无风险利率为 4.63%。</p>
+<p><strong>Step 1：扣除股息现值</strong></p>
+<p><span class="math display">\[
+\text{股息现值} = \frac{\$0.15}{1.0463^{23/365}} = \$0.15
+\]</span></p>
+<p><span class="math display">\[
+\text{调整后股价} = \$20.50 - \$0.15 = \$20.35
+\]</span></p>
+<p><strong>Step 2：计算 Black-Scholes 输入</strong></p>
+<ul>
+<li><span class="math inline">\(S = \$20.35\)</span>（调整后）</li>
+<li><span class="math inline">\(K = \$20\)</span></li>
+<li><span class="math inline">\(t = 103/365 = 0.2822\)</span> 年</li>
+<li><span class="math inline">\(\sigma^2 = 0.36\)</span>（即 <span class="math inline">\(\sigma = 60\%\)</span>）</li>
+<li><span class="math inline">\(r = 4.63\%\)</span></li>
+</ul>
+<p><strong>Step 3：计算 <span class="math inline">\(d_1\)</span> 和 <span class="math inline">\(d_2\)</span></strong></p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(20.35/20) + (0.0463 + 0.36/2) \times 0.2822}{0.6 \times \sqrt{0.2822}} = 0.2551
+\]</span></p>
+<p><span class="math display">\[
+d_2 = 0.2551 - 0.6 \times \sqrt{0.2822} = -0.0636
+\]</span></p>
+<p><strong>Step 4：查标准正态分布表</strong></p>
+<ul>
+<li><span class="math inline">\(N(d_1) = N(0.2551) = 0.6007\)</span></li>
+<li><span class="math inline">\(N(d_2) = N(-0.0636) = 0.4746\)</span></li>
+</ul>
+<p><strong>Step 5：计算期权价值</strong></p>
+<p><span class="math display">\[
+C = 20.35 \times 0.6007 - 20 \times e^{-0.0463 \times 0.2822} \times 0.4746 = \$2.86
+\]</span></p>
+<p>当时市场价格为 $2.60，模型略微高估。这可能意味着市场预期的波动率低于 60%。</p>
+</section>
+<section id="案例att-长期期权的股息收益率调整" class="level4" data-number="6.1.2">
+<h4 data-number="6.1.2" class="anchored" data-anchor-id="案例att-长期期权的股息收益率调整"><span class="header-section-number">6.1.2</span> 案例：AT&amp;T 长期期权的股息收益率调整</h4>
+<p>同样是 2001 年 3 月 6 日，CBOE 交易一份 2003 年 1 月 17 日到期的 AT&amp;T 看涨期权，执行价格为 $20。对于这种接近两年期限的期权，逐笔扣除股息不太实际，我们改用<strong>股息收益率法</strong>。</p>
+<p>假设 AT&amp;T 的股息收益率在期权期限内保持 2.51%，两年期国债利率为 4.85%。</p>
+<p><strong>输入参数</strong>：</p>
+<ul>
+<li><span class="math inline">\(S = \$20.50\)</span></li>
+<li><span class="math inline">\(K = \$20\)</span></li>
+<li><span class="math inline">\(t = 1.8333\)</span> 年</li>
+<li><span class="math inline">\(\sigma = 60\%\)</span></li>
+<li><span class="math inline">\(r = 4.85\%\)</span></li>
+<li><span class="math inline">\(y = 2.51\%\)</span>（股息收益率）</li>
+</ul>
+<p><strong>计算</strong>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(20.50/20) + (0.0485 - 0.0251 + 0.36/2) \times 1.8333}{0.6 \times \sqrt{1.8333}} = 0.4894
+\]</span></p>
+<p><span class="math display">\[
+d_2 = 0.4894 - 0.6 \times \sqrt{1.8333} = -0.3230
+\]</span></p>
+<ul>
+<li><span class="math inline">\(N(d_1) = 0.6877\)</span></li>
+<li><span class="math inline">\(N(d_2) = 0.3733\)</span></li>
+</ul>
+<p><span class="math display">\[
+C = 20.50 \times e^{-0.0251 \times 1.8333} \times 0.6877 - 20 \times e^{-0.0485 \times 1.8333} \times 0.3733 = \$6.63
+\]</span></p>
+<p>当时市场价格为 $5.80。模型高估了约 14%，可能原因： 1. 市场预期的波动率低于 60% 2. 市场担心早期行权的可能性（美式期权）</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>短期 vs 长期股息调整的选择
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>期权期限</th>
+<th>推荐方法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt; 6 个月</td>
+<td>扣除股息现值</td>
+<td>股息金额和时间较确定</td>
+</tr>
+<tr class="even">
+<td>&gt; 1 年</td>
+<td>股息收益率法</td>
+<td>难以预测具体股息</td>
+</tr>
+<tr class="odd">
+<td>6 个月 - 1 年</td>
+<td>视情况而定</td>
+<td>如果股息稳定，用收益率法</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 </section>
 <section id="提前行权美式期权" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="提前行权美式期权"><span class="header-section-number">6.2</span> 提前行权：美式期权</h3>
@@ -865,6 +1087,127 @@ d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2)t}{\sigma\sqrt{t}}
 <li><strong>伪美式估值</strong>：分别计算到每个除息日的期权价值，取最大值</li>
 <li><strong>二叉树模型</strong>：在每个节点检查是否应该提前行权</li>
 </ol>
+<section id="案例伪美式估值多除息日的处理" class="level4" data-number="6.2.1">
+<h4 data-number="6.2.1" class="anchored" data-anchor-id="案例伪美式估值多除息日的处理"><span class="header-section-number">6.2.1</span> 案例：伪美式估值——多除息日的处理</h4>
+<p>考虑一份执行价格为 $35 的看涨期权，标的股票当前价格为 $40。股价对数的方差为 0.05，无风险利率为 4%。期权还有 8 个月到期，在此期间预计有三次股息：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>预期股息</th>
+<th>除息日</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>$0.80</td>
+<td>1 个月后</td>
+</tr>
+<tr class="even">
+<td>$0.80</td>
+<td>4 个月后</td>
+</tr>
+<tr class="odd">
+<td>$0.80</td>
+<td>7 个月后</td>
+</tr>
+</tbody>
+</table>
+<p><strong>方法：分别估值到每个除息日</strong></p>
+<p><strong>估值 1：到第一个除息日前（1 个月）</strong></p>
+<p>直接使用当前股价（此时还没有股息扣除）：</p>
+<ul>
+<li><span class="math inline">\(S = \$40\)</span>, <span class="math inline">\(K = \$35\)</span>, <span class="math inline">\(t = 1/12\)</span></li>
+<li><span class="math inline">\(\sigma^2 = 0.05\)</span>, <span class="math inline">\(r = 4\%\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{期权价值} = \$5.131
+\]</span></p>
+<p><strong>估值 2：到第二个除息日前（4 个月）</strong></p>
+<p>扣除第一笔股息的现值：</p>
+<p><span class="math display">\[
+\text{调整后股价} = \$40 - \frac{\$0.80}{1.04^{1/12}} = \$39.20
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S = \$39.20\)</span>, <span class="math inline">\(K = \$35\)</span>, <span class="math inline">\(t = 4/12\)</span></li>
+<li><span class="math inline">\(\sigma^2 = 0.05\)</span>, <span class="math inline">\(r = 4\%\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{期权价值} = \$5.073
+\]</span></p>
+<p><strong>估值 3：到第三个除息日前（7 个月）</strong></p>
+<p>扣除前两笔股息的现值：</p>
+<p><span class="math display">\[
+\text{调整后股价} = \$40 - \frac{\$0.80}{1.04^{1/12}} - \frac{\$0.80}{1.04^{4/12}} = \$38.41
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S = \$38.41\)</span>, <span class="math inline">\(K = \$35\)</span>, <span class="math inline">\(t = 7/12\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{期权价值} = \$5.128
+\]</span></p>
+<p><strong>估值 4：到期权到期日（8 个月）</strong></p>
+<p>扣除所有三笔股息的现值：</p>
+<p><span class="math display">\[
+\text{调整后股价} = \$40 - \frac{\$0.80}{1.04^{1/12}} - \frac{\$0.80}{1.04^{4/12}} - \frac{\$0.80}{1.04^{7/12}} = \$37.63
+\]</span></p>
+<ul>
+<li><span class="math inline">\(S = \$37.63\)</span>, <span class="math inline">\(K = \$35\)</span>, <span class="math inline">\(t = 8/12\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{期权价值} = \$4.757
+\]</span></p>
+<p><strong>结论：选择最大值</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>估值时点</th>
+<th>期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>第一个除息日前</td>
+<td><strong>$5.131</strong> ← 最大</td>
+</tr>
+<tr class="even">
+<td>第二个除息日前</td>
+<td>$5.073</td>
+</tr>
+<tr class="odd">
+<td>第三个除息日前</td>
+<td>$5.128</td>
+</tr>
+<tr class="even">
+<td>到期日</td>
+<td>$4.757</td>
+</tr>
+</tbody>
+</table>
+<p>伪美式估值 = <strong>$5.131</strong></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>伪美式估值的洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这个案例揭示了一个重要现象：<strong>期权价值并非总是随着期限增长而增加</strong>。</p>
+<p>为什么到第一个除息日的价值最高？因为： 1. 此时股价尚未被股息”侵蚀” 2. 虽然时间短（只有 1 个月），但深度实值期权的时间价值本就有限</p>
+<p>这解释了为什么高股息股票的看涨期权更可能被提前行权——持有者不愿错过股息。</p>
+</div>
+</div>
+</section>
+<section id="方法-2使用二叉树模型处理早期行权" class="level4" data-number="6.2.2">
+<h4 data-number="6.2.2" class="anchored" data-anchor-id="方法-2使用二叉树模型处理早期行权"><span class="header-section-number">6.2.2</span> 方法 2：使用二叉树模型处理早期行权</h4>
+<p>二叉树模型更灵活，因为它可以在<strong>每个节点</strong>检查是否应该提前行权。步骤如下：</p>
+<p><strong>Step 1</strong>：用 Black-Scholes 的波动率估计转换为二叉树参数（见前文的转换公式）</p>
+<p><strong>Step 2</strong>：在每个除息日节点，股价下降股息金额</p>
+<p><strong>Step 3</strong>：在每个节点，比较： - 立即行权的价值：<span class="math inline">\(\max(S - K, 0)\)</span> - 继续持有的价值（折现后期望值）</p>
+<p><strong>Step 4</strong>：选择两者中的较大值</p>
+</section>
 </section>
 <section id="行权对标的资产的影响权证估值" class="level3" data-number="6.3">
 <h3 data-number="6.3" class="anchored" data-anchor-id="行权对标的资产的影响权证估值"><span class="header-section-number">6.3</span> 行权对标的资产的影响：权证估值</h3>
@@ -881,24 +1224,254 @@ d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2)t}{\sigma\sqrt{t}}
 <li><span class="math inline">\(n_W\)</span>：权证数量</li>
 </ul>
 <p>这个公式有循环问题（需要权证价值来计算调整后股价，需要调整后股价来计算权证价值），需要迭代求解。</p>
+<section id="案例avatek-corporation-权证估值" class="level4" data-number="6.3.1">
+<h4 data-number="6.3.1" class="anchored" data-anchor-id="案例avatek-corporation-权证估值"><span class="header-section-number">6.3.1</span> 案例：Avatek Corporation 权证估值</h4>
+<p>Avatek Corporation 是一家房地产公司，2001 年 3 月的情况如下：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>流通股数</td>
+<td>1963.7 万股</td>
+</tr>
+<tr class="even">
+<td>股价</td>
+<td>$0.38</td>
+</tr>
+<tr class="odd">
+<td>权证数量</td>
+<td>180 万份</td>
+</tr>
+<tr class="even">
+<td>权证执行价格</td>
+<td>$2.25</td>
+</tr>
+<tr class="odd">
+<td>权证期限</td>
+<td>4 年</td>
+</tr>
+<tr class="even">
+<td>股价对数标准差</td>
+<td>93%</td>
+</tr>
+<tr class="odd">
+<td>股息收益率</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>四年期国债利率</td>
+<td>4.9%</td>
+</tr>
+<tr class="odd">
+<td>权证市场价格</td>
+<td>$0.12</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Step 1：估算初始权证价值（用于调整股价）</strong></p>
+<p>我们先用市场价格 $0.12 作为初始估计。</p>
+<p><strong>Step 2：计算稀释调整后股价</strong></p>
+<p><span class="math display">\[
+\text{调整后股价} = \frac{S \times n_S + W \times n_W}{n_S + n_W} = \frac{0.38 \times 19.637 + 0.12 \times 1.8}{19.637 + 1.8} = \$0.3544
+\]</span></p>
+<p><strong>Step 3：用调整后股价计算权证价值</strong></p>
+<p>输入参数： - <span class="math inline">\(S = \$0.3544\)</span>（调整后） - <span class="math inline">\(K = \$2.25\)</span> - <span class="math inline">\(t = 4\)</span> 年 - <span class="math inline">\(\sigma = 93\%\)</span> - <span class="math inline">\(r = 4.9\%\)</span> - <span class="math inline">\(y = 0\%\)</span></p>
+<p>计算 <span class="math inline">\(d_1\)</span> 和 <span class="math inline">\(d_2\)</span>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(0.3544/2.25) + (0.049 + 0.93^2/2) \times 4}{0.93 \times \sqrt{4}} = 0.0418
+\]</span></p>
+<p><span class="math display">\[
+d_2 = 0.0418 - 0.93 \times 2 = -1.8182
+\]</span></p>
+<p>查表： - <span class="math inline">\(N(d_1) = 0.5167\)</span> - <span class="math inline">\(N(d_2) = 0.0345\)</span></p>
+<p><strong>Step 4：计算权证价值</strong></p>
+<p><span class="math display">\[
+W = 0.3544 \times 0.5167 - 2.25 \times e^{-0.049 \times 4} \times 0.0345 = \$0.12
+\]</span></p>
+<p><strong>结果</strong>：模型估值恰好等于市场价格 $0.12，无需进一步迭代。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>迭代过程说明
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果模型估值与初始假设不同，需要迭代：</p>
+<ol type="1">
+<li>用新的权证估值重新计算调整后股价</li>
+<li>用新的调整后股价重新计算权证价值</li>
+<li>重复直到收敛（通常 3-5 次迭代即可）</li>
+</ol>
+<p>对于非交易的管理层期权（没有市场价格），迭代过程必不可少。</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>为什么稀释会降低权证价值？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>直觉上，稀释调整有两个效应：</p>
+<ol type="1">
+<li><strong>股价下调</strong>：将权证市值加入分子，但股数增加更多在分母，导致每股价值下降</li>
+<li><strong>现金流入</strong>：权证行权会给公司带来现金（执行价格 × 权证数量）</li>
+</ol>
+<p>第二个效应是正面的，但通常<strong>无法完全抵消</strong>第一个效应，因为： - 只有在 <span class="math inline">\(S &gt; K\)</span> 时权证才会被行权 - 行权时公司收到的是执行价格，而稀释的是当前较高的股价</p>
+</div>
+</div>
 <hr>
 </section>
 </section>
-<section id="期权定价的扩展更复杂的期权类型" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="期权定价的扩展更复杂的期权类型"><span class="header-section-number">7</span> 期权定价的扩展：更复杂的期权类型</h2>
+</section>
+<section id="跳跃过程期权定价模型" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="跳跃过程期权定价模型"><span class="header-section-number">7</span> 跳跃过程期权定价模型</h2>
+<section id="当价格不连续变化时" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="当价格不连续变化时"><span class="header-section-number">7.1</span> 当价格不连续变化时</h3>
+<p>Black-Scholes 模型假设资产价格<strong>连续变化</strong>——价格在相邻时刻之间不会出现跳跃。但在现实中，某些事件（如盈利公告、FDA 审批结果、并购消息）会导致价格<strong>瞬间大幅跳跃</strong>。</p>
+<p>如果在二叉树模型中，即使时间步长变得很短，价格变化仍然保持很大，那么连续价格过程的假设就不再适用。</p>
+</section>
+<section id="cox-ross-纯跳跃模型1976" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="cox-ross-纯跳跃模型1976"><span class="header-section-number">7.2</span> Cox-Ross 纯跳跃模型（1976）</h3>
+<p>Cox 和 Ross 提出了一个纯跳跃过程模型，假设： - 股价要么保持不变（小概率向下漂移） - 要么出现大幅正向跳跃</p>
+<p>这种模型适用于高度不确定的事件驱动型资产，如等待重大监管审批的生物科技公司。</p>
+</section>
+<section id="merton-跳跃扩散模型1976" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="merton-跳跃扩散模型1976"><span class="header-section-number">7.3</span> Merton 跳跃扩散模型（1976）</h3>
+<p>Merton 提出了更一般化的模型，将<strong>跳跃叠加在连续价格过程上</strong>。模型需要两个额外参数：</p>
+<ul>
+<li><span class="math inline">\(\lambda\)</span>：跳跃发生的频率（每年预期跳跃次数）</li>
+<li><span class="math inline">\(k\)</span>：平均跳跃幅度（以股价百分比衡量）</li>
+</ul>
+<p>跳跃扩散模型的期权价值由 Black-Scholes 的五个变量加上跳跃参数 <span class="math inline">\((\lambda, k)\)</span> 共同决定。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>跳跃模型的实践局限
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>虽然跳跃扩散模型更贴近现实，但存在严重的<strong>参数估计问题</strong>：</p>
+<ol type="1">
+<li><strong>跳跃频率难以估计</strong>：历史上的跳跃样本很少</li>
+<li><strong>跳跃幅度不稳定</strong>：不同事件导致的跳跃差异巨大</li>
+<li><strong>估计误差可能超过模型改进带来的收益</strong></li>
+</ol>
+<p>因此，跳跃模型在实践中应用有限。对于大多数期权，使用 Black-Scholes 配合适当的隐含波动率是更务实的选择。</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>何时考虑跳跃模型？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>等待 FDA 审批的生物科技公司</td>
+<td>考虑跳跃模型或情景分析</td>
+</tr>
+<tr class="even">
+<td>面临重大诉讼的公司</td>
+<td>考虑跳跃模型</td>
+</tr>
+<tr class="odd">
+<td>正常运营的成熟公司</td>
+<td>Black-Scholes 足够</td>
+</tr>
+<tr class="even">
+<td>短期交易期权</td>
+<td>Black-Scholes + 隐含波动率</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="期权定价的扩展更复杂的期权类型" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="期权定价的扩展更复杂的期权类型"><span class="header-section-number">8</span> 期权定价的扩展：更复杂的期权类型</h2>
 <p>标准期权之外，还有许多变体。理解这些变体对于<strong>实物期权</strong>的应用至关重要。</p>
-<section id="上限期权与障碍期权" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="上限期权与障碍期权"><span class="header-section-number">7.1</span> 上限期权与障碍期权</h3>
+<section id="上限期权与障碍期权" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="上限期权与障碍期权"><span class="header-section-number">8.1</span> 上限期权与障碍期权</h3>
 <p><strong>上限期权（Capped Option）</strong>：收益有上限。例如，执行价格为 <span class="math inline">\(K_1\)</span> 的看涨期权，当资产价格超过 <span class="math inline">\(K_2\)</span> 时，收益被封顶在 <span class="math inline">\((K_2 - K_1)\)</span>。</p>
 <p><strong>近似估值</strong>：</p>
 <p><span class="math display">\[
 \text{上限看涨期权价值} \approx C(K = K_1) - C(K = K_2)
 \]</span></p>
 <p><strong>障碍期权（Barrier Option）</strong>：期权的存续或收益取决于标的资产是否触及某个价格水平。</p>
-<ul>
-<li><strong>敲出期权（Knockout Option）</strong>：资产价格触及障碍时期权失效</li>
-<li><strong>敲入期权（Knockin Option）</strong>：资产价格触及障碍时期权才生效</li>
-</ul>
+<section id="障碍期权的四种基本类型" class="level4" data-number="8.1.1">
+<h4 data-number="8.1.1" class="anchored" data-anchor-id="障碍期权的四种基本类型"><span class="header-section-number">8.1.1</span> 障碍期权的四种基本类型</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>障碍位置</th>
+<th>触及障碍后</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>向下敲出（Down-and-Out）</strong></td>
+<td>执行价格以下</td>
+<td>期权失效</td>
+<td>看涨期权</td>
+</tr>
+<tr class="even">
+<td><strong>向上敲出（Up-and-Out）</strong></td>
+<td>执行价格以上</td>
+<td>期权失效</td>
+<td>看跌期权</td>
+</tr>
+<tr class="odd">
+<td><strong>向下敲入（Down-and-In）</strong></td>
+<td>执行价格以下</td>
+<td>期权生效</td>
+<td>看涨期权</td>
+</tr>
+<tr class="even">
+<td><strong>向上敲入（Up-and-In）</strong></td>
+<td>执行价格以上</td>
+<td>期权生效</td>
+<td>看跌期权</td>
+</tr>
+</tbody>
+</table>
+<p><strong>定价关系</strong>：</p>
+<p>对于相同参数的障碍期权，有一个优雅的关系：</p>
+<p><span class="math display">\[
+\text{敲入期权} + \text{敲出期权} = \text{普通期权}
+\]</span></p>
+<p>这意味着如果你能定价敲出期权，就能通过差值得到敲入期权。</p>
+<p><strong>为什么障碍期权更便宜？</strong></p>
+<p>因为它们的收益被”截断”了。敲出期权可能在到期前就失效；敲入期权可能永远不生效。这种限制降低了期权价值。</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -909,12 +1482,40 @@ d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2)t}{\sigma\sqrt{t}}
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>许多实物期权都有类似的”上限”或”障碍”特征。例如，开发某项专利技术的权利可能有时间限制（专利到期就失效）。忽略这些限制会导致高估实物期权的价值。</p>
+<p>许多实物期权都有类似的”上限”或”障碍”特征：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>实物期权场景</th>
+<th>对应的障碍特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>专利保护的技术开发权</td>
+<td>专利到期 = 敲出障碍</td>
+</tr>
+<tr class="even">
+<td>政府特许经营权</td>
+<td>特许期限 = 时间障碍</td>
+</tr>
+<tr class="odd">
+<td>自然资源开采权</td>
+<td>储量耗尽 = 向下敲出</td>
+</tr>
+<tr class="even">
+<td>竞争对手抢先进入市场</td>
+<td>市场份额降至阈值 = 敲出</td>
+</tr>
+</tbody>
+</table>
+<p>忽略这些限制会导致<strong>高估</strong>实物期权的价值。</p>
 </div>
 </div>
 </section>
-<section id="复合期权" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="复合期权"><span class="header-section-number">7.2</span> 复合期权</h3>
+</section>
+<section id="复合期权" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="复合期权"><span class="header-section-number">8.2</span> 复合期权</h3>
 <p><strong>复合期权（Compound Option）</strong>的标的资产本身是另一个期权。例如：</p>
 <ul>
 <li>看涨期权的看涨期权（Call on a Call）</li>
@@ -923,18 +1524,18 @@ d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2)t}{\sigma\sqrt{t}}
 <p><strong>实物期权中的应用</strong>：</p>
 <p>分阶段投资的项目可以被视为复合期权。第一阶段的投资给予公司进行第二阶段投资的”权利”，第二阶段又给予第三阶段的权利，以此类推。</p>
 </section>
-<section id="彩虹期权" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="彩虹期权"><span class="header-section-number">7.3</span> 彩虹期权</h3>
+<section id="彩虹期权" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="彩虹期权"><span class="header-section-number">8.3</span> 彩虹期权</h3>
 <p><strong>彩虹期权（Rainbow Option）</strong>的价值取决于多个不确定性来源。</p>
 <p><strong>例子</strong>：未开发油田</p>
 <p>这是一个典型的实物期权。但它的价值不仅取决于油价（不确定性来源 1），还取决于油田的储量（不确定性来源 2）。用单一标的资产的期权模型来估值会产生偏差。</p>
 <hr>
 </section>
 </section>
-<section id="看跌期权与看涨-看跌平价" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="看跌期权与看涨-看跌平价"><span class="header-section-number">8</span> 看跌期权与看涨-看跌平价</h2>
-<section id="put-call-parity" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="put-call-parity"><span class="header-section-number">8.1</span> Put-Call Parity</h3>
+<section id="看跌期权与看涨-看跌平价" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="看跌期权与看涨-看跌平价"><span class="header-section-number">9</span> 看跌期权与看涨-看跌平价</h2>
+<section id="put-call-parity" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="put-call-parity"><span class="header-section-number">9.1</span> Put-Call Parity</h3>
 <p>如果我们知道看涨期权的价值，可以通过<strong>看涨-看跌平价关系（Put-Call Parity）</strong>推导出同等条件看跌期权的价值：</p>
 <p><span class="math display">\[
 C - P = S - K e^{-rt}
@@ -955,8 +1556,8 @@ P = C - S + K e^{-rt}
 S + P - C = K e^{-rt}
 \]</span></p>
 </section>
-<section id="black-scholes-看跌期权公式" class="level3" data-number="8.2">
-<h3 data-number="8.2" class="anchored" data-anchor-id="black-scholes-看跌期权公式"><span class="header-section-number">8.2</span> Black-Scholes 看跌期权公式</h3>
+<section id="black-scholes-看跌期权公式" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="black-scholes-看跌期权公式"><span class="header-section-number">9.2</span> Black-Scholes 看跌期权公式</h3>
 <p>将 Black-Scholes 看涨期权公式代入 Put-Call Parity：</p>
 <p><span class="math display">\[
 P = K e^{-rt} [1 - N(d_2)] - S e^{-yt} [1 - N(d_1)]
@@ -965,11 +1566,55 @@ P = K e^{-rt} [1 - N(d_2)] - S e^{-yt} [1 - N(d_1)]
 <p><span class="math display">\[
 P = K e^{-rt} N(-d_2) - S N(-d_1)
 \]</span></p>
+</section>
+<section id="案例用-put-call-parity-估值看跌期权" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="案例用-put-call-parity-估值看跌期权"><span class="header-section-number">9.3</span> 案例：用 Put-Call Parity 估值看跌期权</h3>
+<p>让我们用前面的 Cisco 和 AT&amp;T 案例来演示看跌期权的估值。</p>
+<section id="cisco-看跌期权" class="level4" data-number="9.3.1">
+<h4 data-number="9.3.1" class="anchored" data-anchor-id="cisco-看跌期权"><span class="header-section-number">9.3.1</span> Cisco 看跌期权</h4>
+<p>回顾 Cisco 看涨期权的估值： - 股价 <span class="math inline">\(S = \$13.62\)</span> - 执行价格 <span class="math inline">\(K = \$15\)</span> - 到期时间 <span class="math inline">\(t = 103/365 = 0.2822\)</span> 年 - 无风险利率 <span class="math inline">\(r = 4.63\%\)</span> - 看涨期权价值 <span class="math inline">\(C = \$1.87\)</span></p>
+<p>用 Put-Call Parity：</p>
+<p><span class="math display">\[
+P = C - S + K e^{-rt} = 1.87 - 13.62 + 15 \times e^{-0.0463 \times 0.2822} = \$3.06
+\]</span></p>
+<p>当时市场价格为 $3.38，模型略微低估。</p>
+</section>
+<section id="att-长期看跌期权" class="level4" data-number="9.3.2">
+<h4 data-number="9.3.2" class="anchored" data-anchor-id="att-长期看跌期权"><span class="header-section-number">9.3.2</span> AT&amp;T 长期看跌期权</h4>
+<p>回顾 AT&amp;T 长期看涨期权的估值： - 股价 <span class="math inline">\(S = \$20.50\)</span> - 执行价格 <span class="math inline">\(K = \$20\)</span> - 到期时间 <span class="math inline">\(t = 1.8333\)</span> 年 - 无风险利率 <span class="math inline">\(r = 4.85\%\)</span> - 股息收益率 <span class="math inline">\(y = 2.51\%\)</span> - 看涨期权价值 <span class="math inline">\(C = \$6.63\)</span></p>
+<p>对于有股息的资产，Put-Call Parity 需要调整：</p>
+<p><span class="math display">\[
+P = C - S e^{-yt} + K e^{-rt}
+\]</span></p>
+<p><span class="math display">\[
+P = 6.63 - 20.50 \times e^{-0.0251 \times 1.8333} + 20 \times e^{-0.0485 \times 1.8333} = \$5.35
+\]</span></p>
+<p>当时市场价格为 $3.80。模型高估了 41%！</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>模型 vs 市场价格差异的含义
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cisco 和 AT&amp;T 的看涨/看跌期权<strong>同时</strong>与模型估值不同，这说明：</p>
+<ol type="1">
+<li><strong>波动率估计可能有误</strong>：我们使用历史波动率，但市场可能预期更低（或更高）的未来波动率</li>
+<li><strong>美式期权溢价</strong>：市场价格反映了提前行权的价值，而 Black-Scholes 假设欧式期权</li>
+<li><strong>Put-Call Parity 始终成立</strong>：如果 Call 高估，Put 也会高估（反之亦然），因为它们通过套利关系相连</li>
+</ol>
+<p><strong>实践启示</strong>：如果模型价格与市场价格不同，反推<strong>隐含波动率</strong>通常比质疑市场更有意义。</p>
+</div>
+</div>
 <hr>
 </section>
 </section>
-<section id="总结" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="总结"><span class="header-section-number">9</span> 总结</h2>
+</section>
+<section id="总结" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="总结"><span class="header-section-number">10</span> 总结</h2>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -994,8 +1639,8 @@ P = K e^{-rt} N(-d_2) - S N(-d_1)
 <p>关键的 takeaway 是：<strong>期权定价的核心不是预测未来价格，而是找到一个让套利者无利可图的”公平”价格</strong>。这个思想将在后续章节中延伸到实物期权的估值——企业拥有的延迟投资、扩张或放弃项目的选择权，本质上都是期权。</p>
 <hr>
 </section>
-<section id="思考题" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="思考题"><span class="header-section-number">10</span> 思考题</h2>
+<section id="思考题" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="思考题"><span class="header-section-number">11</span> 思考题</h2>
 <ol type="1">
 <li><p>假设一只股票的波动率为 0（价格完全确定），此时一份平值（ATM）看涨期权的价值是多少？提示：考虑执行价格的现值。</p></li>
 <li><p>为什么深度实值（Deep ITM）的美式看涨期权可能在高股息股票的除息日前被提前行权？在什么条件下，持有者会选择提前行权而非继续持有？</p></li>

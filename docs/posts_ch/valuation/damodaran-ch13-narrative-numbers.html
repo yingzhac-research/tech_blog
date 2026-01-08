@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Ying">
-<meta name="description" content="估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨如何构建叙事、将叙事转化为数字、以及如何让故事与数据相互验证。">
+<meta name="description" content="估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨故事为何如此强大、讲故事的危险、如何构建商业叙事、将叙事转化为数字、以及如何在生命周期中平衡叙事与数字。">
 
 <title>【第13章】叙事与数字：让估值讲述一个连贯的故事 – Tech Notes</title>
 <style>
@@ -385,55 +385,65 @@ window.Quarto = {
    
   <ul>
   <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
-  <li><a href="#为什么估值需要叙事" id="toc-为什么估值需要叙事" class="nav-link" data-scroll-target="#为什么估值需要叙事"><span class="header-section-number">2</span> 为什么估值需要叙事？</a>
+  <li><a href="#为什么故事如此强大" id="toc-为什么故事如此强大" class="nav-link" data-scroll-target="#为什么故事如此强大"><span class="header-section-number">2</span> 为什么故事如此强大？</a>
   <ul class="collapse">
-  <li><a href="#数字的局限性" id="toc-数字的局限性" class="nav-link" data-scroll-target="#数字的局限性"><span class="header-section-number">2.1</span> 数字的局限性</a></li>
-  <li><a href="#叙事的力量" id="toc-叙事的力量" class="nav-link" data-scroll-target="#叙事的力量"><span class="header-section-number">2.2</span> 叙事的力量</a></li>
-  <li><a href="#案例两种估值-tesla-的方式" id="toc-案例两种估值-tesla-的方式" class="nav-link" data-scroll-target="#案例两种估值-tesla-的方式"><span class="header-section-number">2.3</span> 案例：两种估值 Tesla 的方式</a></li>
+  <li><a href="#故事能建立连接" id="toc-故事能建立连接" class="nav-link" data-scroll-target="#故事能建立连接"><span class="header-section-number">2.1</span> 故事能建立连接</a></li>
+  <li><a href="#故事更容易被记住" id="toc-故事更容易被记住" class="nav-link" data-scroll-target="#故事更容易被记住"><span class="header-section-number">2.2</span> 故事更容易被记住</a></li>
+  <li><a href="#故事激发行动" id="toc-故事激发行动" class="nav-link" data-scroll-target="#故事激发行动"><span class="header-section-number">2.3</span> 故事激发行动</a></li>
   </ul></li>
-  <li><a href="#好叙事的特征" id="toc-好叙事的特征" class="nav-link" data-scroll-target="#好叙事的特征"><span class="header-section-number">3</span> 好叙事的特征</a>
+  <li><a href="#讲故事的危险" id="toc-讲故事的危险" class="nav-link" data-scroll-target="#讲故事的危险"><span class="header-section-number">3</span> 讲故事的危险</a>
   <ul class="collapse">
-  <li><a href="#三个基本要求" id="toc-三个基本要求" class="nav-link" data-scroll-target="#三个基本要求"><span class="header-section-number">3.1</span> 三个基本要求</a></li>
-  <li><a href="#叙事的层次" id="toc-叙事的层次" class="nav-link" data-scroll-target="#叙事的层次"><span class="header-section-number">3.2</span> 叙事的层次</a></li>
-  <li><a href="#叙事的谱系" id="toc-叙事的谱系" class="nav-link" data-scroll-target="#叙事的谱系"><span class="header-section-number">3.3</span> 叙事的谱系</a></li>
+  <li><a href="#故事可以操控情绪" id="toc-故事可以操控情绪" class="nav-link" data-scroll-target="#故事可以操控情绪"><span class="header-section-number">3.1</span> 故事可以操控情绪</a></li>
+  <li><a href="#记忆可能不可靠" id="toc-记忆可能不可靠" class="nav-link" data-scroll-target="#记忆可能不可靠"><span class="header-section-number">3.2</span> 记忆可能不可靠</a></li>
+  <li><a href="#故事可能变成童话" id="toc-故事可能变成童话" class="nav-link" data-scroll-target="#故事可能变成童话"><span class="header-section-number">3.3</span> 故事可能变成童话</a></li>
   </ul></li>
-  <li><a href="#从叙事到数字系统化的转换" id="toc-从叙事到数字系统化的转换" class="nav-link" data-scroll-target="#从叙事到数字系统化的转换"><span class="header-section-number">4</span> 从叙事到数字：系统化的转换</a>
+  <li><a href="#估值作为桥梁" id="toc-估值作为桥梁" class="nav-link" data-scroll-target="#估值作为桥梁"><span class="header-section-number">4</span> 估值作为桥梁</a></li>
+  <li><a href="#商业故事的类型" id="toc-商业故事的类型" class="nav-link" data-scroll-target="#商业故事的类型"><span class="header-section-number">5</span> 商业故事的类型</a></li>
+  <li><a href="#从故事到数字五步法" id="toc-从故事到数字五步法" class="nav-link" data-scroll-target="#从故事到数字五步法"><span class="header-section-number">6</span> 从故事到数字：五步法</a>
   <ul class="collapse">
-  <li><a href="#转换框架" id="toc-转换框架" class="nav-link" data-scroll-target="#转换框架"><span class="header-section-number">4.1</span> 转换框架</a></li>
-  <li><a href="#步骤一定义市场" id="toc-步骤一定义市场" class="nav-link" data-scroll-target="#步骤一定义市场"><span class="header-section-number">4.2</span> 步骤一：定义市场</a></li>
-  <li><a href="#步骤二定义竞争优势" id="toc-步骤二定义竞争优势" class="nav-link" data-scroll-target="#步骤二定义竞争优势"><span class="header-section-number">4.3</span> 步骤二：定义竞争优势</a></li>
-  <li><a href="#步骤三转化为财务假设" id="toc-步骤三转化为财务假设" class="nav-link" data-scroll-target="#步骤三转化为财务假设"><span class="header-section-number">4.4</span> 步骤三：转化为财务假设</a></li>
-  <li><a href="#步骤四检验一致性" id="toc-步骤四检验一致性" class="nav-link" data-scroll-target="#步骤四检验一致性"><span class="header-section-number">4.5</span> 步骤四：检验一致性</a></li>
+  <li><a href="#第一步构建商业故事" id="toc-第一步构建商业故事" class="nav-link" data-scroll-target="#第一步构建商业故事"><span class="header-section-number">6.1</span> 第一步：构建商业故事</a></li>
+  <li><a href="#第二步3p-测试" id="toc-第二步3p-测试" class="nav-link" data-scroll-target="#第二步3p-测试"><span class="header-section-number">6.2</span> 第二步：3P 测试</a></li>
+  <li><a href="#第三步连接故事与输入" id="toc-第三步连接故事与输入" class="nav-link" data-scroll-target="#第三步连接故事与输入"><span class="header-section-number">6.3</span> 第三步：连接故事与输入</a></li>
+  <li><a href="#第四步从输入到价值" id="toc-第四步从输入到价值" class="nav-link" data-scroll-target="#第四步从输入到价值"><span class="header-section-number">6.4</span> 第四步：从输入到价值</a></li>
+  <li><a href="#第五步保持反馈循环开放" id="toc-第五步保持反馈循环开放" class="nav-link" data-scroll-target="#第五步保持反馈循环开放"><span class="header-section-number">6.5</span> 第五步：保持反馈循环开放</a></li>
   </ul></li>
-  <li><a href="#案例uber-的叙事估值2019年ipo" id="toc-案例uber-的叙事估值2019年ipo" class="nav-link" data-scroll-target="#案例uber-的叙事估值2019年ipo"><span class="header-section-number">5</span> 案例：Uber 的叙事估值（2019年IPO）</a>
+  <li><a href="#完整案例zomato-ipo-估值2021" id="toc-完整案例zomato-ipo-估值2021" class="nav-link" data-scroll-target="#完整案例zomato-ipo-估值2021"><span class="header-section-number">7</span> 完整案例：Zomato IPO 估值（2021）</a>
   <ul class="collapse">
-  <li><a href="#叙事构建" id="toc-叙事构建" class="nav-link" data-scroll-target="#叙事构建"><span class="header-section-number">5.1</span> 叙事构建</a></li>
-  <li><a href="#叙事到数字的转换" id="toc-叙事到数字的转换" class="nav-link" data-scroll-target="#叙事到数字的转换"><span class="header-section-number">5.2</span> 叙事到数字的转换</a></li>
-  <li><a href="#财务预测" id="toc-财务预测" class="nav-link" data-scroll-target="#财务预测"><span class="header-section-number">5.3</span> 财务预测</a></li>
-  <li><a href="#估值结果" id="toc-估值结果" class="nav-link" data-scroll-target="#估值结果"><span class="header-section-number">5.4</span> 估值结果</a></li>
-  <li><a href="#事后检验2024-年视角" id="toc-事后检验2024-年视角" class="nav-link" data-scroll-target="#事后检验2024-年视角"><span class="header-section-number">5.5</span> 事后检验（2024 年视角）</a></li>
+  <li><a href="#背景印度餐饮外卖市场" id="toc-背景印度餐饮外卖市场" class="nav-link" data-scroll-target="#背景印度餐饮外卖市场"><span class="header-section-number">7.1</span> 背景：印度餐饮外卖市场</a></li>
+  <li><a href="#构建-zomato-的故事" id="toc-构建-zomato-的故事" class="nav-link" data-scroll-target="#构建-zomato-的故事"><span class="header-section-number">7.2</span> 构建 Zomato 的故事</a></li>
+  <li><a href="#从故事到估值输入" id="toc-从故事到估值输入" class="nav-link" data-scroll-target="#从故事到估值输入"><span class="header-section-number">7.3</span> 从故事到估值输入</a></li>
+  <li><a href="#预测营业利润" id="toc-预测营业利润" class="nav-link" data-scroll-target="#预测营业利润"><span class="header-section-number">7.4</span> 预测营业利润</a></li>
+  <li><a href="#计算自由现金流和现值" id="toc-计算自由现金流和现值" class="nav-link" data-scroll-target="#计算自由现金流和现值"><span class="header-section-number">7.5</span> 计算自由现金流和现值</a></li>
+  <li><a href="#终值和每股价值计算" id="toc-终值和每股价值计算" class="nav-link" data-scroll-target="#终值和每股价值计算"><span class="header-section-number">7.6</span> 终值和每股价值计算</a></li>
+  <li><a href="#保持反馈循环开放不同叙事的估值" id="toc-保持反馈循环开放不同叙事的估值" class="nav-link" data-scroll-target="#保持反馈循环开放不同叙事的估值"><span class="header-section-number">7.7</span> 保持反馈循环开放：不同叙事的估值</a></li>
   </ul></li>
-  <li><a href="#叙事的测试与约束" id="toc-叙事的测试与约束" class="nav-link" data-scroll-target="#叙事的测试与约束"><span class="header-section-number">6</span> 叙事的测试与约束</a>
+  <li><a href="#生命周期中的叙事与数字" id="toc-生命周期中的叙事与数字" class="nav-link" data-scroll-target="#生命周期中的叙事与数字"><span class="header-section-number">8</span> 生命周期中的叙事与数字</a>
   <ul class="collapse">
-  <li><a href="#三种测试" id="toc-三种测试" class="nav-link" data-scroll-target="#三种测试"><span class="header-section-number">6.1</span> 三种测试</a></li>
-  <li><a href="#情景分析多个叙事" id="toc-情景分析多个叙事" class="nav-link" data-scroll-target="#情景分析多个叙事"><span class="header-section-number">6.2</span> 情景分析：多个叙事</a></li>
-  <li><a href="#关键假设的敏感性" id="toc-关键假设的敏感性" class="nav-link" data-scroll-target="#关键假设的敏感性"><span class="header-section-number">6.3</span> 关键假设的敏感性</a></li>
+  <li><a href="#各阶段的估值挑战与策略" id="toc-各阶段的估值挑战与策略" class="nav-link" data-scroll-target="#各阶段的估值挑战与策略"><span class="header-section-number">8.1</span> 各阶段的估值挑战与策略</a></li>
+  <li><a href="#为什么投资者在年轻公司上分歧更大" id="toc-为什么投资者在年轻公司上分歧更大" class="nav-link" data-scroll-target="#为什么投资者在年轻公司上分歧更大"><span class="header-section-number">8.2</span> 为什么投资者在年轻公司上分歧更大？</a></li>
   </ul></li>
-  <li><a href="#叙事的更新" id="toc-叙事的更新" class="nav-link" data-scroll-target="#叙事的更新"><span class="header-section-number">7</span> 叙事的更新</a>
+  <li><a href="#故事的重置变化和断裂" id="toc-故事的重置变化和断裂" class="nav-link" data-scroll-target="#故事的重置变化和断裂"><span class="header-section-number">9</span> 故事的重置、变化和断裂</a>
   <ul class="collapse">
-  <li><a href="#叙事不是一成不变的" id="toc-叙事不是一成不变的" class="nav-link" data-scroll-target="#叙事不是一成不变的"><span class="header-section-number">7.1</span> 叙事不是一成不变的</a></li>
-  <li><a href="#更新的原则" id="toc-更新的原则" class="nav-link" data-scroll-target="#更新的原则"><span class="header-section-number">7.2</span> 更新的原则</a></li>
-  <li><a href="#案例netflix-叙事的演变" id="toc-案例netflix-叙事的演变" class="nav-link" data-scroll-target="#案例netflix-叙事的演变"><span class="header-section-number">7.3</span> 案例：Netflix 叙事的演变</a></li>
+  <li><a href="#故事断裂story-breaks" id="toc-故事断裂story-breaks" class="nav-link" data-scroll-target="#故事断裂story-breaks"><span class="header-section-number">9.1</span> 故事断裂（Story Breaks）</a></li>
+  <li><a href="#故事变化story-changes" id="toc-故事变化story-changes" class="nav-link" data-scroll-target="#故事变化story-changes"><span class="header-section-number">9.2</span> 故事变化（Story Changes）</a></li>
+  <li><a href="#故事调整story-shifts" id="toc-故事调整story-shifts" class="nav-link" data-scroll-target="#故事调整story-shifts"><span class="header-section-number">9.3</span> 故事调整（Story Shifts）</a></li>
   </ul></li>
-  <li><a href="#叙事的陷阱" id="toc-叙事的陷阱" class="nav-link" data-scroll-target="#叙事的陷阱"><span class="header-section-number">8</span> 叙事的陷阱</a>
+  <li><a href="#叙事的陷阱" id="toc-叙事的陷阱" class="nav-link" data-scroll-target="#叙事的陷阱"><span class="header-section-number">10</span> 叙事的陷阱</a>
   <ul class="collapse">
-  <li><a href="#陷阱一确认偏误" id="toc-陷阱一确认偏误" class="nav-link" data-scroll-target="#陷阱一确认偏误"><span class="header-section-number">8.1</span> 陷阱一：确认偏误</a></li>
-  <li><a href="#陷阱二叙事过于复杂" id="toc-陷阱二叙事过于复杂" class="nav-link" data-scroll-target="#陷阱二叙事过于复杂"><span class="header-section-number">8.2</span> 陷阱二：叙事过于复杂</a></li>
-  <li><a href="#陷阱三叙事与数字脱节" id="toc-陷阱三叙事与数字脱节" class="nav-link" data-scroll-target="#陷阱三叙事与数字脱节"><span class="header-section-number">8.3</span> 陷阱三：叙事与数字脱节</a></li>
-  <li><a href="#陷阱四拒绝更新" id="toc-陷阱四拒绝更新" class="nav-link" data-scroll-target="#陷阱四拒绝更新"><span class="header-section-number">8.4</span> 陷阱四：拒绝更新</a></li>
+  <li><a href="#陷阱一确认偏误" id="toc-陷阱一确认偏误" class="nav-link" data-scroll-target="#陷阱一确认偏误"><span class="header-section-number">10.1</span> 陷阱一：确认偏误</a></li>
+  <li><a href="#陷阱二叙事过于复杂" id="toc-陷阱二叙事过于复杂" class="nav-link" data-scroll-target="#陷阱二叙事过于复杂"><span class="header-section-number">10.2</span> 陷阱二：叙事过于复杂</a></li>
+  <li><a href="#陷阱三叙事与数字脱节" id="toc-陷阱三叙事与数字脱节" class="nav-link" data-scroll-target="#陷阱三叙事与数字脱节"><span class="header-section-number">10.3</span> 陷阱三：叙事与数字脱节</a></li>
+  <li><a href="#陷阱四拒绝更新" id="toc-陷阱四拒绝更新" class="nav-link" data-scroll-target="#陷阱四拒绝更新"><span class="header-section-number">10.4</span> 陷阱四：拒绝更新</a></li>
   </ul></li>
-  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">9</span> 总结</a></li>
-  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">10</span> 思考题</a></li>
+  <li><a href="#本章与估值框架的联系" id="toc-本章与估值框架的联系" class="nav-link" data-scroll-target="#本章与估值框架的联系"><span class="header-section-number">11</span> 本章与估值框架的联系</a>
+  <ul class="collapse">
+  <li><a href="#与估值输入章节的联系" id="toc-与估值输入章节的联系" class="nav-link" data-scroll-target="#与估值输入章节的联系"><span class="header-section-number">11.1</span> 与估值输入章节的联系</a></li>
+  <li><a href="#与估值模型章节的联系" id="toc-与估值模型章节的联系" class="nav-link" data-scroll-target="#与估值模型章节的联系"><span class="header-section-number">11.2</span> 与估值模型章节的联系</a></li>
+  <li><a href="#批判性视角叙事方法的局限" id="toc-批判性视角叙事方法的局限" class="nav-link" data-scroll-target="#批判性视角叙事方法的局限"><span class="header-section-number">11.3</span> 批判性视角：叙事方法的局限</a></li>
+  <li><a href="#与中国市场的联系" id="toc-与中国市场的联系" class="nav-link" data-scroll-target="#与中国市场的联系"><span class="header-section-number">11.4</span> 与中国市场的联系</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">12</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">13</span> 思考题</a></li>
   </ul>
 </nav>
     </div>
@@ -453,7 +463,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨如何构建叙事、将叙事转化为数字、以及如何让故事与数据相互验证。
+    估值不只是数字游戏。每个估值背后都有一个关于公司未来的故事。本章探讨故事为何如此强大、讲故事的危险、如何构建商业叙事、将叙事转化为数字、以及如何在生命周期中平衡叙事与数字。
   </div>
 </div>
 
@@ -513,193 +523,695 @@ window.Quarto = {
 </div>
 <p>本章将探讨：</p>
 <ul>
-<li>为什么估值需要叙事？</li>
-<li>好叙事具备哪些特征？</li>
-<li>如何将叙事系统地转化为估值输入？</li>
-<li>如何测试和约束你的叙事？</li>
-<li>当新信息出现时，如何更新叙事？</li>
+<li>为什么故事如此强大？（神经科学的证据）</li>
+<li>讲故事有什么危险？（行为经济学的警示）</li>
+<li>什么是好的商业故事？（七种经典类型）</li>
+<li>如何将叙事系统地转化为估值输入？（五步法）</li>
+<li>叙事与数字如何在公司生命周期中演变？</li>
+<li>故事会如何断裂、变化和调整？</li>
 </ul>
 </section>
-<section id="为什么估值需要叙事" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="为什么估值需要叙事"><span class="header-section-number">2</span> 为什么估值需要叙事？</h2>
-<section id="数字的局限性" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="数字的局限性"><span class="header-section-number">2.1</span> 数字的局限性</h3>
-<p>DCF 模型需要大量输入：收入增长率、营业利润率、资本支出、营运资本、折现率……每一个输入都需要一个数字。</p>
-<p>但这些数字从何而来？</p>
-<p>如果你只是机械地使用历史平均值或行业中位数，你实际上是在假设”未来和过去一样”或”这家公司和行业平均一样”。这些可能是对的，但更可能是错的。</p>
-<p><strong>数字本身不会告诉你</strong>：</p>
-<ul>
-<li>为什么这家公司能增长 20%？</li>
-<li>为什么利润率会从 5% 提升到 15%？</li>
-<li>为什么竞争对手不会抢走市场份额？</li>
-</ul>
-<p>只有叙事才能回答这些问题。</p>
-</section>
-<section id="叙事的力量" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="叙事的力量"><span class="header-section-number">2.2</span> 叙事的力量</h3>
-<p>叙事不是”讲故事骗人”，而是<strong>将复杂的商业现实简化为可理解的逻辑链条</strong>。</p>
-<p>一个好的叙事具有以下功能：</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>功能</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>赋予意义</strong></td>
-<td>解释为什么假设是这个数字，而不是另一个</td>
-</tr>
-<tr class="even">
-<td><strong>建立联系</strong></td>
-<td>将不同的假设串联成一个连贯的整体</td>
-</tr>
-<tr class="odd">
-<td><strong>便于沟通</strong></td>
-<td>让非财务人士也能理解估值的逻辑</td>
-</tr>
-<tr class="even">
-<td><strong>便于更新</strong></td>
-<td>当新信息出现时，知道应该修改哪些假设</td>
-</tr>
-<tr class="odd">
-<td><strong>暴露风险</strong></td>
-<td>明确估值依赖哪些关键假设</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="案例两种估值-tesla-的方式" class="level3" data-number="2.3">
-<h3 data-number="2.3" class="anchored" data-anchor-id="案例两种估值-tesla-的方式"><span class="header-section-number">2.3</span> 案例：两种估值 Tesla 的方式</h3>
-<p><strong>方式一：纯数字</strong></p>
-<ul>
-<li>2024 年收入：$97B</li>
-<li>假设增长率：15%</li>
-<li>假设利润率：12%</li>
-<li>假设 WACC：9%</li>
-<li>终值倍数：10x EBITDA</li>
-<li>估值结果：$XXX</li>
-</ul>
-<p>问题：为什么是 15% 增长？为什么是 12% 利润率？如果明年销量下滑，应该调整哪个数字？</p>
-<p><strong>方式二：叙事驱动</strong></p>
-<blockquote class="blockquote">
-<p>“Tesla 不只是一家汽车公司，它是能源转型的核心参与者。在电动车领域，它拥有品牌、技术和规模优势，将在全球电动车渗透率从 15% 提升到 50% 的过程中保持 20%+ 的市场份额。同时，它的能源业务（储能、太阳能）将成为第二增长曲线。随着规模扩大和电池成本下降，利润率将逐步提升至传统豪华车水平（15%+）。”</p>
-</blockquote>
-<p>这个叙事直接映射到财务假设：</p>
-<ul>
-<li><strong>收入增长</strong> = 电动车市场增长 × Tesla 市场份额 + 能源业务增长</li>
-<li><strong>利润率路径</strong> = 规模效应 + 电池成本曲线 → 逐步提升至 15%</li>
-<li><strong>资本支出</strong> = 新工厂建设 + 电池产能扩张</li>
-</ul>
-<p>现在，当新信息出现时（比如中国市场竞争加剧），你知道应该调整”市场份额”假设，而不是随意调整增长率。</p>
-</section>
-</section>
-<section id="好叙事的特征" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="好叙事的特征"><span class="header-section-number">3</span> 好叙事的特征</h2>
-<section id="三个基本要求" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="三个基本要求"><span class="header-section-number">3.1</span> 三个基本要求</h3>
-<p>Damodaran 认为，一个有效的估值叙事必须满足三个条件：</p>
-<p><strong>1. 可能（Possible）</strong></p>
-<p>叙事描述的情景在物理和逻辑上必须是可能的。</p>
-<ul>
-<li>✅ “Uber 将成为城市出行的主导平台”——可能</li>
-<li>❌ “Uber 明年收入增长 1000%”——不可能</li>
-</ul>
-<p><strong>2. 可信（Plausible）</strong></p>
-<p>叙事必须有证据支持，不能只是一厢情愿。</p>
-<ul>
-<li>✅ “Tesla 的电池成本将继续下降”——有历史趋势和技术路径支持</li>
-<li>❌ “这家初创公司将击败所有竞争对手”——没有证据</li>
-</ul>
-<p><strong>3. 可检验（Testable）</strong></p>
-<p>叙事必须能够被数据验证或证伪。</p>
-<ul>
-<li>✅ “Netflix 将在 3 年内达到 3 亿订阅用户”——可以事后检验</li>
-<li>❌ “这家公司有优秀的企业文化”——太模糊，无法检验</li>
-</ul>
+<section id="为什么故事如此强大" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="为什么故事如此强大"><span class="header-section-number">2</span> 为什么故事如此强大？</h2>
+<p>在传统估值教学中，我们强调的是现金流、折现率、增长率——全是数字。既然如此，为什么要”分心”去讲故事呢？</p>
+<p>答案是：<strong>故事能做到数字做不到的事情</strong>。近年来，神经科学研究揭示了故事对人类大脑的深刻影响。</p>
+<section id="故事能建立连接" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="故事能建立连接"><span class="header-section-number">2.1</span> 故事能建立连接</h3>
+<p>一个好故事能与听众建立数字永远无法达到的连接。</p>
+<p>神经经济学家 Paul Zak 在克莱蒙特研究生大学的研究发现了一个关键分子：<strong>催产素（oxytocin）</strong>。这种存在于人类下丘脑中的神经化学物质与信任和关怀相关联。当一个人听到一个有力的故事时，大脑会释放催产素，这可能导致听者在故事结束后改变行为。</p>
+<p>此外，在故事中的紧张时刻，大脑会释放<strong>皮质醇（cortisol）</strong>，帮助听众集中注意力。而故事的美好结局则会触发大脑的奖励中心释放<strong>多巴胺（dopamine）</strong>——希望和乐观的触发器。</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">注记</span>可能 vs 可信
+<span class="screen-reader-only">注记</span>神经耦合：你的大脑与讲故事者同步
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>“可能”的标准很低——只要不违反物理定律或逻辑。“可信”的标准更高——需要有证据支持。</p>
-<p>初创公司估值中常见的错误是：讲一个”可能”的故事（技术上可行），但忽略它是否”可信”（是否有证据表明这家公司能做到）。</p>
+<p>Greg Stephens、Lauren Silbert 和 Uri Hasson 的研究发现了一个迷人的现象：<strong>神经耦合（neural coupling）</strong>。</p>
+<p>在实验中，当一位年轻女性向 12 名受试者讲述故事时，研究者记录了讲故事者和听众的脑电波。结果发现：</p>
+<ol type="1">
+<li><strong>脑电波同步</strong>：讲故事者和听众大脑的相同部分会被激活，只是听众有轻微的时间延迟</li>
+<li><strong>语言是关键</strong>：当故事用俄语讲述（听众不懂）时，脑电波活动停止了——说明是故事本身（而非声音）建立了连接</li>
+<li><strong>预测性参与</strong>：在某些时刻，听众的脑电波甚至<strong>领先于</strong>讲故事者——表明投入的听众会开始预测故事的下一步</li>
+</ol>
+<p><strong>启示</strong>：当讲故事者和听众之间的脑电波同步度越高，沟通就越有效。</p>
 </div>
 </div>
 </section>
-<section id="叙事的层次" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="叙事的层次"><span class="header-section-number">3.2</span> 叙事的层次</h3>
-<p>一个完整的估值叙事通常包含多个层次：</p>
+<section id="故事更容易被记住" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="故事更容易被记住"><span class="header-section-number">2.2</span> 故事更容易被记住</h3>
+<p>作为一名教了三十多年的老师，Damodaran 经常遇到多年前的学生。令人惊讶的是，他们常常清晰地记得课堂上的小故事和轶事，尽管课程的具体内容早已在记忆的迷雾中消散。</p>
+<p>研究证实了故事的持久力：<strong>故事比说明文本更容易被记住约 50%</strong>。即使内容相同，以故事形式呈现的信息更容易被长期保留。</p>
+<p>研究者假设，是故事中的<strong>因果联系</strong>使它们更加难忘——尤其是当读者需要自己”做功”来建立联系时。如果因果关系太明显或太弱，记忆效果都会下降。最佳效果是因果关系存在但需要一些思考才能发现。</p>
+<p><strong>对估值的启示</strong>：如果你想让你的估值被记住和理解，不要只给出一串数字——讲一个故事，让听众自己建立联系。</p>
+</section>
+<section id="故事激发行动" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="故事激发行动"><span class="header-section-number">2.3</span> 故事激发行动</h3>
+<p>故事不仅能建立情感连接和被记住，还能<strong>激发行动</strong>。</p>
+<p>Paul Zak 的研究还发现，催产素的释放与故事后的行为相关。在一项实验中，受试者观看英国政府制作的公益广告视频后，催产素增加较多的人对视频中提到的慈善机构<strong>捐款更多</strong>。</p>
+<p>研究还发现，某些故事比其他故事更能激发神经化学反应和行动：</p>
+<ul>
+<li><strong>有戏剧性弧线的叙事</strong>比平淡的叙事更有效</li>
+<li><strong>让观众与故事角色产生共鸣</strong>的故事更能激发行动</li>
+</ul>
+<p><strong>在估值的语境中</strong>：投资的目的是采取行动——买入低估的公司，卖出高估的公司。比起纯数字估值，有故事支撑的估值<strong>更可能让你真正采取行动</strong>。</p>
+<p><code>★ Insight ─────────────────────────────────────</code> <strong>Damodaran 的核心洞察</strong>：</p>
+<p>故事之所以强大，不是因为它们是”软性”的或”感性”的，而是因为它们<strong>与人类大脑的工作方式深度契合</strong>——连接、记忆、行动，这三者恰恰是投资决策所需要的。</p>
+<p>但正因为故事如此强大，我们也必须警惕它们的危险。 <code>─────────────────────────────────────────────────</code></p>
+</section>
+</section>
+<section id="讲故事的危险" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="讲故事的危险"><span class="header-section-number">3</span> 讲故事的危险</h2>
+<p>既然故事如此强大，为什么不完全依赖故事呢？因为<strong>故事的强大正是它危险的原因</strong>。</p>
+<section id="故事可以操控情绪" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="故事可以操控情绪"><span class="header-section-number">3.1</span> 故事可以操控情绪</h3>
+<p>故事能连接情感、被记住、激发行动——但这同时也意味着它们可以被用来操控。</p>
+<p>行为经济学是一个相对年轻的领域，它揭示了人类在决策中的各种非理性行为。Daniel Kahnemann 在他的著作《思考，快与慢》中指出，当我们基于情绪、本能和直觉做决策时，容易犯下各种错误——而故事恰恰能够利用这些偏见。</p>
+<p>Tyler Cowen 在一次 TED 演讲中一针见血地指出：</p>
+<blockquote class="blockquote">
+<p>“我们搞砸事情的最核心、最重要的方式就是：<strong>我们给自己讲太多故事，或者我们太容易被故事所诱惑</strong>。为什么那些流行心理学书籍不告诉我们这一点？因为那些书本身就全是故事。你读这些书越多，你就越了解自己的某些偏见——但同时你也在让其他偏见变得更糟。”</p>
+</blockquote>
+<p>正如导演 Oliver Stone 所说：“<strong>高明的讲故事者希望我们沉醉于情绪之中，以至于忘记理性思考，顺从他们的议程</strong>。”这对电影制作人来说是优点，但对商业故事来说却是警告。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>故事让听众放弃质疑
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>故事的另一个危险是：当听众越沉浸在故事中，他们越倾向于<strong>暂停怀疑</strong>，让可疑的断言和假设不受挑战。</p>
+<p>这正是骗子和欺诈者——通常都是讲故事的高手——能够编造致富神话、骗取他人钱财的原因。</p>
+</div>
+</div>
+</section>
+<section id="记忆可能不可靠" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="记忆可能不可靠"><span class="header-section-number">3.2</span> 记忆可能不可靠</h3>
+<p>很多讲故事者依赖个人记忆来构建故事，听众也依赖记忆来判断和决策。但研究发现，<strong>人类的记忆是脆弱的，容易被操控</strong>。</p>
+<p><strong>Brian Williams 案例</strong></p>
+<p>2014 年，NBC 国家新闻主播 Brian Williams 承认，他多年来反复向观众讲述的 2003 年伊拉克入侵经历是编造的。虽然他可能是故意撒谎来提升自己的形象，但也完全有可能他随着时间的推移<strong>真的相信了自己编造的版本</strong>。</p>
+<p>记忆研究者对此并不惊讶，因为他们已经能够让人们相信从未发生过的过去事件：</p>
+<ul>
+<li>一项研究成功让 <strong>70% 的受试者相信</strong>他们青少年时期曾犯下导致警察介入的罪行——事实上他们根本没有</li>
+<li>另一项研究让受试者形成了<strong>童年在商场走失</strong>的虚假记忆——尽管这从未发生</li>
+</ul>
+<p><strong>启示</strong>：即使是善意的讲故事者也可能无意中重塑自己的记忆，而听众可能记住的故事也并非它们被讲述的原样。</p>
+</section>
+<section id="故事可能变成童话" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="故事可能变成童话"><span class="header-section-number">3.3</span> 故事可能变成童话</h3>
+<p>娱乐故事和商业故事的关键区别在于：商业故事<strong>应该被现实所约束</strong>，而现实世界不会仅仅因为创意就奖励商业讲故事者。</p>
+<p>当讲故事在商业决策中失控时，会表现为两种功能失调形式：</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>层次</th>
-<th>问题</th>
-<th>示例（Amazon）</th>
+<th>类型</th>
+<th>描述</th>
+<th>危险</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>使命/愿景</strong></td>
-<td>公司想成为什么？</td>
-<td>“地球上最以客户为中心的公司”</td>
+<td><strong>童话故事（Fairy Tale）</strong></td>
+<td>故事大体遵循标准脚本，但在某些地方，讲述者让自己的希望取代了预期，创意开始泛滥。这些故事总是以讲述者胜利告终。</td>
+<td>估值建立在希望而非预期之上</td>
 </tr>
 <tr class="even">
-<td><strong>市场定位</strong></td>
-<td>在哪些市场竞争？</td>
-<td>电商、云计算、数字广告、物流</td>
-</tr>
-<tr class="odd">
-<td><strong>竞争优势</strong></td>
-<td>为什么能赢？</td>
-<td>规模、飞轮效应、技术投资</td>
-</tr>
-<tr class="even">
-<td><strong>增长路径</strong></td>
-<td>收入如何增长？</td>
-<td>现有市场渗透 + 新市场扩张</td>
-</tr>
-<tr class="odd">
-<td><strong>盈利路径</strong></td>
-<td>如何实现盈利？</td>
-<td>云计算高利润率 + 广告业务 + 规模效应</td>
-</tr>
-<tr class="even">
-<td><strong>风险因素</strong></td>
-<td>什么可能出错？</td>
-<td>监管、竞争、资本支出压力</td>
+<td><strong>失控故事（Runaway Story）</strong></td>
+<td>故事听起来太美好，主角太讨人喜欢，以至于听众忽略了故事中的重大漏洞或逻辑缺陷——因为他们<strong>希望</strong>故事是真的。</td>
+<td>关键假设从未被质疑</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="叙事的谱系" class="level3" data-number="3.3">
-<h3 data-number="3.3" class="anchored" data-anchor-id="叙事的谱系"><span class="header-section-number">3.3</span> 叙事的谱系</h3>
-<p>对同一家公司，不同的人可能有完全不同的叙事。这不是问题——关键是你的叙事要<strong>内部一致且可检验</strong>。</p>
-<p><strong>案例：Uber 的三种叙事</strong></p>
-<p><strong>叙事 A：城市出行垄断者</strong> &gt; Uber 将主导城市出行市场，建立类似 Visa/Mastercard 的双边网络效应。最终达到 20%+ 的营业利润率。</p>
-<p><strong>叙事 B：低利润的交通公司</strong> &gt; 网约车市场进入门槛低，Uber 面临持续的价格竞争。它更像出租车公司而非科技公司，利润率将保持在个位数。</p>
-<p><strong>叙事 C：自动驾驶颠覆者（或被颠覆者）</strong> &gt; 自动驾驶将彻底改变出行行业。Uber 要么成功转型为自动驾驶平台，要么被 Waymo 等公司颠覆。</p>
-<p>这三个叙事都是”可能”的，但它们导向完全不同的估值。选择哪个叙事，取决于你对行业和公司的判断。</p>
+<p><strong>底线</strong>：如果不加约束，讲故事很容易失去焦点。在商业故事的语境中，这对所有人都是危险的。这就是为什么我们需要建立一个<strong>有边界的讲故事过程</strong>——被现实和常识所约束。</p>
 </section>
 </section>
-<section id="从叙事到数字系统化的转换" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="从叙事到数字系统化的转换"><span class="header-section-number">4</span> 从叙事到数字：系统化的转换</h2>
-<section id="转换框架" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="转换框架"><span class="header-section-number">4.1</span> 转换框架</h3>
-<p>Damodaran 提出了一个将叙事系统化转换为估值输入的框架：</p>
-<pre><code>叙事元素 → 财务驱动因素 → 估值输入</code></pre>
+<section id="估值作为桥梁" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="估值作为桥梁"><span class="header-section-number">4</span> 估值作为桥梁</h2>
+<p>随着数据获取变得更容易、分析工具变得更强大，估值这门学科变得越来越以数字为中心，甚至围绕财务建模来构建。在这个过程中，<strong>估值已经迷失了方向</strong>。</p>
+<p><strong>估值的本质是一座桥梁</strong>——连接故事与数字，将关于业务的故事转化为估值输入，进而转化为价值。</p>
+<pre><code>         数字计算者                              讲故事者
+    ┌─────────────────┐                  ┌─────────────────┐
+    │ 吸引力：         │                  │ 吸引力：         │
+    │ 数字给人控制感、 │                  │ 故事更容易被记住 │
+    │ 精确感和客观感   │                  │ 并与人类情感连接 │
+    └────────┬────────┘                  └────────┬────────┘
+             │                                    │
+             │      ┌──────────────────┐         │
+             └─────►│   好的估值        │◄────────┘
+                    │  故事 + 数字      │
+                    └──────────────────┘
+             │                                    │
+             ▼                                    ▼
+    ┌─────────────────┐                  ┌─────────────────┐
+    │ 危险：           │                  │ 危险：           │
+    │ 没有叙事支撑时， │                  │ 没有数字锚定时， │
+    │ 数字容易被操控、 │                  │ 故事容易变成童话 │
+    │ 用来吓唬外行人   │                  │ 导致不切实际估值 │
+    └─────────────────┘                  └─────────────────┘</code></pre>
+<p>简单地说：</p>
+<ul>
+<li><strong>电子表格中的数字堆积</strong>只是一个财务模型，不是估值</li>
+<li><strong>关于业务前景的故事</strong>无论多么宏大和动人，如果没有数字支撑，可能只是童话</li>
+</ul>
+<p><strong>要让估值扎根于现实</strong>： - 估值中的每个数字（增长、风险、盈利能力）都必须有一个故事来解释它 - 你讲述的关于公司的每个故事（品牌、管理质量）都必须有一个数字来支持它</p>
+<p>我们每个人在面对数字和故事时都有自己的强项。如果你擅长数字计算，你的任务是学会更舒适地处理定性因素，并最终将它们带入你的数字中。如果你更擅长讲故事，你必须学会足够熟悉数字，以便将你的故事转化为估值输入。</p>
+</section>
+<section id="商业故事的类型" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="商业故事的类型"><span class="header-section-number">5</span> 商业故事的类型</h2>
+<p>就像文学中可以说只有少数几个核心故事情节不断被重新包装和呈现一样，在实践中，你看到的商业故事也只有少数几种类型。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>七种经典商业故事
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>商业故事</th>
+<th>公司类型</th>
+<th>投资论点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>霸主（The Bully）</strong></td>
+<td>拥有大市场份额、卓越品牌、大量资本、以及残酷声誉的公司</td>
+<td>碾压竞争对手，持续增加收入和利润</td>
+</tr>
+<tr class="even">
+<td><strong>挑战者（The Underdog）</strong></td>
+<td>市场份额远远落后的公司，声称拥有比主导公司更好或更便宜的产品</td>
+<td>比主导者更努力地取悦客户，或许有更友善的企业形象</td>
+</tr>
+<tr class="odd">
+<td><strong>灵光一现（The Eureka Moment）</strong></td>
+<td>声称偶然发现了市场上未被满足的需求，然后找到了满足这种需求的方法</td>
+<td>通过填补未被满足的需求而成功</td>
+</tr>
+<tr class="even">
+<td><strong>更好的捕鼠器（The Better Mousetrap）</strong></td>
+<td>声称有更好的方式来交付现有产品或服务，更有吸引力、更适合需求</td>
+<td>蚕食市场现有玩家的份额</td>
+</tr>
+<tr class="odd">
+<td><strong>颠覆者（The Disruptor）</strong></td>
+<td>改变业务运营方式，从根本上改变产品或服务的交付方式</td>
+<td>相信颠覆会改变整个行业（同时赚钱）</td>
+</tr>
+<tr class="even">
+<td><strong>低成本玩家（The Low-Cost Player）</strong></td>
+<td>找到了降低经营成本的方法，愿意降价，期望能卖出更多</td>
+<td>增加的销量将弥补更低的利润率</td>
+</tr>
+<tr class="odd">
+<td><strong>传教士（The Missionary）</strong></td>
+<td>将自己呈现为拥有比赚钱更崇高、更高尚的使命</td>
+<td>在做好事（对社会）的同时赚钱</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>这不是一个全面的列表，但它确实涵盖了公共和私人资本市场中大部分的商业故事。</p>
+<p><strong>两个重要补充说明</strong>：</p>
+<p><strong>1. 公司可以有双重叙事</strong></p>
+<p>以 2015 年的 Uber 为例，它同时讲述着两个故事： - <strong>颠覆故事</strong>：它正在改变汽车服务业 - <strong>主导故事</strong>：它在网约车市场势不可挡</p>
+<p><strong>2. 叙事会随生命周期变化</strong></p>
+<p>当 Google 在 1998 年进入搜索引擎市场时，它是面对既有玩家的<strong>挑战者</strong>。但到了 2015 年，它已经转变为市场的<strong>主导者</strong>，甚至可能是霸主，声誉与之匹配。</p>
+</section>
+<section id="从故事到数字五步法" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="从故事到数字五步法"><span class="header-section-number">6</span> 从故事到数字：五步法</h2>
+<p>既然我们每个人都有自己的强项，建立一个要求我们发挥弱项的估值流程就很重要。Damodaran 提出了一个<strong>五步法</strong>，将故事系统地转化为估值。</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────┐
+│ 第一步：为你正在估值的公司构建叙事                                    │
+│ 讲述你对公司未来演变的故事。保持简洁和聚焦。                          │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 第二步：测试叙事是否可能、可信、可证                                  │
+│ 有很多可能的叙事，但不是所有都可信，只有少数是可证的。                │
+│ 不要童话故事或失控故事。                                              │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 第三步：将叙事转化为价值驱动因素                                      │
+│ 拆解叙事，看看你将如何把它转化为估值输入，                            │
+│ 从潜在市场规模到现金流和风险。                                        │
+│ 最后，叙事的每个部分都应该在你的数字中有位置，                        │
+│ 每个数字都应该有你故事的一部分作为支撑。                              │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 第四步：将价值驱动因素连接到估值                                      │
+│ 创建一个内在价值模型，将输入连接到业务的最终价值。                    │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ 第五步：保持反馈循环开放                                              │
+│ 倾听比你更了解业务的人，用他们的建议来微调你的叙事，                  │
+│ 甚至可能改变它。计算不同叙事对公司价值的影响。                        │
+└─────────────────────────────────────────────────────────────────────┘</code></pre>
+<p>让我们详细展开每一步。</p>
+<section id="第一步构建商业故事" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="第一步构建商业故事"><span class="header-section-number">6.1</span> 第一步：构建商业故事</h3>
+<p>第一步是为你正在估值的公司想出一个你认为最符合的估值故事。这需要你做功课——了解公司及其产品、它竞争的市场、以及它面临的竞争对手。</p>
+<p><strong>构建故事时可以参考</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 24%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>问题</th>
+<th>对估值的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>公司业务</strong></td>
+<td>公司到底在什么业务中？</td>
+<td>这比看起来更难。比如 Facebook 是什么业务？社交媒体只是平台，它的真正业务是<strong>广告</strong>。</td>
+</tr>
+<tr class="even">
+<td><strong>公司财务历史</strong></td>
+<td>过去的增长和盈利能力如何？</td>
+<td>假设历史会重复是一个需要证明的故事，假设会偏离历史也是。年轻公司难估值的一个原因就是缺乏历史。</td>
+</tr>
+<tr class="odd">
+<td><strong>总市场历史和增长</strong></td>
+<td>公司产品所在市场的规模和增长趋势？</td>
+<td>在增长市场（如 NVIDIA 在 AI 芯片）讲高增长故事更容易，在停滞或下降市场（如可口可乐的软饮料、Altria 的烟草）则更难。</td>
+</tr>
+<tr class="even">
+<td><strong>竞争</strong></td>
+<td>公司拥有什么竞争优势？这些优势如何随时间演变？</td>
+<td>在没有进入壁垒的业务中运营的公司将更难实现增长，其商业故事必须反映这一约束。</td>
+</tr>
+<tr class="odd">
+<td><strong>宏观经济</strong></td>
+<td>公司暴露于什么宏观经济风险？</td>
+<td>周期性公司的故事需要包含对经济的评估，石油公司的故事需要包含对油价的看法。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>好故事的两个原则</strong>：</p>
+<p><strong>1. 保持简洁</strong></p>
+<p>讲商业故事时很容易被有趣但与价值无关的分支所分散。最强大的估值商业故事往往是紧凑的，将公司提炼到核心。</p>
+<p><strong>案例：Amazon 的故事演变</strong></p>
+<ul>
+<li><strong>1997-2012</strong>：“Field of Dreams”公司——如果你建造它（收入），它们（利润）就会来</li>
+<li><strong>2013 之后</strong>：“颠覆机器”——一家会追逐任何它认为有软肋可以被更高效、更有耐心的玩家利用的业务的公司</li>
+</ul>
+<p><strong>2. 保持聚焦</strong></p>
+<p>无论你估值什么业务，要有价值，最终都必须<strong>赚钱</strong>。商业故事，即使目前不赚钱，也必须包含未来赚钱的路径。</p>
+<p>一个好的估值故事<strong>受益于简洁、远离流行词、即使对估值和业务新手也能理解</strong>。</p>
+</section>
+<section id="第二步3p-测试" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="第二步3p-测试"><span class="header-section-number">6.2</span> 第二步：3P 测试</h3>
+<p>构建了商业故事后，你必须停下来检查它是否通过 <strong>3P 测试</strong>：是否可能（Possible）？是否可信（Plausible）？是否可证（Probable）？</p>
+<pre><code>  不可能 ◄─────────────────────────────────────────────────────► 几乎确定
+          │                    发生概率                         │
+          │         低                              高          │
+          │                                                     │
+   ┌──────┴──────┐      ┌────────────┐      ┌────────────┐     │
+   │"可能"       │      │"可信"      │      │"可证"      │     │
+   │这可能发生， │─────►│这是你能做出│─────►│这是你预期会│     │
+   │但你不确定   │ 评估 │合理论证可能│ 产品 │发生的事情，│     │
+   │"这"是什么，│ 市场 │发生的事情，│ 成功 │有一定的证据│     │
+   │何时发生，   │ 潜力 │尽管你还没有│ 和   │或预期基础。│     │
+   │发生时什么样 │ 和   │切实证据证明│ 财务 │存在很大的  │     │
+   │             │ 测试 │它正在发生。│ 结果 │不确定性。  │     │
+   │             │ 产品 │            │      │            │     │
+   └──────┬──────┘      └─────┬──────┘      └─────┬──────┘     │
+          │                   │                   │             │
+          ▼                   ▼                   ▼             │
+   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    │
+   │ 估值响应：    │    │ 估值响应：    │    │ 估值响应：    │    │
+   │ 作为期权估值，│    │ 显示预期增长，│    │ 显示基年数字  │    │
+   │ 价值随可能市场│    │ 根据预期回报  │    │ 和预期现金流，│    │
+   │ 的规模和公司  │    │ 调整风险。    │    │ 根据预期回报  │    │
+   │ 对该市场的独  │    │ 价值随市场规模│    │ 调整风险。    │    │
+   │ 占性而增加。  │    │ 和公司竞争优势│    │              │    │
+   │              │    │ 而增加。      │    │              │    │
+   └──────────────┘    └──────────────┘    └──────────────┘    │</code></pre>
+<p>从可能到可信到可证，<strong>测试标准越来越严格</strong>，需要讲故事者提供更有说服力的解释或更多数据：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>测试</th>
+<th>标准</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>可能</strong></td>
+<td>最弱——只需要证明存在某条路径让你的故事成立，它不是童话</td>
+<td>不违反物理定律或基本逻辑</td>
+</tr>
+<tr class="even">
+<td><strong>可信</strong></td>
+<td>更强——需要证据表明你至少在较小规模（市场测试、某个地区）已经成功</td>
+<td>有初步证据或合理推断</td>
+</tr>
+<tr class="odd">
+<td><strong>可证</strong></td>
+<td>最难——必须证明你的商业故事可以规模化，你的进入壁垒有效</td>
+<td>有实质性证据和预期基础</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>3P 测试的实践应用
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>如何区分三个层次？</strong></p>
+<ol type="1">
+<li><strong>“可能”</strong>：问自己”这在物理上和逻辑上可行吗？”
+<ul>
+<li>Tesla 在 2010 年说”我们将成为全球最大的汽车公司”——可能，但非常不确定</li>
+<li>一家公司说”我们将发明永动机”——不可能，违反物理定律</li>
+</ul></li>
+<li><strong>“可信”</strong>：问自己”有没有初步证据表明这正在发生？”
+<ul>
+<li>Zomato 说”我们将主导印度外卖市场”——可信，因为已经有显著市场份额</li>
+<li>一家没有产品的初创公司说”我们将颠覆整个行业”——需要更多证据</li>
+</ul></li>
+<li><strong>“可证”</strong>：问自己”有没有强有力的证据表明这会规模化？”
+<ul>
+<li>Apple 说”iPhone 将继续是主要收入来源”——可证，有十年的销售数据支撑</li>
+<li>一家刚刚盈利的公司说”我们将保持高利润率”——需要更长的盈利记录</li>
+</ul></li>
+</ol>
+</div>
+</div>
+<p><strong>案例：Zomato 的 3P 测试</strong></p>
+<p>对于 Zomato，围绕餐厅外卖配送构建故事使其更容易通过测试，因为 Zomato 已经在该业务中取得了成功——至少在收入增长和市场份额方面。</p>
+<p>但 2021 年有人为 Zomato 讲述更大的故事——从杂货配送业务到更广泛产品的零售平台——他们将面临更艰难（尽管仍可通过）的测试。</p>
+<p>对于有悠久历史和既定业绩记录的公司，只要假设它们将继续在同一业务中，通过 3P 测试就很容易。但假设可口可乐将转型为酒精公司，或 Altria 将扩展到大麻业务，则需要更多解释和更强的支撑。</p>
+<p><strong>3P 测试的估值含义</strong></p>
+<p>不同层次的叙事需要不同的估值方法：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 38%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>叙事层次</th>
+<th>估值方法</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>仅”可能”</strong></td>
+<td>实物期权估值</td>
+<td>价值来自于进入市场的<strong>权利</strong>，而非确定的现金流。价值随市场规模和公司独占性增加。</td>
+</tr>
+<tr class="even">
+<td><strong>“可信”</strong></td>
+<td>DCF + 高折现率</td>
+<td>可以预测现金流，但需要用更高的资本成本反映不确定性。价值随市场规模和竞争优势增加。</td>
+</tr>
+<tr class="odd">
+<td><strong>“可证”</strong></td>
+<td>标准 DCF</td>
+<td>可以使用基年数字和预期现金流，风险调整在正常范围内。</td>
+</tr>
+</tbody>
+</table>
+<p>这个框架解释了为什么同一家公司，不同分析师可能得出截然不同的估值——他们对叙事的”可信度”判断不同，因此使用了不同的估值方法或折现率。</p>
+</section>
+<section id="第三步连接故事与输入" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="第三步连接故事与输入"><span class="header-section-number">6.3</span> 第三步：连接故事与输入</h3>
+<p>要让故事成为估值的一部分，你必须将其各部分转化为估值输入。如果你有一个包含几十个输入和复杂输出的估值模型，这将变得困难甚至不可能。这就是为什么估值应该<strong>尽可能简洁</strong>——越少的输入，越有限的输出，就越容易与故事建立联系。</p>
+<p><strong>价值驱动因素框架</strong></p>
+<pre><code> ┌────────────────┐   ┌────────────────┐   ┌────────────────────┐
+ │   收入增长      │   │   营业利润率    │   │   增长/投资效率     │
+ │ 总可触达市场规模│   │ 由定价能力和    │   │ 衡量需要多少投资    │
+ │ 和市场份额的函数│   │ 成本效率决定    │   │ 才能实现增长        │
+ └───────┬────────┘   └───────┬────────┘   └──────────┬─────────┘
+         │                    │                       │
+         └──────────────┬─────┴───────────────────────┘
+                        ▼
+         ┌──────────────────────────────────────────────┐
+         │预期 FCFF = 收入 × 营业利润率 − 税 − 再投资   │
+         └──────────────────────────┬───────────────────┘
+                                    │
+      ┌─────────────────────────────┴──────────────────────────┐
+      │                    风险调整折现率                        │
+      └─────────────────────────────┬──────────────────────────┘
+                                    │
+      ┌───────────────┬─────────────┴────────────┬─────────────┐
+      │               │                          │             │
+      ▼               ▼                          ▼             ▼
+┌──────────┐  ┌──────────────┐           ┌──────────────┐ ┌─────────┐
+│ 失败概率  │  │   股权成本    │           │   债务成本    │ │业务价值 │
+│ 导致业务  │  │ 投资者要求的  │           │ 借款成本减去  │ │         │
+│ 模式处于  │  │ 回报率        │           │ 税收优势      │ │         │
+│ 风险中的  │  │               │           │               │ │         │
+│ 灾难性事件│  │               │           │               │ │         │
+│ 的概率    │  │               │           │               │ │         │
+└──────────┘  └──────────────┘           └──────────────┘ └─────────┘</code></pre>
+<p><strong>三个现金流驱动因素</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>驱动因素</th>
+<th>故事连接</th>
+<th>估值影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>增长</strong></td>
+<td>“大市场”叙事 → 更高收入增长；“网络效应/赢家通吃”叙事 → 主导市场份额</td>
+<td>收入增长率</td>
+</tr>
+<tr class="even">
+<td><strong>盈利能力</strong></td>
+<td>“强大可持续竞争优势”叙事 → 高市场份额和高营业利润率</td>
+<td>营业利润率</td>
+</tr>
+<tr class="odd">
+<td><strong>投资效率</strong></td>
+<td>“轻资产、易扩展”叙事 → 低再投资、高增长</td>
+<td>销售/投入资本比率</td>
+</tr>
+</tbody>
+</table>
+<p><strong>两个风险输入</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 41%">
+<col style="width: 25%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>风险类型</th>
+<th>描述</th>
+<th>参考值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>营业风险（资本成本）</strong></td>
+<td>衡量业务的营业风险，面临更多营业风险的业务应该有更高的资本成本</td>
+<td>见下表</td>
+</tr>
+<tr class="even">
+<td><strong>失败风险</strong></td>
+<td>年轻公司或困境公司可能有实质性的失败概率，应该评估这种风险和失败时的价值</td>
+<td>不要试图通过提高折现率来纳入失败风险</td>
+</tr>
+</tbody>
+</table>
+<p><strong>全球资本成本分布（2023 年 1 月，美元计价）</strong></p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
-<th>叙事元素</th>
+<th>分位数</th>
+<th>美国</th>
+<th>新兴市场</th>
+<th>欧洲</th>
+<th>日本</th>
+<th>全球</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>第 1 十分位（最低风险）</td>
+<td>6.01%</td>
+<td>8.08%</td>
+<td>7.26%</td>
+<td>7.71%</td>
+<td>7.39%</td>
+</tr>
+<tr class="even">
+<td>第一四分位</td>
+<td>7.26%</td>
+<td>9.56%</td>
+<td>8.64%</td>
+<td>9.07%</td>
+<td>9.08%</td>
+</tr>
+<tr class="odd">
+<td>中位数</td>
+<td>9.63%</td>
+<td>11.19%</td>
+<td>10.41%</td>
+<td>10.72%</td>
+<td>10.60%</td>
+</tr>
+<tr class="even">
+<td>第三四分位</td>
+<td>10.88%</td>
+<td>12.97%</td>
+<td>12.02%</td>
+<td>11.50%</td>
+<td>12.07%</td>
+</tr>
+<tr class="odd">
+<td>第 9 十分位（最高风险）</td>
+<td>11.63%</td>
+<td>15.31%</td>
+<td>14.25%</td>
+<td>13.10%</td>
+<td>14.04%</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>货币转换
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这些数据是美元计价的。转换为其他货币只需加入美元与该货币之间的预期通胀差异。</p>
+<p>例如，如果美国预期通胀率是 3%，印度是 5%，那么印度公司的中位数资本成本（卢比计价）将是 13.19%（在新兴市场中位数 11.19% 上加 2%）。</p>
+</div>
+</div>
+<p><strong>故事元素到估值输入的完整映射（Figure 13.5）</strong></p>
+<p>这张图是本章的核心——它展示了如何将叙事的每个部分系统地转化为估值输入：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           故事 → 估值输入 映射                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────┐                        ┌─────────────────────────────┐│
+│  │    总市场规模    │ ◄──────────────────── │ "大市场"叙事将导致这里有    ││
+│  │                 │                        │ 一个大数字                   ││
+│  └────────┬────────┘                        └─────────────────────────────┘│
+│           │ ×                                                               │
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │    市场份额      │ ◄──────────────────── │ "网络效应"和"赢家通吃"叙事  ││
+│  │                 │                        │ 表现为主导性市场份额         ││
+│  └────────┬────────┘                        └─────────────────────────────┘│
+│           │ =                                                               │
+│  ┌────────┴────────┐                                                       │
+│  │   收入（销售额） │                                                       │
+│  └────────┬────────┘                                                       │
+│           │ −                                                               │
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │    营业费用      │ ◄──────────────────── │ "强大且可持续的竞争优势"叙事 ││
+│  │                 │                        │ 表现为高市场份额+高营业利润率 ││
+│  └────────┬────────┘                        └─────────────────────────────┘│
+│           │ =                                                               │
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │    营业利润      │                        │ 税收优惠和激励表现为更低的税 ││
+│  └────────┬────────┘                        │ 收和更高的税后收入           ││
+│           │ −                               └─────────────────────────────┘│
+│  ┌────────┴────────┐                                                       │
+│  │      税收       │                                                       │
+│  └────────┬────────┘                                                       │
+│           │ =                                                               │
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │  税后营业利润    │                        │ "易于扩展"（能快速低成本增长）││
+│  └────────┬────────┘                        │ 叙事表现为低再投资需求       ││
+│           │ −                               └─────────────────────────────┘│
+│  ┌────────┴────────┐                                                       │
+│  │     再投资      │ ◄────────────────────────────────────────────────────│
+│  └────────┬────────┘                                                       │
+│           │ =                                                               │
+│  ┌────────┴────────┐                                                       │
+│  │   税后现金流     │                                                       │
+│  └────────┬────────┘                                                       │
+│           │                                                                │
+│    按时间价值和风险调整                                                     │
+│           │                                                                │
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │   风险调整折现   │ ◄──────────────────── │ "低风险"叙事表现为较低的    ││
+│  │  （资本成本）    │                        │ 折现率。高杠杆叙事可能       ││
+│  └────────┬────────┘                        │ 提高或降低折现率。           ││
+│           │                                 └─────────────────────────────┘│
+│  ┌────────┴────────┐                        ┌─────────────────────────────┐│
+│  │    失败概率      │ ◄──────────────────── │ 灾难性事件使商业模式处于风险 ││
+│  │                 │                        │ 中的概率                     ││
+│  └────────┬────────┘                        └─────────────────────────────┘│
+│           │                                                                │
+│           ▼                                                                │
+│  ┌─────────────────┐                                                       │
+│  │   业务价值       │                                                       │
+│  └─────────────────┘                                                       │
+└─────────────────────────────────────────────────────────────────────────────┘</code></pre>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 31%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>故事元素</th>
 <th>财务驱动因素</th>
 <th>估值输入</th>
+<th>具体示例</th>
 </tr>
 </thead>
 <tbody>
@@ -707,519 +1219,1337 @@ window.Quarto = {
 <td>市场规模和增长</td>
 <td>收入潜力</td>
 <td>收入增长率</td>
+<td>“印度外卖市场将从 ₹2,250 亿增长到 ₹20,000 亿”</td>
 </tr>
 <tr class="even">
 <td>竞争优势/护城河</td>
 <td>定价能力、成本优势</td>
 <td>营业利润率</td>
+<td>“网络效应将使 Zomato 达到 35% 的营业利润率”</td>
 </tr>
 <tr class="odd">
 <td>规模效应</td>
 <td>边际成本递减</td>
 <td>利润率改善路径</td>
+<td>“随着规模扩大，客户获取成本占收入比例下降”</td>
 </tr>
 <tr class="even">
 <td>资本密集度</td>
 <td>增长所需投资</td>
 <td>再投资率、资本周转率</td>
+<td>“每投资 ₹1 产生 ₹5 的收入（第 1 年）”</td>
 </tr>
 <tr class="odd">
 <td>商业风险</td>
 <td>现金流波动性</td>
 <td>Beta、资本成本</td>
+<td>“作为印度公司，资本成本为 10.25%（含国家风险）”</td>
 </tr>
 <tr class="even">
 <td>财务风险</td>
 <td>杠杆水平</td>
 <td>债务比率、利息覆盖率</td>
+<td>“几乎全部资本来自股权（99.7%）”</td>
+</tr>
+<tr class="odd">
+<td>生存风险</td>
+<td>失败概率</td>
+<td>失败调整</td>
+<td>“10% 的失败概率，清算价值为公允价值的 50%”</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="步骤一定义市场" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="步骤一定义市场"><span class="header-section-number">4.2</span> 步骤一：定义市场</h3>
-<p>叙事的第一步是定义公司的<strong>目标市场</strong>（Total Addressable Market, TAM）。</p>
-<p><strong>常见陷阱</strong>：把 TAM 定义得太大或太小。</p>
-<ul>
-<li><strong>太大</strong>：“我们的 TAM 是全球零售市场，10 万亿美元”——但你不可能拿到 10 万亿</li>
-<li><strong>太小</strong>：“我们只做高端有机狗粮”——可能限制了增长想象空间</li>
-</ul>
-<p><strong>正确的方法</strong>：</p>
-<ol type="1">
-<li>从当前业务出发，定义核心市场</li>
-<li>考虑合理的市场扩张路径</li>
-<li>为每个市场估计规模和增长率</li>
-<li>估计公司可能获取的市场份额</li>
-</ol>
-<p><strong>案例：Uber 的市场定义</strong></p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>市场</th>
-<th>2024 年规模</th>
-<th>2034 年预测</th>
-<th>Uber 份额假设</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>全球网约车</td>
-<td>$200B</td>
-<td>$400B</td>
-<td>25%</td>
-</tr>
-<tr class="even">
-<td>外卖配送</td>
-<td>$150B</td>
-<td>$350B</td>
-<td>20%</td>
-</tr>
-<tr class="odd">
-<td>货运物流</td>
-<td>$100B</td>
-<td>$200B</td>
-<td>5%</td>
-</tr>
-<tr class="even">
-<td><strong>合计可获取市场</strong></td>
-<td></td>
-<td></td>
-<td><strong>$200B+</strong></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="步骤二定义竞争优势" class="level3" data-number="4.3">
-<h3 data-number="4.3" class="anchored" data-anchor-id="步骤二定义竞争优势"><span class="header-section-number">4.3</span> 步骤二：定义竞争优势</h3>
-<p>市场规模只是潜力，能否实现取决于<strong>竞争优势</strong>。</p>
-<p>问自己：<strong>为什么这家公司能赢？为什么竞争对手不能复制？</strong></p>
-<p>常见的竞争优势来源：</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>优势类型</th>
-<th>描述</th>
-<th>财务影响</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>网络效应</strong></td>
-<td>用户越多，产品越有价值</td>
-<td>高市场份额、定价能力</td>
-</tr>
-<tr class="even">
-<td><strong>规模经济</strong></td>
-<td>规模越大，单位成本越低</td>
-<td>利润率随规模提升</td>
-</tr>
-<tr class="odd">
-<td><strong>品牌</strong></td>
-<td>消费者愿意支付溢价</td>
-<td>高利润率</td>
-</tr>
-<tr class="even">
-<td><strong>技术/专利</strong></td>
-<td>竞争对手无法复制</td>
-<td>暂时的超额利润</td>
-</tr>
-<tr class="odd">
-<td><strong>转换成本</strong></td>
-<td>客户更换供应商成本高</td>
-<td>客户留存率高</td>
-</tr>
-<tr class="even">
-<td><strong>监管壁垒</strong></td>
-<td>牌照、许可等限制进入</td>
-<td>竞争有限</td>
-</tr>
-</tbody>
-</table>
-<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">警告</span>竞争优势的持久性
+<span class="screen-reader-only">注记</span>为什么这个映射如此重要？
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>大多数竞争优势都是<strong>暂时的</strong>。技术会被超越，品牌会过时，监管会放开。</p>
-<p>在估值中，你需要判断： 1. 优势能持续多久？（影响高增长期的长度） 2. 优势被侵蚀后，公司会变成什么样子？（影响稳定期的假设）</p>
+<p>这个框架的价值在于：</p>
+<ol type="1">
+<li><strong>约束随意性</strong>：每个数字都必须有故事支撑，你不能随意调整增长率而不改变叙事</li>
+<li><strong>暴露漏洞</strong>：如果故事中某部分在数字中没有体现，或某个数字没有故事支撑，就暴露了估值的弱点</li>
+<li><strong>便于沟通</strong>：当别人质疑你的估值时，你可以指向具体的叙事假设进行讨论</li>
+<li><strong>支持更新</strong>：当新信息出现时，你知道需要更新叙事的哪个部分，以及它会影响哪些数字</li>
+</ol>
 </div>
 </div>
+<p><code>✶ Insight ─────────────────────────────────────</code> <strong>Damodaran 的核心方法论</strong>：</p>
+<p>估值不是从数字开始——它从<strong>故事</strong>开始。但故事必须最终落地为数字。这个映射框架就是”落地”的桥梁。</p>
+<p>每次你在估值中调整一个参数，问自己：“我的故事中什么改变了？” 如果故事没变，数字就不应该变。如果你发现自己在 3P 测试中卡住了，那就是故事需要重新审视的信号。 <code>─────────────────────────────────────────────────</code></p>
 </section>
-<section id="步骤三转化为财务假设" class="level3" data-number="4.4">
-<h3 data-number="4.4" class="anchored" data-anchor-id="步骤三转化为财务假设"><span class="header-section-number">4.4</span> 步骤三：转化为财务假设</h3>
-<p>现在，将叙事转化为具体的财务数字。</p>
-<p><strong>收入增长率</strong></p>
-<p><span class="math display">\[
-\text{收入增长} = \text{市场增长} + \text{份额变化} + \text{新市场进入}
-\]</span></p>
-<p><strong>案例</strong>：如果你的叙事是”Uber 将在网约车市场从 20% 份额增长到 30%，同时市场本身以 8% 年增长”：</p>
-<p><span class="math display">\[
-\text{收入增长} \approx 8\% + \frac{30\% - 20\%}{20\%} \times \frac{1}{5} = 8\% + 10\% = 18\%
-\]</span></p>
-<p>（假设份额增长分 5 年实现）</p>
-<p><strong>营业利润率</strong></p>
-<p>利润率假设应该与竞争优势叙事一致：</p>
-<ul>
-<li><strong>强护城河</strong> → 利润率可以高于行业平均</li>
-<li><strong>弱护城河</strong> → 利润率趋向行业平均</li>
-<li><strong>无护城河</strong> → 利润率可能低于行业平均</li>
-</ul>
-<p><strong>再投资率</strong></p>
-<p>再投资率应该与增长叙事一致：</p>
-<p><span class="math display">\[
-\text{再投资率} = \frac{g}{\text{ROIC}}
-\]</span></p>
-<p>如果你的叙事强调”轻资产模式”，那么 ROIC 应该较高，再投资率较低。如果强调”重资产扩张”，则相反。</p>
+<section id="第四步从输入到价值" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="第四步从输入到价值"><span class="header-section-number">6.4</span> 第四步：从输入到价值</h3>
+<p>一旦你将故事转化为估值输入，将这些输入转化为预测数字和价值的过程就是<strong>机械的</strong>：</p>
+<ol type="1">
+<li>使用收入增长率获得未来年份的预期收入</li>
+<li>将预测的利润率应用于这些收入，得到营业利润</li>
+<li>再投资故事将这些利润转化为现金流</li>
+<li>风险故事让我们将这些现金流折现回今天得到价值</li>
+</ol>
+<p><strong>关键点</strong>：如果你忠实地遵循了这个顺序，<strong>你估值中的每个数字背后都应该有一个故事，你讲述的关于公司的每个故事都应该有一个数字在估值中</strong>。</p>
+<p>更重要的是，你将失去随意改变输入以得到不同价值的能力——因为任何重大输入变化都需要你重新讲述故事，而你很可能会在 3P 测试中被卡住。</p>
 </section>
-<section id="步骤四检验一致性" class="level3" data-number="4.5">
-<h3 data-number="4.5" class="anchored" data-anchor-id="步骤四检验一致性"><span class="header-section-number">4.5</span> 步骤四：检验一致性</h3>
-<p>转化完成后，检验各项假设是否相互一致：</p>
-<p><strong>一致性检查清单</strong>：</p>
-<ul class="task-list">
-<li><label><input type="checkbox">收入增长是否与市场规模假设匹配？（不能假设收入超过 TAM）</label></li>
-<li><label><input type="checkbox">利润率是否与竞争优势叙事一致？</label></li>
-<li><label><input type="checkbox">再投资率是否支持假设的增长？（<span class="math inline">\(g = \text{再投资率} \times \text{ROIC}\)</span>）</label></li>
-<li><label><input type="checkbox">资本成本是否反映了业务风险？</label></li>
-<li><label><input type="checkbox">稳定期假设是否合理？（增长率 ≤ 经济增长率，ROIC 趋向 WACC）</label></li>
-</ul>
+<section id="第五步保持反馈循环开放" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="第五步保持反馈循环开放"><span class="header-section-number">6.5</span> 第五步：保持反馈循环开放</h3>
+<p>假设你有了公司的故事，确保故事通过了 3P 测试，将故事转化为价值输入，并对公司进行了估值。在庆祝之前，值得提醒自己：这不是公司<strong>的</strong>价值，而是<strong>你的</strong>价值，反映了你的故事和输入——<strong>你会是错的</strong>。</p>
+<p>这就是为什么保持估值过程<strong>对反馈开放</strong>如此重要，尤其是来自那些与你最强烈不同意见的人。当你阅读或听取他们的批评时，不要防御性地反应，而应该考虑用他们的论点来<strong>加强和巩固你的故事</strong>。</p>
 </section>
 </section>
-<section id="案例uber-的叙事估值2019年ipo" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="案例uber-的叙事估值2019年ipo"><span class="header-section-number">5</span> 案例：Uber 的叙事估值（2019年IPO）</h2>
-<p>让我们用 Uber 2019 年 IPO 时的情况，演示完整的叙事到估值转换过程。</p>
-<section id="叙事构建" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="叙事构建"><span class="header-section-number">5.1</span> 叙事构建</h3>
-<p><strong>背景</strong>：2019 年，Uber 准备上市。它是全球最大的网约车平台，同时在外卖（Uber Eats）和货运（Uber Freight）领域扩张。公司仍在亏损，但增长迅速。</p>
-<p><strong>Damodaran 的叙事</strong>：</p>
-<blockquote class="blockquote">
-<p>“Uber 是一家<strong>城市出行公司</strong>，而非科技公司。它将在网约车和外卖市场获得显著份额，但这些市场竞争激烈，进入门槛有限。Uber 的网络效应存在但不够强——司机和乘客都可以同时使用多个平台（multi-homing）。长期来看，Uber 将成为一家盈利的出行公司，但不会像 Google 或 Facebook 那样拥有垄断性利润率。”</p>
-</blockquote>
-</section>
-<section id="叙事到数字的转换" class="level3" data-number="5.2">
-<h3 data-number="5.2" class="anchored" data-anchor-id="叙事到数字的转换"><span class="header-section-number">5.2</span> 叙事到数字的转换</h3>
+<section id="完整案例zomato-ipo-估值2021" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="完整案例zomato-ipo-估值2021"><span class="header-section-number">7</span> 完整案例：Zomato IPO 估值（2021）</h2>
+<p>让我们用一个完整的案例来演示五步法——印度餐饮外卖公司 Zomato 在 2021 年 IPO 时的估值。</p>
+<section id="背景印度餐饮外卖市场" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="背景印度餐饮外卖市场"><span class="header-section-number">7.1</span> 背景：印度餐饮外卖市场</h3>
+<p>在 IPO 时，Zomato 收入不高、巨额亏损，但在印度餐饮外卖市场拥有显著市场份额，面对两个主要竞争对手（Swiggy 和 Amazon Foods）。</p>
+<p>构建 Zomato 的故事需要理解印度餐饮外卖市场及其增长潜力。让我们看看印度市场相对于美国、欧盟和中国的规模：</p>
+<p><strong>印度餐饮外卖市场对比（2021 年）</strong></p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>叙事元素</th>
-<th>转化假设</th>
+<th>指标</th>
+<th>印度</th>
+<th>中国</th>
+<th>美国</th>
+<th>欧盟</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>“城市出行公司，非科技公司”</td>
-<td>稳定期利润率：10%（介于出租车和科技公司之间）</td>
+<td><strong>一般情况</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
-<td>“网约车和外卖市场获得显著份额”</td>
-<td>2028 年收入：$100B</td>
+<td>GDP（万亿美元，2020）</td>
+<td>$2.71</td>
+<td>$14.70</td>
+<td>$20.93</td>
+<td>$15.17</td>
 </tr>
 <tr class="odd">
-<td>“竞争激烈，进入门槛有限”</td>
-<td>收入增长期：10 年（相对较短）</td>
+<td>人口（百万）</td>
+<td>1,360</td>
+<td>1,430</td>
+<td>330</td>
+<td>445</td>
 </tr>
 <tr class="even">
-<td>“网络效应存在但不强”</td>
-<td>稳定期 ROIC：略高于 WACC</td>
+<td>人均 GDP</td>
+<td>$1,993</td>
+<td>$10,280</td>
+<td>$63,424</td>
+<td>$34,090</td>
 </tr>
 <tr class="odd">
-<td>“不会像 Google 那样”</td>
-<td>不使用科技公司倍数</td>
+<td>餐厅数量（千家）</td>
+<td>1,000</td>
+<td>9,000</td>
+<td>660</td>
+<td>890</td>
+</tr>
+<tr class="even">
+<td><strong>外卖市场</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>在线接入率</td>
+<td>43%</td>
+<td>63%</td>
+<td>88%</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>在线外卖用户（百万）</td>
+<td>50</td>
+<td>450</td>
+<td>105</td>
+<td>150</td>
+</tr>
+<tr class="odd">
+<td>在线外卖市场规模（2019，百万美元）</td>
+<td>$4,200</td>
+<td>$90,000</td>
+<td>$21,000</td>
+<td>$15,000</td>
+</tr>
+<tr class="even">
+<td>在线外卖市场规模（2020，百万美元）</td>
+<td>$2,900</td>
+<td>$110,000</td>
+<td>$49,000</td>
+<td>$13,800</td>
+</tr>
+</tbody>
+</table>
+<p>印度外卖市场在规模和人均使用率上落后于其他三个市场，部分原因可以归结为财富差异（印度 GDP 较低）和互联网服务（Zomato 通过手机 App 配送）。还有一部分可以归结为文化差异——印度人比美国人和中国人更少外出就餐。</p>
+</section>
+<section id="构建-zomato-的故事" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="构建-zomato-的故事"><span class="header-section-number">7.2</span> 构建 Zomato 的故事</h3>
+<p>基于对市场的理解，我们为 Zomato 构建以下故事：</p>
+<blockquote class="blockquote">
+<p><strong>印度增长故事</strong>：印度外卖/餐厅市场将随着印度人变得更富裕和在线接入增加而增长，十年内达到 250 亿美元（₹1,800-2,000 亿）。</p>
+<p><strong>Zomato 作为赢家</strong>：市场将继续由两三个大玩家主导，尽管有很多本地化和细分竞争者占据显著份额。Zomato 将是赢家/幸存者之一，占据总餐厅外卖市场 40% 的市场份额。</p>
+<p><strong>收入切片</strong>：Zomato 的收入是平台上总订单的一定百分比。这个数字在 2020 年是 23.13%，2021 年是 21.03%，我们假设未来年份将收敛到 22%。</p>
+<p><strong>中介利润率</strong>：像 Zomato 这样连接客户与商家的中介业务，最大的支出往往是客户获取和营销。随着增长放缓，这些支出占收入的比例应该下降，带来盈利能力的提升。我们假设<strong>税前营业利润率将趋向 35%</strong>，主要因为市场将由少数大玩家主导——但存在一个不愿合作的流氓玩家颠覆盈利能力的真实可能性。</p>
+<p><strong>技术再投资</strong>：Zomato 的再投资将用于技术平台和收购，这种需求在近期将持续，随着增长下降而减少。</p>
+<p><strong>运营风险</strong>：尽管有全球野心，Zomato 仍然主要是一家印度公司，依赖印度宏观经济增长才能成功。我们的卢比资本成本将纳入国家风险。</p>
+<p><strong>失败风险</strong>：Zomato 是一家亏损公司，但不是面临即刻失败的初创公司。积极因素包括规模、资本获取能力、IPO 后增强的现金余额；消极因素包括仍在烧钱、未来需要资本市场融资才能生存。综合考虑，我们给出 <strong>10% 的失败概率</strong>。</p>
+</blockquote>
+<p>实际上，在我们的故事中，Zomato 主要是一个餐厅外卖业务，杂货配送和健康产品的尝试只是补充收入来源。</p>
+</section>
+<section id="从故事到估值输入" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="从故事到估值输入"><span class="header-section-number">7.3</span> 从故事到估值输入</h3>
+<p>将这个故事系统地映射到估值输入：</p>
+<pre><code>┌───────────────────┬─────────────────────┬─────────────────────┬───────────────────────┐
+│ 印度增长故事       │ Zomato 作为赢家     │ 中介利润率           │ 技术再投资            │
+│ 印度外卖市场将从   │ Zomato 将保持显著   │ 作为中介，单位经济   │ 再投资将用于平台和    │
+│ ₹2,250 亿增长到   │ 市场份额(40%)和     │ 效益良好，Zomato     │ 收购，第一年每投资    │
+│ ₹20,000 亿，在   │ 收入切片(22%)在这   │ 应有高营业利润率     │ ₹1 产生 ₹5 收入，    │
+│ 未来十年。        │ 个增长市场中。      │ (35%)在稳定期。     │ 2-5年 ₹2.5，之后 ₹3 │
+└─────────┬─────────┴──────────┬──────────┴──────────┬──────────┴───────────┬─────────┘
+          │                    │                     │                      │
+          ▼                    ▼                     ▼                      ▼
+   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────────┐
+   │  收入增长    │      │  营业利润率  │      │  增长/投资效率│      │                 │
+   │ 总可触达市场 │      │ 由定价能力和 │      │ 衡量需要多少 │      │                 │
+   │ 和市场份额   │      │ 成本效率决定 │      │ 投资实现增长 │      │                 │
+   └──────┬──────┘      └──────┬──────┘      └──────┬──────┘      │                 │
+          └────────────────────┼─────────────────────┘              │                 │
+                               ▼                                    │                 │
+          ┌──────────────────────────────────────────┐             │                 │
+          │ 预期 FCFF = 收入 × 营业利润率 − 税 − 再投资│             │                 │
+          └─────────────────────┬────────────────────┘             │                 │
+                                │                                   │                 │
+   ┌────────────────────────────┴───────────────────────────────────┘                 │
+   │                         风险调整折现率                                            │
+   └────────────────────────────┬───────────────────────────────────────────────────────┘
+                                │
+   ┌────────────────────────────┼────────────────────────────────────────────────────────┐
+   │                            │                                                        │
+   ▼                            ▼                                                        │
+┌────────────────────┐   ┌────────────────────────────────────────────────────────┐     │
+│     失败风险        │   │                    股权成本                             │     │
+│ 仍是亏损公司，面临  │   │ Zomato 的命运与餐厅外卖业务紧密相关。我们使用该业务     │     │
+│ 监管挑战，但规模会  │   │ 的风险(beta)，结合 Zomato 几乎全部资本来自股权(99.7%)  │     │
+│ 将失败率控制在 10%  │   │ 且收入主要来自印度(84.7%)和阿联酋(10.4%)的事实，       │     │
+│                    │   │ 估算卢比资本成本为 10.25%。                             │     │
+└────────────────────┘   └────────────────────────────────────────────────────────┘     │
+                                                                                        │
+                              ┌──────────────────────────────────────────────────────────┘
+                              ▼
+                       ┌─────────────┐
+                       │   业务价值   │
+                       │             │
+                       └─────────────┘</code></pre>
+</section>
+<section id="预测营业利润" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="预测营业利润"><span class="header-section-number">7.4</span> 预测营业利润</h3>
+<p>基于故事，我们预测 Zomato 未来十年的营业利润：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 19%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>总市场（₹百万）</th>
+<th>市场份额</th>
+<th>收入切片</th>
+<th>收入（₹百万）</th>
+<th>营业利润率</th>
+<th>EBIT（₹百万）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>₹337,500</td>
+<td>41.72%</td>
+<td>22.00%</td>
+<td>₹30,975</td>
+<td>–10.00%</td>
+<td>–₹3,097</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>₹438,750</td>
+<td>41.29%</td>
+<td>22.00%</td>
+<td>₹39,853</td>
+<td>–1.25%</td>
+<td>–₹498</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>₹570,375</td>
+<td>40.86%</td>
+<td>22.00%</td>
+<td>₹51,270</td>
+<td>6.88%</td>
+<td>₹3,527</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>₹741,488</td>
+<td>40.43%</td>
+<td>22.00%</td>
+<td>₹65,951</td>
+<td>12.50%</td>
+<td>₹8,244</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>₹963,934</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹84,826</td>
+<td>18.13%</td>
+<td>₹15,379</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>₹1,203,471</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹105,905</td>
+<td>20.23%</td>
+<td>₹21,425</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>₹1,440,555</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹126,769</td>
+<td>27.61%</td>
+<td>₹35,001</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>₹1,650,156</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹145,214</td>
+<td>35.00%</td>
+<td>₹50,825</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>₹1,805,271</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹158,864</td>
+<td>35.00%</td>
+<td>₹55,602</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>₹1,881,995</td>
+<td>40.00%</td>
+<td>22.00%</td>
+<td>₹165,616</td>
+<td>35.00%</td>
+<td>₹57,965</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="财务预测" class="level3" data-number="5.3">
-<h3 data-number="5.3" class="anchored" data-anchor-id="财务预测"><span class="header-section-number">5.3</span> 财务预测</h3>
-<p><strong>收入预测</strong>：</p>
+<section id="计算自由现金流和现值" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="计算自由现金流和现值"><span class="header-section-number">7.5</span> 计算自由现金流和现值</h3>
+<p>接下来，我们纳入税收和再投资的影响。公司在第 1 年亏损时不交税，第 2 年用前期亏损结转抵免大部分利润，然后稳定在 25% 税率。</p>
+<p><strong>Zomato FCFF 和现值计算（2021 年）</strong></p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th>年份</th>
-<th>收入（$B）</th>
-<th>增长率</th>
+<th>EBIT</th>
+<th>税率</th>
+<th>EBIT(1-t)</th>
+<th>再投资</th>
+<th>FCFF</th>
+<th>资本成本</th>
+<th>现值</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>2018（实际）</td>
-<td>11.3</td>
-<td>-</td>
+<td>1</td>
+<td>–₹3,097</td>
+<td>0.00%</td>
+<td>–₹3,097</td>
+<td>₹2,207</td>
+<td>–₹5,305</td>
+<td>10.25%</td>
+<td>–₹4,811</td>
 </tr>
 <tr class="even">
-<td>2019</td>
-<td>14.1</td>
-<td>25%</td>
+<td>2</td>
+<td>₹498</td>
+<td>0.00%</td>
+<td>₹498</td>
+<td>₹3,551</td>
+<td>–₹3,053</td>
+<td>10.25%</td>
+<td>–₹2,512</td>
 </tr>
 <tr class="odd">
-<td>2020</td>
-<td>17.7</td>
-<td>25%</td>
+<td>3</td>
+<td>₹3,527</td>
+<td>6.63%</td>
+<td>₹3,293</td>
+<td>₹4,567</td>
+<td>–₹1,273</td>
+<td>10.25%</td>
+<td>–₹950</td>
 </tr>
 <tr class="even">
-<td>2021</td>
-<td>21.6</td>
-<td>22%</td>
+<td>4</td>
+<td>₹8,244</td>
+<td>25.00%</td>
+<td>₹6,183</td>
+<td>₹5,872</td>
+<td>₹311</td>
+<td>10.25%</td>
+<td>₹210</td>
 </tr>
 <tr class="odd">
-<td>2022</td>
-<td>26.0</td>
-<td>20%</td>
+<td>5</td>
+<td>₹15,379</td>
+<td>25.02%</td>
+<td>₹11,531</td>
+<td>₹6,292</td>
+<td>₹5,239</td>
+<td>10.25%</td>
+<td>₹3,216</td>
 </tr>
 <tr class="even">
-<td>2023</td>
-<td>30.7</td>
-<td>18%</td>
+<td>6</td>
+<td>₹21,425</td>
+<td>25.02%</td>
+<td>₹16,065</td>
+<td>₹7,026</td>
+<td>₹9,039</td>
+<td>10.00%</td>
+<td>₹5,044</td>
 </tr>
 <tr class="odd">
-<td>…</td>
-<td>…</td>
-<td>递减</td>
+<td>7</td>
+<td>₹35,001</td>
+<td>24.99%</td>
+<td>₹26,253</td>
+<td>₹6,954</td>
+<td>₹19,299</td>
+<td>9.74%</td>
+<td>₹9,813</td>
 </tr>
 <tr class="even">
-<td>2028</td>
-<td>57.9</td>
-<td>8%</td>
+<td>8</td>
+<td>₹50,825</td>
+<td>25.00%</td>
+<td>₹38,119</td>
+<td>₹6,148</td>
+<td>₹31,970</td>
+<td>9.48%</td>
+<td>₹14,848</td>
 </tr>
 <tr class="odd">
-<td>终值年</td>
-<td>61.4</td>
-<td>2.5%</td>
+<td>9</td>
+<td>₹55,602</td>
+<td>25.00%</td>
+<td>₹41,702</td>
+<td>₹4,550</td>
+<td>₹37,152</td>
+<td>9.23%</td>
+<td>₹15,797</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>₹57,965</td>
+<td>25.00%</td>
+<td>₹43,474</td>
+<td>₹2,251</td>
+<td>₹41,224</td>
+<td>8.97%</td>
+<td>₹16,085</td>
 </tr>
 </tbody>
 </table>
-<p><strong>利润率路径</strong>：</p>
-<ul>
-<li>2018 年：-22%（亏损）</li>
-<li>逐步改善</li>
-<li>2028 年（稳定期）：10%</li>
-</ul>
-<p><strong>资本成本</strong>：12%（反映高风险的新兴公司）</p>
 </section>
-<section id="估值结果" class="level3" data-number="5.4">
-<h3 data-number="5.4" class="anchored" data-anchor-id="估值结果"><span class="header-section-number">5.4</span> 估值结果</h3>
+<section id="终值和每股价值计算" class="level3" data-number="7.6">
+<h3 data-number="7.6" class="anchored" data-anchor-id="终值和每股价值计算"><span class="header-section-number">7.6</span> 终值和每股价值计算</h3>
+<p>我们将现金流按资本成本（从 10.25% 开始，第 10 年下降到 8.97%）折现回来。要完成估值，我们估计第 10 年末的终值。假设卢比永续增长率 4.25%，第 10 年后 ROIC 为 12%：</p>
 <p><span class="math display">\[
-\text{企业价值} = \text{显式期现值} + \text{终值现值} = \$54B
+\text{终值} = \frac{\text{第 11 年税后营业利润} \times \left(1 - \frac{g}{\text{ROIC}}\right)}{\text{资本成本} - g} = \frac{43,474 \times 1.0425 \times \left(1 - \frac{0.0425}{0.12}\right)}{0.0897 - 0.0425} = ₹620,133 \text{ 百万}
 \]</span></p>
-<p>减去债务，加上现金：</p>
-<p><span class="math display">\[
-\text{股权价值} \approx \$54B
-\]</span></p>
-<p><strong>对比 IPO 定价</strong>：Uber IPO 估值约 $75B</p>
-<p>Damodaran 的结论：<strong>Uber IPO 定价过高</strong>，市场对其”科技公司”叙事过于乐观。</p>
+<p>将终值折现并加上现金流现值，得到营业资产价值。然后减去债务，加上现金余额（包括 IPO 预期收益）和非经营性资产，减去股权期权价值，最后除以 IPO 后流通股数：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>金额（₹百万）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>终值现值</td>
+<td>₹241,972</td>
+</tr>
+<tr class="even">
+<td>+ 未来 10 年 FCFF 现值</td>
+<td>₹56,739</td>
+</tr>
+<tr class="odd">
+<td>= 营业资产价值</td>
+<td>₹298,712</td>
+</tr>
+<tr class="even">
+<td>– 失败调整（10%概率，清算价值=50%公允价值）</td>
+<td>₹14,936</td>
+</tr>
+<tr class="odd">
+<td>= 调整后营业资产价值</td>
+<td>₹283,776</td>
+</tr>
+<tr class="even">
+<td>– 债务和少数股东权益</td>
+<td>₹1,592</td>
+</tr>
+<tr class="odd">
+<td>+ 现金（含 IPO 收益）</td>
+<td>₹105,332</td>
+</tr>
+<tr class="even">
+<td>+ 非经营性资产</td>
+<td>₹30,628</td>
+</tr>
+<tr class="odd">
+<td>= 股权价值</td>
+<td>₹418,144</td>
+</tr>
+<tr class="even">
+<td>– 股权期权价值</td>
+<td>₹73,245</td>
+</tr>
+<tr class="odd">
+<td>= 普通股股权价值</td>
+<td>₹344,898</td>
+</tr>
+<tr class="even">
+<td>股份数量</td>
+<td>7,946.68</td>
+</tr>
+<tr class="odd">
+<td><strong>每股价值</strong></td>
+<td><strong>₹43.40</strong></td>
+</tr>
+</tbody>
+</table>
+<p>失败调整后的营业资产价值计算：₹298,712 × 0.9 + ₹298,712 × 0.5 × 0.1 = ₹283,776</p>
 </section>
-<section id="事后检验2024-年视角" class="level3" data-number="5.5">
-<h3 data-number="5.5" class="anchored" data-anchor-id="事后检验2024-年视角"><span class="header-section-number">5.5</span> 事后检验（2024 年视角）</h3>
-<p>让我们看看叙事的哪些部分被验证，哪些被证伪：</p>
+<section id="保持反馈循环开放不同叙事的估值" class="level3" data-number="7.7">
+<h3 data-number="7.7" class="anchored" data-anchor-id="保持反馈循环开放不同叙事的估值"><span class="header-section-number">7.7</span> 保持反馈循环开放：不同叙事的估值</h3>
+<p>很多人对我们的估值持不同意见，提出了更高或更低价值的替代故事。那些持更高价值故事的人被市场支持——Zomato 开盘价 ₹72，几个月后股价涨到 ₹150。</p>
+<p>为了看看不同故事如何影响估值，我们用这些故事进行估值：</p>
+<p><strong>Zomato 不同叙事和每股价值</strong></p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 8%">
+<col style="width: 21%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 13%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>假设</th>
-<th>预测</th>
-<th>实际</th>
-<th>评价</th>
+<th>叙事</th>
+<th>总市场（₹百万）</th>
+<th>市场份额</th>
+<th>收入切片</th>
+<th>目标利润率</th>
+<th>资本成本</th>
+<th>每股价值</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>收入增长</td>
-<td>25% → 8%</td>
-<td>受疫情冲击后强劲反弹，2023 年收入 $37B</td>
-<td>略低于预期</td>
+<td>配送巨头</td>
+<td>₹5,000,000</td>
+<td>40%</td>
+<td>25.00%</td>
+<td>45.00%</td>
+<td>9.50%</td>
+<td>₹150.02</td>
 </tr>
 <tr class="even">
-<td>利润率路径</td>
-<td>逐步转正</td>
-<td>2023 年首次实现全年盈利</td>
-<td>符合预期</td>
+<td>配送明星</td>
+<td>₹5,000,000</td>
+<td>40%</td>
+<td>22.00%</td>
+<td>35.00%</td>
+<td>9.50%</td>
+<td>₹93.00</td>
 </tr>
 <tr class="odd">
-<td>竞争格局</td>
-<td>激烈竞争</td>
-<td>北美双寡头（Uber + Lyft），其他市场激烈</td>
-<td>符合预期</td>
+<td>配送领导者+竞争</td>
+<td>₹5,000,000</td>
+<td>40%</td>
+<td>15.00%</td>
+<td>25.00%</td>
+<td>10.99%</td>
+<td>₹61.55</td>
 </tr>
 <tr class="even">
-<td>科技公司叙事</td>
-<td>持怀疑态度</td>
-<td>市场逐渐接受”出行公司”定位</td>
-<td>符合预期</td>
+<td>餐厅配送巨头+高增长印度</td>
+<td>₹3,000,000</td>
+<td>40%</td>
+<td>25.00%</td>
+<td>45.00%</td>
+<td>9.50%</td>
+<td>₹94.31</td>
+</tr>
+<tr class="odd">
+<td>餐厅配送明星+高增长印度</td>
+<td>₹3,000,000</td>
+<td>40%</td>
+<td>22.00%</td>
+<td>35.00%</td>
+<td>9.50%</td>
+<td>₹59.02</td>
+</tr>
+<tr class="even">
+<td>餐厅配送+竞争+高增长印度</td>
+<td>₹3,000,000</td>
+<td>40%</td>
+<td>20.00%</td>
+<td>25.00%</td>
+<td>10.99%</td>
+<td>₹35.52</td>
+</tr>
+<tr class="odd">
+<td><strong>我们的故事，乐观</strong></td>
+<td>₹2,000,000</td>
+<td>40%</td>
+<td>25.00%</td>
+<td>45.00%</td>
+<td>10.25%</td>
+<td>₹56.66</td>
+</tr>
+<tr class="even">
+<td><strong>我们的故事</strong></td>
+<td>₹2,000,000</td>
+<td>40%</td>
+<td>22.00%</td>
+<td>35.00%</td>
+<td>10.25%</td>
+<td>₹39.48</td>
+</tr>
+<tr class="odd">
+<td><strong>我们的故事，悲观</strong></td>
+<td>₹2,000,000</td>
+<td>40%</td>
+<td>20.00%</td>
+<td>25.00%</td>
+<td>10.25%</td>
+<td>₹26.16</td>
+</tr>
+<tr class="even">
+<td>餐厅配送巨头+低增长印度</td>
+<td>₹1,125,000</td>
+<td>40%</td>
+<td>25.00%</td>
+<td>45.00%</td>
+<td>9.50%</td>
+<td>₹36.48</td>
+</tr>
+<tr class="odd">
+<td>餐厅配送明星+低增长印度</td>
+<td>₹1,125,000</td>
+<td>40%</td>
+<td>22.00%</td>
+<td>35.00%</td>
+<td>9.50%</td>
+<td>₹24.02</td>
+</tr>
+<tr class="even">
+<td>餐厅配送+竞争+低增长印度</td>
+<td>₹1,125,000</td>
+<td>40%</td>
+<td>20.00%</td>
+<td>25.00%</td>
+<td>10.99%</td>
+<td>₹16.58</td>
 </tr>
 </tbody>
 </table>
-<p><strong>股价表现</strong>：Uber IPO 价格 $45，一度跌至 $15（2020 年），2024 年约 $70</p>
-<p>叙事总体上被验证，但时间线受到 COVID 影响而偏离。</p>
+<p>你可能会觉得这个表意味着价值可以是任何东西，但这不是我们的解读。确实，Zomato 的价值可以根据你为公司构建的故事而大幅变化——这对所有年轻公司都是如此——但<strong>不是所有故事都同样可信</strong>。</p>
+<p>当投资年轻公司时，你必须找到一个你认为可信并且相信的故事，并接受会有其他投资者不同意你的事实。对于更成熟的公司，故事分歧的空间更小，你会发现对其估值有更多共识。</p>
+<p><strong>投资的回报来自于比其他看同一家公司的人更少犯错</strong>，这支持了一个论点：在年轻公司中做估值的回报更大——因为对价值的分歧更大——比在更成熟的公司中。</p>
 </section>
 </section>
-<section id="叙事的测试与约束" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="叙事的测试与约束"><span class="header-section-number">6</span> 叙事的测试与约束</h2>
-<section id="三种测试" class="level3" data-number="6.1">
-<h3 data-number="6.1" class="anchored" data-anchor-id="三种测试"><span class="header-section-number">6.1</span> 三种测试</h3>
-<p>每个叙事都应该经受三种测试：</p>
-<p><strong>测试一：历史检验</strong></p>
-<p>叙事与公司历史表现是否一致？</p>
+<section id="生命周期中的叙事与数字" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="生命周期中的叙事与数字"><span class="header-section-number">8</span> 生命周期中的叙事与数字</h2>
+<p>公司在生命周期中的位置决定了估值的很多方面。虽然内在价值作为业务预期现金流现值的概念在整个生命周期中都适用，但存在关键差异：</p>
+<p><strong>1. 非常不同的现金流路径</strong></p>
 <ul>
-<li>如果你预测利润率将提升到 20%，但公司历史上从未超过 10%，需要解释为什么未来会不同</li>
-<li>如果你预测增长加速，但历史上增长一直在放缓，需要特别的理由</li>
+<li><strong>年轻公司</strong>：早期现金流为负，只有在接近高增长时才转正，快速增长后趋于稳定</li>
+<li><strong>成熟公司</strong>：更可能立即看到正现金流，但未来年份增长少得多</li>
+<li><strong>衰退公司</strong>：现金流可能随时间萎缩</li>
 </ul>
-<p><strong>测试二：行业比较</strong></p>
-<p>叙事与行业状况是否一致？</p>
-<ul>
-<li>你预测的利润率是否高于行业最佳表现者？如果是，为什么这家公司能做到？</li>
-<li>你预测的增长率是否超过整个行业增速？这在数学上意味着市场份额必须提升</li>
-</ul>
-<p><strong>测试三：宏观约束</strong></p>
-<p>叙事是否违反宏观经济约束？</p>
-<ul>
-<li>永续增长率不能超过经济增长率</li>
-<li>市场份额不能超过 100%</li>
-<li>公司规模不能超过整体市场</li>
-</ul>
+<p><strong>2. 对终值的不同依赖</strong></p>
+<p>年轻公司由于早期现金流为负、后期才有正向增长的现金流，其价值中<strong>更大比例来自后期现金流和终值</strong>，比成熟公司更甚。</p>
+<p><strong>3. 叙事与数字的平衡随生命周期变化</strong></p>
+<pre><code>        ▲                                                              收入
+        │                                    ╱╲
+        │                                   ╱  ╲
+        │                                  ╱    ╲
+        │                                 ╱      ╲
+        │                                ╱        ╲
+        │                           ____╱          ╲____
+        │                      ____╱                    ╲____
+        │                 ____╱                              ╲
+        │            ____╱                                   盈利
+        │       ____╱
+        │  ____╱
+        │_╱___________________________________________________________________▶
+
+       初创期      年轻增长期    高增长期    成熟增长期    成熟稳定期    衰退期
+    ─────────────────────────────────────────────────────────────────────────
+    生命周期    初创        年轻增长      高增长      成熟增长      成熟稳定      衰退
+    阶段
+    ─────────────────────────────────────────────────────────────────────────
+    叙事 vs    全是叙事    主要叙事     叙事+数字    数字+叙事    主要数字     全是数字
+    数字
+    ─────────────────────────────────────────────────────────────────────────
+    叙事      叙事有多大？  叙事可信吗？  叙事的      叙事的       叙事的       结局
+    驱动因素                            盈利能力    可扩展性     可持续性     如何？
+    ─────────────────────────────────────────────────────────────────────────
+    叙事差异  无约束且差异  ←────── 约束随数字积累而增加 ──────→   有约束且
+              巨大        ←────── 投资者间差异随历史加深而缩小 ──→ 差异小</code></pre>
+<section id="各阶段的估值挑战与策略" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="各阶段的估值挑战与策略"><span class="header-section-number">8.1</span> 各阶段的估值挑战与策略</h3>
+<p>让我们深入分析每个生命周期阶段的特征，以及估值师应该如何应对：</p>
+<p><strong>阶段 1：初创期（Start-up）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“这个故事能有多大？”（市场规模、天花板）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>几乎没有可用数据；可能连收入都没有</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>VC 方法、可比交易、情景分析</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>极大——对同一家初创公司的估值可能相差 10 倍</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>Pre-revenue 初创公司、实验室阶段生物科技</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 2：年轻增长期（Young Growth）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“这个故事可信吗？”（商业模式验证）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>有收入但无盈利；高增长但负现金流</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>DCF + 失败概率调整；收入倍数</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>大——盈利路径仍不确定</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>Zomato (2021)、Uber (2019)、早期 Tesla</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 3：高增长期（High Growth）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“这个故事的盈利能力是多少？”（利润率天花板）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>收入高速增长，利润率在改善但未稳定</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>DCF 开始可靠；PEG 比率</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>中等——增长可见，但终局利润率有分歧</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>Netflix (2015-2018)、Meta (2012-2015)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 4：成熟增长期（Mature Growth）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“这个故事能扩展到哪里？”（新市场、新产品线）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>财务数据丰富，但增长放缓趋势明显</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>标准 DCF；PE 倍数</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>较小——核心业务清晰</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>Apple (2015-2020)、Microsoft (重塑后)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 5：成熟稳定期（Mature Stable）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“这个故事能持续多久？”（护城河耐久性）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>数据充分但增长有限；关注派息和回购</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>DDM、FCF 模型、清算价值</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>小——价值区间窄</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>Coca-Cola、P&amp;G、成熟公用事业</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 6：衰退期（Decline）</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>叙事驱动问题</strong></td>
+<td>“结局会是什么？”（渐进衰退 vs 快速崩塌）</td>
+</tr>
+<tr class="even">
+<td><strong>数字挑战</strong></td>
+<td>如何预测衰退速度；资产清算价值</td>
+</tr>
+<tr class="odd">
+<td><strong>估值方法</strong></td>
+<td>清算估值；资产剥离分析</td>
+</tr>
+<tr class="even">
+<td><strong>投资者分歧</strong></td>
+<td>小但不对称——多数看空，少数赌重组</td>
+</tr>
+<tr class="odd">
+<td><strong>典型公司</strong></td>
+<td>传统报业、部分零售商</td>
+</tr>
+</tbody>
+</table>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">提示</span>“报纸测试”
+<span class="screen-reader-only">提示</span>生命周期阶段的投资含义
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>一个实用的检验方法：想象你的叙事被写成报纸头条。</p>
+<p><strong>关键洞察</strong>：你的竞争优势来源随生命周期变化：</p>
 <ul>
-<li>“Uber 成为全球最大的出行公司，利润率超过 Apple”——这个头条可信吗？</li>
-<li>“Tesla 十年后销量超过 Toyota + VW + GM 之和”——这个头条可信吗？</li>
+<li><strong>初创期</strong>：优势来自<strong>更好的判断力</strong>——你能否识别潜在赢家？</li>
+<li><strong>年轻增长期</strong>：优势来自<strong>更好的叙事构建</strong>——你能否构建比市场更可信的故事？</li>
+<li><strong>成熟期</strong>：优势来自<strong>更好的执行分析</strong>——你能否发现被忽视的效率改进？</li>
+<li><strong>衰退期</strong>：优势来自<strong>更好的资产估值</strong>——你能否识别隐藏价值？</li>
 </ul>
-<p>如果头条听起来荒谬，你的叙事可能需要调整。</p>
+<p><strong>最大的投资机会往往出现在</strong>：公司从一个阶段过渡到另一个阶段时，市场对过渡速度的判断出现分歧。例如，高增长公司何时进入成熟期？成熟公司能否重回增长？</p>
 </div>
 </div>
 </section>
-<section id="情景分析多个叙事" class="level3" data-number="6.2">
-<h3 data-number="6.2" class="anchored" data-anchor-id="情景分析多个叙事"><span class="header-section-number">6.2</span> 情景分析：多个叙事</h3>
-<p>当你对未来高度不确定时，可以构建<strong>多个情景</strong>，每个情景对应一个不同的叙事：</p>
-<p><strong>案例：Tesla 的三个情景</strong></p>
+<section id="为什么投资者在年轻公司上分歧更大" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="为什么投资者在年轻公司上分歧更大"><span class="header-section-number">8.2</span> 为什么投资者在年轻公司上分歧更大？</h3>
+<p>这不是因为年轻公司投资者”更情绪化”，而是因为<strong>数据约束更少</strong>。</p>
+<p>考虑两个极端：</p>
+<ol type="1">
+<li><strong>估值一家 Pre-revenue AI 初创公司</strong>：
+<ul>
+<li>总市场规模？从 $10B 到 $1T 都有人主张</li>
+<li>市场份额？从 2% 到 40% 都是”合理”估计</li>
+<li>利润率？参照物少，从 10% 到 60% 都有先例</li>
+<li>结果：合理估值区间可能是 $100M 到 $10B——100 倍差距！</li>
+</ul></li>
+<li><strong>估值 Coca-Cola</strong>：
+<ul>
+<li>收入？已知，且增长稳定在 3-5%</li>
+<li>利润率？已知，且十年来稳定在 25-30%</li>
+<li>风险？已知的行业老大，Beta 约 0.6</li>
+<li>结果：合理估值区间可能是 $200B 到 $280B——40% 差距</li>
+</ul></li>
+</ol>
+<p><strong>数学上</strong>，假设估值的不确定性随数据积累线性下降：</p>
+<p><span class="math display">\[
+\text{估值区间宽度} \propto \frac{1}{\sqrt{n}}
+\]</span></p>
+<p>其中 <span class="math inline">\(n\)</span> 是可用的相关数据点数量。年轻公司的 <span class="math inline">\(n\)</span> 可能是个位数，成熟公司的 <span class="math inline">\(n\)</span> 可能是数百个季度的数据。</p>
+<p><code>★ Insight ─────────────────────────────────────</code> <strong>Damodaran 的核心洞察</strong>：</p>
+<p>当叙事驱动估值时（年轻公司的常态），我们会发现投资者之间的故事和价值分歧很大；当数字主导时，这些分歧会缩小，对价值的共识会增加。</p>
+<p>这部分解释了为什么即使市场是理性有效的，年轻公司的股价波动也应该比成熟公司大得多。 <code>─────────────────────────────────────────────────</code></p>
+</section>
+</section>
+<section id="故事的重置变化和断裂" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="故事的重置变化和断裂"><span class="header-section-number">9</span> 故事的重置、变化和断裂</h2>
+<p>围绕故事构建估值的一个优势是：当关于公司的新闻出现或评估财报影响时，它给了你视角。与其关注新 CEO 可能带来的炒作，或公司报告的每股收益是否超出分析师预期 3 美分还是 5 美分，你可以<strong>关注新 CEO 会多大程度改变公司叙事，以及财报中的新闻是否会让你改变公司的故事</strong>。</p>
+<p>故事变化大致可以分为三类：</p>
+<section id="故事断裂story-breaks" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="故事断裂story-breaks"><span class="header-section-number">9.1</span> 故事断裂（Story Breaks）</h3>
+<p>一个事件动摇了你估值故事所依赖的整个商业模式，可能导致故事和价值崩塌。故事断裂可能由多种原因引起：</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>情景</th>
-<th>叙事</th>
-<th>概率</th>
-<th>估值</th>
+<th>原因</th>
+<th>描述</th>
+<th>案例</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>乐观</strong></td>
-<td>Tesla 主导全球电动车市场，能源业务爆发，自动驾驶实现</td>
-<td>25%</td>
-<td>$1,500B</td>
+<td><strong>关键人物损失</strong></td>
+<td>如果业务依赖某个关键人物，该人物的损失可能导致商业故事崩塌。这在围绕个人服务的小企业中尤其如此。</td>
+<td>水管工生意、医疗/牙科诊所没有永续寿命的原因。Elon Musk 对 Tesla 价值的影响问题。</td>
 </tr>
 <tr class="even">
-<td><strong>基准</strong></td>
-<td>Tesla 保持领先但份额下降，能源业务稳定增长</td>
-<td>50%</td>
-<td>$600B</td>
+<td><strong>法律和监管行动</strong></td>
+<td>公司常常受到法律法规的约束，尤其是在有法定门槛的业务中。</td>
+<td>政府决定打击餐厅外卖配送可能对 Zomato 的价值是致命的。</td>
 </tr>
 <tr class="odd">
-<td><strong>悲观</strong></td>
-<td>中国竞争者崛起，Tesla 边缘化</td>
-<td>25%</td>
-<td>$200B</td>
+<td><strong>自然灾害</strong></td>
+<td>某些地区有几乎不可能投保的灾害——要么太大以至于没有保险公司能够提供保护，要么在保险难以获得的地区。</td>
+<td>不可预见的区域性灾难</td>
+</tr>
+<tr class="even">
+<td><strong>欺诈和渎职</strong></td>
+<td>欺诈和渎职行为威胁公司存在，不仅因为法律后果，还因为它们破坏了与客户、员工和投资者的信任。</td>
+<td>Enron 在 1990 年代有宏大故事和市值，但高层广泛的不当行为曝光后公司崩塌。Theranos 的 90 亿美元估值在血检结果被操控的证据出现后几个月内化为乌有。</td>
+</tr>
+<tr class="odd">
+<td><strong>资本获取</strong></td>
+<td>年轻公司的宏大故事需要资本，如果资本枯竭（市场危机或下滑），故事可能断裂，即使关键要素仍在。</td>
+<td>市场下行期间的融资困难</td>
+</tr>
+<tr class="even">
+<td><strong>其他</strong></td>
+<td>许多年轻公司的故事断裂并非自身过错，运气有利于某些公司而不利于其他。</td>
+<td>年轻制药公司产品线中有前景的药物出现致命反应，有效终结其故事和价值。</td>
 </tr>
 </tbody>
 </table>
-<p><strong>期望价值</strong> = 25% × $1,500B + 50% × $600B + 25% × $200B = <strong>$625B</strong></p>
-<p>情景分析的价值不在于给出一个”精确”的数字，而在于<strong>让你思考可能出错的地方</strong>。</p>
-</section>
-<section id="关键假设的敏感性" class="level3" data-number="6.3">
-<h3 data-number="6.3" class="anchored" data-anchor-id="关键假设的敏感性"><span class="header-section-number">6.3</span> 关键假设的敏感性</h3>
-<p>识别叙事中的<strong>关键假设</strong>——那些小幅变化就会大幅影响估值的假设。</p>
-<p><strong>案例</strong>：对于 Uber，关键假设可能是：</p>
+<p><strong>一般来说，故事断裂更可能在公司生命早期发生，但当它们发生在公司规模扩大之后，价值损失的后果要大得多</strong>。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>深度案例：关键人物依赖——Elon Musk 与 Tesla
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>问题的本质</strong>：Tesla 的价值中有多少归因于 Elon Musk 本人？</p>
+<p>这个问题在 Tesla 成立之初就存在，但随着公司规模扩大变得更加重要。Musk 不仅是 CEO，他还是：</p>
+<ul>
+<li><strong>愿景的化身</strong>：Tesla 从”电动汽车公司”到”可持续能源公司”的叙事，很大程度上来自 Musk 的个人愿景</li>
+<li><strong>资本筹集者</strong>：Musk 的个人品牌帮助 Tesla 在亏损时期持续获得融资</li>
+<li><strong>争议的来源</strong>：他在社交媒体上的言论多次引发股价波动</li>
+</ul>
+<p><strong>估值含义</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 48%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>对 Tesla 叙事的影响</th>
+<th>可能的估值影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Musk 继续领导</td>
+<td>维持”颠覆者”叙事，进入机器人、能源等新领域</td>
+<td>维持溢价估值</td>
+</tr>
+<tr class="even">
+<td>Musk 离开但有序交接</td>
+<td>叙事收窄为”电动汽车制造商”，类似传统车企</td>
+<td>估值可能下降 30-50%</td>
+</tr>
+<tr class="odd">
+<td>Musk 突然离开（健康或其他原因）</td>
+<td>叙事断裂，不确定性飙升</td>
+<td>短期可能下跌 50%+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键洞察</strong>：对于”关键人物依赖”的公司，你应该问自己——如果这个人明天离开，我的叙事还成立吗？如果答案是”不确定”，那么你的估值中应该包含一个”关键人物折价”。</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>深度案例：欺诈如何摧毁叙事——Theranos 的 90 亿美元幻灭
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Theranos 的叙事</strong>（2014 年估值 90 亿美元时）：</p>
+<blockquote class="blockquote">
+<p>“我们开发了革命性的血液检测技术，只需一滴指尖血就能进行数百种检测。这将颠覆价值 700 亿美元的实验室诊断行业，让检测更便宜、更便捷、更人性化。”</p>
+</blockquote>
+<p>这是一个教科书式的”颠覆者”叙事，符合商业故事的所有要素：</p>
+<ul>
+<li><strong>大市场</strong>：实验室诊断是巨大的市场</li>
+<li><strong>技术优势</strong>：声称拥有专利技术</li>
+<li><strong>愿景领袖</strong>：Elizabeth Holmes 被比作”下一个 Steve Jobs”</li>
+<li><strong>强大背书</strong>：董事会包括前国务卿等重量级人物</li>
+</ul>
+<p><strong>但这个叙事从未通过真正的 3P 测试</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>测试</th>
+<th>声称的证据</th>
+<th>实际情况</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>可能</strong></td>
+<td>“技术存在”</td>
+<td>从未向独立第三方展示</td>
+</tr>
+<tr class="even">
+<td><strong>可信</strong></td>
+<td>“已在 Walgreens 部署”</td>
+<td>大多数检测实际上用传统设备进行</td>
+</tr>
+<tr class="odd">
+<td><strong>可证</strong></td>
+<td>“经过临床验证”</td>
+<td>结果不准确，危及患者健康</td>
+</tr>
+</tbody>
+</table>
+<p><strong>教训</strong>：</p>
 <ol type="1">
-<li><strong>稳定期利润率</strong>（从 8% 到 12%，估值变化 40%+）</li>
-<li><strong>收入增长持续期</strong>（从 8 年到 12 年，估值变化 30%+）</li>
-<li><strong>资本成本</strong>（从 10% 到 14%，估值变化 35%+）</li>
+<li><strong>对”黑箱”技术保持怀疑</strong>：如果一家公司声称拥有革命性技术但拒绝展示，这是危险信号</li>
+<li><strong>背书不能替代验证</strong>：名人董事会成员不等于技术可行性</li>
+<li><strong>健康检查项目</strong>：定期问自己”我的叙事的核心假设是否仍然成立？”</li>
 </ol>
-<p>对这些关键假设，你应该： - 明确解释为什么选择这个数字 - 测试不同数值下的估值变化 - 准备在新信息出现时更新</p>
+<p>Theranos 案例证明，<strong>一个精心构建的叙事可以在缺乏实质支撑的情况下维持很长时间——但最终，现实会追上来</strong>。</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>深度案例：资本获取断裂——2022 年科技初创公司的”估值寒冬”
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>背景</strong>：2020-2021 年，低利率环境和疫情催生的数字化转型推动了科技初创公司估值飙升。许多公司以”增长优先，盈利其次”的叙事获得了天价估值。</p>
+<p><strong>2022 年发生了什么</strong>：</p>
+<ol type="1">
+<li><strong>利率上升</strong>：美联储加息使折现率上升，降低了未来现金流的现值</li>
+<li><strong>投资者情绪转变</strong>：从”增长至上”转向”路径到盈利”</li>
+<li><strong>资本枯竭</strong>：许多 VC 基金停止投资，等待估值调整</li>
+</ol>
+<p><strong>对叙事的影响</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 30%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>原叙事</th>
+<th>新叙事</th>
+<th>估值影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“我们将成为下一个 Uber，先占领市场再考虑盈利”</td>
+<td>“市场已经饱和，我们需要证明单位经济可行”</td>
+<td>估值下降 70-90%</td>
+</tr>
+<tr class="even">
+<td>“我们将用风投资金补贴获客，建立网络效应”</td>
+<td>“如果融不到下一轮，6 个月后现金耗尽”</td>
+<td>存在失败风险</td>
+</tr>
+<tr class="odd">
+<td>“高估值反映了我们的增长潜力”</td>
+<td>“我们需要在下轮融资前证明盈利能力”</td>
+<td>被迫接受”折价轮”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键洞察</strong>：年轻公司的叙事往往隐含一个假设——“我们能持续获得资本”。当这个假设失效时，叙事本身可能没变，但公司可能无法存活到叙事实现的那一天。</p>
+<p>这就是为什么 Damodaran 在估值年轻公司时总是包含一个<strong>失败概率调整</strong>——它不是对折现率的简单增加，而是对”公司可能在到达终点之前死亡”这一现实的承认。</p>
+</div>
+</div>
+<p><strong>故事断裂的时间分布</strong></p>
+<pre><code>故事断裂概率                              价值损失规模
+
+高 │     ╭────╮                         高 │                    ╭────────
+   │    ╱      ╲                           │                   ╱
+   │   ╱        ╲                          │                  ╱
+   │  ╱          ╲                         │                 ╱
+   │ ╱            ╲                        │                ╱
+   │╱              ╲_____                  │    ___________╱
+低 │────────────────────────► 生命周期  低 │────────────────────────► 生命周期
+   初创  年轻增长  成熟   衰退              初创  年轻增长  成熟   衰退</code></pre>
+<p><strong>解读</strong>：故事断裂更可能发生在公司生命早期（商业模式未经验证、资本依赖高、关键人物依赖强），但<strong>价值损失的绝对规模在公司规模扩大后更大</strong>。Theranos 在 2014 年失败损失 90 亿美元；如果等到它成为真正的行业巨头再失败，损失可能是数千亿美元。</p>
+</section>
+<section id="故事变化story-changes" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="故事变化story-changes"><span class="header-section-number">9.2</span> 故事变化（Story Changes）</h3>
+<p>一个事件让你重新评估你的核心故事是过于扩张还是过于保守，应该让你改变公司的故事和价值。</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 62%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>触发因素</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>财报</strong></td>
+<td>许多投资者关注底线（实际 EPS 是否超过或落后于预期）。但财报中更有趣和更重要的新闻在细节中——公司提供的信息可能让你重新评估其故事。</td>
+</tr>
+<tr class="even">
+<td><strong>收购</strong></td>
+<td>收购，尤其是大型上市公司目标，是一个可能大幅改变公司故事的赌注。如果失败（如 Kodak 收购 Sterling Drugs 或时代华纳收购 AOL），会拖垮公司。如果成功，可能改变公司的故事线——也许从成熟稳定公司变成增长玩家。</td>
+</tr>
+<tr class="odd">
+<td><strong>管理层变动</strong></td>
+<td>公司高层变动——外部新 CEO 取代长期任职的 CEO——可能导致公司故事线的重新评估。这种变化可能由自然过渡引起，也可能由激进投资者的存在引起。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Zomato 案例</strong>： - 财报中包含公司从餐厅配送扩展到杂货配送突破的新闻，将大大扩展故事并推高价值 - Swiggy（竞争对手）宣布计划降低其”收入切片”（总账单中作为收入的份额）的公告，将溢出到你对 Zomato 故事的盈利能力部分 - 事实上，Zomato 在 2022 年收购 Blinkit（一家杂货配送初创公司）扩展并改变了其故事线和价值</p>
+</section>
+<section id="故事调整story-shifts" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="故事调整story-shifts"><span class="header-section-number">9.3</span> 故事调整（Story Shifts）</h3>
+<p>核心故事可能没有断裂或改变，但你可能基于宏观经济发展或公司新闻重新评估故事的轮廓。</p>
+<p><strong>案例：Apple 2011-2020 估值变化</strong></p>
+<p>我们对 Apple 作为成熟智能手机公司和现金机器的故事在过去十年没有改变，但当我们更新公司数字以及宏观输入（无风险利率和股权风险溢价）时，估计的内在价值每股发生了显著变化。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>月份</th>
+<th>每股价格</th>
+<th>每股价值</th>
+<th>差异%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2011年9月</td>
+<td>$54.47</td>
+<td>$69.30</td>
+<td>–21.39%</td>
+</tr>
+<tr class="even">
+<td>2012年9月</td>
+<td>$95.30</td>
+<td>$91.29</td>
+<td>4.40%</td>
+</tr>
+<tr class="odd">
+<td>2013年9月</td>
+<td>$68.11</td>
+<td>$86.43</td>
+<td>–21.20%</td>
+</tr>
+<tr class="even">
+<td>2014年9月</td>
+<td>$100.75</td>
+<td>$97.91</td>
+<td>2.90%</td>
+</tr>
+<tr class="odd">
+<td>2015年9月</td>
+<td>$110.30</td>
+<td>$130.91</td>
+<td>–15.74%</td>
+</tr>
+<tr class="even">
+<td>2016年9月</td>
+<td>$113.05</td>
+<td>$126.47</td>
+<td>–10.61%</td>
+</tr>
+<tr class="odd">
+<td>2017年9月</td>
+<td>$154.12</td>
+<td>$158.33</td>
+<td>–2.66%</td>
+</tr>
+<tr class="even">
+<td>2018年9月</td>
+<td>$225.74</td>
+<td>$201.50</td>
+<td>12.03%</td>
+</tr>
+<tr class="odd">
+<td>2019年9月</td>
+<td>$249.75</td>
+<td>$243.25</td>
+<td>2.67%</td>
+</tr>
+<tr class="even">
+<td>2020年9月</td>
+<td>$462.83</td>
+<td>$479.50</td>
+<td>–3.48%</td>
+</tr>
+</tbody>
+</table>
+<p>如果内在价值随时间变化让你困扰，请注意<strong>市场价格也受这些变化影响</strong>，投资是基于价值与价格的比较。事实上，在这十年中，Apple 有六次被低估、四次被高估，市场价格的波动比内在价值大得多。</p>
+<p><strong>简而言之，内在价值是稳定的或不变的这种观念是错觉——随着你的公司、业务和宏观经济输入变化，你的故事和价值也应该变化。</strong></p>
 </section>
 </section>
-<section id="叙事的更新" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="叙事的更新"><span class="header-section-number">7</span> 叙事的更新</h2>
-<section id="叙事不是一成不变的" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="叙事不是一成不变的"><span class="header-section-number">7.1</span> 叙事不是一成不变的</h3>
-<p>估值不是”一次性”的练习。随着时间推移和新信息出现，叙事应该被更新。</p>
-<p><strong>触发叙事更新的事件</strong>：</p>
-<ul>
-<li><strong>财报发布</strong>：实际业绩与预期的差异</li>
-<li><strong>战略变化</strong>：新产品、新市场、并购</li>
-<li><strong>竞争动态</strong>：竞争对手的行动</li>
-<li><strong>宏观变化</strong>：利率、监管、技术趋势</li>
-</ul>
-</section>
-<section id="更新的原则" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="更新的原则"><span class="header-section-number">7.2</span> 更新的原则</h3>
-<p><strong>原则一：区分噪音和信号</strong></p>
-<p>不是每条新闻都需要更新叙事。问自己：这个信息是否改变了公司的<strong>长期基本面</strong>？</p>
-<ul>
-<li>季度收入略低于预期 → 可能是噪音</li>
-<li>主要竞争对手推出颠覆性产品 → 可能需要更新叙事</li>
-</ul>
-<p><strong>原则二：更新叙事，不只是数字</strong></p>
-<p>当需要调整估值时，先更新叙事，再更新数字。这确保了变化是有理由的，而非随意的。</p>
-<p><strong>错误的做法</strong>： &gt; “这季度收入低了，我把增长率从 20% 调到 18%”</p>
-<p><strong>正确的做法</strong>： &gt; “这季度收入低于预期，主要因为新市场扩张放缓。这让我重新评估市场进入难度，我现在认为公司需要更长时间才能达到目标规模。因此，我将高增长期延长 2 年，但降低每年的增长率假设。”</p>
-<p><strong>原则三：保持一致性</strong></p>
-<p>更新一个假设时，检查是否需要同步更新相关假设。</p>
-<p>例如，如果你因为竞争加剧而降低利润率预期，可能也需要： - 降低增长预期（价格战影响收入） - 提高资本成本（业务风险上升） - 调整再投资假设（可能需要更多投资来应对竞争）</p>
-</section>
-<section id="案例netflix-叙事的演变" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="案例netflix-叙事的演变"><span class="header-section-number">7.3</span> 案例：Netflix 叙事的演变</h3>
-<p><strong>2010 年叙事</strong>： &gt; “Netflix 正在从 DVD 邮寄转型为流媒体。它将成为电视的颠覆者，像 HBO 一样生产原创内容。”</p>
-<p><strong>2015 年叙事更新</strong>： &gt; “Netflix 的流媒体转型成功。国际扩张是下一个增长引擎。内容成本上升，但规模效应将带来利润率改善。”</p>
-<p><strong>2020 年叙事更新</strong>： &gt; “Netflix 面临 Disney+、HBO Max 等强大竞争者。增长放缓，需要寻找新的收入来源（广告、游戏）。”</p>
-<p><strong>2024 年叙事</strong>： &gt; “流媒体市场已成熟，Netflix 是明确的领导者之一。增长来自提价、广告业务和账户共享打击。利润率开始兑现。”</p>
-<p>每次更新都反映了新的信息和竞争动态，同时保持了核心逻辑的连贯性。</p>
-</section>
-</section>
-<section id="叙事的陷阱" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="叙事的陷阱"><span class="header-section-number">8</span> 叙事的陷阱</h2>
-<section id="陷阱一确认偏误" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="陷阱一确认偏误"><span class="header-section-number">8.1</span> 陷阱一：确认偏误</h3>
+<section id="叙事的陷阱" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="叙事的陷阱"><span class="header-section-number">10</span> 叙事的陷阱</h2>
+<section id="陷阱一确认偏误" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="陷阱一确认偏误"><span class="header-section-number">10.1</span> 陷阱一：确认偏误</h3>
 <p>你可能只关注支持你叙事的信息，忽略相反的证据。</p>
 <p><strong>对策</strong>： - 主动寻找反面证据 - 问自己：“什么信息能证伪我的叙事？” - 与持不同观点的人讨论</p>
 </section>
-<section id="陷阱二叙事过于复杂" class="level3" data-number="8.2">
-<h3 data-number="8.2" class="anchored" data-anchor-id="陷阱二叙事过于复杂"><span class="header-section-number">8.2</span> 陷阱二：叙事过于复杂</h3>
+<section id="陷阱二叙事过于复杂" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="陷阱二叙事过于复杂"><span class="header-section-number">10.2</span> 陷阱二：叙事过于复杂</h3>
 <p>试图在一个叙事中涵盖太多元素，导致难以追踪和更新。</p>
 <p><strong>对策</strong>： - 聚焦 3-5 个核心驱动因素 - 其他因素可以在敏感性分析中处理</p>
 </section>
-<section id="陷阱三叙事与数字脱节" class="level3" data-number="8.3">
-<h3 data-number="8.3" class="anchored" data-anchor-id="陷阱三叙事与数字脱节"><span class="header-section-number">8.3</span> 陷阱三：叙事与数字脱节</h3>
+<section id="陷阱三叙事与数字脱节" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="陷阱三叙事与数字脱节"><span class="header-section-number">10.3</span> 陷阱三：叙事与数字脱节</h3>
 <p>叙事很美好，但数字不支持；或者数字很详细，但与叙事无关。</p>
 <p><strong>对策</strong>： - 为每个关键数字写一句话解释它来自叙事的哪个部分 - 检查数字是否与叙事逻辑一致</p>
 </section>
-<section id="陷阱四拒绝更新" class="level3" data-number="8.4">
-<h3 data-number="8.4" class="anchored" data-anchor-id="陷阱四拒绝更新"><span class="header-section-number">8.4</span> 陷阱四：拒绝更新</h3>
+<section id="陷阱四拒绝更新" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="陷阱四拒绝更新"><span class="header-section-number">10.4</span> 陷阱四：拒绝更新</h3>
 <p>一旦确立叙事，就固守不变，即使证据表明它已经错了。</p>
 <p><strong>对策</strong>： - 设定明确的”检查点”：什么情况下需要重新评估？ - 记录最初的叙事和假设，便于事后复盘</p>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -1233,14 +2563,173 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <blockquote class="blockquote">
-<p>“你可以是一个固执的估值者，坚持自己的观点直到被证明是错的；也可以是一个灵活的估值者，随着新信息不断调整。但你不能两者兼得——在有利信息时坚持，在不利信息时调整。这不是灵活，这是偏见。”</p>
+<p>“你可以是一个固执的估值者，坚持自己的观点直到被证明是错的；也可以是一个灵活的估值者，随着新信息不断调整。但你不能两者兼得——在有利信息时坚持，在不利信息时调整。这不是灵活，这是<strong>偏见</strong>。”</p>
 </blockquote>
+<p>投资中最艰难的挑战之一是保持平衡：既要对你的估值有足够的信心，不在最轻微的麻烦迹象出现时就放弃；又不能太过坚信，以至于在数据表明应该放手时仍然紧握不放。</p>
 </div>
 </div>
 </section>
 </section>
-<section id="总结" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="总结"><span class="header-section-number">9</span> 总结</h2>
+<section id="本章与估值框架的联系" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="本章与估值框架的联系"><span class="header-section-number">11</span> 本章与估值框架的联系</h2>
+<p>本章是 Damodaran 估值体系中的”元方法论”——它回答的不是”如何计算”，而是”假设从何而来”。让我们看看它如何与其他章节联系：</p>
+<section id="与估值输入章节的联系" class="level3" data-number="11.1">
+<h3 data-number="11.1" class="anchored" data-anchor-id="与估值输入章节的联系"><span class="header-section-number">11.1</span> 与估值输入章节的联系</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 41%">
+<col style="width: 41%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>本章的叙事元素</th>
+<th>对应的技术章节</th>
+<th>联系</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“收入增长多快？”</td>
+<td><strong>第 11 章：估计增长</strong></td>
+<td>本章解释了增长假设的”故事逻辑”，第 11 章提供了估计增长的具体技术（历史增长、分析师预测、基本面增长）</td>
+</tr>
+<tr class="even">
+<td>“利润率能达到多少？”</td>
+<td><strong>第 10 章：从盈利到现金流</strong></td>
+<td>叙事给出目标利润率的方向，第 10 章解释如何从当前财务数据推算可持续利润率</td>
+</tr>
+<tr class="odd">
+<td>“风险有多大？”</td>
+<td><strong>第 8 章：风险与回报</strong></td>
+<td>叙事中的”竞争”、“监管”等风险因素，通过第 8 章的 Beta 和风险溢价量化</td>
+</tr>
+<tr class="even">
+<td>“能持续多久？”</td>
+<td><strong>第 12 章：终值</strong></td>
+<td>叙事决定公司何时进入稳定状态，第 12 章解释如何计算稳定期的价值</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>阅读建议
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果你从第 1 章开始顺序阅读，本章（第 13 章）是一个<strong>转折点</strong>：</p>
+<ul>
+<li><strong>之前的章节</strong>（1-12）教你”怎么算”：现金流、折现率、增长率、终值</li>
+<li><strong>本章</strong>教你”假设从哪来”：叙事如何驱动每个输入</li>
+<li><strong>之后的章节</strong>（14-20）教你”用什么模型”：DDM、FCFE、FCFF、相对估值</li>
+</ul>
+<p>本章的价值在于：它<strong>连接</strong>了估值的技术层面和判断层面。没有本章的视角，你可能会机械地应用模型但不理解假设的来源；有了本章的视角，你能够为每个假设找到”故事逻辑”。</p>
+</div>
+</div>
+</section>
+<section id="与估值模型章节的联系" class="level3" data-number="11.2">
+<h3 data-number="11.2" class="anchored" data-anchor-id="与估值模型章节的联系"><span class="header-section-number">11.2</span> 与估值模型章节的联系</h3>
+<p><strong>第 14 章（DDM）</strong> 中你将学到的 Gordon 模型：</p>
+<p><span class="math display">\[
+\text{价值} = \frac{D_1}{r - g}
+\]</span></p>
+<p>这个公式看起来简单，但 <span class="math inline">\(g\)</span>（增长率）和 <span class="math inline">\(r\)</span>（折现率）从何而来？本章告诉你：</p>
+<ul>
+<li><span class="math inline">\(g\)</span> 来自你对公司<strong>市场规模</strong>和<strong>竞争定位</strong>的叙事</li>
+<li><span class="math inline">\(r\)</span> 来自你对公司<strong>风险水平</strong>的叙事</li>
+</ul>
+<p><strong>第 15 章（FCFE/FCFF）</strong> 中的自由现金流模型需要预测未来多年的现金流。这些预测的<strong>逻辑基础</strong>正是本章教授的叙事构建技术。</p>
+<p><strong>第 18-20 章（相对估值）</strong> 使用的 PE、EV/EBITDA 等倍数，其合理性也取决于叙事——相同行业的两家公司，为什么一家应该有更高的 PE？答案在于它们有不同的故事。</p>
+</section>
+<section id="批判性视角叙事方法的局限" class="level3" data-number="11.3">
+<h3 data-number="11.3" class="anchored" data-anchor-id="批判性视角叙事方法的局限"><span class="header-section-number">11.3</span> 批判性视角：叙事方法的局限</h3>
+<p>尽管 Damodaran 大力提倡叙事与数字的结合，我们也应该认识到这种方法的局限：</p>
+<p><strong>局限 1：叙事可能过于主观</strong></p>
+<p>不同投资者对同一家公司可以构建完全不同的叙事，每个都”看起来合理”。这不一定是问题（市场需要分歧），但它意味着<strong>叙事不能被”证明”对或错</strong>，只能被事后验证。</p>
+<p><strong>局限 2：叙事可能成为偏见的掩护</strong></p>
+<blockquote class="blockquote">
+<p>“我喜欢这家公司”可以被包装成”我相信它的增长故事”。</p>
+</blockquote>
+<p>叙事的灵活性可能让确认偏误更容易隐藏。解决方案：强制自己写下”什么证据会让我改变叙事”。</p>
+<p><strong>局限 3：并非所有估值都需要宏大叙事</strong></p>
+<p>对于成熟稳定的公司（如公用事业），叙事可能非常简单：“继续做现在做的事”。在这些情况下，传统的财务分析可能比叙事构建更重要。</p>
+<p><strong>局限 4：叙事更新的频率问题</strong></p>
+<p>多久更新一次叙事？每个季度财报后？每次重大新闻后？过于频繁的更新可能导致过度交易；过于稳定可能导致错过重要变化。Damodaran 的建议是：<strong>只有当新信息改变核心故事时才更新，而不是对每个噪音做出反应</strong>。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>批判性思考框架
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在使用本章的方法时，问自己这些问题：</p>
+<ol type="1">
+<li><strong>我的叙事是基于证据还是希望？</strong> 列出支持你叙事的三个关键证据。</li>
+<li><strong>反面叙事是什么？</strong> 一个理性的悲观者会如何讲述这家公司的故事？</li>
+<li><strong>边际信息如何改变叙事？</strong> 如果下一季度收入增长从 30% 变成 20%，我的叙事会改变吗？</li>
+<li><strong>叙事的”关键假设”是什么？</strong> 哪一个假设如果错了，整个叙事就会崩塌？</li>
+<li><strong>市场在讲述什么故事？</strong> 当前价格隐含的叙事与我的叙事有何不同？</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="与中国市场的联系" class="level3" data-number="11.4">
+<h3 data-number="11.4" class="anchored" data-anchor-id="与中国市场的联系"><span class="header-section-number">11.4</span> 与中国市场的联系</h3>
+<p>本章的案例主要来自美国和印度市场。对于关注中国市场的读者，以下是一些本土化的思考：</p>
+<p><strong>中国叙事的特殊考量</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 52%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>因素</th>
+<th>对叙事的影响</th>
+<th>案例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>政策风险</strong></td>
+<td>叙事需要包含”政策情景”</td>
+<td>教育科技（双减政策）、房地产（三道红线）</td>
+</tr>
+<tr class="even">
+<td><strong>地方政府支持</strong></td>
+<td>某些行业的叙事包含”补贴持续性”</td>
+<td>新能源汽车、半导体</td>
+</tr>
+<tr class="odd">
+<td><strong>国际关系</strong></td>
+<td>出口导向公司的叙事需考虑地缘政治</td>
+<td>华为、中芯国际</td>
+</tr>
+<tr class="even">
+<td><strong>市场准入</strong></td>
+<td>外资参与度影响估值水平</td>
+<td>A 股 vs H 股折价</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本土叙事案例</strong>：</p>
+<ul>
+<li><strong>比亚迪</strong>：从”电池供应商”到”新能源汽车巨头”再到”全球化车企”的叙事演变</li>
+<li><strong>美团</strong>：从”外卖平台”到”本地生活超级 App”的叙事扩展</li>
+<li><strong>恒大</strong>：从”高增长地产龙头”到”债务危机典型”的叙事断裂</li>
+</ul>
+</section>
+</section>
+<section id="总结" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="总结"><span class="header-section-number">12</span> 总结</h2>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1253,26 +2742,28 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <ul>
 <li><strong>估值 = 叙事 + 数字</strong>：没有叙事的数字是无根之木，没有数字的叙事是空中楼阁</li>
-<li><strong>好叙事的标准</strong>：可能、可信、可检验</li>
-<li><strong>叙事到数字的转换</strong>：市场 → 竞争优势 → 财务假设，保持内部一致性</li>
-<li><strong>叙事的测试</strong>：历史检验、行业比较、宏观约束</li>
-<li><strong>叙事的更新</strong>：区分噪音和信号，更新叙事而非只更新数字</li>
+<li><strong>故事为何强大</strong>：神经科学揭示故事能建立连接（催产素）、帮助集中（皮质醇）、激发希望（多巴胺）和行动</li>
+<li><strong>故事的危险</strong>：可以操控情绪、利用虚假记忆、变成童话故事或失控叙事</li>
+<li><strong>好叙事的标准</strong>：可能（Possible）、可信（Plausible）、可证（Probable）</li>
+<li><strong>叙事到数字的五步法</strong>：构建故事 → 3P 测试 → 连接输入 → 计算价值 → 保持反馈</li>
+<li><strong>生命周期变化</strong>：年轻公司叙事主导，成熟公司数字主导</li>
+<li><strong>故事的演变</strong>：断裂（灾难性事件）、变化（重新评估核心故事）、调整（更新轮廓）</li>
 <li><strong>避免陷阱</strong>：确认偏误、过度复杂、叙事数字脱节、拒绝更新</li>
 </ul>
 </div>
 </div>
 <p>本章我们回答了一个根本问题：<strong>估值的假设从何而来？</strong> 答案是：从一个关于公司未来的<strong>连贯叙事</strong>。</p>
 <p>关键的 takeaway 是：<strong>让你的估值讲述一个故事</strong>。这个故事应该回答：这家公司是谁？它要去哪里？它凭什么能到达那里？然后，将这个故事系统地转化为财务假设，并在新信息出现时不断更新。</p>
-<p>从第 14 章开始，我们将进入估值的核心模型部分——从股息折现模型到自由现金流模型，从股权估值到公司估值。但无论使用哪种模型，叙事与数字的结合始终是估值的灵魂。</p>
+<p>从第 14 章开始，我们将进入估值的核心模型部分——从股息折现模型到自由现金流模型，从股权估值到公司估值。但无论使用哪种模型，<strong>叙事与数字的结合始终是估值的灵魂</strong>。</p>
 </section>
-<section id="思考题" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="思考题"><span class="header-section-number">10</span> 思考题</h2>
+<section id="思考题" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="思考题"><span class="header-section-number">13</span> 思考题</h2>
 <ol type="1">
-<li><p><strong>叙事构建</strong>：选择一家你熟悉的公司，写一段 3-5 句话的估值叙事。这个叙事满足”可能、可信、可检验”的标准吗？</p></li>
+<li><p><strong>叙事构建</strong>：选择一家你熟悉的公司，写一段 3-5 句话的估值叙事。这个叙事满足”可能、可信、可证”的标准吗？你的叙事属于七种经典商业故事中的哪一种？</p></li>
 <li><p><strong>叙事分歧</strong>：对于同一家公司（如 Tesla 或 Amazon），乐观者和悲观者的叙事分歧通常在哪里？这些分歧如何反映在财务假设中？</p></li>
-<li><p><strong>叙事更新</strong>：想象你在 2019 年持有 Airbnb 的叙事估值。COVID-19 爆发后，你会如何更新叙事？哪些核心假设需要改变，哪些可以保持不变？</p></li>
+<li><p><strong>叙事更新</strong>：想象你在 2019 年持有 Airbnb 的叙事估值。COVID-19 爆发后，你会如何更新叙事？这属于故事断裂、变化还是调整？</p></li>
 <li><p><strong>叙事陷阱</strong>：回顾一个你曾经做过的投资决策。事后看，你的叙事有什么问题？你是否陷入了确认偏误或其他陷阱？</p></li>
-<li><p><strong>叙事与市场</strong>：当你的叙事估值与市场价格差异很大时（如你估值 $50，市场价格 $100），这意味着什么？你应该如何处理这种分歧？</p></li>
+<li><p><strong>叙事与市场</strong>：当你的叙事估值与市场价格差异很大时（如你估值 $50，市场价格 $100），这意味着什么？市场在讲述什么不同的故事？你应该如何处理这种分歧？</p></li>
 </ol>
 <hr>
 <p><em>本文基于 Aswath Damodaran《Investment Valuation》第 13 章及其著作《Narrative and Numbers》的内容进行教学化改写。</em></p>

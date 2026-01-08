@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="当一家公司没有历史、没有盈利、甚至没有成熟的产品时，我们如何估值？本章以 Airbnb 2020年IPO为案例，构建从叙事到数字的完整估值框架。">
+
+<title>【第23章】初创公司估值：在不确定性中寻找价值 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#信息约束为什么初创公司估值如此困难" id="toc-信息约束为什么初创公司估值如此困难" class="nav-link" data-scroll-target="#信息约束为什么初创公司估值如此困难"><span class="header-section-number">2</span> 信息约束：为什么初创公司估值如此困难？</a>
+  <ul class="collapse">
+  <li><a href="#估值的三大信息来源" id="toc-估值的三大信息来源" class="nav-link" data-scroll-target="#估值的三大信息来源"><span class="header-section-number">2.1</span> 估值的三大信息来源</a></li>
+  <li><a href="#案例2000年代互联网泡沫的教训" id="toc-案例2000年代互联网泡沫的教训" class="nav-link" data-scroll-target="#案例2000年代互联网泡沫的教训"><span class="header-section-number">2.2</span> 案例：2000年代互联网泡沫的教训</a></li>
+  </ul></li>
+  <li><a href="#生命周期视角理解初创公司的本质" id="toc-生命周期视角理解初创公司的本质" class="nav-link" data-scroll-target="#生命周期视角理解初创公司的本质"><span class="header-section-number">3</span> 生命周期视角：理解初创公司的本质</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要新范式是误导性的" id="toc-为什么需要新范式是误导性的" class="nav-link" data-scroll-target="#为什么需要新范式是误导性的"><span class="header-section-number">3.1</span> 为什么需要”新范式”是误导性的</a></li>
+  <li><a href="#六个生命周期阶段详解" id="toc-六个生命周期阶段详解" class="nav-link" data-scroll-target="#六个生命周期阶段详解"><span class="header-section-number">3.2</span> 六个生命周期阶段详解</a></li>
+  </ul></li>
+  <li><a href="#风险投资估值方法" id="toc-风险投资估值方法" class="nav-link" data-scroll-target="#风险投资估值方法"><span class="header-section-number">4</span> 风险投资估值方法</a>
+  <ul class="collapse">
+  <li><a href="#vc-方法的基本逻辑" id="toc-vc-方法的基本逻辑" class="nav-link" data-scroll-target="#vc-方法的基本逻辑"><span class="header-section-number">4.1</span> VC 方法的基本逻辑</a></li>
+  <li><a href="#案例infosoft-定价" id="toc-案例infosoft-定价" class="nav-link" data-scroll-target="#案例infosoft-定价"><span class="header-section-number">4.2</span> 案例：InfoSoft 定价</a></li>
+  <li><a href="#为什么-vc-的目标收益率如此之高" id="toc-为什么-vc-的目标收益率如此之高" class="nav-link" data-scroll-target="#为什么-vc-的目标收益率如此之高"><span class="header-section-number">4.3</span> 为什么 VC 的目标收益率如此之高？</a></li>
+  <li><a href="#vc-方法的局限性" id="toc-vc-方法的局限性" class="nav-link" data-scroll-target="#vc-方法的局限性"><span class="header-section-number">4.4</span> VC 方法的局限性</a></li>
+  </ul></li>
+  <li><a href="#dcf-框架估值初创公司的七个步骤" id="toc-dcf-框架估值初创公司的七个步骤" class="nav-link" data-scroll-target="#dcf-框架估值初创公司的七个步骤"><span class="header-section-number">5</span> DCF 框架：估值初创公司的七个步骤</a>
+  <ul class="collapse">
+  <li><a href="#step-1评估公司当前状况更新信息的重要性" id="toc-step-1评估公司当前状况更新信息的重要性" class="nav-link" data-scroll-target="#step-1评估公司当前状况更新信息的重要性"><span class="header-section-number">5.1</span> Step 1：评估公司当前状况——更新信息的重要性</a></li>
+  <li><a href="#step-2估计收入增长" id="toc-step-2估计收入增长" class="nav-link" data-scroll-target="#step-2估计收入增长"><span class="header-section-number">5.2</span> Step 2：估计收入增长</a></li>
+  <li><a href="#step-3估计可持续经营利润率" id="toc-step-3估计可持续经营利润率" class="nav-link" data-scroll-target="#step-3估计可持续经营利润率"><span class="header-section-number">5.3</span> Step 3：估计可持续经营利润率</a></li>
+  <li><a href="#step-4估计再投资需求" id="toc-step-4估计再投资需求" class="nav-link" data-scroll-target="#step-4估计再投资需求"><span class="header-section-number">5.4</span> Step 4：估计再投资需求</a></li>
+  <li><a href="#step-5估计风险参数和折现率" id="toc-step-5估计风险参数和折现率" class="nav-link" data-scroll-target="#step-5估计风险参数和折现率"><span class="header-section-number">5.5</span> Step 5：估计风险参数和折现率</a></li>
+  <li><a href="#step-6估计公司价值" id="toc-step-6估计公司价值" class="nav-link" data-scroll-target="#step-6估计公司价值"><span class="header-section-number">5.6</span> Step 6：估计公司价值</a></li>
+  <li><a href="#step-7估计每股价值" id="toc-step-7估计每股价值" class="nav-link" data-scroll-target="#step-7估计每股价值"><span class="header-section-number">5.7</span> Step 7：估计每股价值</a></li>
+  </ul></li>
+  <li><a href="#失败风险不可忽视的估值维度" id="toc-失败风险不可忽视的估值维度" class="nav-link" data-scroll-target="#失败风险不可忽视的估值维度"><span class="header-section-number">6</span> 失败风险：不可忽视的估值维度</a>
+  <ul class="collapse">
+  <li><a href="#初创公司的生存率" id="toc-初创公司的生存率" class="nav-link" data-scroll-target="#初创公司的生存率"><span class="header-section-number">6.1</span> 初创公司的生存率</a></li>
+  <li><a href="#处理失败风险的两种方法" id="toc-处理失败风险的两种方法" class="nav-link" data-scroll-target="#处理失败风险的两种方法"><span class="header-section-number">6.2</span> 处理失败风险的两种方法</a></li>
+  </ul></li>
+  <li><a href="#价值驱动因素与敏感性分析" id="toc-价值驱动因素与敏感性分析" class="nav-link" data-scroll-target="#价值驱动因素与敏感性分析"><span class="header-section-number">7</span> 价值驱动因素与敏感性分析</a>
+  <ul class="collapse">
+  <li><a href="#关键价值驱动因素" id="toc-关键价值驱动因素" class="nav-link" data-scroll-target="#关键价值驱动因素"><span class="header-section-number">7.1</span> 关键价值驱动因素</a></li>
+  <li><a href="#终值占比的问题" id="toc-终值占比的问题" class="nav-link" data-scroll-target="#终值占比的问题"><span class="header-section-number">7.2</span> 终值占比的问题</a></li>
+  </ul></li>
+  <li><a href="#估计噪音学会与不确定性共处" id="toc-估计噪音学会与不确定性共处" class="nav-link" data-scroll-target="#估计噪音学会与不确定性共处"><span class="header-section-number">8</span> 估计噪音：学会与不确定性共处</a>
+  <ul class="collapse">
+  <li><a href="#噪音不是模型的缺陷" id="toc-噪音不是模型的缺陷" class="nav-link" data-scroll-target="#噪音不是模型的缺陷"><span class="header-section-number">8.1</span> 噪音不是模型的缺陷</a></li>
+  <li><a href="#不精确估值的价值" id="toc-不精确估值的价值" class="nav-link" data-scroll-target="#不精确估值的价值"><span class="header-section-number">8.2</span> 不精确估值的价值</a></li>
+  <li><a href="#对投资者的启示" id="toc-对投资者的启示" class="nav-link" data-scroll-target="#对投资者的启示"><span class="header-section-number">8.3</span> 对投资者的启示</a></li>
+  <li><a href="#对管理层的启示" id="toc-对管理层的启示" class="nav-link" data-scroll-target="#对管理层的启示"><span class="header-section-number">8.4</span> 对管理层的启示</a></li>
+  </ul></li>
+  <li><a href="#期望博弈理解价格波动" id="toc-期望博弈理解价格波动" class="nav-link" data-scroll-target="#期望博弈理解价格波动"><span class="header-section-number">9</span> 期望博弈：理解价格波动</a>
+  <ul class="collapse">
+  <li><a href="#为什么小新闻导致大波动" id="toc-为什么小新闻导致大波动" class="nav-link" data-scroll-target="#为什么小新闻导致大波动"><span class="header-section-number">9.1</span> 为什么小新闻导致大波动？</a></li>
+  <li><a href="#期望博弈的教训" id="toc-期望博弈的教训" class="nav-link" data-scroll-target="#期望博弈的教训"><span class="header-section-number">9.2</span> 期望博弈的教训</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">10</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">11</span> 思考题</a></li>
+  <li><a href="#跨章节联系" id="toc-跨章节联系" class="nav-link" data-scroll-target="#跨章节联系"><span class="header-section-number">12</span> 跨章节联系</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第23章】初创公司估值：在不确定性中寻找价值</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    当一家公司没有历史、没有盈利、甚至没有成熟的产品时，我们如何估值？本章以 Airbnb 2020年IPO为案例，构建从叙事到数字的完整估值框架。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月23日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>2020年12月，Airbnb 在纳斯达克上市。这家颠覆了全球酒店业的公司，当时的财务状况是这样的：</p>
+<ul>
+<li><strong>收入</strong>：36.26 亿美元（受 COVID 影响，较 2019 年下降 25%）</li>
+<li><strong>经营利润</strong>：亏损 8.18 亿美元</li>
+<li><strong>经营利润率</strong>：-22.56%</li>
+<li><strong>历史</strong>：成立仅 12 年，公开财务数据有限</li>
+</ul>
+<p>投行给出的 IPO 定价是 68 美元/股，开盘后一度飙升至 146 美元/股。</p>
+<p><strong>问题来了</strong>：一家亏损的公司，凭什么值几百亿美元？</p>
+<p>许多分析师会说：“这种公司无法估值，因为没有历史、没有盈利、没有可比公司。” 然而，Damodaran 在这一章提出了一个截然不同的观点：</p>
+<blockquote class="blockquote">
+<p><strong>初创公司估值的问题不是概念性的，而是估计性的。</strong> 价值仍然是未来现金流的现值，只是这些现金流更难估计。</p>
+</blockquote>
+<p>这句话道出了本章的核心：<strong>估值的基本原理不因公司年轻或亏损而改变，改变的只是我们获取信息和做出估计的方式。</strong></p>
+<p>本章将回答以下关键问题：</p>
+<ol type="1">
+<li>初创公司估值面临哪些独特的信息约束？</li>
+<li>风险投资（VC）方法如何给初创公司定价？它有什么局限？</li>
+<li>如何用 DCF 框架估值一家亏损的年轻公司？</li>
+<li>如何处理初创公司的高失败率？</li>
+<li>估值结果的不确定性意味着什么？</li>
+</ol>
+<hr>
+</section>
+<section id="信息约束为什么初创公司估值如此困难" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="信息约束为什么初创公司估值如此困难"><span class="header-section-number">2</span> 信息约束：为什么初创公司估值如此困难？</h2>
+<section id="估值的三大信息来源" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="估值的三大信息来源"><span class="header-section-number">2.1</span> 估值的三大信息来源</h3>
+<p>在估值任何公司时，我们通常依赖三个信息来源：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 16%">
+<col style="width: 27%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>信息来源</th>
+<th>作用</th>
+<th>成熟公司</th>
+<th>初创公司</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>当前财务报表</strong></td>
+<td>判断投资回报率、再投资率</td>
+<td>✅ 充分</td>
+<td>❌ 有限，常为负数</td>
+</tr>
+<tr class="even">
+<td><strong>历史数据</strong></td>
+<td>判断周期性、增长趋势、风险</td>
+<td>✅ 多年数据</td>
+<td>❌ 仅 1-2 年</td>
+</tr>
+<tr class="odd">
+<td><strong>可比公司</strong></td>
+<td>参考同行的风险、增长、利润率</td>
+<td>✅ 充足</td>
+<td>❌ 可能没有可比公司</td>
+</tr>
+</tbody>
+</table>
+<p>对于成熟公司，即使某一信息来源有限，也可以用另一来源补偿。例如：</p>
+<ul>
+<li>美国汽车行业只有几家大公司，但每家都有 75 年以上的历史数据</li>
+<li>软件行业的单个公司历史可能很短，但有 600 多家可比公司</li>
+</ul>
+<p><strong>初创公司的困境在于：三个信息来源可能同时受限。</strong></p>
+</section>
+<section id="案例2000年代互联网泡沫的教训" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="案例2000年代互联网泡沫的教训"><span class="header-section-number">2.2</span> 案例：2000年代互联网泡沫的教训</h3>
+<p>当信息极度匮乏时，投资者有两种反应：</p>
+<ol type="1">
+<li><strong>放弃估值</strong>：认为这些公司”无法估值”，不应持有</li>
+<li><strong>发明新指标</strong>：用”每访客价值”等替代指标来定价</li>
+</ol>
+<p>第二种反应导致了荒谬的结果。互联网公司按”网站访客数”定价，隐含假设是：</p>
+<p><span class="math display">\[
+\text{更多访客} \rightarrow \text{更高收入} \rightarrow \text{更高利润}
+\]</span></p>
+<p>但这些假设<strong>从未被明确提出，更未被验证</strong>。结果是 2000 年的互联网泡沫破裂。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>历史在重演
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>同样的周期在 2011 年的社交媒体公司、2023-2024 年的 AI 公司身上重演。每当新行业出现，“这次不一样”的论调就会响起，但估值的基本原理从未改变。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="生命周期视角理解初创公司的本质" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="生命周期视角理解初创公司的本质"><span class="header-section-number">3</span> 生命周期视角：理解初创公司的本质</h2>
+<section id="为什么需要新范式是误导性的" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="为什么需要新范式是误导性的"><span class="header-section-number">3.1</span> 为什么需要”新范式”是误导性的</h3>
+<p>有人认为初创公司需要新的估值范式，因为它们： - 亏损 - 没有历史 - 没有有形资产</p>
+<p>Damodaran 的回应是：<strong>问题不在于这些特征本身，而在于公司处于生命周期的早期阶段。</strong></p>
+<p>Figure 23.1 展示了公司生命周期各阶段的估值挑战：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        公司生命周期与估值挑战                             │
+├──────────┬────────────┬────────────┬────────────┬──────────┬───────────┤
+│ 阶段      │ Start-up   │Young Growth│High Growth │Mature    │ Decline   │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 描述      │商业创意    │建立业务    │交付结果    │规模扩张  │ 规模收缩  │
+│          │初生产品    │            │(增长+利润) │盈利能力  │           │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 经营特征  │收入很少    │高增长      │增长持续    │增长放缓  │ 收入下降  │
+│          │大额亏损    │持续亏损    │利润率改善  │利润现金流│ 利润率收缩│
+│          │负现金流    │负现金流    │现金流改善  │赶上      │           │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 叙事 vs  │纯叙事      │主要叙事    │叙事+数字   │数字+叙事 │ 纯数字    │
+│ 数字      │            │            │            │          │           │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 关键问题  │市场有多大？│叙事可信吗？│利润率能否  │能否规模化│ 结局如何？│
+│          │            │            │实现？      │成功？    │           │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 不确定性  │ 高         │主要叙事    │叙事+数字   │主要数字  │ 纯数字    │
+├──────────┼────────────┼────────────┼────────────┼──────────┼───────────┤
+│ 价值驱动  │总市场规模  │收入增长    │增长中的    │收入      │ 失败率    │
+│          │            │            │利润率      │可扩展性  │           │
+└──────────┴────────────┴────────────┴────────────┴──────────┴───────────┘</code></pre>
+</section>
+<section id="六个生命周期阶段详解" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="六个生命周期阶段详解"><span class="header-section-number">3.2</span> 六个生命周期阶段详解</h3>
+<p><strong>1. Start-up（初创期）</strong></p>
+<ul>
+<li>产品尚未经过市场测试</li>
+<li>几乎没有经营数据，无经营历史，无可比公司</li>
+<li>财务报表透露的信息极少</li>
+<li><strong>100% 的价值来自对未来增长的评估</strong></li>
+<li>估值完全由你讲述的”故事”驱动</li>
+<li>不同投资者的估值可能差异巨大</li>
+</ul>
+<p><strong>2. Young Growth（年轻成长期）</strong></p>
+<ul>
+<li>开始吸引客户，建立市场存在</li>
+<li>收入快速增长，但仍可能亏损</li>
+<li>当前经营开始提供定价、利润率、增长的线索</li>
+<li>但数据仍然有限</li>
+<li>叙事开始有了一些数据支撑，可以进行 3P 测试</li>
+</ul>
+<p><strong>3. High Growth（高速成长期）</strong></p>
+<ul>
+<li>收入快速增长，盈利开始滞后于收入</li>
+<li>当前经营和历史都提供有价值的信息</li>
+<li>可比公司数量通常最多</li>
+<li>现有资产开始有价值，但大部分价值仍来自未来增长</li>
+<li>输入参数的估计变得更加直接</li>
+</ul>
+<p><strong>4. Mature Growth（成熟成长期）</strong></p>
+<ul>
+<li>收入增长开始放缓</li>
+<li>盈利和现金流继续快速增长</li>
+<li>对新项目的投资需求下降</li>
+<li>大量可比公司处于相同阶段</li>
+<li><strong>关键问题</strong>：能否将成功规模化？</li>
+</ul>
+<p><strong>5. Mature Stable（成熟稳定期）</strong></p>
+<ul>
+<li>收入增长趋平</li>
+<li>再投资需求下降，现金流赶上盈利</li>
+<li>历史数据最有用，数字可以主导叙事</li>
+<li><strong>关键测试</strong>：能否抵御竞争？是否会回馈股东？</li>
+</ul>
+<p><strong>6. Decline（衰退期）</strong></p>
+<ul>
+<li>收入和盈利开始下降</li>
+<li>现有投资继续产生现金流，但在下降</li>
+<li>几乎不需要新投资</li>
+<li><strong>价值完全取决于现有资产</strong></li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>估值在生命周期早期阶段更具挑战性，估计误差更大。但正是因为信息匮乏吓跑了许多分析师，<strong>坚持估值的分析师更有可能获得回报</strong>。这也是 IPO 和新股发行时最需要估值的原因。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="风险投资估值方法" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="风险投资估值方法"><span class="header-section-number">4</span> 风险投资估值方法</h2>
+<section id="vc-方法的基本逻辑" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="vc-方法的基本逻辑"><span class="header-section-number">4.1</span> VC 方法的基本逻辑</h3>
+<p>在了解 DCF 方法之前，让我们先看看风险投资家（VC）如何给初创公司定价。VC 方法的核心公式是：</p>
+<p><span class="math display">\[
+\text{今天的定价} = \frac{\text{第 n 年的退出定价}}{(1 + \text{目标收益率})^n}
+\]</span></p>
+<p>其中： - <strong>退出定价（Exit Value）</strong>：预期 IPO 或并购时的公司价值 - <strong>目标收益率（Target Return）</strong>：VC 要求的回报率，通常远高于常规股权成本</p>
+</section>
+<section id="案例infosoft-定价" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="案例infosoft-定价"><span class="header-section-number">4.2</span> 案例：InfoSoft 定价</h3>
+<p>假设 InfoSoft 是一家软件公司： - 预计 3 年后 IPO - 第 3 年预期净利润：400 万美元 - 上市软件公司的 PE 倍数：25 倍</p>
+<p><strong>Step 1：计算退出价值</strong></p>
+<p><span class="math display">\[
+\text{退出价值} = 400 \text{万} \times 25 = 1 \text{亿美元}
+\]</span></p>
+<p><strong>Step 2：折现到今天</strong></p>
+<p>假设 VC 要求 30% 的目标收益率：</p>
+<p><span class="math display">\[
+\text{今天的定价} = \frac{1 \text{亿}}{(1.30)^3} = \frac{1 \text{亿}}{2.197} = 4,550 \text{万美元}
+\]</span></p>
+</section>
+<section id="为什么-vc-的目标收益率如此之高" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="为什么-vc-的目标收益率如此之高"><span class="header-section-number">4.3</span> 为什么 VC 的目标收益率如此之高？</h3>
+<p>2024 年，VC 的目标收益率通常在 <strong>30%-60%</strong> 之间，远高于常规风险收益模型得出的 15% 左右的股权成本。原因有三：</p>
+<ol type="1">
+<li><strong>更高的系统性风险</strong>：初创公司对宏观经济风险的暴露程度更高，CAPM 意义上的 Beta 更高</li>
+<li><strong>缺乏分散化</strong>：VC 通常专注于特定行业，无法分散公司特定风险，因此要求溢价</li>
+<li><strong>高失败率</strong>：许多初创公司会失败，目标收益率必须包含失败的概率</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>VC 方法的本质
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在实践中，目标收益率更多是<strong>谈判工具</strong>而非折现率。VC 希望用高目标收益率获得更大的股权比例，而创始人希望用低目标收益率保留更多股权。最终数字取决于双方的议价能力。</p>
+</div>
+</div>
+</section>
+<section id="vc-方法的局限性" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="vc-方法的局限性"><span class="header-section-number">4.4</span> VC 方法的局限性</h3>
+<p><strong>1. 退出倍数的问题</strong></p>
+<p>退出倍数基于当前可比公司的定价。如果市场错误定价：</p>
+<ul>
+<li>2000 年：互联网公司按 80 倍营收定价</li>
+<li>VC 用这个倍数估算退出价值 → 严重高估</li>
+</ul>
+<p><strong>2. 分散化与定价</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>投资者类型</th>
+<th>是否分散化</th>
+<th>股权成本</th>
+<th>给同一家公司的估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>传统 VC</td>
+<td>否（行业集中）</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr class="even">
+<td>公开市场投资者</td>
+<td>是</td>
+<td>低</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<p>近年来，公开市场投资者开始与传统 VC 竞争，因为他们可以接受更低的股权成本，从而给出更高的估值。这是否会淘汰 VC？</p>
+<p><strong>Damodaran 的答案</strong>：只要行业专业知识在估值中仍然重要，VC 就不会被淘汰。</p>
+<hr>
+</section>
+</section>
+<section id="dcf-框架估值初创公司的七个步骤" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="dcf-框架估值初创公司的七个步骤"><span class="header-section-number">5</span> DCF 框架：估值初创公司的七个步骤</h2>
+<p>虽然 VC 方法简单易用，但它本质上是<strong>定价</strong>而非<strong>估值</strong>。接下来，我们用完整的 DCF 框架来估值初创公司。</p>
+<section id="step-1评估公司当前状况更新信息的重要性" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="step-1评估公司当前状况更新信息的重要性"><span class="header-section-number">5.1</span> Step 1：评估公司当前状况——更新信息的重要性</h3>
+<p>对于收入快速增长、盈利为负的公司，数据变化非常快。使用年度财务数据可能已经过时。</p>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li>使用<strong>最近 12 个月（TTM）</strong> 的收入和盈利数据</li>
+<li>虽然经营租赁、期权等项目更新较慢，但仍应使用估计值</li>
+<li>接受一定程度的不精确，以获得更及时的估值</li>
+</ul>
+</section>
+<section id="step-2估计收入增长" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="step-2估计收入增长"><span class="header-section-number">5.2</span> Step 2：估计收入增长</h3>
+<p>初创公司当前收入很小，但预期会大幅增长。收入增长是估值的关键输入。</p>
+<p><strong>估计方法</strong>：</p>
+<ol type="1">
+<li><strong>历史增长率</strong>：参考公司自身的历史，但要注意规模效应——公司越大，维持高增长越难</li>
+<li><strong>市场增长率</strong>：在高增长市场中更容易维持高增长</li>
+<li><strong>竞争优势</strong>：高增长需要可持续的竞争优势
+<ul>
+<li>专利保护</li>
+<li>优质产品/服务</li>
+<li>品牌效应</li>
+<li>先发优势</li>
+</ul></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>关于收入增长的两种方法
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>方法 1：外推法</strong> - 基于历史增长率进行外推 - 适用于：有一定历史的公司</p>
+<p><strong>方法 2：市场份额法</strong> - 估计总市场规模和预期市场份额 - 适用于：新市场、颠覆性公司</p>
+<p>Airbnb 案例使用的是方法 2。</p>
+</div>
+</div>
+<section id="illustration-23.1airbnb-的收入增长预测" class="level4" data-number="5.2.1">
+<h4 data-number="5.2.1" class="anchored" data-anchor-id="illustration-23.1airbnb-的收入增长预测"><span class="header-section-number">5.2.1</span> Illustration 23.1：Airbnb 的收入增长预测</h4>
+<p><strong>背景</strong>： - 2020 年 11 月 IPO - 过去 12 个月（TTM）收入：36.26 亿美元 - 经营亏损：8.18 亿美元 - 受 COVID 影响严重</p>
+<p><strong>市场定义</strong>：</p>
+<p>将 Airbnb 定义为”公寓租赁公司”会得到较小的市场；定义为”酒店行业参与者”会得到更大的市场。</p>
+<p><strong>增长假设</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>总预订额增长率</th>
+<th>预期总预订额</th>
+<th>Airbnb 抽成比例</th>
+<th>预期收入</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TTM</td>
+<td>-</td>
+<td>$26,492M</td>
+<td>-</td>
+<td>$3,626M</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>40.00%</td>
+<td>$37,089M</td>
+<td>12.65%</td>
+<td>$4,692M</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>25.00%</td>
+<td>$46,361M</td>
+<td>12.92%</td>
+<td>$5,990M</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>25.00%</td>
+<td>$57,951M</td>
+<td>13.06%</td>
+<td>$7,565M</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>25.00%</td>
+<td>$72,439M</td>
+<td>13.19%</td>
+<td>$9,555M</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>25.00%</td>
+<td>$90,548M</td>
+<td>13.33%</td>
+<td>$12,066M</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>20.40%</td>
+<td>$109,020M</td>
+<td>13.46%</td>
+<td>$14,674M</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>15.80%</td>
+<td>$126,245M</td>
+<td>13.60%</td>
+<td>$17,163M</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>11.20%</td>
+<td>$140,385M</td>
+<td>13.73%</td>
+<td>$19,275M</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>6.60%</td>
+<td>$149,650M</td>
+<td>13.87%</td>
+<td>$20,749M</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>2.00%</td>
+<td>$152,643M</td>
+<td>14.00%</td>
+<td>$21,370M</td>
+</tr>
+<tr class="even">
+<td>Terminal</td>
+<td>2.00%</td>
+<td>$155,696M</td>
+<td>14.00%</td>
+<td>$21,797M</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键假设</strong>： 1. 2021 年增长 40%（COVID 恢复） 2. 2-5 年每年增长 25% 3. 6-10 年逐步下降至 2%（稳定增长率） 4. Airbnb 的抽成比例从 12.65% 提高到 14%（市场力量和规模经济）</p>
+<p><strong>合理性检验</strong>： - 第 11 年总预订额 1,560 亿美元 ≈ Booking.com 的规模 - 约占全球酒店市场（含私人住宿）的 10%</p>
+</section>
+</section>
+<section id="step-3估计可持续经营利润率" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="step-3估计可持续经营利润率"><span class="header-section-number">5.3</span> Step 3：估计可持续经营利润率</h3>
+<p>对于亏损公司，高收入增长只会让亏损变得更大。<strong>关键是预测公司达到财务健康时的经营利润率</strong>。</p>
+<p><strong>估计方法</strong>：</p>
+<ol type="1">
+<li><strong>分析竞争格局</strong>：强竞争对手 → 利润率承压 → 目标利润率更低</li>
+<li><strong>理解商业模式</strong>：追求规模扩张的公司可能接受更低利润率；专注细分市场的公司可能有更高利润率</li>
+<li><strong>分解当前损益表</strong>：许多”亏损”实际上是对未来增长的投资（如 R&amp;D、营销），应被视为资本支出</li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>常见误区
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>初创公司报告的亏损中，很大一部分可能是<strong>伪装成经营费用的资本支出</strong>。例如： - 研发费用 → 创造未来产品 - 客户获取成本 → 建立用户基础 - 品牌营销 → 建立品牌资产</p>
+<p>这些”费用”实际上是对未来增长的投资，不应全部计入当期经营成本。</p>
+</div>
+</div>
+<section id="illustration-23.2airbnb-的利润率预测" class="level4" data-number="5.3.1">
+<h4 data-number="5.3.1" class="anchored" data-anchor-id="illustration-23.2airbnb-的利润率预测"><span class="header-section-number">5.3.1</span> Illustration 23.2：Airbnb 的利润率预测</h4>
+<p><strong>假设</strong>： - 当前利润率：-22.56% - 目标利润率：25%（略低于 Booking.com） - 理由：相似的商业模式，但 Airbnb 面临更多监管不确定性</p>
+<p><strong>利润率路径（Pathway to Profitability）</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>收入</th>
+<th>经营利润率</th>
+<th>经营利润</th>
+<th>税率</th>
+<th>EBIT(1-t)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Base</td>
+<td>$3,626M</td>
+<td>-22.56%</td>
+<td>-$818M</td>
+<td>-</td>
+<td>-$818M</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>$4,692M</td>
+<td>-10.00%</td>
+<td>-$469M</td>
+<td>0%</td>
+<td>-$469M</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>$5,990M</td>
+<td>-3.00%</td>
+<td>-$180M</td>
+<td>0%</td>
+<td>-$180M</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>$7,565M</td>
+<td>0.50%</td>
+<td>$38M</td>
+<td>0%</td>
+<td>$38M</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>$9,555M</td>
+<td>4.00%</td>
+<td>$382M</td>
+<td>0%</td>
+<td>$382M</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>$12,066M</td>
+<td>7.50%</td>
+<td>$905M</td>
+<td>14.05%</td>
+<td>$778M</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>$14,674M</td>
+<td>5.98%</td>
+<td>$878M</td>
+<td>25%</td>
+<td>$658M</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>$17,163M</td>
+<td>10.73%</td>
+<td>$1,842M</td>
+<td>25%</td>
+<td>$1,381M</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>$19,275M</td>
+<td>15.49%</td>
+<td>$2,986M</td>
+<td>25%</td>
+<td>$2,239M</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>$20,749M</td>
+<td>20.24%</td>
+<td>$4,200M</td>
+<td>25%</td>
+<td>$3,150M</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>$21,370M</td>
+<td>25.00%</td>
+<td>$5,343M</td>
+<td>25%</td>
+<td>$4,007M</td>
+</tr>
+<tr class="even">
+<td>Terminal</td>
+<td>$21,797M</td>
+<td>25.00%</td>
+<td>$5,449M</td>
+<td>25%</td>
+<td>$4,087M</td>
+</tr>
+</tbody>
+</table>
+<p><strong>税务处理</strong>： - Airbnb 累计净经营亏损（NOL）：1.676 亿美元 - 前几年的亏损可以用来抵消未来的应税收入 - 直到第 6 年才开始缴纳正常税率</p>
+</section>
+</section>
+<section id="step-4估计再投资需求" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="step-4估计再投资需求"><span class="header-section-number">5.4</span> Step 4：估计再投资需求</h3>
+<p>增长需要再投资。对于成熟公司，我们用：</p>
+<p><span class="math display">\[
+\text{预期增长} = \text{再投资率} \times \text{资本回报率}
+\]</span></p>
+<p>但当经营利润为负时，这个公式不可用。对于初创公司，我们需要<strong>从收入增长倒推再投资</strong>：</p>
+<p><span class="math display">\[
+\text{预期再投资} = \frac{\text{预期收入变化}}{\text{销售-资本比}}
+\]</span></p>
+<p><strong>销售-资本比（Sales-to-Capital Ratio）</strong> 表示每投入 1 美元资本能产生多少美元收入。</p>
+<section id="illustration-23.3airbnb-的再投资估计" class="level4" data-number="5.4.1">
+<h4 data-number="5.4.1" class="anchored" data-anchor-id="illustration-23.3airbnb-的再投资估计"><span class="header-section-number">5.4.1</span> Illustration 23.3：Airbnb 的再投资估计</h4>
+<p><strong>假设</strong>： - 销售-资本比 = 2.0（基于 Airbnb 历史和竞争对手 Expedia、Booking 的数据） - 即：每 2 美元收入增长需要 1 美元资本投入</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>收入</th>
+<th>收入变化</th>
+<th>EBIT(1-t)</th>
+<th>销售-资本比</th>
+<th>再投资</th>
+<th>FCFF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Base</td>
+<td>$3,626M</td>
+<td>-</td>
+<td>-$818M</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>$4,692M</td>
+<td>$1,066M</td>
+<td>-$469M</td>
+<td>2.00</td>
+<td>$533M</td>
+<td>-$1,002M</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>$5,990M</td>
+<td>$1,298M</td>
+<td>-$180M</td>
+<td>2.00</td>
+<td>$649M</td>
+<td>-$829M</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>$7,565M</td>
+<td>$1,576M</td>
+<td>$38M</td>
+<td>2.00</td>
+<td>$788M</td>
+<td>-$750M</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>$9,555M</td>
+<td>$1,989M</td>
+<td>$382M</td>
+<td>2.00</td>
+<td>$995M</td>
+<td>-$612M</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>$12,066M</td>
+<td>$2,511M</td>
+<td>$778M</td>
+<td>2.00</td>
+<td>$1,255M</td>
+<td>-$478M</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>$14,674M</td>
+<td>$2,609M</td>
+<td>$658M</td>
+<td>2.00</td>
+<td>$1,304M</td>
+<td>-$647M</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>$17,163M</td>
+<td>$2,489M</td>
+<td>$1,382M</td>
+<td>2.00</td>
+<td>$1,244M</td>
+<td>$137M</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>$19,275M</td>
+<td>$2,112M</td>
+<td>$2,239M</td>
+<td>2.00</td>
+<td>$1,056M</td>
+<td>$1,183M</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>$20,749M</td>
+<td>$1,474M</td>
+<td>$3,150M</td>
+<td>2.00</td>
+<td>$737M</td>
+<td>$2,413M</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>$21,370M</td>
+<td>$621M</td>
+<td>$4,007M</td>
+<td>2.00</td>
+<td>$311M</td>
+<td>$3,696M</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键发现</strong>： - 前 6 年 FCFF 为负：需要外部融资 - 第 7 年开始 FCFF 转正 - 未来 7 年需要筹集约 <strong>43 亿美元</strong>新资本</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>一致性检验：隐含资本回报率
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>独立估计再投资和经营利润可能导致不一致。我们需要检验隐含的资本回报率是否合理：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>EBIT(1-t)</th>
+<th>再投资</th>
+<th>期末投入资本</th>
+<th>ROIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Base</td>
+<td>-$818M</td>
+<td>-</td>
+<td>-$448M</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>-$469M</td>
+<td>$533M</td>
+<td>$85M</td>
+<td>-210.48%</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>-$180M</td>
+<td>$649M</td>
+<td>$734M</td>
+<td>5.15%</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>$38M</td>
+<td>$788M</td>
+<td>$1,522M</td>
+<td>25.11%</td>
+</tr>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>$4,007M</td>
+<td>$311M</td>
+<td>$8,425M</td>
+<td><strong>104.82%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>第 10 年 104.82% 的 ROIC 看起来很高，但反映了这个行业的<strong>低资本密集度</strong>。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="step-5估计风险参数和折现率" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="step-5估计风险参数和折现率"><span class="header-section-number">5.5</span> Step 5：估计风险参数和折现率</h3>
+<p><strong>挑战</strong>： - 没有足够的历史数据来回归估计 Beta - 没有债券评级来估计债务成本 - 负的利息覆盖率会给出违约评级</p>
+<p><strong>解决方案</strong>：</p>
+<p><strong>1. Beta 估计</strong></p>
+<p>使用<strong>自下而上的 Beta</strong>： - 找到可比公司（即使不完美） - 使用行业平均 Beta - 根据经营杠杆调整</p>
+<p><span class="math display">\[
+\text{Unlevered Beta} = \text{Business Beta} \times [1 + (\text{Fixed Costs}/\text{Variable Costs})]
+\]</span></p>
+<p><strong>2. 债务成本</strong></p>
+<p>使用<strong>预期利息覆盖率</strong>： - 基于未来预测的经营利润 - 计算预期利息覆盖率 - 推算合成评级和债务成本</p>
+<p><strong>3. 资本成本的演变</strong></p>
+<p>随着公司成熟： - Beta 应该向 1 靠拢 - 债务成本应该向成熟公司靠拢 - 资本结构应该向行业平均或最优结构靠拢</p>
+<section id="illustration-23.4airbnb-的资本成本估计" class="level4" data-number="5.5.1">
+<h4 data-number="5.5.1" class="anchored" data-anchor-id="illustration-23.4airbnb-的资本成本估计"><span class="header-section-number">5.5.1</span> Illustration 23.4：Airbnb 的资本成本估计</h4>
+<p>由于 Airbnb 是 IPO，没有传统的市场风险指标。我们使用：</p>
+<p><strong>初始资本成本</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\text{酒店/博彩行业 Unlevered Beta} = 0.91 \\
+&amp;\text{Airbnb 债务/股权比} = 6.75\% \\
+&amp;\text{Levered Beta} = 0.91 \times (1 + (1-0.25) \times 0.0675) = 0.96 \\
+&amp;\text{股权成本} = 0.90\% + 0.96 \times 6.09\% = 6.75\% \\
+&amp;\text{税前债务成本} = 3.85\% \\
+&amp;\text{资本成本} = 6.75\% \times 0.9367 + 3.85\% \times (1-0.25) \times 0.0633 = \mathbf{6.50\%}
+\end{aligned}
+\]</span></p>
+<p><strong>注意</strong>：6.50% 的资本成本看起来很低，但反映了 2020 年底的利率环境（10年期国债收益率仅 0.90%）。</p>
+<p><strong>稳定期资本成本</strong>：7.12%（假设国债收益率回归 2%）</p>
+</section>
+</section>
+<section id="step-6估计公司价值" class="level3" data-number="5.6">
+<h3 data-number="5.6" class="anchored" data-anchor-id="step-6估计公司价值"><span class="header-section-number">5.6</span> Step 6：估计公司价值</h3>
+<p>有了所有输入后，估值过程变得常规化：</p>
+<ol type="1">
+<li>折现预测期的 FCFF</li>
+<li>计算终值</li>
+<li>加总得到经营资产价值</li>
+<li><strong>调整失败概率</strong></li>
+<li>加上非经营资产，减去债务</li>
+</ol>
+<section id="illustration-23.5airbnb-公司价值估计" class="level4" data-number="5.6.1">
+<h4 data-number="5.6.1" class="anchored" data-anchor-id="illustration-23.5airbnb-公司价值估计"><span class="header-section-number">5.6.1</span> Illustration 23.5：Airbnb 公司价值估计</h4>
+<p><strong>Step 1：折现 FCFF</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>FCFF</th>
+<th>资本成本</th>
+<th>累计折现因子</th>
+<th>PV(FCFF)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>-$1,002M</td>
+<td>6.50%</td>
+<td>1.0650</td>
+<td>-$941M</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>-$829M</td>
+<td>6.50%</td>
+<td>1.1343</td>
+<td>-$731M</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>-$750M</td>
+<td>6.50%</td>
+<td>1.2081</td>
+<td>-$621M</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>-$612M</td>
+<td>6.50%</td>
+<td>1.2866</td>
+<td>-$476M</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>-$478M</td>
+<td>6.50%</td>
+<td>1.3703</td>
+<td>-$349M</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>-$647M</td>
+<td>6.63%</td>
+<td>1.4611</td>
+<td>-$442M</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>$137M</td>
+<td>6.75%</td>
+<td>1.5597</td>
+<td>$88M</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>$1,183M</td>
+<td>6.87%</td>
+<td>1.6669</td>
+<td>$710M</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>$2,413M</td>
+<td>7.00%</td>
+<td>1.7836</td>
+<td>$1,353M</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>$3,696M</td>
+<td>7.12%</td>
+<td>1.9105</td>
+<td>$1,935M</td>
+</tr>
+<tr class="odd">
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>$526M</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Step 2：计算终值</strong></p>
+<p>稳定期假设： - 增长率：2% - 资本回报率：10% - 再投资率：2% / 10% = 20%</p>
+<p><span class="math display">\[
+\text{Terminal Value} = \frac{\text{EBIT}_{10} \times (1-t) \times (1+g) \times (1-\text{再投资率})}{r - g}
+= \frac{4,007 \times 1.02 \times 0.80}{0.0712 - 0.02} = \$63,860M
+\]</span></p>
+<p><strong>Step 3：计算经营资产价值</strong></p>
+<p><span class="math display">\[
+\text{经营资产价值} = 526 + \frac{63,860}{1.9105} = \$33,951M
+\]</span></p>
+<p><strong>Step 4：调整失败概率</strong></p>
+<p>这是初创公司估值的关键步骤！</p>
+<p><span class="math display">\[
+\text{调整后价值} = \text{DCF 价值} \times (1 - P_{\text{fail}}) + \text{清算价值} \times P_{\text{fail}}
+\]</span></p>
+<p>假设： - 失败概率：10% - 清算价值：DCF 价值的 50%</p>
+<p><span class="math display">\[
+\text{调整后价值} = 33,951 \times 0.90 + 33,951 \times 0.50 \times 0.10 = \$32,253M
+\]</span></p>
+<p><strong>Step 5：计算股权价值</strong></p>
+<p><span class="math display">\[
+\text{股权价值} = 32,253 + 4,495 (\text{现金}) - 2,192 (\text{债务}) = \$34,556M
+\]</span></p>
+<p><strong>Step 6：考虑 IPO 募资</strong></p>
+<p>Airbnb IPO 预计募资 30 亿美元，这些现金将留在公司：</p>
+<p><span class="math display">\[
+\text{IPO 后股权价值} = 34,556 + 3,000 = \$37,556M
+\]</span></p>
+</section>
+</section>
+<section id="step-7估计每股价值" class="level3" data-number="5.7">
+<h3 data-number="5.7" class="anchored" data-anchor-id="step-7估计每股价值"><span class="header-section-number">5.7</span> Step 7：估计每股价值</h3>
+<p><strong>挑战</strong>：初创公司通常有大量股票期权，必须考虑稀释效应。</p>
+<p><strong>三种方法</strong>：</p>
+<p><strong>方法 1：完全稀释法</strong></p>
+<p><span class="math display">\[
+\text{每股价值} = \frac{37,556}{671.06 + 44.84} = \$52.46
+\]</span></p>
+<p><strong>方法 2：库存股法</strong></p>
+<p><span class="math display">\[
+\text{每股价值} = \frac{37,556 + 44.84 \times 11.43}{671.06 + 44.84} = \$53.18
+\]</span></p>
+<p><strong>方法 3：期权定价法</strong></p>
+<p>使用稀释调整的 Black-Scholes 模型： - 波动率：40% - 期权价值：18.77 亿美元</p>
+<p><span class="math display">\[
+\text{每股价值} = \frac{37,556 - 1,877}{671.06} = \$53.17
+\]</span></p>
+<section id="illustration-23.6airbnb-每股价值" class="level4" data-number="5.7.1">
+<h4 data-number="5.7.1" class="anchored" data-anchor-id="illustration-23.6airbnb-每股价值"><span class="header-section-number">5.7.1</span> Illustration 23.6：Airbnb 每股价值</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>每股价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>完全稀释法</td>
+<td>$52.46</td>
+</tr>
+<tr class="even">
+<td>库存股法</td>
+<td>$53.18</td>
+</tr>
+<tr class="odd">
+<td>期权定价法</td>
+<td><strong>$53.17</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>对比市场</strong>： - IPO 定价：$68 - 上市首日高点：$146</p>
+<p><strong>我们的估值 vs 市场定价</strong>：市场给出的价格需要更激进的增长假设才能证明合理。</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="失败风险不可忽视的估值维度" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="失败风险不可忽视的估值维度"><span class="header-section-number">6</span> 失败风险：不可忽视的估值维度</h2>
+<section id="初创公司的生存率" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="初创公司的生存率"><span class="header-section-number">6.1</span> 初创公司的生存率</h3>
+<p>Knaup (2005) 和 Knaup &amp; Piazza (2008) 基于美国劳工统计局数据发现：</p>
+<ul>
+<li>1998 年成立的公司中，只有 <strong>44%</strong> 存活超过 4 年</li>
+<li>只有 <strong>31%</strong> 存活超过 7 年</li>
+</ul>
+<p>不同行业的存活率差异显著：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>行业</th>
+<th>1年存活率</th>
+<th>5年存活率</th>
+<th>10年存活率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>农业</td>
+<td>82.30%</td>
+<td>57.40%</td>
+<td>44.90%</td>
+</tr>
+<tr class="even">
+<td>采矿</td>
+<td>81.80%</td>
+<td>51.20%</td>
+<td>32.30%</td>
+</tr>
+<tr class="odd">
+<td>公用事业</td>
+<td>84.00%</td>
+<td>56.50%</td>
+<td>44.90%</td>
+</tr>
+<tr class="even">
+<td>建筑</td>
+<td>74.30%</td>
+<td>33.20%</td>
+<td>24.70%</td>
+</tr>
+<tr class="odd">
+<td>制造</td>
+<td>82.80%</td>
+<td>49.40%</td>
+<td>39.00%</td>
+</tr>
+<tr class="even">
+<td>零售</td>
+<td>83.10%</td>
+<td>52.10%</td>
+<td>39.00%</td>
+</tr>
+<tr class="odd">
+<td>交通</td>
+<td>76.90%</td>
+<td>41.10%</td>
+<td>29.00%</td>
+</tr>
+<tr class="even">
+<td><strong>信息/技术</strong></td>
+<td><strong>75.20%</strong></td>
+<td><strong>41.90%</strong></td>
+<td><strong>25.50%</strong></td>
+</tr>
+<tr class="odd">
+<td>医疗</td>
+<td>81.40%</td>
+<td>55.90%</td>
+<td>42.50%</td>
+</tr>
+<tr class="even">
+<td><strong>全部行业</strong></td>
+<td><strong>78.30%</strong></td>
+<td><strong>45.40%</strong></td>
+<td><strong>32.80%</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>科技公司的存活率最低
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>信息/技术行业的 10 年存活率仅 25.5%，是所有行业中最低的。这意味着在估值科技初创公司时，失败风险的调整尤为重要。</p>
+</div>
+</div>
+</section>
+<section id="处理失败风险的两种方法" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="处理失败风险的两种方法"><span class="header-section-number">6.2</span> 处理失败风险的两种方法</h3>
+<p><strong>方法 1：将失败概率内嵌到现金流预测中</strong></p>
+<ul>
+<li>使用的增长率和盈利是所有情景的期望值</li>
+<li>包括乐观和悲观情景</li>
+<li>包括公司失败的可能性</li>
+</ul>
+<p><strong>优点</strong>：概念上更准确 <strong>缺点</strong>：对于初创公司，随着预测期延长，越来越难以实施</p>
+<p><strong>方法 2：分别估值，然后加权</strong></p>
+<p><span class="math display">\[
+\text{公司价值} = P_{\text{存活}} \times \text{DCF 价值} + P_{\text{失败}} \times \text{清算价值}
+\]</span></p>
+<p><strong>优点</strong>：更直观，更容易解释 <strong>缺点</strong>：需要估计失败概率和清算价值</p>
+<hr>
+</section>
+</section>
+<section id="价值驱动因素与敏感性分析" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="价值驱动因素与敏感性分析"><span class="header-section-number">7</span> 价值驱动因素与敏感性分析</h2>
+<section id="关键价值驱动因素" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="关键价值驱动因素"><span class="header-section-number">7.1</span> 关键价值驱动因素</h3>
+<p>对于初创公司，价值主要由以下因素驱动：</p>
+<ol type="1">
+<li><strong>可持续经营利润率</strong>：最重要的单一输入</li>
+<li><strong>收入增长率</strong>：决定了到达稳定期的速度和规模</li>
+<li><strong>到达可持续利润率的时间</strong>：越快越好</li>
+<li><strong>稳定期再投资需求</strong>：决定了多少利润能转化为自由现金流</li>
+</ol>
+</section>
+<section id="终值占比的问题" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="终值占比的问题"><span class="header-section-number">7.2</span> 终值占比的问题</h3>
+<p>对于初创公司，<strong>终值通常占总价值的 80% 以上</strong>。这看起来令人不安，但：</p>
+<ol type="1">
+<li>这反映了初创公司投资者的回报模式——价格升值而非股息</li>
+<li>这不是模型的问题，而是现实的反映</li>
+<li>这也是为什么可持续利润率假设如此重要</li>
+</ol>
+<p><strong>另一种理解方式</strong>：</p>
+<p><span class="math display">\[
+\text{公司价值} = \text{现有资产价值} + \text{增长潜力价值}
+\]</span></p>
+<p>对于初创公司，几乎所有价值都来自第二部分。</p>
+<section id="illustration-23.7airbnb-敏感性分析" class="level4" data-number="7.2.1">
+<h4 data-number="7.2.1" class="anchored" data-anchor-id="illustration-23.7airbnb-敏感性分析"><span class="header-section-number">7.2.1</span> Illustration 23.7：Airbnb 敏感性分析</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>收入增长率</th>
+<th>目标利润率 15%</th>
+<th>20%</th>
+<th>25%</th>
+<th>30%</th>
+<th>35%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10%</td>
+<td>$16.63</td>
+<td>$21.00</td>
+<td>$25.35</td>
+<td>$29.68</td>
+<td>$34.00</td>
+</tr>
+<tr class="even">
+<td>20%</td>
+<td>$23.02</td>
+<td>$30.90</td>
+<td>$38.74</td>
+<td>$46.57</td>
+<td>$54.39</td>
+</tr>
+<tr class="odd">
+<td>30%</td>
+<td>$33.89</td>
+<td>$47.57</td>
+<td>$61.22</td>
+<td>$74.86</td>
+<td>$88.49</td>
+</tr>
+<tr class="even">
+<td><strong>40%</strong></td>
+<td>$51.63</td>
+<td>$74.65</td>
+<td><strong>$97.64</strong></td>
+<td>$120.62</td>
+<td>$143.60</td>
+</tr>
+<tr class="odd">
+<td>50%</td>
+<td>$79.73</td>
+<td>$117.33</td>
+<td>$154.90</td>
+<td>$192.47</td>
+<td>$230.03</td>
+</tr>
+<tr class="even">
+<td>60%</td>
+<td>$122.99</td>
+<td>$182.79</td>
+<td>$242.57</td>
+<td>$302.33</td>
+<td>$362.10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>解读</strong>： - 我们的估值（$53.17）对应 25% 增长、25% 利润率 - IPO 价格 $68 只需略微提高增长假设 - 上市首日高点 $146 需要 40%+ 的持续增长</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="估计噪音学会与不确定性共处" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="估计噪音学会与不确定性共处"><span class="header-section-number">8</span> 估计噪音：学会与不确定性共处</h2>
+<section id="噪音不是模型的缺陷" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="噪音不是模型的缺陷"><span class="header-section-number">8.1</span> 噪音不是模型的缺陷</h3>
+<p>估值初创公司时，估计误差是不可避免的。但：</p>
+<blockquote class="blockquote">
+<p><strong>估值的误差不是模型质量或分析师能力的反映，而是公司未来前景真实不确定性的反映。</strong></p>
+</blockquote>
+<p>那些因为”误差太大”而放弃估值的分析师，最终会使用更粗糙的方法（如市销率比较）。这只是把不确定性”藏在地毯下”。</p>
+</section>
+<section id="不精确估值的价值" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="不精确估值的价值"><span class="header-section-number">8.2</span> 不精确估值的价值</h3>
+<p>即使估值不精确，它仍然有两个重要用途：</p>
+<p><strong>1. 回答”需要什么才能证明当前价格合理”</strong></p>
+<p>投资者可以判断： - 这些假设是否合理？ - 我是否愿意接受这些假设？</p>
+<p><strong>2. 组合层面的精度提升</strong></p>
+<ul>
+<li>单个估值可能有大误差</li>
+<li>但基于相同方法的 40 只股票组合，误差会相互抵消</li>
+<li>组合表现最终会反映分析师的估值能力</li>
+</ul>
+</section>
+<section id="对投资者的启示" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="对投资者的启示"><span class="header-section-number">8.3</span> 对投资者的启示</h3>
+<ol type="1">
+<li><strong>关注可持续利润率和存活率</strong>，而非短期盈利波动</li>
+<li><strong>警惕”盈利改善”的假象</strong>——可能是削减了增长投资</li>
+<li><strong>分散投资</strong>——初创公司估值噪音更大，需要更多股票来分散</li>
+<li><strong>跟踪竞争优势</strong>——它们决定高增长能否持续</li>
+<li><strong>准备好犯错</strong>——有时会大错，有时会大对，目标是成功多于失败</li>
+</ol>
+</section>
+<section id="对管理层的启示" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="对管理层的启示"><span class="header-section-number">8.4</span> 对管理层的启示</h3>
+<ol type="1">
+<li><strong>坚持估计现金流</strong>——即使困难，也比放弃更有价值</li>
+<li><strong>叙事和数字同样重要</strong>——管理层需要将愿景转化为可交付的商业故事</li>
+<li><strong>管理预期</strong>——不要让市场预期过高以至于无法实现</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="期望博弈理解价格波动" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="期望博弈理解价格波动"><span class="header-section-number">9</span> 期望博弈：理解价格波动</h2>
+<section id="为什么小新闻导致大波动" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="为什么小新闻导致大波动"><span class="header-section-number">9.1</span> 为什么小新闻导致大波动？</h3>
+<p>对于初创公司，大部分价值来自对未来的预期。预期的微小变化会导致价值的巨大变化。</p>
+<p><strong>例子</strong>： - 预期增长 50%，实际增长 35% → <strong>坏消息</strong>，股价下跌 - 预期下跌 40%，实际下跌 20% → <strong>好消息</strong>，股价上涨</p>
+</section>
+<section id="期望博弈的教训" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="期望博弈的教训"><span class="header-section-number">9.2</span> 期望博弈的教训</h3>
+<p><strong>对投资者</strong>：</p>
+<ol type="1">
+<li><strong>风险是相对于预期的</strong>——绝对表现不重要，相对预期才重要</li>
+<li><strong>好公司不一定是好投资</strong>——预期太高的好公司可能是坏投资</li>
+<li><strong>坏公司可能是好投资</strong>——预期太低的”坏公司”可能被低估</li>
+<li><strong>关注价值驱动因素的新信息</strong>——不要只看总体盈利数字</li>
+</ol>
+<p><strong>对管理层</strong>：</p>
+<ol type="1">
+<li><strong>了解市场对你的预期</strong>——不仅是 EPS 预测，还包括市场认为的竞争优势</li>
+<li><strong>学会管理预期</strong>——在预期过高时主动压低</li>
+<li><strong>不要拖延坏消息</strong>——用会计手段延迟坏消息会受到更严厉惩罚</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="总结" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="总结"><span class="header-section-number">10</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>估值原理不变</strong>：初创公司的价值仍然是未来现金流的现值，只是估计更困难</li>
+<li><strong>生命周期视角</strong>：理解公司所处的生命周期阶段，决定了信息可用性和估值方法</li>
+<li><strong>VC 方法的局限</strong>：目标收益率是谈判工具，退出倍数依赖当前市场定价</li>
+<li><strong>七步 DCF 框架</strong>：收入增长 → 利润率路径 → 再投资 → 风险 → DCF → 失败调整 → 每股价值</li>
+<li><strong>失败风险不可忽视</strong>：科技公司 10 年存活率仅 25%，必须调整 DCF 价值</li>
+<li><strong>终值主导是正常的</strong>：对于初创公司，80%+ 的价值来自终值，这反映了现实</li>
+<li><strong>估计噪音是真实的</strong>：不确定性不是模型缺陷，而是现实反映</li>
+</ul>
+</div>
+</div>
+<p>让我们回到开头的问题：一家亏损的公司，凭什么值几百亿美元？</p>
+<p>答案是：<strong>不是因为它现在赚钱，而是因为它未来可能赚很多钱。</strong></p>
+<p>Airbnb 的估值取决于： - 它能否在全球酒店市场获得显著份额？ - 它能否达到 25% 的经营利润率？ - 它能否在接下来 10 年存活下来？</p>
+<p>我们的估值 $53/股 反映了一套特定的假设。市场价格 $146/股 反映了更乐观的假设。<strong>估值不是关于”谁对谁错”，而是关于”什么假设隐含在价格中”。</strong></p>
+<hr>
+</section>
+<section id="思考题" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="思考题"><span class="header-section-number">11</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>生命周期阶段判断</strong>：ByteDance（TikTok 母公司）目前处于生命周期的哪个阶段？这对估值方法有什么影响？</p></li>
+<li><p><strong>VC 方法 vs DCF</strong>：为什么 VC 通常使用目标收益率而不是 CAPM 计算的股权成本？这种差异会导致什么后果？</p></li>
+<li><p><strong>利润率路径</strong>：假设一家 SaaS 公司当前利润率为 -30%，行业成熟公司利润率为 20%。设计一个合理的 10 年利润率路径，并解释你的假设。</p></li>
+<li><p><strong>失败风险</strong>：如果你估计一家初创公司的 DCF 价值为 10 亿美元，但失败概率为 50%，清算价值为 0。那么：</p>
+<ul>
+<li>调整后的公司价值是多少？</li>
+<li>如果市场价格是 4 亿美元，这只股票是被高估还是低估？</li>
+</ul></li>
+<li><p><strong>期望博弈</strong>：一家初创公司宣布收入增长 50%，但股价下跌 20%。这种现象如何解释？</p></li>
+<li><p><strong>中国视角</strong>：如果你要估值一家中国的新能源汽车初创公司（如蔚来、小鹏），与估值 Airbnb 相比，有哪些额外的考虑因素？</p></li>
+</ol>
+<hr>
+</section>
+<section id="跨章节联系" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="跨章节联系"><span class="header-section-number">12</span> 跨章节联系</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>本章概念</th>
+<th>相关章节</th>
+<th>联系</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>收入增长估计</td>
+<td>Ch11 估计增长</td>
+<td>初创公司需要从收入而非盈利估计增长</td>
+</tr>
+<tr class="even">
+<td>叙事与数字</td>
+<td>Ch13</td>
+<td>初创公司估值几乎完全由叙事驱动</td>
+</tr>
+<tr class="odd">
+<td>Beta 估计</td>
+<td>Ch8</td>
+<td>使用自下而上 Beta 和经营杠杆调整</td>
+</tr>
+<tr class="even">
+<td>终值计算</td>
+<td>Ch12</td>
+<td>终值占比更高，但计算原理相同</td>
+</tr>
+<tr class="odd">
+<td>期权调整</td>
+<td>Ch16</td>
+<td>期权在初创公司股权中占比更大</td>
+</tr>
+<tr class="even">
+<td>亏损公司</td>
+<td>Ch22</td>
+<td>处理负盈利的方法可以互相参考</td>
+</tr>
+<tr class="odd">
+<td>私有公司</td>
+<td>Ch24</td>
+<td>许多初创公司是私有的，需要流动性折价</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>本章基于 Damodaran《Investment Valuation》第 23 章撰写，案例数据截至 2020 年 11 月。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

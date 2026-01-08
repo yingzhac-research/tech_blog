@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="并购是公司金融中最复杂的决策之一。本章深入探讨如何估计控制权价值、协同效应，以及为何大多数并购未能为收购方创造价值。">
+
+<title>【第25章】并购估值：协同效应、控制权与价值创造 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#并购的分类与背景" id="toc-并购的分类与背景" class="nav-link" data-scroll-target="#并购的分类与背景"><span class="header-section-number">2</span> 并购的分类与背景</a>
+  <ul class="collapse">
+  <li><a href="#并购的类型" id="toc-并购的类型" class="nav-link" data-scroll-target="#并购的类型"><span class="header-section-number">2.1</span> 并购的类型</a></li>
+  <li><a href="#按战略关系分类" id="toc-按战略关系分类" class="nav-link" data-scroll-target="#按战略关系分类"><span class="header-section-number">2.2</span> 按战略关系分类</a></li>
+  <li><a href="#从收购流程看参与方" id="toc-从收购流程看参与方" class="nav-link" data-scroll-target="#从收购流程看参与方"><span class="header-section-number">2.3</span> 从收购流程看参与方</a></li>
+  <li><a href="#并购的历史演变" id="toc-并购的历史演变" class="nav-link" data-scroll-target="#并购的历史演变"><span class="header-section-number">2.4</span> 并购的历史演变</a></li>
+  <li><a href="#并购的经验证据谁赢谁输" id="toc-并购的经验证据谁赢谁输" class="nav-link" data-scroll-target="#并购的经验证据谁赢谁输"><span class="header-section-number">2.5</span> 并购的经验证据：谁赢谁输？</a></li>
+  </ul></li>
+  <li><a href="#并购的动机五种策略的价值评估" id="toc-并购的动机五种策略的价值评估" class="nav-link" data-scroll-target="#并购的动机五种策略的价值评估"><span class="header-section-number">3</span> 并购的动机：五种策略的价值评估</a>
+  <ul class="collapse">
+  <li><a href="#动机一目标公司被低估" id="toc-动机一目标公司被低估" class="nav-link" data-scroll-target="#动机一目标公司被低估"><span class="header-section-number">3.1</span> 动机一：目标公司被低估</a></li>
+  <li><a href="#动机二多元化" id="toc-动机二多元化" class="nav-link" data-scroll-target="#动机二多元化"><span class="header-section-number">3.2</span> 动机二：多元化</a></li>
+  <li><a href="#动机三经营协同效应" id="toc-动机三经营协同效应" class="nav-link" data-scroll-target="#动机三经营协同效应"><span class="header-section-number">3.3</span> 动机三：经营协同效应</a></li>
+  <li><a href="#动机四获取控制权" id="toc-动机四获取控制权" class="nav-link" data-scroll-target="#动机四获取控制权"><span class="header-section-number">3.4</span> 动机四：获取控制权</a></li>
+  <li><a href="#动机五管理层利益" id="toc-动机五管理层利益" class="nav-link" data-scroll-target="#动机五管理层利益"><span class="header-section-number">3.5</span> 动机五：管理层利益</a></li>
+  </ul></li>
+  <li><a href="#目标公司的选择与估值框架" id="toc-目标公司的选择与估值框架" class="nav-link" data-scroll-target="#目标公司的选择与估值框架"><span class="header-section-number">4</span> 目标公司的选择与估值框架</a>
+  <ul class="collapse">
+  <li><a href="#选择目标公司的标准" id="toc-选择目标公司的标准" class="nav-link" data-scroll-target="#选择目标公司的标准"><span class="header-section-number">4.1</span> 选择目标公司的标准</a></li>
+  <li><a href="#并购估值的三层框架" id="toc-并购估值的三层框架" class="nav-link" data-scroll-target="#并购估值的三层框架"><span class="header-section-number">4.2</span> 并购估值的三层框架</a></li>
+  <li><a href="#估值流程" id="toc-估值流程" class="nav-link" data-scroll-target="#估值流程"><span class="header-section-number">4.3</span> 估值流程</a></li>
+  </ul></li>
+  <li><a href="#控制权价值sab-miller-案例研究" id="toc-控制权价值sab-miller-案例研究" class="nav-link" data-scroll-target="#控制权价值sab-miller-案例研究"><span class="header-section-number">5</span> 控制权价值：SAB Miller 案例研究</a>
+  <ul class="collapse">
+  <li><a href="#什么决定控制权价值" id="toc-什么决定控制权价值" class="nav-link" data-scroll-target="#什么决定控制权价值"><span class="header-section-number">5.1</span> 什么决定控制权价值？</a></li>
+  <li><a href="#sab-miller-估值现状价值" id="toc-sab-miller-估值现状价值" class="nav-link" data-scroll-target="#sab-miller-估值现状价值"><span class="header-section-number">5.2</span> SAB Miller 估值：现状价值</a></li>
+  <li><a href="#sab-miller-估值最优经营下的价值" id="toc-sab-miller-估值最优经营下的价值" class="nav-link" data-scroll-target="#sab-miller-估值最优经营下的价值"><span class="header-section-number">5.3</span> SAB Miller 估值：最优经营下的价值</a></li>
+  <li><a href="#控制权价值的计算" id="toc-控制权价值的计算" class="nav-link" data-scroll-target="#控制权价值的计算"><span class="header-section-number">5.4</span> 控制权价值的计算</a></li>
+  <li><a href="#控制权价值的决定因素回归分析" id="toc-控制权价值的决定因素回归分析" class="nav-link" data-scroll-target="#控制权价值的决定因素回归分析"><span class="header-section-number">5.5</span> 控制权价值的决定因素：回归分析</a></li>
+  </ul></li>
+  <li><a href="#协同效应估值" id="toc-协同效应估值" class="nav-link" data-scroll-target="#协同效应估值"><span class="header-section-number">6</span> 协同效应估值</a>
+  <ul class="collapse">
+  <li><a href="#经营协同效应" id="toc-经营协同效应" class="nav-link" data-scroll-target="#经营协同效应"><span class="header-section-number">6.1</span> 经营协同效应</a></li>
+  <li><a href="#sab-miller-案例协同效应估值" id="toc-sab-miller-案例协同效应估值" class="nav-link" data-scroll-target="#sab-miller-案例协同效应估值"><span class="header-section-number">6.2</span> SAB Miller 案例：协同效应估值</a></li>
+  <li><a href="#完整的sab-miller-估值汇总" id="toc-完整的sab-miller-估值汇总" class="nav-link" data-scroll-target="#完整的sab-miller-估值汇总"><span class="header-section-number">6.3</span> 完整的SAB Miller 估值汇总</a></li>
+  <li><a href="#财务协同效应" id="toc-财务协同效应" class="nav-link" data-scroll-target="#财务协同效应"><span class="header-section-number">6.4</span> 财务协同效应</a></li>
+  </ul></li>
+  <li><a href="#并购估值的常见错误" id="toc-并购估值的常见错误" class="nav-link" data-scroll-target="#并购估值的常见错误"><span class="header-section-number">7</span> 并购估值的常见错误</a>
+  <ul class="collapse">
+  <li><a href="#错误一使用交易倍数而非内在价值" id="toc-错误一使用交易倍数而非内在价值" class="nav-link" data-scroll-target="#错误一使用交易倍数而非内在价值"><span class="header-section-number">7.1</span> 错误一：使用交易倍数而非内在价值</a></li>
+  <li><a href="#错误二高估协同效应" id="toc-错误二高估协同效应" class="nav-link" data-scroll-target="#错误二高估协同效应"><span class="header-section-number">7.2</span> 错误二：高估协同效应</a></li>
+  <li><a href="#错误三使用错误的折现率" id="toc-错误三使用错误的折现率" class="nav-link" data-scroll-target="#错误三使用错误的折现率"><span class="header-section-number">7.3</span> 错误三：使用错误的折现率</a></li>
+  <li><a href="#错误四忽略收购方股东权益" id="toc-错误四忽略收购方股东权益" class="nav-link" data-scroll-target="#错误四忽略收购方股东权益"><span class="header-section-number">7.4</span> 错误四：忽略收购方股东权益</a></li>
+  <li><a href="#错误五混淆控制权价值与协同效应" id="toc-错误五混淆控制权价值与协同效应" class="nav-link" data-scroll-target="#错误五混淆控制权价值与协同效应"><span class="header-section-number">7.5</span> 错误五：混淆控制权价值与协同效应</a></li>
+  </ul></li>
+  <li><a href="#交易结构从估值到成交" id="toc-交易结构从估值到成交" class="nav-link" data-scroll-target="#交易结构从估值到成交"><span class="header-section-number">8</span> 交易结构：从估值到成交</a>
+  <ul class="collapse">
+  <li><a href="#定价决策" id="toc-定价决策" class="nav-link" data-scroll-target="#定价决策"><span class="header-section-number">8.1</span> 定价决策</a></li>
+  <li><a href="#支付方式" id="toc-支付方式" class="nav-link" data-scroll-target="#支付方式"><span class="header-section-number">8.2</span> 支付方式</a></li>
+  <li><a href="#会计处理收购法" id="toc-会计处理收购法" class="nav-link" data-scroll-target="#会计处理收购法"><span class="header-section-number">8.3</span> 会计处理：收购法</a></li>
+  <li><a href="#税务考量" id="toc-税务考量" class="nav-link" data-scroll-target="#税务考量"><span class="header-section-number">8.4</span> 税务考量</a></li>
+  </ul></li>
+  <li><a href="#提高并购成功率的策略" id="toc-提高并购成功率的策略" class="nav-link" data-scroll-target="#提高并购成功率的策略"><span class="header-section-number">9</span> 提高并购成功率的策略</a>
+  <ul class="collapse">
+  <li><a href="#竞价战走还是留" id="toc-竞价战走还是留" class="nav-link" data-scroll-target="#竞价战走还是留"><span class="header-section-number">9.1</span> 竞价战：走还是留？</a></li>
+  <li><a href="#目标公司规模大象交易的风险" id="toc-目标公司规模大象交易的风险" class="nav-link" data-scroll-target="#目标公司规模大象交易的风险"><span class="header-section-number">9.2</span> 目标公司规模：大象交易的风险</a></li>
+  <li><a href="#公众公司-vs-私有公司" id="toc-公众公司-vs-私有公司" class="nav-link" data-scroll-target="#公众公司-vs-私有公司"><span class="header-section-number">9.3</span> 公众公司 vs 私有公司</a></li>
+  <li><a href="#成本协同-vs-增长协同" id="toc-成本协同-vs-增长协同" class="nav-link" data-scroll-target="#成本协同-vs-增长协同"><span class="header-section-number">9.4</span> 成本协同 vs 增长协同</a></li>
+  <li><a href="#跨行业-vs-同行业" id="toc-跨行业-vs-同行业" class="nav-link" data-scroll-target="#跨行业-vs-同行业"><span class="header-section-number">9.5</span> 跨行业 vs 同行业</a></li>
+  <li><a href="#友好收购-vs-敌意收购" id="toc-友好收购-vs-敌意收购" class="nav-link" data-scroll-target="#友好收购-vs-敌意收购"><span class="header-section-number">9.6</span> 友好收购 vs 敌意收购</a></li>
+  </ul></li>
+  <li><a href="#杠杆收购lbo的估值" id="toc-杠杆收购lbo的估值" class="nav-link" data-scroll-target="#杠杆收购lbo的估值"><span class="header-section-number">10</span> 杠杆收购（LBO）的估值</a>
+  <ul class="collapse">
+  <li><a href="#lbo-的基本结构" id="toc-lbo-的基本结构" class="nav-link" data-scroll-target="#lbo-的基本结构"><span class="header-section-number">10.1</span> LBO 的基本结构</a></li>
+  <li><a href="#lbo-估值的特殊挑战" id="toc-lbo-估值的特殊挑战" class="nav-link" data-scroll-target="#lbo-估值的特殊挑战"><span class="header-section-number">10.2</span> LBO 估值的特殊挑战</a></li>
+  <li><a href="#lbo-估值方法时变成本资本" id="toc-lbo-估值方法时变成本资本" class="nav-link" data-scroll-target="#lbo-估值方法时变成本资本"><span class="header-section-number">10.3</span> LBO 估值方法：时变成本资本</a></li>
+  <li><a href="#congoleum-公司-lbo-案例1979年" id="toc-congoleum-公司-lbo-案例1979年" class="nav-link" data-scroll-target="#congoleum-公司-lbo-案例1979年"><span class="header-section-number">10.4</span> Congoleum 公司 LBO 案例（1979年）</a></li>
+  <li><a href="#什么样的公司适合-lbo" id="toc-什么样的公司适合-lbo" class="nav-link" data-scroll-target="#什么样的公司适合-lbo"><span class="header-section-number">10.5</span> 什么样的公司适合 LBO？</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">11</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">12</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第25章】并购估值：协同效应、控制权与价值创造</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    并购是公司金融中最复杂的决策之一。本章深入探讨如何估计控制权价值、协同效应，以及为何大多数并购未能为收购方创造价值。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月25日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>2015年10月，百威英博（AB Inbev）宣布以约1070亿美元收购全球第二大啤酒公司南非米勒（SAB Miller）。这是历史上最大的消费品并购案之一。交易公告后，SAB Miller 的股价从44英镑飙升至接近收购价。</p>
+<p>但这里有一个值得深思的问题：百威英博为什么愿意支付如此高的溢价？这笔钱到底买的是什么？</p>
+<p>更广泛地说，当一家公司收购另一家公司时，收购方支付的价格通常远高于目标公司的市场价值。这种<strong>溢价</strong>（Premium）的合理性在哪里？它可能来源于：</p>
+<ul>
+<li><strong>控制权价值</strong>（Value of Control）：通过更换管理层或改变经营策略提升公司价值</li>
+<li><strong>协同效应</strong>（Synergy）：合并后两家公司能创造出单独无法实现的价值</li>
+<li><strong>管理层的过度自信</strong>：收购方高估了自己整合能力</li>
+<li><strong>代理问题</strong>：管理层追求帝国建设而非股东价值</li>
+</ul>
+<p>本章将系统性地探讨并购估值的框架，回答以下核心问题：</p>
+<ol type="1">
+<li>并购的动机有哪些？哪些是创造价值的，哪些是摧毁价值的？</li>
+<li>如何量化控制权价值和协同效应？</li>
+<li>为什么大多数并购未能为收购方创造价值？</li>
+<li>如何结构化一笔并购交易？</li>
+<li>杠杆收购（LBO）的估值有何特殊之处？</li>
+</ol>
+</section>
+<section id="并购的分类与背景" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="并购的分类与背景"><span class="header-section-number">2</span> 并购的分类与背景</h2>
+<section id="并购的类型" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="并购的类型"><span class="header-section-number">2.1</span> 并购的类型</h3>
+<p>并购（Mergers and Acquisitions，M&amp;A）是一个宽泛的术语，涵盖了多种交易形式：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>定义</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>合并（Merger）</strong></td>
+<td>两家公司合并成一个新实体</td>
+<td>原公司法人消失，股东成为新公司股东</td>
+</tr>
+<tr class="even">
+<td><strong>吸收合并（Consolidation）</strong></td>
+<td>一家公司被另一家吸收</td>
+<td>目标公司消失，收购方存续</td>
+</tr>
+<tr class="odd">
+<td><strong>要约收购（Tender Offer）</strong></td>
+<td>收购方直接向目标公司股东发出购买要约</td>
+<td>绕过目标公司管理层，可能是敌意收购</td>
+</tr>
+<tr class="even">
+<td><strong>资产收购（Asset Purchase）</strong></td>
+<td>收购目标公司的部分或全部资产</td>
+<td>不收购公司本身，可选择性购买资产</td>
+</tr>
+<tr class="odd">
+<td><strong>管理层收购（MBO）</strong></td>
+<td>现有管理层收购公司</td>
+<td>管理层利用杠杆，公司通常私有化</td>
+</tr>
+<tr class="even">
+<td><strong>杠杆收购（LBO）</strong></td>
+<td>使用大量债务融资进行的收购</td>
+<td>高杠杆，依赖现金流偿债</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="按战略关系分类" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="按战略关系分类"><span class="header-section-number">2.2</span> 按战略关系分类</h3>
+<p>从战略角度，并购可以分为：</p>
+<p><strong>横向并购（Horizontal）</strong>：同行业内的竞争对手之间的合并。例如百威英博收购 SAB Miller，两家都是啤酒公司。横向并购最可能产生经营协同效应。</p>
+<p><strong>纵向并购（Vertical）</strong>：产业链上下游的整合。例如汽车制造商收购零部件供应商。目标是减少交易成本、保障供应链。</p>
+<p><strong>混合并购（Conglomerate）</strong>：不相关行业之间的收购。例如1960-70年代的多元化浪潮，石油公司收购零售企业。这类并购最难产生协同效应。</p>
+</section>
+<section id="从收购流程看参与方" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="从收购流程看参与方"><span class="header-section-number">2.3</span> 从收购流程看参与方</h3>
+<p>一笔典型的并购涉及多个参与方：</p>
+<pre><code>收购方（Bidder/Acquirer）
+    ↓ 支付对价
+目标公司（Target）
+    ↓
+目标公司股东
+    • 接受收购 → 获得现金或股票
+    • 拒绝收购 → 保持原持股</code></pre>
+<p><strong>中介机构</strong>： - <strong>投资银行</strong>：提供估值建议、交易结构设计、融资安排 - <strong>律师事务所</strong>：处理法律尽职调查、合同起草 - <strong>会计师事务所</strong>：财务尽职调查、税务筹划</p>
+</section>
+<section id="并购的历史演变" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="并购的历史演变"><span class="header-section-number">2.4</span> 并购的历史演变</h3>
+<p>并购活动呈现明显的周期性，与经济周期和市场估值密切相关：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>时期</th>
+<th>特征</th>
+<th>典型案例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1890s-1900s</td>
+<td>行业整合，横向合并</td>
+<td>美国钢铁公司的形成</td>
+</tr>
+<tr class="even">
+<td>1920s</td>
+<td>公用事业控股公司</td>
+<td>金字塔式控股结构</td>
+</tr>
+<tr class="odd">
+<td>1960s</td>
+<td>多元化浪潮</td>
+<td>ITT、LTV 等混合集团</td>
+</tr>
+<tr class="even">
+<td>1980s</td>
+<td>敌意收购、LBO</td>
+<td>KKR 收购 RJR Nabisco</td>
+</tr>
+<tr class="odd">
+<td>1990s</td>
+<td>战略并购、全球化</td>
+<td>戴姆勒-克莱斯勒</td>
+</tr>
+<tr class="even">
+<td>2000s</td>
+<td>私募股权兴起</td>
+<td>黑石、KKR 的大型 LBO</td>
+</tr>
+<tr class="odd">
+<td>2010s</td>
+<td>科技巨头收购</td>
+<td>Facebook 收购 WhatsApp</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>并购周期的驱动因素
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>并购活动往往在以下条件下活跃： - <strong>股市高估</strong>：收购方可以用高估的股票作为收购货币 - <strong>低利率环境</strong>：债务融资成本低，有利于杠杆收购 - <strong>行业变革</strong>：技术变化或监管放松触发整合需求 - <strong>管理层激励</strong>：与公司规模挂钩的薪酬激励帝国建设</p>
+</div>
+</div>
+</section>
+<section id="并购的经验证据谁赢谁输" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="并购的经验证据谁赢谁输"><span class="header-section-number">2.5</span> 并购的经验证据：谁赢谁输？</h3>
+<p>学术研究对并购的价值创造效果给出了令人警醒的结论：</p>
+<p><strong>目标公司股东</strong>：几乎总是赢家 - 并购公告后，目标公司股价平均上涨 20-30% - 溢价水平随时间和交易类型变化，但始终为正</p>
+<p><strong>收购方股东</strong>：结果喜忧参半，甚至偏向负面 - 公告日收益率接近零或略为负 - 长期来看，约 60-70% 的并购未能实现预期的协同效应 - 大型收购（“大象交易”）表现尤其差</p>
+<p><strong>综合效果</strong>： - 并购通常会创造一些价值（两家公司股价加权平均上涨） - 但价值的大部分被目标公司股东获取 - 收购方往往为协同效应支付过高价格</p>
+<p>这引出了一个核心问题：<strong>为什么收购方愿意支付如此高的溢价，而最终却很少能获得相应的回报？</strong></p>
+</section>
+</section>
+<section id="并购的动机五种策略的价值评估" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="并购的动机五种策略的价值评估"><span class="header-section-number">3</span> 并购的动机：五种策略的价值评估</h2>
+<p>要理解并购定价，首先需要理解并购的动机。Damodaran 将并购动机分为五类，每类都有不同的价值创造逻辑：</p>
+<section id="动机一目标公司被低估" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="动机一目标公司被低估"><span class="header-section-number">3.1</span> 动机一：目标公司被低估</h3>
+<p><strong>核心逻辑</strong>：收购方认为目标公司的市场价格低于其内在价值，希望以低于价值的价格买入。</p>
+<p><strong>成立条件</strong>： 1. 收购方对目标公司价值的判断必须是正确的 2. 收购方必须有能力以低于内在价值的价格完成收购 3. 收购的交易成本不能抹去价值差异</p>
+<p><strong>问题所在</strong>：</p>
+<p>这一动机在效率较高的市场中很难成立。如果目标公司真的被低估，为什么只有收购方能发现？而且一旦收购意图暴露，竞争性报价和套利者会迅速推高目标公司股价。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>低估收购的困境
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>假设目标公司内在价值100亿美元，市场价格80亿美元。 - 如果收购方以90亿美元报价，看似获利10亿美元 - 但竞争者也会发现这一机会，推高价格 - 最终成交价很可能接近甚至超过100亿美元 - 收购方的”发现价值”能力被市场套利所消解</p>
+</div>
+</div>
+</section>
+<section id="动机二多元化" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="动机二多元化"><span class="header-section-number">3.2</span> 动机二：多元化</h3>
+<p><strong>核心逻辑</strong>：通过收购不相关业务，降低公司整体的盈利波动性。</p>
+<p><strong>对管理层的吸引力</strong>： - 稳定的盈利意味着更稳定的职位 - 降低公司破产风险（从而保护管理层人力资本） - 公司规模扩大带来更高薪酬</p>
+<p><strong>为什么多元化不创造价值？</strong></p>
+<p>对于公开市场的投资者而言，多元化是<strong>免费的</strong>——他们可以直接在自己的投资组合中实现分散化，不需要公司帮他们做这件事。</p>
+<p>考虑以下例子：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>方式</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>公司层面多元化</strong></td>
+<td>A公司收购B公司</td>
+<td>支付20-30%溢价</td>
+</tr>
+<tr class="even">
+<td><strong>投资者层面多元化</strong></td>
+<td>投资者同时持有A和B股票</td>
+<td>仅交易佣金（几乎为零）</td>
+</tr>
+</tbody>
+</table>
+<p>公司花费巨额溢价做的事，投资者可以免费完成。因此，<strong>纯粹为了多元化的并购摧毁股东价值</strong>。</p>
+<p>但有一个重要的例外：对于<strong>私人公司的所有者</strong>，多元化可能是有价值的。因为他们的财富高度集中于单一公司，无法轻易分散。这是私人公司并购动机与公众公司的重要区别。</p>
+</section>
+<section id="动机三经营协同效应" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="动机三经营协同效应"><span class="header-section-number">3.3</span> 动机三：经营协同效应</h3>
+<p><strong>核心逻辑</strong>：合并后的公司能够比两家独立公司创造更多价值。数学上表示为：</p>
+<p><span class="math display">\[
+V_{AB} &gt; V_A + V_B
+\]</span></p>
+<p>其中 <span class="math inline">\(V_{AB}\)</span> 是合并后公司价值，<span class="math inline">\(V_A\)</span> 和 <span class="math inline">\(V_B\)</span> 是两家公司独立运营时的价值。</p>
+<p>经营协同效应可以来源于：</p>
+<section id="规模经济economies-of-scale" class="level4" data-number="3.3.1">
+<h4 data-number="3.3.1" class="anchored" data-anchor-id="规模经济economies-of-scale"><span class="header-section-number">3.3.1</span> 规模经济（Economies of Scale）</h4>
+<p>通过合并实现成本节约： - 重复部门的合并（财务、人力资源、IT） - 采购谈判能力增强 - 产能利用率提高</p>
+<p><strong>最佳匹配</strong>：同行业公司，具有重叠职能</p>
+</section>
+<section id="定价能力提升" class="level4" data-number="3.3.2">
+<h4 data-number="3.3.2" class="anchored" data-anchor-id="定价能力提升"><span class="header-section-number">3.3.2</span> 定价能力提升</h4>
+<p>合并后市场份额扩大，提高对客户的议价能力： - 减少竞争，提高行业集中度 - 控制分销渠道</p>
+<p><strong>风险</strong>：可能引发反垄断审查</p>
+</section>
+<section id="功能互补functional-synergy" class="level4" data-number="3.3.3">
+<h4 data-number="3.3.3" class="anchored" data-anchor-id="功能互补functional-synergy"><span class="header-section-number">3.3.3</span> 功能互补（Functional Synergy）</h4>
+<p>两家公司各有所长，合并后互补： - A公司擅长研发，B公司擅长营销 - A公司有技术，B公司有渠道</p>
+<p><strong>最佳匹配</strong>：相邻行业或产业链上下游</p>
+</section>
+<section id="增长加速" class="level4" data-number="3.3.4">
+<h4 data-number="3.3.4" class="anchored" data-anchor-id="增长加速"><span class="header-section-number">3.3.4</span> 增长加速</h4>
+<p>利用合并方的资源加速目标公司的增长： - 进入目标公司原本无法进入的市场 - 获得必要的资本、技术或人才</p>
+<p><strong>最佳匹配</strong>：大公司收购有潜力的小公司</p>
+</section>
+<section id="防御性收购" class="level4" data-number="3.3.5">
+<h4 data-number="3.3.5" class="anchored" data-anchor-id="防御性收购"><span class="header-section-number">3.3.5</span> 防御性收购</h4>
+<p>消除潜在威胁： - 收购新兴的颠覆性竞争对手 - 收购上游供应商以保障供应链</p>
+<p><strong>例子</strong>：Facebook 收购 Instagram 和 WhatsApp</p>
+</section>
+</section>
+<section id="动机四获取控制权" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="动机四获取控制权"><span class="header-section-number">3.4</span> 动机四：获取控制权</h3>
+<p><strong>核心逻辑</strong>：目标公司在现有管理层下经营不善，收购方相信自己能更好地经营这家公司。</p>
+<p><strong>控制权价值</strong>的定义：</p>
+<p><span class="math display">\[
+\text{控制权价值} = V_{\text{最优经营}} - V_{\text{现状}}
+\]</span></p>
+<p>这个概念至关重要，我们将在下一节详细展开。</p>
+<p><strong>关键洞察</strong>：控制权价值只有在目标公司<strong>确实</strong>存在管理不善的情况下才会存在。如果一家公司已经处于最优经营状态，那么更换管理层不会创造价值。</p>
+</section>
+<section id="动机五管理层利益" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="动机五管理层利益"><span class="header-section-number">3.5</span> 动机五：管理层利益</h3>
+<p>这是最令人担忧的动机，因为它通常<strong>摧毁</strong>股东价值：</p>
+<p><strong>帝国建设（Empire Building）</strong>： - 管理层薪酬往往与公司规模正相关 - 管理大公司带来更高的社会地位 - 收购是快速扩大规模的方式</p>
+<p><strong>过度自信（Hubris）</strong>： - 管理层高估自己的整合能力 - 低估文化冲突和执行风险 - 相信自己与众不同，能避免他人的错误</p>
+<p><strong>代理问题</strong>： - 管理层利益与股东利益不一致 - 自由现金流过多时，管理层倾向于投资而非分红 - 收购是消耗现金的”合理”方式</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>并购动机的价值评估总结
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>动机</th>
+<th>价值创造逻辑</th>
+<th>是否创造价值？</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>低估收购</td>
+<td>以低于内在价值买入</td>
+<td>很少——市场通常较为有效</td>
+</tr>
+<tr class="even">
+<td>多元化</td>
+<td>降低盈利波动</td>
+<td>否——投资者可以免费多元化</td>
+</tr>
+<tr class="odd">
+<td>经营协同</td>
+<td>成本节约、收入增长</td>
+<td>可能——但需要实际执行</td>
+</tr>
+<tr class="even">
+<td>获取控制权</td>
+<td>改善管理提升价值</td>
+<td>可能——取决于管理改善空间</td>
+</tr>
+<tr class="odd">
+<td>管理层利益</td>
+<td>管理层私利</td>
+<td>否——摧毁股东价值</td>
+</tr>
+</tbody>
+</table>
+<p>只有<strong>经营协同效应</strong>和<strong>控制权价值</strong>是真正的价值创造动机，其他动机要么不创造价值，要么实际上摧毁价值。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="目标公司的选择与估值框架" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="目标公司的选择与估值框架"><span class="header-section-number">4</span> 目标公司的选择与估值框架</h2>
+<section id="选择目标公司的标准" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="选择目标公司的标准"><span class="header-section-number">4.1</span> 选择目标公司的标准</h3>
+<p>不同的并购动机对应不同的目标公司选择标准：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>动机</th>
+<th>理想目标特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>低估收购</strong></td>
+<td>被市场忽视、信息不充分、暂时陷入困境</td>
+</tr>
+<tr class="even">
+<td><strong>多元化</strong></td>
+<td>与收购方业务不相关、盈利周期不同</td>
+</tr>
+<tr class="odd">
+<td><strong>经营协同</strong></td>
+<td>同行业、有重叠职能、规模可实现互补</td>
+</tr>
+<tr class="even">
+<td><strong>控制权</strong></td>
+<td>管理不善、资产回报低于同行、多余资产</td>
+</tr>
+<tr class="odd">
+<td><strong>管理层利益</strong></td>
+<td>能快速扩大规模的任何目标</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="并购估值的三层框架" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="并购估值的三层框架"><span class="header-section-number">4.2</span> 并购估值的三层框架</h3>
+<p>在估值收购目标时，需要区分三个层次的价值：</p>
+<pre><code>    ┌─────────────────────────────────────────┐
+    │          协同效应价值（Synergy）         │
+    │    成本节约、收入增长、交叉销售等        │
+    ├─────────────────────────────────────────┤
+    │          控制权价值（Control）           │
+    │    更换管理层、改善经营后的价值提升      │
+    ├─────────────────────────────────────────┤
+    │            现状价值（Status Quo）         │
+    │    假设现有管理层和战略不变的价值        │
+    └─────────────────────────────────────────┘</code></pre>
+<p><strong>现状价值（Status Quo Value）</strong>：假设目标公司保持现有管理层、现有战略、现有财务政策不变时的内在价值。</p>
+<p><strong>控制权价值</strong>：假设收购方能够实施最优经营策略后，目标公司价值的增量。</p>
+<p><strong>协同效应价值</strong>：合并两家公司后额外创造的价值，这部分价值在任何一家公司独立运营时都无法实现。</p>
+</section>
+<section id="估值流程" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="估值流程"><span class="header-section-number">4.3</span> 估值流程</h3>
+<p><strong>第一步：估计现状价值</strong></p>
+<p>使用标准的 DCF 或相对估值方法，但关键假设是保持现有管理团队的决策模式： - 使用历史增长率和利润率 - 保持现有资本结构 - 不假设任何改善</p>
+<p><strong>第二步：估计控制权价值</strong></p>
+<p>重新估值，假设最优经营： - 调整利润率到行业最优水平 - 优化资本结构 - 提高资本效率（处置低效资产）</p>
+<p>控制权价值 = 最优经营下的价值 - 现状价值</p>
+<p><strong>第三步：估计协同效应价值</strong></p>
+<p>考虑合并后独有的价值创造： - 可节约的成本 - 可实现的收入增长 - 税务筹划空间</p>
+<p>协同效应价值 = 合并价值 - 两家公司独立价值之和</p>
+<p><strong>收购出价的逻辑</strong>：</p>
+<p><span class="math display">\[
+\text{最高合理出价} = V_{\text{现状}} + V_{\text{控制权}} + V_{\text{协同效应}}
+\]</span></p>
+<p>但如果收购方支付了全部价值，那么收购方股东获得的收益为零。<strong>收购方必须在保留部分协同效应价值的前提下定价</strong>。</p>
+</section>
+</section>
+<section id="控制权价值sab-miller-案例研究" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="控制权价值sab-miller-案例研究"><span class="header-section-number">5</span> 控制权价值：SAB Miller 案例研究</h2>
+<section id="什么决定控制权价值" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="什么决定控制权价值"><span class="header-section-number">5.1</span> 什么决定控制权价值？</h3>
+<p>控制权价值取决于两个因素： 1. <strong>改善空间</strong>：目标公司现状与最优经营之间的差距 2. <strong>改善概率</strong>：收购方实际能够实施改善的可能性</p>
+<p><strong>影响改善空间的因素</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>财务指标</th>
+<th>低改善空间</th>
+<th>高改善空间</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>资产收益率（ROA）</td>
+<td>行业领先</td>
+<td>大幅低于行业平均</td>
+</tr>
+<tr class="even">
+<td>利润率</td>
+<td>处于最优水平</td>
+<td>可提升空间大</td>
+</tr>
+<tr class="odd">
+<td>资本结构</td>
+<td>已优化</td>
+<td>负债过少或过多</td>
+</tr>
+<tr class="even">
+<td>股利政策</td>
+<td>合理分配现金</td>
+<td>积累过多现金或投资于负NPV项目</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>控制权价值的来源
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>控制权使收购方能够： 1. <strong>更换管理层</strong>：引入更有能力的团队 2. <strong>改变战略</strong>：进入新市场、退出亏损业务 3. <strong>优化资本配置</strong>：停止负 NPV 项目、处置低效资产 4. <strong>调整资本结构</strong>：增加杠杆以利用税盾 5. <strong>改变股利政策</strong>：释放多余现金给股东</p>
+</div>
+</div>
+</section>
+<section id="sab-miller-估值现状价值" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="sab-miller-估值现状价值"><span class="header-section-number">5.2</span> SAB Miller 估值：现状价值</h3>
+<p>让我们通过百威英博收购 SAB Miller 的案例来具体说明估值框架。</p>
+<p><strong>公司背景</strong>（2015年）： - SAB Miller 是全球第二大啤酒公司 - 经营利润率：16.42%（啤酒行业平均约 18%） - 已投入资本收益率（ROIC）：8.04% - 资本成本：7.84% - 净债务/资本：34.59%</p>
+<p><strong>现状 DCF 估值假设</strong>： - 保持现有利润率（16.42%） - 保持现有 ROIC（8.04%） - 假设收入增长率逐步下降到成熟期的 2.11% - 使用现有资本成本</p>
+<p><strong>现状估值结果</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>企业价值（EV）</td>
+<td>$83,584 百万</td>
+</tr>
+<tr class="even">
+<td>减：净债务</td>
+<td>-$11,813 百万</td>
+</tr>
+<tr class="odd">
+<td>股权价值</td>
+<td>$71,771 百万</td>
+</tr>
+<tr class="even">
+<td>每股价值</td>
+<td><strong>£28.75</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这是假设 SAB Miller 保持现状时的内在价值。而当时市场价格约为 £44，已经反映了部分控制权/协同效应预期。</p>
+</section>
+<section id="sab-miller-估值最优经营下的价值" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="sab-miller-估值最优经营下的价值"><span class="header-section-number">5.3</span> SAB Miller 估值：最优经营下的价值</h3>
+<p>如果收购方能够将 SAB Miller 的经营提升到行业最优水平：</p>
+<p><strong>最优经营假设</strong>： - 税前经营利润率：从 16.42% 提升到 <strong>18%</strong>（行业平均） - 税后已投入资本收益率：从 8.04% 提升到 <strong>12%</strong>（行业75分位） - 维持资本成本在 7.84%</p>
+<p><strong>最优经营估值结果</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>企业价值（EV）</td>
+<td>$105,403 百万</td>
+</tr>
+<tr class="even">
+<td>减：净债务</td>
+<td>-$11,813 百万</td>
+</tr>
+<tr class="odd">
+<td>股权价值</td>
+<td>$93,590 百万</td>
+</tr>
+<tr class="even">
+<td>每股价值</td>
+<td><strong>£37.48</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="控制权价值的计算" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="控制权价值的计算"><span class="header-section-number">5.4</span> 控制权价值的计算</h3>
+<p><span class="math display">\[
+\text{控制权价值} = £37.48 - £28.75 = \textbf{£8.73/股}
+\]</span></p>
+<p>以百分比表示：</p>
+<p><span class="math display">\[
+\text{控制权溢价} = \frac{£37.48 - £28.75}{£28.75} = \textbf{30.4\%}
+\]</span></p>
+<p>这意味着，仅仅通过改善经营效率到行业平均水平，目标公司价值就可以提升约 30%。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>控制权价值的关键洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>控制权价值因公司而异</strong>：经营越差的公司，控制权价值越高</li>
+<li><strong>不是所有公司都有控制权价值</strong>：已最优经营的公司控制权价值为零</li>
+<li><strong>控制权价值是潜在的</strong>：只有实际实施改善才能实现</li>
+<li><strong>市场价格可能已反映部分预期</strong>：如果市场预期有人会收购并改善</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="控制权价值的决定因素回归分析" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="控制权价值的决定因素回归分析"><span class="header-section-number">5.5</span> 控制权价值的决定因素：回归分析</h3>
+<p>研究表明，以下因素与控制权溢价正相关：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>因素</th>
+<th>影响方向</th>
+<th>逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>负债比率低于最优</strong></td>
+<td>+</td>
+<td>增加杠杆可创造税盾价值</td>
+</tr>
+<tr class="even">
+<td><strong>净利润率低于行业</strong></td>
+<td>+</td>
+<td>提升利润率空间大</td>
+</tr>
+<tr class="odd">
+<td><strong>ROIC 低于行业</strong></td>
+<td>+</td>
+<td>提高资本效率空间大</td>
+</tr>
+<tr class="even">
+<td><strong>现金积累过多</strong></td>
+<td>+</td>
+<td>可释放给股东或更好投资</td>
+</tr>
+<tr class="odd">
+<td><strong>多元化程度高</strong></td>
+<td>+</td>
+<td>分拆或聚焦可释放价值</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="协同效应估值" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="协同效应估值"><span class="header-section-number">6</span> 协同效应估值</h2>
+<section id="经营协同效应" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="经营协同效应"><span class="header-section-number">6.1</span> 经营协同效应</h3>
+<p>经营协同效应来源于合并后运营效率的提升。其估值方法是：先分别估计两家公司的独立价值，再估计合并公司的价值。</p>
+<p><span class="math display">\[
+\text{经营协同价值} = V_{合并公司} - V_A - V_B
+\]</span></p>
+<section id="协同效应的四种来源" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="协同效应的四种来源"><span class="header-section-number">6.1.1</span> 协同效应的四种来源</h4>
+<p><strong>来源1：规模经济——成本节约</strong></p>
+<p>成本节约是最常被引用的协同效应，主要来源： - 裁减重复岗位 - 合并后台部门（财务、HR、IT） - 采购规模提升带来的议价能力 - 产能利用率提高</p>
+<p><strong>量化方法</strong>：</p>
+<p>假设合并后可节约成本 <span class="math inline">\(\Delta C\)</span>（税前），其价值为：</p>
+<p><span class="math display">\[
+V_{\text{成本节约}} = \frac{\Delta C \times (1 - t)}{r - g}
+\]</span></p>
+<p>其中 <span class="math inline">\(t\)</span> 是税率，<span class="math inline">\(r\)</span> 是折现率，<span class="math inline">\(g\)</span> 是永续增长率。</p>
+<p><strong>来源2：定价能力提升——收入增长</strong></p>
+<p>更难量化，但可能价值更大： - 市场份额扩大带来定价权 - 交叉销售机会 - 进入新市场</p>
+<p><strong>量化方法</strong>：预测合并后的收入增长率提升，计算价值差异。</p>
+<p><strong>来源3：功能互补</strong></p>
+<p>A公司的优势弥补B公司的劣势，反之亦然。例如： - A有强大的研发能力，B有成熟的销售渠道 - A有品牌，B有产能</p>
+<p><strong>来源4：增长加速</strong></p>
+<p>大公司为小公司提供扩张所需的资源： - 资本（对快速增长的小公司至关重要） - 地理覆盖 - 监管牌照</p>
+</section>
+</section>
+<section id="sab-miller-案例协同效应估值" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="sab-miller-案例协同效应估值"><span class="header-section-number">6.2</span> SAB Miller 案例：协同效应估值</h3>
+<p>百威英博在收购公告中明确提到了预期的协同效应：</p>
+<p><strong>宣称的协同效应</strong>：每年14亿美元的成本节约（税前）</p>
+<p><strong>估值步骤</strong>：</p>
+<p>第一步：计算独立价值总和</p>
+<p><span class="math display">\[
+V_{\text{AB Inbev}} = \$121,050 \text{ 百万}
+\]</span></p>
+<p><span class="math display">\[
+V_{\text{SAB Miller（含控制权）}} = \$93,590 \text{ 百万}
+\]</span></p>
+<p><span class="math display">\[
+V_{\text{独立总和}} = \$214,640 \text{ 百万}
+\]</span></p>
+<p>第二步：估计合并公司价值</p>
+<p>使用合并后的输入参数： - 收入：两家公司收入之和 - 经营利润：两家公司利润之和 + 成本节约 - 资本成本：合并后的加权平均资本成本（7.14%） - 增长率：合并后的可持续增长率</p>
+<p><span class="math display">\[
+V_{\text{合并公司}} = \$236,875 \text{ 百万}
+\]</span></p>
+<p>第三步：计算协同效应价值</p>
+<p><span class="math display">\[
+\text{协同效应价值} = \$236,875 - \$214,640 = \$22,235 \text{ 百万}
+\]</span></p>
+<p>换算为每股 SAB Miller：</p>
+<p><span class="math display">\[
+\text{协同效应/股} = \frac{\$22,235}{1,599.44} = £8.82/股
+\]</span></p>
+</section>
+<section id="完整的sab-miller-估值汇总" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="完整的sab-miller-估值汇总"><span class="header-section-number">6.3</span> 完整的SAB Miller 估值汇总</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>估值层次</th>
+<th>每股价值</th>
+<th>累计</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>现状价值</td>
+<td>£28.75</td>
+<td>£28.75</td>
+</tr>
+<tr class="even">
+<td>+ 控制权价值</td>
+<td>£8.73</td>
+<td>£37.48</td>
+</tr>
+<tr class="odd">
+<td>+ 协同效应价值</td>
+<td>£8.82</td>
+<td><strong>£46.30</strong></td>
+</tr>
+<tr class="even">
+<td><strong>实际收购价</strong></td>
+<td>—</td>
+<td><strong>£44.00</strong></td>
+</tr>
+</tbody>
+</table>
+<p>百威英博最终以每股 £44 收购 SAB Miller，这意味着： - 收购价略低于我们估计的完整价值 £46.30 - 百威英博保留了约 £2.30/股的协同效应价值给自己的股东 - 如果协同效应如预期实现，这笔交易对百威英博股东是创造价值的</p>
+</section>
+<section id="财务协同效应" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="财务协同效应"><span class="header-section-number">6.4</span> 财务协同效应</h3>
+<p>除了经营协同效应，合并还可能产生<strong>财务协同效应</strong>（Financial Synergy）：</p>
+<section id="分散化与债务容量" class="level4" data-number="6.4.1">
+<h4 data-number="6.4.1" class="anchored" data-anchor-id="分散化与债务容量"><span class="header-section-number">6.4.1</span> 分散化与债务容量</h4>
+<p>当两家公司合并时，如果它们的现金流不完全正相关，合并后的现金流波动性会降低。这会： - 降低违约概率 - 提高债务容量 - 债务带来的税盾价值增加</p>
+<p><strong>简化示例：Lube &amp; Auto 与 Dalton Motors</strong></p>
+<p>假设两家公司合并前的参数：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>公司价值</th>
+<th>债务比率</th>
+<th>债务</th>
+<th>股权</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lube &amp; Auto</td>
+<td>$20亿</td>
+<td>30%</td>
+<td>$6亿</td>
+<td>$14亿</td>
+</tr>
+<tr class="even">
+<td>Dalton Motors</td>
+<td>$10亿</td>
+<td>20%</td>
+<td>$2亿</td>
+<td>$8亿</td>
+</tr>
+<tr class="odd">
+<td><strong>合并前总计</strong></td>
+<td>$30亿</td>
+<td>26.7%</td>
+<td>$8亿</td>
+<td>$22亿</td>
+</tr>
+</tbody>
+</table>
+<p>由于两家公司业务不完全相关，合并后现金流更稳定，假设： - 合并后最优债务比率提升到 <strong>40%</strong> - 新增债务 = $30亿 × 40% - $8亿 = <strong>$4亿</strong> - 假设税率 40%，新增税盾价值 = $4亿 × 40% = <strong>$1.6亿</strong></p>
+<p><span class="math display">\[
+\text{财务协同效应} = \$1.6 \text{亿}
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>财务协同效应的警告
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>对公众公司股东价值有限</strong>：纯粹的分散化对能自由投资的股东无价值</li>
+<li><strong>税盾价值依赖税法</strong>：税法变化会影响价值</li>
+<li><strong>高杠杆带来风险</strong>：债务容量提升不等于应该使用全部容量</li>
+<li><strong>私有公司情况不同</strong>：对财富集中的私有公司所有者，分散化确有价值</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="现金松弛cash-slack" class="level4" data-number="6.4.2">
+<h4 data-number="6.4.2" class="anchored" data-anchor-id="现金松弛cash-slack"><span class="header-section-number">6.4.2</span> 现金松弛（Cash Slack）</h4>
+<p>如果一家现金充裕但投资机会有限的公司（现金松弛公司）收购一家现金短缺但投资机会丰富的公司（现金紧张公司），合并可以创造价值：</p>
+<p><span class="math display">\[
+V_{\text{协同}} = \text{现金紧张公司因资金不足而放弃的 NPV 项目价值}
+\]</span></p>
+<p><strong>例子</strong>：大型制药公司（现金充裕、研发管线枯竭）收购小型生物科技公司（现金紧张、研发管线丰富）</p>
+</section>
+<section id="税务协同效应" class="level4" data-number="6.4.3">
+<h4 data-number="6.4.3" class="anchored" data-anchor-id="税务协同效应"><span class="header-section-number">6.4.3</span> 税务协同效应</h4>
+<p><strong>净经营亏损（NOL）利用</strong>： - 亏损公司的 NOL 可以抵减盈利公司的应税收入 - 但税法对 NOL 的使用通常有限制</p>
+<p><strong>资产增值（Step-up）</strong>： - 收购时可以将目标公司资产”调高”到公允价值 - 增加的折旧可以带来税盾</p>
+<p><strong>税务筹划</strong>： - 跨境并购可能利用不同税率 - 但各国反避税法规日趋严格</p>
+</section>
+</section>
+</section>
+<section id="并购估值的常见错误" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="并购估值的常见错误"><span class="header-section-number">7</span> 并购估值的常见错误</h2>
+<p>学术研究和实践经验表明，并购估值中存在系统性的偏差和错误。了解这些陷阱至关重要。</p>
+<section id="错误一使用交易倍数而非内在价值" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="错误一使用交易倍数而非内在价值"><span class="header-section-number">7.1</span> 错误一：使用交易倍数而非内在价值</h3>
+<p><strong>问题描述</strong>：</p>
+<p>许多投资银行家通过比较”可比交易”的倍数来定价。例如，过去同行业的收购平均支付了 10 倍 EBITDA，所以这笔交易也应该支付 10 倍。</p>
+<p><strong>为什么这是错误的</strong>：</p>
+<ol type="1">
+<li><strong>循环论证</strong>：历史交易可能都支付过高，用它们作为基准只会延续错误</li>
+<li><strong>忽略个体差异</strong>：每家公司的增长前景、风险、资本效率都不同</li>
+<li><strong>忽略协同效应的差异</strong>：不同收购方能实现的协同效应不同</li>
+</ol>
+<p><strong>正确做法</strong>：从现金流出发，分别估计现状价值、控制权价值和协同效应价值。</p>
+</section>
+<section id="错误二高估协同效应" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="错误二高估协同效应"><span class="header-section-number">7.2</span> 错误二：高估协同效应</h3>
+<p><strong>问题描述</strong>：</p>
+<p>收购方和其投资银行家有激励夸大协同效应，因为这可以合理化更高的报价。</p>
+<p><strong>数据显示的现实</strong>：</p>
+<ul>
+<li>宣称的成本协同往往只能实现 60-70%</li>
+<li>收入协同的实现率更低</li>
+<li>整合过程中的意外成本经常被低估</li>
+</ul>
+<p><strong>常见陷阱</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>夸大协同的方式</th>
+<th>问题所在</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>只算节约不算执行成本</td>
+<td>裁员、系统整合都有成本</td>
+</tr>
+<tr class="even">
+<td>假设立即实现</td>
+<td>协同效应需要时间体现</td>
+</tr>
+<tr class="odd">
+<td>忽略文化冲突</td>
+<td>整合失败导致人才流失</td>
+</tr>
+<tr class="even">
+<td>重复计算</td>
+<td>同一效益在不同项目中被多次计算</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="错误三使用错误的折现率" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="错误三使用错误的折现率"><span class="header-section-number">7.3</span> 错误三：使用错误的折现率</h3>
+<p><strong>问题描述</strong>：</p>
+<p>一些分析师使用收购方的资本成本来折现目标公司的现金流。</p>
+<p><strong>为什么这是错误的</strong>：</p>
+<p>资本成本反映的是项目或资产的风险，不是谁拥有它。目标公司的业务风险不会因为被收购就改变。</p>
+<p><strong>正确做法</strong>： - 目标公司的独立现金流 → 使用目标公司的资本成本 - 协同效应的现金流 → 使用反映协同效应风险的资本成本 - 只有当整合完成且业务风险实质改变后，才考虑调整</p>
+</section>
+<section id="错误四忽略收购方股东权益" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="错误四忽略收购方股东权益"><span class="header-section-number">7.4</span> 错误四：忽略收购方股东权益</h3>
+<p><strong>问题描述</strong>：</p>
+<p>收购方管理层和投资银行家往往只关注能否”赢得”交易，而非交易是否创造价值。</p>
+<p><strong>案例</strong>：竞价战中的过度报价</p>
+<p>当多个收购方竞争同一目标时，“赢家诅咒”（Winner’s Curse）几乎必然发生： - 估值最激进的收购方胜出 - 但也意味着这家收购方最可能支付过高 - 其他收购方放弃的原因可能恰恰是因为出价已不合理</p>
+</section>
+<section id="错误五混淆控制权价值与协同效应" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="错误五混淆控制权价值与协同效应"><span class="header-section-number">7.5</span> 错误五：混淆控制权价值与协同效应</h3>
+<p><strong>问题描述</strong>：</p>
+<p>很多分析将两者混为一谈，但它们有本质区别：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>控制权价值</th>
+<th>协同效应价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>来源</strong></td>
+<td>改善目标公司自身经营</td>
+<td>合并后独有的价值创造</td>
+</tr>
+<tr class="even">
+<td><strong>与收购方相关？</strong></td>
+<td>任何有能力的收购方都能实现</td>
+<td>取决于特定收购方</td>
+</tr>
+<tr class="odd">
+<td><strong>归属</strong></td>
+<td>应主要归目标公司股东</td>
+<td>应部分保留给收购方</td>
+</tr>
+</tbody>
+</table>
+<p><strong>正确理解</strong>：</p>
+<p>如果目标公司通过改善管理可以价值提升30%，这是控制权价值。任何有能力的管理团队（包括内部改革）都可以实现。因此，在竞争性报价中，这部分价值会被竞争掉。</p>
+<p>只有特定收购方才能实现的协同效应，才是收购方应该保留部分价值的依据。</p>
+</section>
+</section>
+<section id="交易结构从估值到成交" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="交易结构从估值到成交"><span class="header-section-number">8</span> 交易结构：从估值到成交</h2>
+<p>确定目标公司值多少钱只是第一步。接下来需要确定： - 如何定价？ - 用什么支付？ - 如何处理会计和税务？</p>
+<section id="定价决策" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="定价决策"><span class="header-section-number">8.1</span> 定价决策</h3>
+<section id="固定价格-vs-浮动价格" class="level4" data-number="8.1.1">
+<h4 data-number="8.1.1" class="anchored" data-anchor-id="固定价格-vs-浮动价格"><span class="header-section-number">8.1.1</span> 固定价格 vs 浮动价格</h4>
+<p><strong>固定价格</strong>： - 事先确定每股具体金额 - 简单明确 - 风险：签约到交割期间的市场波动</p>
+<p><strong>固定交换比率（浮动价格）</strong>： - 用股票支付时，确定每股目标公司换多少股收购方股票 - 例如：1股目标公司换0.5股收购方股票 - 签约到交割期间，实际支付金额随收购方股价波动</p>
+<p><strong>选择逻辑</strong>： - 收购方对自己股价有信心 → 倾向固定交换比率 - 目标公司想锁定收益 → 倾向固定价格</p>
+</section>
+<section id="盈余支付earnout" class="level4" data-number="8.1.2">
+<h4 data-number="8.1.2" class="anchored" data-anchor-id="盈余支付earnout"><span class="header-section-number">8.1.2</span> 盈余支付（Earnout）</h4>
+<p>当对目标公司未来业绩存在不确定性时，可以使用盈余支付结构：</p>
+<p><span class="math display">\[
+\text{总对价} = \text{预付款} + \text{基于未来业绩的或有支付}
+\]</span></p>
+<p><strong>适用情景</strong>： - 目标公司创始人/管理层对未来前景有不同看法 - 需要激励目标公司管理层留任并努力工作 - 行业或公司面临重大不确定性</p>
+<p><strong>风险</strong>： - 定义业绩指标可能有争议 - 整合后很难区分哪些业绩是目标公司贡献的</p>
+</section>
+</section>
+<section id="支付方式" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="支付方式"><span class="header-section-number">8.2</span> 支付方式</h3>
+<section id="现金-vs-股票" class="level4" data-number="8.2.1">
+<h4 data-number="8.2.1" class="anchored" data-anchor-id="现金-vs-股票"><span class="header-section-number">8.2.1</span> 现金 vs 股票</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>支付方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>现金</strong></td>
+<td>简单、确定、税务处理清晰</td>
+<td>需要融资、收购方承担全部风险</td>
+</tr>
+<tr class="even">
+<td><strong>股票</strong></td>
+<td>不需要现金、风险分担</td>
+<td>稀释现有股东、信号效应复杂</td>
+</tr>
+</tbody>
+</table>
+<p><strong>信号效应</strong>：</p>
+<p>收购方选择股票支付可能传递不同信号： - <strong>负面信号</strong>：管理层认为自己的股票高估，所以愿意用股票换资产 - <strong>中性/正面信号</strong>：管理层认为股票是合理的支付货币，体现对交易的信心</p>
+<p>实证研究表明，股票支付的收购公告后，收购方股价往往有负面反应。</p>
+</section>
+<section id="股票支付的特殊考虑交换比率" class="level4" data-number="8.2.2">
+<h4 data-number="8.2.2" class="anchored" data-anchor-id="股票支付的特殊考虑交换比率"><span class="header-section-number">8.2.2</span> 股票支付的特殊考虑：交换比率</h4>
+<p>当使用股票支付时，需要确定<strong>交换比率</strong>（Exchange Ratio）——每股目标公司换多少股收购方股票。</p>
+<p><strong>基本计算</strong>：</p>
+<p><span class="math display">\[
+\text{交换比率} = \frac{P_T}{P_A}
+\]</span></p>
+<p>其中 <span class="math inline">\(P_T\)</span> 是目标公司每股价格（收购价），<span class="math inline">\(P_A\)</span> 是收购方每股价格。</p>
+<p><strong>但这里有一个微妙的问题</strong>：合并后的每股价值会受到交换比率本身的影响。</p>
+<p><strong>完整分析</strong>：</p>
+<p>假设： - 收购方现有股数：<span class="math inline">\(N_A\)</span> - 目标公司现有股数：<span class="math inline">\(N_T\)</span> - 收购方独立价值：<span class="math inline">\(V_A\)</span> - 目标公司独立价值（含控制权）：<span class="math inline">\(V_T\)</span> - 协同效应价值：<span class="math inline">\(S\)</span> - 交换比率：<span class="math inline">\(ER\)</span></p>
+<p>合并后的总股数：</p>
+<p><span class="math display">\[
+N_{合并} = N_A + N_T \times ER
+\]</span></p>
+<p>合并后的总价值：</p>
+<p><span class="math display">\[
+V_{合并} = V_A + V_T + S
+\]</span></p>
+<p>合并后每股价值：</p>
+<p><span class="math display">\[
+P_{合并} = \frac{V_{合并}}{N_{合并}}
+\]</span></p>
+<p><strong>收购方股东的价值分析</strong>：</p>
+<p>收购方股东在合并后持有 <span class="math inline">\(N_A\)</span> 股，价值为：</p>
+<p><span class="math display">\[
+V_{\text{收购方股东}} = N_A \times P_{合并} = N_A \times \frac{V_A + V_T + S}{N_A + N_T \times ER}
+\]</span></p>
+<p>为了不损害收购方股东，需要：</p>
+<p><span class="math display">\[
+V_{\text{收购方股东}} \geq V_A
+\]</span></p>
+<p>解这个不等式，可以得到收购方能接受的最高交换比率。</p>
+</section>
+</section>
+<section id="会计处理收购法" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="会计处理收购法"><span class="header-section-number">8.3</span> 会计处理：收购法</h3>
+<p>自2001年起，收购必须使用<strong>收购法</strong>（Acquisition Method）会计处理。关键特点：</p>
+<p><strong>1. 公允价值记录</strong></p>
+<p>收购的资产和负债按收购日的公允价值入账，而非账面价值。</p>
+<p><strong>2. 商誉确认</strong></p>
+<p>收购价格超过可辨认净资产公允价值的部分，确认为<strong>商誉</strong>（Goodwill）。</p>
+<p><span class="math display">\[
+\text{商誉} = \text{收购价格} - \text{可辨认净资产公允价值}
+\]</span></p>
+<p><strong>3. 商誉不摊销但需减值测试</strong></p>
+<p>商誉不再像以前那样分期摊销，而是每年进行减值测试。如果商誉的可收回金额低于账面价值，需要确认减值损失。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>商誉的经济含义
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>商誉代表的是收购方支付的溢价，来源于： - 控制权价值 - 协同效应价值 - 或者——收购方支付过高的金额</p>
+<p>商誉减值说明什么？收购时的假设（关于协同效应、控制权改善等）未能实现，需要”承认错误”。</p>
+<p>很多大型收购后来发生大额商誉减值，本质上是承认当初支付过高。</p>
+</div>
+</div>
+<p><strong>4. 重组费用</strong></p>
+<p>并购后的整合成本（裁员补偿、系统整合等）不能资本化为商誉的一部分，而是在发生时确认为费用。</p>
+</section>
+<section id="税务考量" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="税务考量"><span class="header-section-number">8.4</span> 税务考量</h3>
+<p>并购的税务处理复杂，主要考虑：</p>
+<p><strong>对目标公司股东</strong>： - 现金收购通常触发资本利得税 - 股票换股票可能符合”免税重组”，延迟纳税 - 结构设计可以优化税务后果</p>
+<p><strong>对收购方</strong>： - 资产收购可以实现资产”Step-up”，增加折旧税盾 - 但可能触发目标公司的税务负担 - 股权收购通常不改变目标公司的税基</p>
+</section>
+</section>
+<section id="提高并购成功率的策略" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="提高并购成功率的策略"><span class="header-section-number">9</span> 提高并购成功率的策略</h2>
+<p>鉴于大多数并购未能为收购方创造价值，了解什么因素与并购成功相关至关重要。</p>
+<section id="竞价战走还是留" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="竞价战走还是留"><span class="header-section-number">9.1</span> 竞价战：走还是留？</h3>
+<p><strong>研究发现</strong>：参与竞价战的收购方往往是最大的输家。</p>
+<p><strong>为什么？</strong> - 竞价过程中，胜出者往往是估值最激进的 - “赢家诅咒”几乎必然发生 - 情绪因素（面子、媒体关注）可能压过理性分析</p>
+<p><strong>建议</strong>： - 在参与竞争前设定明确的退出价格 - 一旦价格超过退出点，果断退出 - 不要因为已投入的尽职调查成本而继续（沉没成本谬误）</p>
+</section>
+<section id="目标公司规模大象交易的风险" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="目标公司规模大象交易的风险"><span class="header-section-number">9.2</span> 目标公司规模：大象交易的风险</h3>
+<p><strong>研究发现</strong>：收购相对于自身规模非常大的目标（“大象交易”）表现尤其差。</p>
+<p><strong>原因分析</strong>： - 整合难度随规模指数级上升 - 大型交易更可能支付过高溢价 - 管理层注意力被分散 - 文化冲突更难调和</p>
+<p><strong>建议</strong>： - 避免单笔”改变命运”的大型收购 - 通过多笔小型收购积累经验 - 如果必须进行大型收购，预留更多安全边际</p>
+</section>
+<section id="公众公司-vs-私有公司" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="公众公司-vs-私有公司"><span class="header-section-number">9.3</span> 公众公司 vs 私有公司</h3>
+<p><strong>研究发现</strong>：收购私有公司的回报通常优于收购公众公司。</p>
+<p><strong>原因分析</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>公众公司目标</th>
+<th>私有公司目标</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>定价压力</strong></td>
+<td>竞争激烈、市场关注</td>
+<td>竞争较少、信息不对称</td>
+</tr>
+<tr class="even">
+<td><strong>协商能力</strong></td>
+<td>目标公司有董事会、律师、投行</td>
+<td>可能直接与所有者谈判</td>
+</tr>
+<tr class="odd">
+<td><strong>流动性折价</strong></td>
+<td>无</td>
+<td>可能获得流动性折价</td>
+</tr>
+<tr class="even">
+<td><strong>整合阻力</strong></td>
+<td>可能有敌意、文化冲突</td>
+<td>所有者可能更配合</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="成本协同-vs-增长协同" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="成本协同-vs-增长协同"><span class="header-section-number">9.4</span> 成本协同 vs 增长协同</h3>
+<p><strong>研究发现</strong>：基于成本节约的收购表现优于基于增长预期的收购。</p>
+<p><strong>为什么？</strong> - 成本节约更容易预测和实现 - 增长协同高度依赖市场条件和执行能力 - 成本削减可以主动控制，收入增长需要客户买单</p>
+<p><strong>建议</strong>： - 优先考虑成本协同 - 对增长协同保持怀疑 - 如果主要逻辑是增长协同，需要更大的安全边际</p>
+</section>
+<section id="跨行业-vs-同行业" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="跨行业-vs-同行业"><span class="header-section-number">9.5</span> 跨行业 vs 同行业</h3>
+<p><strong>研究发现</strong>：同行业收购（横向并购）表现优于跨行业收购（混合并购）。</p>
+<p><strong>原因</strong>： - 同行业收购的协同效应更容易识别和实现 - 管理层对目标业务更熟悉 - 整合过程更可控</p>
+</section>
+<section id="友好收购-vs-敌意收购" class="level3" data-number="9.6">
+<h3 data-number="9.6" class="anchored" data-anchor-id="友好收购-vs-敌意收购"><span class="header-section-number">9.6</span> 友好收购 vs 敌意收购</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>友好收购</th>
+<th>敌意收购</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>价格</strong></td>
+<td>可能更合理</td>
+<td>通常需要更高溢价</td>
+</tr>
+<tr class="even">
+<td><strong>整合难度</strong></td>
+<td>较低</td>
+<td>较高（管理层可能离职）</td>
+</tr>
+<tr class="odd">
+<td><strong>时间</strong></td>
+<td>通常更快</td>
+<td>可能旷日持久</td>
+</tr>
+<tr class="even">
+<td><strong>信息</strong></td>
+<td>目标公司配合尽职调查</td>
+<td>信息有限</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="杠杆收购lbo的估值" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="杠杆收购lbo的估值"><span class="header-section-number">10</span> 杠杆收购（LBO）的估值</h2>
+<p>杠杆收购是一种特殊的并购形式，其核心特点是使用大量债务融资。</p>
+<section id="lbo-的基本结构" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="lbo-的基本结构"><span class="header-section-number">10.1</span> LBO 的基本结构</h3>
+<pre><code>收购前：目标公司独立经营
+           ↓
+LBO 交易结构：
+┌─────────────────────────────────┐
+│      收购方（通常是私募基金）      │
+│                                 │
+│  股权出资：20-40%               │
+│  债务融资：60-80%               │
+│                                 │
+│  债务来源：                      │
+│  - 高级债（银行贷款）            │
+│  - 次级债/夹层融资              │
+│  - 高收益债券                    │
+└─────────────────────────────────┘
+           ↓
+收购后：高杠杆经营
+           ↓
+退出（3-7年后）：
+- IPO
+- 出售给战略买家
+- 出售给另一家私募基金</code></pre>
+</section>
+<section id="lbo-估值的特殊挑战" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="lbo-估值的特殊挑战"><span class="header-section-number">10.2</span> LBO 估值的特殊挑战</h3>
+<p>与常规 DCF 估值相比，LBO 估值面临一个核心挑战：<strong>资本结构（杠杆率）随时间显著变化</strong>。</p>
+<p><strong>常规 DCF 的假设</strong>： - 资本结构保持稳定（或向目标水平趋近） - 使用单一的加权平均资本成本（WACC）折现</p>
+<p><strong>LBO 的现实</strong>： - 收购时杠杆极高（可能 80% 负债） - 运营期间用现金流偿债，杠杆逐步下降 - 退出时杠杆可能接近正常水平（如 40%）</p>
+<p><strong>为什么不能使用单一 WACC？</strong></p>
+<p>WACC 是债务和股权成本的加权平均。杠杆率越高： - 债务比重越大 - 股权风险越高（财务风险上升） - WACC 会变化</p>
+<p>如果使用收购时的高杠杆 WACC，会低估后期（杠杆已下降时）的现金流价值。</p>
+</section>
+<section id="lbo-估值方法时变成本资本" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="lbo-估值方法时变成本资本"><span class="header-section-number">10.3</span> LBO 估值方法：时变成本资本</h3>
+<p>正确的 LBO 估值方法是<strong>逐年调整折现率</strong>以反映杠杆变化。</p>
+<p><strong>步骤1：预测债务偿还路径</strong></p>
+<p>基于目标公司的现金流预测，估计每年的债务余额：</p>
+<p><span class="math display">\[
+D_t = D_{t-1} - \text{当年偿债金额}
+\]</span></p>
+<p><strong>步骤2：逐年计算杠杆率</strong></p>
+<p><span class="math display">\[
+\text{杠杆率}_t = \frac{D_t}{D_t + E_t}
+\]</span></p>
+<p>其中股权价值 <span class="math inline">\(E_t\)</span> 需要迭代求解（因为它取决于后续现金流的折现值）。</p>
+<p><strong>步骤3：逐年计算股权成本</strong></p>
+<p>使用杠杆 Beta 公式：</p>
+<p><span class="math display">\[
+\beta_{L,t} = \beta_U \times \left[1 + (1-t) \times \frac{D_t}{E_t}\right]
+\]</span></p>
+<p>然后用 CAPM 计算股权成本：</p>
+<p><span class="math display">\[
+k_{e,t} = r_f + \beta_{L,t} \times \text{ERP}
+\]</span></p>
+<p><strong>步骤4：逐年折现</strong></p>
+<p>不同年份的现金流使用不同年份的股权成本折现：</p>
+<p><span class="math display">\[
+\text{PV} = \frac{CF_1}{1+k_{e,1}} + \frac{CF_2}{(1+k_{e,1})(1+k_{e,2})} + ...
+\]</span></p>
+</section>
+<section id="congoleum-公司-lbo-案例1979年" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="congoleum-公司-lbo-案例1979年"><span class="header-section-number">10.4</span> Congoleum 公司 LBO 案例（1979年）</h3>
+<p>这是 LBO 估值的经典教学案例。</p>
+<p><strong>交易背景</strong>： - Congoleum 是一家多元化公司，业务包括地板、造船和汽车配件 - 1979年，管理层和 Prudential Insurance 合作进行 LBO - 收购价格：每股 $38（对当时市场价格有 50% 溢价）</p>
+<p><strong>LBO 融资结构</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>融资来源</th>
+<th>金额（百万美元）</th>
+<th>比例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>银行贷款（高级债）</td>
+<td>$125</td>
+<td>44%</td>
+</tr>
+<tr class="even">
+<td>次级票据</td>
+<td>$30</td>
+<td>11%</td>
+</tr>
+<tr class="odd">
+<td>夹层债务</td>
+<td>$15</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>股权出资</td>
+<td>$115</td>
+<td>40%</td>
+</tr>
+<tr class="odd">
+<td><strong>合计</strong></td>
+<td><strong>$285</strong></td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>预测与估值</strong>（简化）：</p>
+<p><strong>假设</strong>： - 税后营业利润逐年增长 - 自由现金流主要用于偿债 - 债务在7年内从 $170 百万降至约 $80 百万 - 退出时假设股权以 10 倍税后营业利润估值</p>
+<p><strong>逐年估值示意</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>债务余额</th>
+<th>股权价值</th>
+<th>杠杆率</th>
+<th>股权Beta</th>
+<th>股权成本</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>$170M</td>
+<td>$115M</td>
+<td>60%</td>
+<td>2.0</td>
+<td>18%</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>$150M</td>
+<td>$130M</td>
+<td>54%</td>
+<td>1.8</td>
+<td>16.5%</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>$130M</td>
+<td>$150M</td>
+<td>46%</td>
+<td>1.6</td>
+<td>15%</td>
+</tr>
+<tr class="even">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>$80M</td>
+<td>$280M</td>
+<td>22%</td>
+<td>1.2</td>
+<td>12%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>估值结论</strong>：</p>
+<p>使用时变资本成本方法，Congoleum 的股权价值在 LBO 定价下约 $115 百万。如果管理层能够： - 按计划偿债 - 实现预期的经营现金流 - 在退出时获得合理估值倍数</p>
+<p>则这笔 LBO 可以为股权投资者创造可观回报。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>LBO 估值的关键洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>杠杆放大回报（和风险）</strong>：高杠杆使股权回报率可能很高，但也放大下行风险</li>
+<li><strong>现金流至关重要</strong>：LBO 依赖稳定的现金流偿债，现金流不稳定的公司不适合</li>
+<li><strong>退出是关键</strong>：LBO 的成功高度依赖退出时的估值倍数</li>
+<li><strong>使用时变资本成本</strong>：不能用单一 WACC，必须逐年调整</li>
+<li><strong>经营改善是真正的价值来源</strong>：不是金融工程，而是通过控制权实现的经营改善</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="什么样的公司适合-lbo" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="什么样的公司适合-lbo"><span class="header-section-number">10.5</span> 什么样的公司适合 LBO？</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>特征</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>稳定的现金流</strong></td>
+<td>需要偿债，不能依赖波动收入</td>
+</tr>
+<tr class="even">
+<td><strong>可削减的成本</strong></td>
+<td>新所有者可以提升效率</td>
+</tr>
+<tr class="odd">
+<td><strong>低资本支出需求</strong></td>
+<td>现金流用于偿债而非投资</td>
+</tr>
+<tr class="even">
+<td><strong>可出售的资产</strong></td>
+<td>非核心资产可以变现偿债</td>
+</tr>
+<tr class="odd">
+<td><strong>经验丰富的管理层</strong></td>
+<td>LBO 后管理层通常留任</td>
+</tr>
+<tr class="even">
+<td><strong>清晰的退出路径</strong></td>
+<td>IPO、出售给战略买家等</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="总结" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="总结"><span class="header-section-number">11</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>并购动机决定价值创造</strong>：只有经营协同效应和控制权价值是真正的价值创造动机；多元化和管理层利益驱动的并购通常摧毁价值</li>
+<li><strong>估值三层框架</strong>：现状价值 + 控制权价值 + 协同效应价值 = 最高合理出价</li>
+<li><strong>控制权价值因公司而异</strong>：经营越差的公司，控制权价值越高；已最优经营的公司控制权价值为零</li>
+<li><strong>协同效应常被高估</strong>：宣称的协同往往只能实现 60-70%，应保持怀疑</li>
+<li><strong>收购方往往是输家</strong>：目标公司股东几乎总是赢家；收购方股东结果喜忧参半</li>
+<li><strong>LBO 需要时变资本成本</strong>：由于杠杆随时间变化，必须逐年调整折现率</li>
+</ul>
+</div>
+</div>
+<p>回到本章开头的问题：百威英博为 SAB Miller 支付的价格是否合理？</p>
+<p>根据我们的分析，百威英博支付的 £44/股低于我们估计的完整价值 £46.30/股（包含控制权和协同效应）。如果百威英博能够实现预期的经营改善和成本节约，这笔交易可能为其股东创造价值。</p>
+<p>但这里有一个重要的警告：我们的估值假设是宣称的协同效应能够完全实现。历史经验表明，这样的假设往往过于乐观。</p>
+<p>并购估值的关键不在于得到一个精确的数字，而在于<strong>理解价值的来源</strong>、<strong>识别关键假设</strong>、<strong>评估实现的可能性</strong>。最成功的收购方不是支付最高价格的，而是对价值来源有最清晰理解、对执行风险有最务实评估的。</p>
+</section>
+<section id="思考题" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="思考题"><span class="header-section-number">12</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>多元化的价值</strong>：为什么多元化对公众公司股东没有价值，但对私有公司所有者可能有价值？这对私有公司的并购估值有什么影响？</p></li>
+<li><p><strong>控制权溢价的合理性</strong>：一家公司的股价已经反映了市场对”被收购可能性”的预期。在这种情况下，控制权价值应该如何调整？</p></li>
+<li><p><strong>协同效应的归属</strong>：如果收购方 A 和收购方 B 都想收购目标公司 T，且两者能实现的协同效应相同，最终成交价会如何确定？协同效应会归谁？</p></li>
+<li><p><strong>LBO 的时机</strong>：为什么 LBO 活动在利率低、信贷宽松的环境中更活跃？这对 LBO 投资者的长期回报有什么影响？</p></li>
+<li><p><strong>收购后的商誉减值</strong>：很多大型收购后来发生大额商誉减值。这说明了什么？如果你是收购方的股东，应该如何解读商誉减值公告？</p></li>
+<li><p><strong>敌意收购的控制权价值</strong>：在敌意收购中，收购方往往需要支付更高的溢价。这是否意味着敌意收购目标的控制权价值更高？还是有其他解释？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="深入解析 Price-to-Sales 和 EV/Sales 倍数的理论基础与实践应用。从利润率到品牌价值，从传统零售到 Netflix 订阅者估值，理解营收倍数背后的商业逻辑。">
+
+<title>【第20章】营收倍数与行业特定倍数：当盈利为负时如何估值？ – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#为什么需要营收倍数" id="toc-为什么需要营收倍数" class="nav-link" data-scroll-target="#为什么需要营收倍数"><span class="header-section-number">2</span> 为什么需要营收倍数？</a>
+  <ul class="collapse">
+  <li><a href="#传统倍数的局限" id="toc-传统倍数的局限" class="nav-link" data-scroll-target="#传统倍数的局限"><span class="header-section-number">2.1</span> 传统倍数的局限</a></li>
+  <li><a href="#营收倍数的优势" id="toc-营收倍数的优势" class="nav-link" data-scroll-target="#营收倍数的优势"><span class="header-section-number">2.2</span> 营收倍数的优势</a></li>
+  <li><a href="#营收倍数的危险" id="toc-营收倍数的危险" class="nav-link" data-scroll-target="#营收倍数的危险"><span class="header-section-number">2.3</span> 营收倍数的危险</a></li>
+  </ul></li>
+  <li><a href="#营收倍数的定义" id="toc-营收倍数的定义" class="nav-link" data-scroll-target="#营收倍数的定义"><span class="header-section-number">3</span> 营收倍数的定义</a>
+  <ul class="collapse">
+  <li><a href="#两种基本形式" id="toc-两种基本形式" class="nav-link" data-scroll-target="#两种基本形式"><span class="header-section-number">3.1</span> 两种基本形式</a></li>
+  <li><a href="#为什么-evsales-更稳健" id="toc-为什么-evsales-更稳健" class="nav-link" data-scroll-target="#为什么-evsales-更稳健"><span class="header-section-number">3.2</span> 为什么 EV/Sales 更稳健？</a></li>
+  <li><a href="#横截面分布" id="toc-横截面分布" class="nav-link" data-scroll-target="#横截面分布"><span class="header-section-number">3.3</span> 横截面分布</a></li>
+  </ul></li>
+  <li><a href="#从-dcf-推导营收倍数的决定因素" id="toc-从-dcf-推导营收倍数的决定因素" class="nav-link" data-scroll-target="#从-dcf-推导营收倍数的决定因素"><span class="header-section-number">4</span> 从 DCF 推导营收倍数的决定因素</a>
+  <ul class="collapse">
+  <li><a href="#price-to-sales-ratio-的决定因素" id="toc-price-to-sales-ratio-的决定因素" class="nav-link" data-scroll-target="#price-to-sales-ratio-的决定因素"><span class="header-section-number">4.1</span> Price-to-Sales Ratio 的决定因素</a></li>
+  <li><a href="#ev-to-sales-ratio-的决定因素" id="toc-ev-to-sales-ratio-的决定因素" class="nav-link" data-scroll-target="#ev-to-sales-ratio-的决定因素"><span class="header-section-number">4.2</span> EV-to-Sales Ratio 的决定因素</a></li>
+  <li><a href="#案例高增长公司的两阶段-ps-ratio" id="toc-案例高增长公司的两阶段-ps-ratio" class="nav-link" data-scroll-target="#案例高增长公司的两阶段-ps-ratio"><span class="header-section-number">4.3</span> 案例：高增长公司的两阶段 PS Ratio</a></li>
+  <li><a href="#案例whole-foods-的内在-ps-ratio" id="toc-案例whole-foods-的内在-ps-ratio" class="nav-link" data-scroll-target="#案例whole-foods-的内在-ps-ratio"><span class="header-section-number">4.4</span> 案例：Whole Foods 的内在 PS Ratio</a></li>
+  </ul></li>
+  <li><a href="#营收倍数与利润率核心关系" id="toc-营收倍数与利润率核心关系" class="nav-link" data-scroll-target="#营收倍数与利润率核心关系"><span class="header-section-number">5</span> 营收倍数与利润率：核心关系</a>
+  <ul class="collapse">
+  <li><a href="#利润率是伴生变量" id="toc-利润率是伴生变量" class="nav-link" data-scroll-target="#利润率是伴生变量"><span class="header-section-number">5.1</span> 利润率是”伴生变量”</a></li>
+  <li><a href="#如何找到伴生变量" id="toc-如何找到伴生变量" class="nav-link" data-scroll-target="#如何找到伴生变量"><span class="header-section-number">5.2</span> 如何找到伴生变量？</a></li>
+  <li><a href="#利润率下降的双重打击" id="toc-利润率下降的双重打击" class="nav-link" data-scroll-target="#利润率下降的双重打击"><span class="header-section-number">5.3</span> 利润率下降的双重打击</a></li>
+  </ul></li>
+  <li><a href="#利润率定价策略与品牌价值" id="toc-利润率定价策略与品牌价值" class="nav-link" data-scroll-target="#利润率定价策略与品牌价值"><span class="header-section-number">6</span> 利润率、定价策略与品牌价值</a>
+  <ul class="collapse">
+  <li><a href="#定价策略的估值含义" id="toc-定价策略的估值含义" class="nav-link" data-scroll-target="#定价策略的估值含义"><span class="header-section-number">6.1</span> 定价策略的估值含义</a></li>
+  <li><a href="#案例whole-foods-定价策略变更的影响" id="toc-案例whole-foods-定价策略变更的影响" class="nav-link" data-scroll-target="#案例whole-foods-定价策略变更的影响"><span class="header-section-number">6.2</span> 案例：Whole Foods 定价策略变更的影响</a></li>
+  <li><a href="#品牌价值的量化方法" id="toc-品牌价值的量化方法" class="nav-link" data-scroll-target="#品牌价值的量化方法"><span class="header-section-number">6.3</span> 品牌价值的量化方法</a></li>
+  <li><a href="#案例品牌公司-vs-通用公司" id="toc-案例品牌公司-vs-通用公司" class="nav-link" data-scroll-target="#案例品牌公司-vs-通用公司"><span class="header-section-number">6.4</span> 案例：品牌公司 vs 通用公司</a></li>
+  <li><a href="#案例可口可乐品牌价值估算" id="toc-案例可口可乐品牌价值估算" class="nav-link" data-scroll-target="#案例可口可乐品牌价值估算"><span class="header-section-number">6.5</span> 案例：可口可乐品牌价值估算</a></li>
+  </ul></li>
+  <li><a href="#使用营收倍数进行投资分析" id="toc-使用营收倍数进行投资分析" class="nav-link" data-scroll-target="#使用营收倍数进行投资分析"><span class="header-section-number">7</span> 使用营收倍数进行投资分析</a>
+  <ul class="collapse">
+  <li><a href="#寻找错配" id="toc-寻找错配" class="nav-link" data-scroll-target="#寻找错配"><span class="header-section-number">7.1</span> 寻找”错配”</a></li>
+  <li><a href="#回归分析方法" id="toc-回归分析方法" class="nav-link" data-scroll-target="#回归分析方法"><span class="header-section-number">7.2</span> 回归分析方法</a></li>
+  <li><a href="#互联网公司的教训" id="toc-互联网公司的教训" class="nav-link" data-scroll-target="#互联网公司的教训"><span class="header-section-number">7.3</span> 互联网公司的教训</a></li>
+  <li><a href="#市场回归" id="toc-市场回归" class="nav-link" data-scroll-target="#市场回归"><span class="header-section-number">7.4</span> 市场回归</a></li>
+  <li><a href="#案例whole-foods-的时间序列分析2007-2011" id="toc-案例whole-foods-的时间序列分析2007-2011" class="nav-link" data-scroll-target="#案例whole-foods-的时间序列分析2007-2011"><span class="header-section-number">7.5</span> 案例：Whole Foods 的时间序列分析（2007-2011）</a></li>
+  <li><a href="#未来营收的倍数" id="toc-未来营收的倍数" class="nav-link" data-scroll-target="#未来营收的倍数"><span class="header-section-number">7.6</span> 未来营收的倍数</a></li>
+  </ul></li>
+  <li><a href="#行业特定倍数" id="toc-行业特定倍数" class="nav-link" data-scroll-target="#行业特定倍数"><span class="header-section-number">8</span> 行业特定倍数</a>
+  <ul class="collapse">
+  <li><a href="#当营收倍数也失效时" id="toc-当营收倍数也失效时" class="nav-link" data-scroll-target="#当营收倍数也失效时"><span class="header-section-number">8.1</span> 当营收倍数也失效时</a></li>
+  <li><a href="#为什么分析师使用行业特定倍数" id="toc-为什么分析师使用行业特定倍数" class="nav-link" data-scroll-target="#为什么分析师使用行业特定倍数"><span class="header-section-number">8.2</span> 为什么分析师使用行业特定倍数？</a></li>
+  <li><a href="#行业特定倍数的危险" id="toc-行业特定倍数的危险" class="nav-link" data-scroll-target="#行业特定倍数的危险"><span class="header-section-number">8.3</span> 行业特定倍数的危险</a></li>
+  <li><a href="#用户订阅者价值的决定因素" id="toc-用户订阅者价值的决定因素" class="nav-link" data-scroll-target="#用户订阅者价值的决定因素"><span class="header-section-number">8.4</span> 用户/订阅者价值的决定因素</a></li>
+  <li><a href="#三种收入模式" id="toc-三种收入模式" class="nav-link" data-scroll-target="#三种收入模式"><span class="header-section-number">8.5</span> 三种收入模式</a></li>
+  <li><a href="#案例netflix-订阅者价值估算2018-年" id="toc-案例netflix-订阅者价值估算2018-年" class="nav-link" data-scroll-target="#案例netflix-订阅者价值估算2018-年"><span class="header-section-number">8.6</span> 案例：Netflix 订阅者价值估算（2018 年）</a></li>
+  <li><a href="#案例社交媒体公司的每用户价值2011-年" id="toc-案例社交媒体公司的每用户价值2011-年" class="nav-link" data-scroll-target="#案例社交媒体公司的每用户价值2011-年"><span class="header-section-number">8.7</span> 案例：社交媒体公司的每用户价值（2011 年）</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">9</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">10</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第20章】营收倍数与行业特定倍数：当盈利为负时如何估值？</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    深入解析 Price-to-Sales 和 EV/Sales 倍数的理论基础与实践应用。从利润率到品牌价值，从传统零售到 Netflix 订阅者估值，理解营收倍数背后的商业逻辑。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月20日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你要估值一家公司，它有可观的营收增长，但盈利为负。PE 倍数不适用（负数没有意义），PB 倍数可能因为账面价值很小而失真。这时候怎么办？</p>
+<p>这就是<strong>营收倍数</strong>（Revenue Multiples）存在的意义。</p>
+<p>在互联网泡沫时期，分析师们开始大量使用 Price-to-Sales (PS) 和 EV/Sales 来估值那些没有盈利的科技公司。时至今日，这些倍数依然是估值年轻公司、亏损公司、以及周期性公司的重要工具。</p>
+<p>但营收倍数也是最容易被误用的倍数之一。一家以 2 倍营收交易的公司看起来比 5 倍营收的公司”便宜”，但如果前者利润率只有 2%，后者利润率高达 20%，结论可能完全相反。</p>
+<p>本章将深入探讨：</p>
+<ul>
+<li>营收倍数的两种定义：PS ratio 和 EV/Sales ratio，哪个更稳健？</li>
+<li><strong>利润率</strong>如何成为营收倍数的核心驱动因素？</li>
+<li>如何用营收倍数<strong>量化品牌价值</strong>？</li>
+<li>当营收倍数也失效时，<strong>行业特定倍数</strong>（如”每用户价值”）如何发挥作用？</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>本章的独特价值
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>与 PE 和 PB 倍数相比，营收倍数的最大优势是<strong>几乎总是可计算的</strong>——只要有营收，就能计算。但这也是它的陷阱：容易让人忽视利润率差异，从而做出错误判断。</p>
+<p>本章的核心信息是：<strong>营收倍数的合理性完全取决于利润率假设</strong>。一家低利润率公司如果以高营收倍数交易，除非你相信它的利润率会大幅改善，否则就是被高估了。</p>
+</div>
+</div>
+</section>
+<section id="为什么需要营收倍数" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="为什么需要营收倍数"><span class="header-section-number">2</span> 为什么需要营收倍数？</h2>
+<section id="传统倍数的局限" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="传统倍数的局限"><span class="header-section-number">2.1</span> 传统倍数的局限</h3>
+<p>让我们回顾一下前几章讨论的倍数及其问题：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>倍数</th>
+<th>适用条件</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PE</td>
+<td>盈利为正</td>
+<td>亏损公司无法计算；会计选择影响大</td>
+</tr>
+<tr class="even">
+<td>PB</td>
+<td>账面价值有意义</td>
+<td>轻资产公司账面价值很小；会计处理差异大</td>
+</tr>
+<tr class="odd">
+<td>EV/EBITDA</td>
+<td>EBITDA 为正</td>
+<td>年轻公司可能 EBITDA 也为负</td>
+</tr>
+</tbody>
+</table>
+<p>对于很多年轻公司、初创公司、或者处于周期底部的公司，这些传统倍数都可能失效。</p>
+</section>
+<section id="营收倍数的优势" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="营收倍数的优势"><span class="header-section-number">2.2</span> 营收倍数的优势</h3>
+<p>营收倍数之所以受到青睐，有三个主要原因：</p>
+<p><strong>第一，几乎总是可计算的。</strong> 即使是最困难的公司，只要还在经营，通常都有营收。因此，使用营收倍数可以避免因为排除亏损公司而产生的样本偏差。</p>
+<p><strong>第二，营收相对难以操纵。</strong> 与盈利和账面价值相比，营收受会计选择的影响较小。虽然也有公司通过分期销售或关联交易虚增营收，但总体而言，营收是财务报表中最”干净”的数字之一。</p>
+<p><strong>第三，营收倍数波动性较低。</strong> 对于周期性公司，盈利可能随经济周期大幅波动，导致 PE 倍数剧烈变化。但营收对经济变化的敏感度较低，因此 PS 倍数更加稳定。</p>
+</section>
+<section id="营收倍数的危险" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="营收倍数的危险"><span class="header-section-number">2.3</span> 营收倍数的危险</h3>
+<blockquote class="blockquote">
+<p>“The biggest disadvantage of focusing on revenues is that it can lull you into assigning high values to firms that are generating high-revenue growth while losing significant amounts of money.”</p>
+</blockquote>
+<p>Damodaran 一针见血地指出：营收倍数最大的危险是<strong>让你为高营收增长但大幅亏损的公司支付过高价格</strong>。</p>
+<p>最终，公司必须产生盈利和现金流才有价值。如果一家公司永远无法将营收转化为利润，那么再高的营收增长也毫无意义。使用营收倍数而不控制利润率差异，可能导致严重的估值错误。</p>
+</section>
+</section>
+<section id="营收倍数的定义" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="营收倍数的定义"><span class="header-section-number">3</span> 营收倍数的定义</h2>
+<section id="两种基本形式" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="两种基本形式"><span class="header-section-number">3.1</span> 两种基本形式</h3>
+<p>营收倍数有两种基本定义：</p>
+<p><strong>Price-to-Sales Ratio (PS)</strong>：</p>
+<p><span class="math display">\[
+\text{PS ratio} = \frac{\text{市值（Market Value of Equity）}}{\text{营收（Revenues）}}
+\]</span></p>
+<p><strong>EV-to-Sales Ratio</strong>：</p>
+<p><span class="math display">\[
+\text{EV/Sales} = \frac{\text{企业价值（Market Value of Equity + Debt − Cash）}}{\text{营收（Revenues）}}
+\]</span></p>
+</section>
+<section id="为什么-evsales-更稳健" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="为什么-evsales-更稳健"><span class="header-section-number">3.2</span> 为什么 EV/Sales 更稳健？</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心观点：优先使用 EV/Sales
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>EV/Sales 比 PS ratio 更加内部一致</strong>（internally consistent）。</p>
+<ul>
+<li>EV/Sales 用营业资产的总价值除以这些资产产生的营收——分子分母在概念上匹配</li>
+<li>PS ratio 用股权价值除以整个公司产生的营收——分子只是股权，分母却是整体营收</li>
+</ul>
+<p>这导致一个重要后果：<strong>PS ratio 会因为杠杆差异而产生误导</strong>。高杠杆公司的 PS ratio 会偏低（因为股权价值较小），但这并不意味着它们更便宜。</p>
+</div>
+</div>
+<p>让我们用一个简单的例子说明：</p>
+<p>假设两家公司 A 和 B 完全相同，都有 100 亿营收，企业价值都是 50 亿。但 A 公司没有债务，B 公司有 20 亿债务。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>A 公司</th>
+<th>B 公司</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>营收</td>
+<td>100 亿</td>
+<td>100 亿</td>
+</tr>
+<tr class="even">
+<td>企业价值（EV）</td>
+<td>50 亿</td>
+<td>50 亿</td>
+</tr>
+<tr class="odd">
+<td>债务</td>
+<td>0</td>
+<td>20 亿</td>
+</tr>
+<tr class="even">
+<td>股权价值</td>
+<td>50 亿</td>
+<td>30 亿</td>
+</tr>
+<tr class="odd">
+<td><strong>EV/Sales</strong></td>
+<td><strong>0.5x</strong></td>
+<td><strong>0.5x</strong></td>
+</tr>
+<tr class="even">
+<td><strong>PS ratio</strong></td>
+<td><strong>0.5x</strong></td>
+<td><strong>0.3x</strong></td>
+</tr>
+</tbody>
+</table>
+<p>从 PS ratio 来看，B 公司似乎比 A 公司便宜 40%，但实际上两家公司的估值完全相同！这就是为什么在比较不同杠杆的公司时，EV/Sales 是更可靠的指标。</p>
+</section>
+<section id="横截面分布" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="横截面分布"><span class="header-section-number">3.3</span> 横截面分布</h3>
+<p>2024 年 1 月，美国上市公司的营收倍数分布如下：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>统计量</th>
+<th>PS Ratio</th>
+<th>EV/Sales Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>公司数量</td>
+<td>4,761</td>
+<td>4,637</td>
+</tr>
+<tr class="even">
+<td>平均值</td>
+<td>217.88</td>
+<td>230.53</td>
+</tr>
+<tr class="odd">
+<td>中位数</td>
+<td>1.95</td>
+<td>2.56</td>
+</tr>
+<tr class="even">
+<td>25 分位数</td>
+<td>0.73</td>
+<td>1.05</td>
+</tr>
+<tr class="odd">
+<td>75 分位数</td>
+<td>4.59</td>
+<td>6.32</td>
+</tr>
+</tbody>
+</table>
+<p>几个值得注意的点：</p>
+<ol type="1">
+<li><strong>平均值远高于中位数</strong>：这是因为存在极端异常值——有些公司的营收倍数超过 1,000 倍</li>
+<li><strong>EV/Sales 通常高于 PS ratio</strong>：这符合预期，因为有债务的公司，EV 会大于股权价值</li>
+<li><strong>分布非常分散</strong>：与 PE 和 PB 相比，营收倍数没有明显的”中心值”</li>
+</ol>
+<p>为什么样本中会少一些公司？主要有两个原因： - 金融服务公司（银行、保险）的营收难以定义，通常不计算营收倍数 - 有些公司的企业价值为负（现金超过股权+债务的市值）</p>
+</section>
+</section>
+<section id="从-dcf-推导营收倍数的决定因素" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="从-dcf-推导营收倍数的决定因素"><span class="header-section-number">4</span> 从 DCF 推导营收倍数的决定因素</h2>
+<section id="price-to-sales-ratio-的决定因素" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="price-to-sales-ratio-的决定因素"><span class="header-section-number">4.1</span> Price-to-Sales Ratio 的决定因素</h3>
+<p>就像我们在前几章所做的那样，让我们从 DCF 模型推导出 PS ratio 的决定因素。</p>
+<p>从稳定增长的股息折现模型出发：</p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{\text{Dividends}_1}{K_e - g}
+\]</span></p>
+<p>将股息替换为 <span class="math inline">\(\text{EPS}_1 \times \text{派息率}\)</span>，再用净利润率（Net Margin）将 EPS 与营收联系起来：</p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{\text{Sales}_1 \times \text{净利润率} \times \text{派息率}}{K_e - g}
+\]</span></p>
+<p>两边除以 Sales，得到：</p>
+<p><span class="math display">\[
+\boxed{\frac{P_0}{\text{Sales}_0} = \frac{\text{净利润率} \times \text{派息率} \times (1+g)}{K_e - g}}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>PS Ratio 的四个决定因素
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>从公式可以看出，PS ratio 取决于：</p>
+<ol type="1">
+<li><strong>净利润率（Net Margin）</strong>：利润率越高，PS 越高</li>
+<li><strong>派息率（Payout Ratio）</strong>：派息率越高，PS 越高（对于给定的增长率）</li>
+<li><strong>风险（通过 <span class="math inline">\(K_e\)</span>）</strong>：风险越高，PS 越低</li>
+<li><strong>增长率（g）</strong>：增长率越高，PS 越高</li>
+</ol>
+<p><strong>核心洞察</strong>：净利润率是 PS ratio 最重要的决定因素。高利润率的公司应该以更高的营收倍数交易。</p>
+</div>
+</div>
+<p>对于高增长公司，可以扩展为两阶段模型：</p>
+<p><span class="math display">\[
+\frac{P_0}{\text{Forward Sales}} = \text{Net margin}_{hg} \times \left[ \frac{\text{Payout}_{hg} \times \left(1 - \frac{(1+g)^n}{(1+K_{e,hg})^n}\right)}{K_{e,hg} - g} + \frac{(1+g)^{n-1}(1+g_{st}) \times \text{Payout}_{st}}{(K_{e,st} - g_{st})(1+K_{e,hg})^n} \right]
+\]</span></p>
+<p>虽然公式看起来复杂，但本质没变：<strong>利润率仍然是决定性因素</strong>。</p>
+</section>
+<section id="ev-to-sales-ratio-的决定因素" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="ev-to-sales-ratio-的决定因素"><span class="header-section-number">4.2</span> EV-to-Sales Ratio 的决定因素</h3>
+<p>类似地，从公司价值模型出发：</p>
+<p><span class="math display">\[
+\text{企业价值} = \frac{\text{EBIT}(1-t)(1 - \text{再投资率})}{K_c - g}
+\]</span></p>
+<p>两边除以 Sales：</p>
+<p><span class="math display">\[
+\boxed{\frac{EV}{\text{Sales}} = \frac{\text{税后营业利润率} \times (1 - \text{再投资率})}{K_c - g}}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>PS vs EV/Sales 的决定因素对比
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>PS Ratio</th>
+<th>EV/Sales Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润率（Net Margin）</td>
+<td>税后营业利润率（After-tax Operating Margin）</td>
+</tr>
+<tr class="even">
+<td>派息率（Payout）</td>
+<td>再投资率（Reinvestment Rate）</td>
+</tr>
+<tr class="odd">
+<td>股权成本（Cost of Equity）</td>
+<td>资本成本（Cost of Capital）</td>
+</tr>
+<tr class="even">
+<td>净利润增长率</td>
+<td>营业利润增长率</td>
+</tr>
+</tbody>
+</table>
+<p>两者的核心驱动因素都是<strong>利润率</strong>，只是层级不同：PS 看净利润率，EV/Sales 看营业利润率。</p>
+</div>
+</div>
+</section>
+<section id="案例高增长公司的两阶段-ps-ratio" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="案例高增长公司的两阶段-ps-ratio"><span class="header-section-number">4.3</span> 案例：高增长公司的两阶段 PS Ratio</h3>
+<p>在介绍真实案例之前，让我们先用一个简化的例子理解两阶段模型的计算。</p>
+<p>假设一家公司有以下特征：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>高增长期（5年）</th>
+<th>稳定期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>增长率</td>
+<td>20%</td>
+<td>4%</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>1.0</td>
+<td>1.0</td>
+</tr>
+<tr class="odd">
+<td>净利润率</td>
+<td>10%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>20%</td>
+<td>60%</td>
+</tr>
+<tr class="odd">
+<td>无风险利率</td>
+<td>4.5%</td>
+<td>4.5%</td>
+</tr>
+<tr class="even">
+<td>股权成本</td>
+<td>4.5% + 1(5%) = 9.5%</td>
+<td>9.5%</td>
+</tr>
+</tbody>
+</table>
+<p>计算 PS ratio：</p>
+<p><span class="math display">\[
+\frac{P}{\text{Forward Sales}} = 0.10 \times \left[ \frac{0.20 \times \left(1 - \frac{(1.20)^5}{(1.095)^5}\right)}{0.095 - 0.20} + \frac{(1.20)^4(1.04)(0.60)}{(0.095 - 0.04)(1.095)^5} \right] = 1.61
+\]</span></p>
+<p><span class="math display">\[
+\frac{P}{\text{Trailing Sales}} = 1.61 \times 1.20 = 1.93
+\]</span></p>
+<p>基于这家公司的基本面，它的股权应该以 1.61 倍（forward）或 1.93 倍（trailing）营收交易。</p>
+</section>
+<section id="案例whole-foods-的内在-ps-ratio" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="案例whole-foods-的内在-ps-ratio"><span class="header-section-number">4.4</span> 案例：Whole Foods 的内在 PS Ratio</h3>
+<p>让我们通过 Whole Foods Markets 的案例来理解如何计算内在 PS ratio。</p>
+<p><strong>背景</strong>：Whole Foods 是一家专注有机食品的高端超市连锁，2011 年 5 月有超过 300 家门店。</p>
+<p><strong>关键财务数据</strong>（2010 年）： - 净利润：2.46 亿美元 - 营收：90.06 亿美元 - 净利润率：2.73% - 股东权益账面价值：16.28 亿美元 - ROE：15.11%</p>
+<p><strong>估值假设</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>高增长期（10年）</th>
+<th>稳定期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>净利润率</td>
+<td>2.73%</td>
+<td>2.50%</td>
+</tr>
+<tr class="even">
+<td>Sales/BV of Equity</td>
+<td>5.53</td>
+<td>4.00</td>
+</tr>
+<tr class="odd">
+<td>ROE</td>
+<td>15.11%</td>
+<td>10.00%</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>33.82%</td>
+<td>70%</td>
+</tr>
+<tr class="odd">
+<td>增长率</td>
+<td>10.00%</td>
+<td>3.00%</td>
+</tr>
+<tr class="even">
+<td>股权成本</td>
+<td>8.50%</td>
+<td>8.00%</td>
+</tr>
+</tbody>
+</table>
+<p>注意：派息率是从增长率和 ROE 反推的：<span class="math inline">\(\text{派息率} = 1 - g/\text{ROE}\)</span></p>
+<p><strong>计算内在 PS ratio</strong>：</p>
+<p><span class="math display">\[
+\frac{P}{\text{Forward Sales}} = 0.0273 \times \left[ \frac{0.3382 \times \left(1 - \frac{(1.10)^{10}}{(1.085)^{10}}\right)}{0.085 - 0.10} + \frac{(1.10)^9(1.03)(0.70)}{(0.08 - 0.03)(1.085)^{10}} \right] = 0.50
+\]</span></p>
+<p><span class="math display">\[
+\frac{P}{\text{Trailing Sales}} = 0.50 \times 1.10 = 0.55
+\]</span></p>
+<p><strong>结论</strong>：基于基本面，Whole Foods 的内在 PS ratio 约为 0.55。但实际上 2011 年 5 月，Whole Foods 的 PS ratio 是 1.11——<strong>股票显著高估</strong>。</p>
+</section>
+</section>
+<section id="营收倍数与利润率核心关系" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="营收倍数与利润率核心关系"><span class="header-section-number">5</span> 营收倍数与利润率：核心关系</h2>
+<section id="利润率是伴生变量" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="利润率是伴生变量"><span class="header-section-number">5.1</span> 利润率是”伴生变量”</h3>
+<p>在第 17-19 章中，我们讨论了每个倍数都有一个<strong>伴生变量</strong>（Companion Variable）——对该倍数影响最大的单一因素。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>倍数</th>
+<th>伴生变量</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PE ratio</td>
+<td>预期增长率</td>
+</tr>
+<tr class="even">
+<td>PBV</td>
+<td>ROE</td>
+</tr>
+<tr class="odd">
+<td><strong>PS</strong></td>
+<td><strong>净利润率</strong></td>
+</tr>
+<tr class="even">
+<td>EV/EBITDA</td>
+<td>再投资率</td>
+</tr>
+<tr class="odd">
+<td><strong>EV/Sales</strong></td>
+<td><strong>税后营业利润率</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这意味着：</p>
+<ol type="1">
+<li><strong>利润率变化对营收倍数的影响巨大</strong></li>
+<li><strong>当一只股票看起来”便宜”（低营收倍数）时，首先检查利润率</strong>——大多数低 PS 的股票都有低利润率</li>
+</ol>
+</section>
+<section id="如何找到伴生变量" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="如何找到伴生变量"><span class="header-section-number">5.2</span> 如何找到伴生变量？</h3>
+<p>有两种方法：</p>
+<p><strong>方法一：回归分析</strong>。对营收倍数与所有基本面变量进行回归，t 统计量最高的变量就是伴生变量。</p>
+<p><strong>方法二：直觉法</strong>。 - 对于股权倍数，用净利润除以倍数的分母 → 得到伴生变量 - 对于企业价值倍数，用税后营业利润除以分母</p>
+<p>例如： - PS ratio 的分母是 Sales → 净利润 / Sales = 净利润率 - EV/Sales 的分母是 Sales → EBIT(1-t) / Sales = 税后营业利润率</p>
+</section>
+<section id="利润率下降的双重打击" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="利润率下降的双重打击"><span class="header-section-number">5.3</span> 利润率下降的双重打击</h3>
+<p>利润率下降对营收倍数的影响是<strong>双重的</strong>：</p>
+<ol type="1">
+<li><strong>直接效应</strong>：利润率进入公式分子，利润率下降直接降低倍数</li>
+<li><strong>间接效应</strong>：利润率下降会降低 ROE/ROIC，进而降低可持续增长率</li>
+</ol>
+<p>让我们用一个例子说明。假设一家公司的净利润率从 10% 下降到 5%，其他条件相同：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>净利润率</th>
+<th>Sales/BV</th>
+<th>ROE</th>
+<th>增长率</th>
+<th>PS Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>原始</td>
+<td>10%</td>
+<td>2.5</td>
+<td>25%</td>
+<td>20%</td>
+<td>1.61</td>
+</tr>
+<tr class="even">
+<td>利润率下降</td>
+<td>5%</td>
+<td>2.5</td>
+<td>12.5%</td>
+<td>10%</td>
+<td>0.57</td>
+</tr>
+</tbody>
+</table>
+<p><strong>利润率减半，PS ratio 下降了 65%！</strong> 这就是为什么对于高营收倍数的公司，必须特别关注其利润率的可持续性。</p>
+</section>
+</section>
+<section id="利润率定价策略与品牌价值" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="利润率定价策略与品牌价值"><span class="header-section-number">6</span> 利润率、定价策略与品牌价值</h2>
+<section id="定价策略的估值含义" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="定价策略的估值含义"><span class="header-section-number">6.1</span> 定价策略的估值含义</h3>
+<p>每家公司都面临一个基本的定价选择：</p>
+<ul>
+<li><strong>高价-低量策略</strong>（价格领导者）：高利润率，低周转率</li>
+<li><strong>低价-高量策略</strong>（销量领导者）：低利润率，高周转率</li>
+</ul>
+<p>哪种策略创造更多价值？答案取决于需求弹性。</p>
+<p><strong>案例：高利润率 vs 低利润率策略</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>策略</th>
+<th>营业利润率</th>
+<th>Sales/Capital</th>
+<th>ROIC</th>
+<th>增长率</th>
+<th>EV/Sales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>高利润率</td>
+<td>10%</td>
+<td>2.5</td>
+<td>25%</td>
+<td>20%</td>
+<td>2.32</td>
+</tr>
+<tr class="even">
+<td>低利润率</td>
+<td>5%</td>
+<td>4.0</td>
+<td>20%</td>
+<td>16%</td>
+<td>1.01</td>
+</tr>
+</tbody>
+</table>
+<p>即使低利润率策略带来更高的销量（Sales/Capital 从 2.5 提高到 4.0），高利润率策略仍然创造更多价值：</p>
+<p><span class="math display">\[
+\text{EV}_{高利润率} = 2.32 \times 2.5 = 5.80
+\]</span> <span class="math display">\[
+\text{EV}_{低利润率} = 1.01 \times 4.0 = 4.04
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>市场份额 ≠ 价值
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>有些公司把最大化市场份额作为首要目标。但市场份额与价值之间的联系是<strong>脆弱的</strong>：</p>
+<ul>
+<li>如果增加市场份额带来更高利润率（规模经济、定价能力提升），则创造价值</li>
+<li>如果增加市场份额是通过降价实现的，导致利润率下降，则可能<strong>毁灭价值</strong></li>
+</ul>
+<p>在竞争激烈的行业，降价往往引发价格战，最终所有人都以更低的利润率维持原来的市场份额。</p>
+</div>
+</div>
+</section>
+<section id="案例whole-foods-定价策略变更的影响" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="案例whole-foods-定价策略变更的影响"><span class="header-section-number">6.2</span> 案例：Whole Foods 定价策略变更的影响</h3>
+<p>在前面的案例中，我们估计 Whole Foods 的内在 PS ratio 为 0.50（forward），基于 2.73% 的净利润率和 5.53 的 Sales/BV。</p>
+<p>现在假设 Whole Foods 担心竞争对手抢占市场份额，考虑降价 10%： - 净利润率下降到 2.5% - 但同店销售预计上涨 7.5%，营收从 100 亿增至 107.5 亿 - Sales/BV 从 5.53 提高到 6.36</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>高价策略（当前）</th>
+<th>低价策略</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>预期营收</td>
+<td>100 亿</td>
+<td>107.5 亿</td>
+</tr>
+<tr class="even">
+<td>净利润率</td>
+<td>2.73%</td>
+<td>2.50%</td>
+</tr>
+<tr class="odd">
+<td>Sales/BV</td>
+<td>5.53</td>
+<td>6.36</td>
+</tr>
+<tr class="even">
+<td>ROE</td>
+<td>15.11%</td>
+<td>15.90%</td>
+</tr>
+<tr class="odd">
+<td>增长率</td>
+<td>10.00%</td>
+<td>10.00%</td>
+</tr>
+<tr class="even">
+<td>派息率</td>
+<td>33.82%</td>
+<td>37.10%</td>
+</tr>
+<tr class="odd">
+<td><strong>PS ratio (forward)</strong></td>
+<td><strong>0.50</strong></td>
+<td><strong>0.47</strong></td>
+</tr>
+<tr class="even">
+<td><strong>股权价值</strong></td>
+<td><strong>50 亿</strong></td>
+<td><strong>50.53 亿</strong></td>
+</tr>
+</tbody>
+</table>
+<p>新的 PS ratio 计算：</p>
+<p><span class="math display">\[
+\frac{P}{\text{Forward Sales}} = 0.025 \times \left[ \frac{0.3710 \times \left(1 - \frac{(1.10)^{10}}{(1.085)^{10}}\right)}{0.085 - 0.10} + \frac{(1.10)^9(1.03)(0.70)}{(0.08 - 0.03)(1.085)^{10}} \right] = 0.47
+\]</span></p>
+<p><strong>结论</strong>：虽然 PS ratio 从 0.50 降至 0.47，但由于营收增加 7.5%，股权价值反而略有提升（从 50 亿到 50.53 亿）。这说明定价策略的分析不能只看倍数变化，还要考虑分母（营收）的变化。</p>
+</section>
+<section id="品牌价值的量化方法" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="品牌价值的量化方法"><span class="header-section-number">6.3</span> 品牌价值的量化方法</h3>
+<p>品牌价值是估值中最难量化的无形资产之一。传统方法是在 DCF 估值后”加上”一个品牌溢价，但这往往是任意的。</p>
+<p>Damodaran 提出了一个更系统的方法：<strong>品牌价值体现在更高的利润率中</strong>，而更高的利润率带来更高的营收倍数。</p>
+<p><span class="math display">\[
+\boxed{\text{品牌价值} = (\text{EV/Sales}_{品牌} - \text{EV/Sales}_{通用}) \times \text{营收}}
+\]</span></p>
+<p><strong>核心逻辑</strong>：品牌的价值在于让你可以对相同产品收取更高价格，从而获得更高利润率。如果我们能找到一个”通用版”对照公司，两者营收倍数的差异乘以营收，就是品牌价值。</p>
+</section>
+<section id="案例品牌公司-vs-通用公司" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="案例品牌公司-vs-通用公司"><span class="header-section-number">6.4</span> 案例：品牌公司 vs 通用公司</h3>
+<p>在估算真实公司的品牌价值之前，让我们用一个简化例子说明品牌价值的计算方法。</p>
+<p>假设两家公司生产相似产品，在同一市场竞争：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>Famous Inc.（品牌公司）</th>
+<th>NoFrills Inc.（通用公司）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>税后营业利润率</td>
+<td>10%</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>Sales/Capital</td>
+<td>2.50</td>
+<td>2.50</td>
+</tr>
+<tr class="odd">
+<td>ROIC</td>
+<td>25%</td>
+<td>12.5%</td>
+</tr>
+<tr class="even">
+<td>资本成本</td>
+<td>9%</td>
+<td>9%</td>
+</tr>
+<tr class="odd">
+<td>再投资率（前5年）</td>
+<td>80%</td>
+<td>80%</td>
+</tr>
+<tr class="even">
+<td>再投资率（稳定期）</td>
+<td>40%</td>
+<td>40%</td>
+</tr>
+<tr class="odd">
+<td>增长率（前5年）</td>
+<td>20%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>稳定增长率</td>
+<td>4%</td>
+<td>4%</td>
+</tr>
+<tr class="odd">
+<td>预期营收</td>
+<td>25 亿美元</td>
+<td>25 亿美元</td>
+</tr>
+</tbody>
+</table>
+<p>计算 Famous Inc.&nbsp;的 EV/Sales：</p>
+<p><span class="math display">\[
+\frac{EV}{\text{Forward Sales}} = 0.10 \times \left[ \frac{(1-0.80) \times \left(1 - \frac{(1.20)^5}{(1.09)^5}\right)}{0.09 - 0.20} + \frac{(1.20)^4(1.04)(1-0.40)}{(0.09 - 0.04)(1.09)^5} \right] = 1.79
+\]</span></p>
+<p>计算 NoFrills Inc.&nbsp;的 EV/Sales：</p>
+<p><span class="math display">\[
+\frac{EV}{\text{Forward Sales}} = 0.05 \times \left[ \frac{(1-0.80) \times \left(1 - \frac{(1.10)^5}{(1.09)^5}\right)}{0.09 - 0.10} + \frac{(1.10)^4(1.04)(1-0.40)}{(0.09 - 0.04)(1.09)^5} \right] = 0.64
+\]</span></p>
+<p><strong>品牌价值</strong>：</p>
+<p><span class="math display">\[
+\text{品牌价值} = (1.79 - 0.64) \times 25 \text{亿} = 28.75 \text{亿美元}
+\]</span></p>
+<p>这个例子说明了品牌价值的本质：<strong>品牌让你能收取更高价格，获得更高利润率，从而支撑更高的营收倍数</strong>。</p>
+</section>
+<section id="案例可口可乐品牌价值估算" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="案例可口可乐品牌价值估算"><span class="header-section-number">6.5</span> 案例：可口可乐品牌价值估算</h3>
+<p>这是本章最精彩的案例之一。让我们看看如何估算可口可乐的品牌价值。</p>
+<p><strong>背景数据</strong>（2010 年）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>指标</th>
+<th>Coca-Cola</th>
+<th>Cott（通用饮料）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>市值</td>
+<td>1,522 亿美元</td>
+<td>8.09 亿美元</td>
+</tr>
+<tr class="even">
+<td>企业价值</td>
+<td>1,591 亿美元</td>
+<td>11.27 亿美元</td>
+</tr>
+<tr class="odd">
+<td>营收</td>
+<td>351 亿美元</td>
+<td>18.03 亿美元</td>
+</tr>
+<tr class="even">
+<td>税后营业利润率</td>
+<td>14.43%</td>
+<td>3.29%</td>
+</tr>
+<tr class="odd">
+<td>Sales/Capital</td>
+<td>1.11</td>
+<td>2.88</td>
+</tr>
+<tr class="even">
+<td>ROIC</td>
+<td>16.00%</td>
+<td>9.49%</td>
+</tr>
+<tr class="odd">
+<td>资本成本</td>
+<td>8.03%</td>
+<td>8.35%</td>
+</tr>
+</tbody>
+</table>
+<p>Cott Corporation 是可口可乐的”通用版”——它生产零售商自有品牌的碳酸饮料。</p>
+<p><strong>方法一：品牌只影响定价能力</strong></p>
+<p>假设可口可乐失去品牌，其利润率会降到 Cott 的水平（3.29%），但其他特征（Sales/Capital）保持不变：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>税后营业利润率</th>
+<th>ROIC</th>
+<th>增长率</th>
+<th>EV/Sales</th>
+<th>企业价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>有品牌</td>
+<td>14.43%</td>
+<td>16.00%</td>
+<td>9.60%</td>
+<td>3.51</td>
+<td>1,232 亿</td>
+</tr>
+<tr class="even">
+<td>无品牌</td>
+<td>3.29%</td>
+<td>3.65%</td>
+<td>2.19%</td>
+<td>0.35</td>
+<td>123 亿</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\text{品牌价值} = 1,232 - 123 = 1,109 \text{ 亿美元}
+\]</span></p>
+<p><strong>方法二：品牌影响定价能力和周转率</strong></p>
+<p>假设失去品牌后，可口可乐会像 Cott 一样采用低价高量策略，利润率和周转率都变成 Cott 的水平：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>税后营业利润率</th>
+<th>Sales/Capital</th>
+<th>ROIC</th>
+<th>EV/Sales</th>
+<th>企业价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>有品牌</td>
+<td>14.43%</td>
+<td>1.11</td>
+<td>16.00%</td>
+<td>3.51</td>
+<td>1,232 亿</td>
+</tr>
+<tr class="even">
+<td>无品牌</td>
+<td>3.29%</td>
+<td>2.88</td>
+<td>9.49%</td>
+<td>0.47</td>
+<td>165 亿</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\text{品牌价值} = 1,232 - 165 = 1,067 \text{ 亿美元}
+\]</span></p>
+<p><strong>方法三：所有超额回报都来自品牌</strong></p>
+<p>假设品牌是唯一的竞争优势，所有超过资本成本的回报都归因于品牌：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>ROIC</th>
+<th>增长率</th>
+<th>EV/Sales</th>
+<th>企业价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>有品牌</td>
+<td>16.00%</td>
+<td>9.60%</td>
+<td>3.51</td>
+<td>1,232 亿</td>
+</tr>
+<tr class="even">
+<td>无超额回报</td>
+<td>8.03%</td>
+<td>4.82%</td>
+<td>0.44</td>
+<td>155 亿</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\text{品牌价值} = 1,232 - 155 = 1,077 \text{ 亿美元}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>关键结论
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>三种方法给出的品牌价值范围是 <strong>1,067-1,109 亿美元</strong>。无论用哪种方法，<strong>可口可乐价值的绝大部分来自其品牌</strong>。</p>
+<p><strong>重要提醒</strong>：品牌价值<strong>已经</strong>体现在 DCF 估值中——通过更高的利润率和更高的回报率。不应该在 DCF 估值后再”加上”品牌溢价，那样会导致重复计算。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="使用营收倍数进行投资分析" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="使用营收倍数进行投资分析"><span class="header-section-number">7</span> 使用营收倍数进行投资分析</h2>
+<section id="寻找错配" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="寻找错配"><span class="header-section-number">7.1</span> 寻找”错配”</h3>
+<p>营收倍数分析的核心思路是寻找<strong>利润率与营收倍数之间的错配</strong>：</p>
+<pre><code>                    ┌─────────────────────────────────────┐
+                    │         营收倍数 (Value/Sales)       │
+                    │                                     │
+                    │    高倍数            高倍数          │
+                    │    低利润率          高利润率        │
+                    │    ──────────────────────────────   │
+                    │    【可能高估】       【合理定价】    │
+          利润率    │                                     │
+                    │    低倍数            低倍数          │
+                    │    低利润率          高利润率        │
+                    │    ──────────────────────────────   │
+                    │    【合理定价】       【可能低估】    │
+                    │                                     │
+                    └─────────────────────────────────────┘</code></pre>
+<ul>
+<li><strong>高营收倍数 + 低利润率</strong> → 可能被高估（除非你相信利润率会大幅改善）</li>
+<li><strong>低营收倍数 + 高利润率</strong> → 可能被低估</li>
+</ul>
+</section>
+<section id="回归分析方法" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="回归分析方法"><span class="header-section-number">7.2</span> 回归分析方法</h3>
+<p>更系统的方法是用回归分析控制基本面差异：</p>
+<p><span class="math display">\[
+\text{EV/Sales} = a + b \times \text{营业利润率}
+\]</span></p>
+<p><strong>案例：2000 年 7 月专业零售商</strong></p>
+<p>对专业零售商进行回归分析：</p>
+<p><span class="math display">\[
+\text{EV/Sales} = 0.0563 + 6.6287 \times \text{税后营业利润率} \quad (R^2 = 39.9\%)
+\]</span></p>
+<p>以 Talbots 为例，其税后营业利润率为 11.22%：</p>
+<p><span class="math display">\[
+\text{预测 EV/Sales} = 0.0563 + 6.6287 \times 0.1122 = 0.80
+\]</span></p>
+<p>实际 EV/Sales 为 1.27，说明 <strong>Talbots 被高估</strong>。</p>
+<p>可以加入更多变量来提高解释力：</p>
+<p><span class="math display">\[
+\text{EV/Sales} = -0.1488 + 0.2494 \times \text{营业利润率} + 1.545 \times \text{增长率} \quad (R^2 = 45.4\%)
+\]</span></p>
+</section>
+<section id="互联网公司的教训" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="互联网公司的教训"><span class="header-section-number">7.3</span> 互联网公司的教训</h3>
+<p>2000 年 7 月，对互联网零售商进行同样的回归分析：</p>
+<p><span class="math display">\[
+\text{PS} = 18.40 - 8.58 \times \text{营业利润率} \quad (R^2 = 1.27\%)
+\]</span></p>
+<p><span class="math inline">\(R^2\)</span> 接近零，而且系数是<strong>负的</strong>！这意味着当时的营业利润率与营收倍数之间几乎没有关系。</p>
+<p>为什么？因为大多数互联网公司的营业利润率为负，市场定价基于的是<strong>未来预期</strong>，而非当前盈利能力。当前利润率与未来利润率之间几乎没有相关性。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>来自互联网泡沫的教训
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>当一个行业的营收倍数与基本面（利润率、增长率、风险）之间几乎没有关系时，这是一个<strong>危险信号</strong>。</p>
+<p>这意味着该行业的定价是基于投机而非基本面，整个行业可能都被高估了。2000 年的互联网泡沫最终证明了这一点。</p>
+</div>
+</div>
+</section>
+<section id="市场回归" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="市场回归"><span class="header-section-number">7.4</span> 市场回归</h3>
+<p>回归分析可以扩展到整个市场。以下是 2024 年初全球不同地区的 EV/Sales 回归结果：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>地区</th>
+<th>回归方程</th>
+<th><span class="math inline">\(R^2\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>美国</td>
+<td>EV/S = 0.81 + 9.86g + 8.19OM − 1.60DFR − 5.88Tax</td>
+<td>36.0%</td>
+</tr>
+<tr class="even">
+<td>欧洲</td>
+<td>EV/S = 1.52 + 5.96g + 6.13OM − 2.04DFR − 0.15Tax</td>
+<td>14.3%</td>
+</tr>
+<tr class="odd">
+<td>日本</td>
+<td>EV/S = 1.13 + 3.82g + 8.97OM + 0.33DFR − 1.59Tax</td>
+<td>29.1%</td>
+</tr>
+<tr class="even">
+<td>新兴市场</td>
+<td>EV/S = 3.07 + 1.48g + 4.29OM − 0.24DFR − 2.22Tax</td>
+<td>8.9%</td>
+</tr>
+</tbody>
+</table>
+<p>其中：g = 预期增长率，OM = 营业利润率，DFR = 债务比率，Tax = 有效税率</p>
+<p><strong>案例：Costco 和 Tesco 估值</strong></p>
+<p><strong>Costco</strong>（美国）： - 营业利润率 = 3.76% - 预期增长率 = 7.20% - 债务比率 = 3.00% - 税率 = 22.15%</p>
+<p><span class="math display">\[
+\text{EV/Sales} = 0.81 + 9.86(0.072) + 8.19(0.0376) - 1.60(0.03) - 5.88(0.2215) = 1.48
+\]</span></p>
+<p>Costco 实际 EV/Sales 为 1.31，看起来<strong>略被低估</strong>。</p>
+<p><strong>Tesco</strong>（欧洲）： - 营业利润率 = 4.11% - 预期增长率 = 1.5% - 债务比率 = 40.35% - 税率 = 18.5%</p>
+<p><span class="math display">\[
+\text{EV/Sales} = 1.52 + 5.96(0.015) + 6.13(0.0411) - 2.04(0.4035) - 0.15(0.185) = 1.01
+\]</span></p>
+<p>Tesco 实际 EV/Sales 为 0.47，<strong>显著被低估</strong>。</p>
+</section>
+<section id="案例whole-foods-的时间序列分析2007-2011" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="案例whole-foods-的时间序列分析2007-2011"><span class="header-section-number">7.5</span> 案例：Whole Foods 的时间序列分析（2007-2011）</h3>
+<p>相对估值的核心在于发现”错配”——高利润率但低倍数的公司可能被低估。但要从这些错配中获利，需要市场最终纠正这些错配。</p>
+<p>让我们追踪 Whole Foods 从 2007 年到 2011 年的估值变化：</p>
+<p><strong>2007 年 1 月</strong>： - Whole Foods 是超市行业中 PS ratio 最高（1.40）的公司 - 净利润率 3.41%，也是行业第二高 - 回归分析：PS = -0.16 + 33.26 × Net margin - 预测 PS = -0.16 + 33.26 × 0.0341 = <strong>0.97</strong> - 实际 PS = 1.40 → <strong>高估</strong></p>
+<p><strong>2009 年 1 月</strong>： - 净利润率下降到 2.77% - PS ratio 大幅下跌到 0.31 - 回归分析：PS = 0.07 + 10.49 × Net margin - 预测 PS = 0.07 + 10.49 × 0.0277 = <strong>0.36</strong> - 实际 PS = 0.31 → <strong>轻微低估</strong></p>
+<p><strong>2010 年 1 月</strong>： - 净利润率进一步下降到 1.44% - PS ratio 回升到 0.50 - 回归分析：PS = 0.06 + 11.43 × Net margin - 预测 PS = 0.06 + 11.43 × 0.0144 = <strong>0.22</strong> - 实际 PS = 0.50 → <strong>高估</strong></p>
+<p><strong>2011 年 5 月</strong>： - 净利润率恢复到 2.73% - PS ratio 升至 1.11 - 回归分析：PS = 0.304 + 12.60 × Net margin - 预测 PS = 0.304 + 12.60 × 0.0273 = <strong>0.65</strong> - 实际 PS = 1.11 → <strong>显著高估</strong></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>事后来看
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果严格遵循这些回归分析的结论： - 2007 年 1 月应该做空 Whole Foods - 2009 年 1 月应该买入 - 2010 年 1 月应该再次做空</p>
+<p>前两个操作都会盈利，但第三个操作会亏损——因为 2010-2011 年间股票变得<strong>更加高估</strong>。</p>
+<p>这说明相对估值虽然能识别错配，但<strong>不能预测纠正的时间</strong>。</p>
+</div>
+</div>
+</section>
+<section id="未来营收的倍数" class="level3" data-number="7.6">
+<h3 data-number="7.6" class="anchored" data-anchor-id="未来营收的倍数"><span class="header-section-number">7.6</span> 未来营收的倍数</h3>
+<p>对于当前营收很少但预期高速增长的公司，可以用<strong>未来营收</strong>来估算当前价值。</p>
+<p><strong>方法</strong>： 1. 估计 N 年后的预期营收 2. 用成熟公司的 EV/Sales 倍数估算 N 年后的企业价值 3. 将该价值折现到今天</p>
+<p><strong>案例：Tesla Motors（2010 年）</strong></p>
+<p>2010 年，Tesla 的营收只有 1.17 亿美元，但预期 10 年后营收将达到 48.77 亿美元。</p>
+<p>如果成熟汽车公司的平均 EV/Sales 是 0.82：</p>
+<p><span class="math display">\[
+\text{10 年后的 EV} = 48.77 \times 0.82 = 39.99 \text{亿美元}
+\]</span></p>
+<p>假设 Tesla 未来 10 年的资本成本是 12%：</p>
+<p><span class="math display">\[
+\text{今天的企业价值} = \frac{39.99}{(1.12)^{10}} = 12.88 \text{亿美元}
+\]</span></p>
+<p>加上现金（1.96 亿）、减去债务（1.06 亿）、减去期权价值（1.52 亿），除以股数（9,490 万股）：</p>
+<p><span class="math display">\[
+\text{每股价值} = \frac{12.88 + 1.96 - 1.06 - 1.52}{0.9491} = 12.91 \text{美元}
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>使用未来营收倍数的注意事项
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这种方法有几个关键假设： 1. <strong>营收预测的准确性</strong>——10 年后的营收可能与预期大相径庭 2. <strong>倍数的适用性</strong>——成熟公司的倍数是否适用于当时的 Tesla？ 3. <strong>忽略了中间年份的现金流</strong>——可能低估或高估</p>
+<p>更稳健的方法是对 N 年后的倍数进行调整，考虑目标公司届时的利润率和增长率。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="行业特定倍数" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="行业特定倍数"><span class="header-section-number">8</span> 行业特定倍数</h2>
+<section id="当营收倍数也失效时" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="当营收倍数也失效时"><span class="header-section-number">8.1</span> 当营收倍数也失效时</h3>
+<p>对于一些特殊公司，即使是营收倍数也难以使用：</p>
+<ul>
+<li>初创公司可能几乎没有营收</li>
+<li>用户数量在快速增长，但变现模式尚未确立</li>
+<li>不同公司的”营收”定义可能完全不同</li>
+</ul>
+<p>这时候，分析师会转向<strong>行业特定倍数</strong>（Sector-Specific Multiples）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>行业</th>
+<th>倍数</th>
+<th>分母</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>石油公司</td>
+<td>EV/桶石油储量</td>
+<td>储量</td>
+</tr>
+<tr class="even">
+<td>钢铁公司</td>
+<td>EV/吨产能</td>
+<td>产能</td>
+</tr>
+<tr class="odd">
+<td>有线电视</td>
+<td>EV/订阅者</td>
+<td>订阅者数</td>
+</tr>
+<tr class="even">
+<td>社交媒体</td>
+<td>EV/用户数</td>
+<td>月活用户</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="为什么分析师使用行业特定倍数" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="为什么分析师使用行业特定倍数"><span class="header-section-number">8.2</span> 为什么分析师使用行业特定倍数？</h3>
+<ol type="1">
+<li><p><strong>与运营数据直接挂钩</strong>：如果你的预测从用户数量开始，用”每用户价值”来估值更直观</p></li>
+<li><p><strong>避开会计问题</strong>：不依赖会计报表，适用于会计准则不同或财务数据不可靠的情况</p></li>
+<li><p><strong>无奈之举</strong>：当其他所有倍数都无法计算时（负盈利、负账面价值、几乎零营收），行业特定倍数可能是唯一选择</p></li>
+</ol>
+</section>
+<section id="行业特定倍数的危险" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="行业特定倍数的危险"><span class="header-section-number">8.3</span> 行业特定倍数的危险</h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>两个核心问题
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p><strong>助长”隧道视野”</strong>：只与同行业公司比较，可能导致整个行业都被高估或低估。一家以 50 美元/用户交易的公司可能比 125 美元/用户的公司看起来便宜，但两者可能都被高估了。</p></li>
+<li><p><strong>与基本面的关系复杂</strong>：行业特定倍数与现金流、增长、风险的关系比传统倍数更加复杂，很难控制公司之间的差异。</p></li>
+</ol>
+</div>
+</div>
+</section>
+<section id="用户订阅者价值的决定因素" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="用户订阅者价值的决定因素"><span class="header-section-number">8.4</span> 用户/订阅者价值的决定因素</h3>
+<p>对于用户/订阅者型公司，每个用户的价值等于该用户在其”生命周期”内产生的现金流的现值。</p>
+<pre><code>                ┌─────────────────────────────────────────┐
+                │          用户盈利能力                    │
+                │                                         │
+                │  每用户现金流                            │
+                │  = 每用户年营收                          │
+                │  − 每用户服务成本                        │
+                │  − 税收                                 │
+                │  = 每用户税后营业利润                    │
+                │                                         │
+                └────────────────┬────────────────────────┘
+                                 │
+                                 ▼
+                ┌─────────────────────────────────────────┐
+                │  每用户价值 = 用户生命周期内              │
+                │  预期现金流的现值                        │
+                │                                         │
+                │  × 现有用户数                            │
+                │  = 现有用户价值                          │
+                └─────────────────────────────────────────┘</code></pre>
+<p><strong>关键输入参数</strong>：</p>
+<ol type="1">
+<li><p><strong>用户生命周期</strong>：用户会使用你的服务多长时间？技术更新越快，生命周期越短</p></li>
+<li><p><strong>续约率</strong>：如果年续约率是 90%，第 8 年用户还在的概率只有 <span class="math inline">\(0.9^8 = 43\%\)</span></p></li>
+<li><p><strong>当前每用户现金流</strong>：营收减去服务成本，再扣税</p></li>
+<li><p><strong>每用户现金流增长</strong>：是否能向现有用户销售更多产品/服务？</p></li>
+<li><p><strong>风险</strong>：收入模式的可预测性。订阅制比交易制更稳定</p></li>
+</ol>
+</section>
+<section id="三种收入模式" class="level3" data-number="8.5">
+<h3 data-number="8.5" class="anchored" data-anchor-id="三种收入模式"><span class="header-section-number">8.5</span> 三种收入模式</h3>
+<p>用户型公司的收入模式主要有三种：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 30%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>模式</th>
+<th>描述</th>
+<th>代表公司</th>
+<th>现金流特征</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>订阅制</strong></td>
+<td>用户支付固定周期费用</td>
+<td>Netflix, Adobe, Microsoft 365</td>
+<td>可预测性高</td>
+</tr>
+<tr class="even">
+<td><strong>广告制</strong></td>
+<td>用户免费，向广告商收费</td>
+<td>Facebook, Google, Twitter</td>
+<td>与用户数强相关</td>
+</tr>
+<tr class="odd">
+<td><strong>交易制</strong></td>
+<td>用户按交易付费</td>
+<td>Uber, Amazon</td>
+<td>波动性较大</td>
+</tr>
+</tbody>
+</table>
+<p><strong>混合模式</strong>也很常见：LinkedIn 有订阅制（Premium）和广告制；Amazon Prime 有订阅费和交易收入。</p>
+</section>
+<section id="案例netflix-订阅者价值估算2018-年" class="level3" data-number="8.6">
+<h3 data-number="8.6" class="anchored" data-anchor-id="案例netflix-订阅者价值估算2018-年"><span class="header-section-number">8.6</span> 案例：Netflix 订阅者价值估算（2018 年）</h3>
+<p>这是本章最复杂也最精彩的案例。Netflix 是订阅制公司的典型代表，让我们看看如何从订阅者角度估值。</p>
+<p><strong>背景</strong>（2017 年）： - 订阅者数量：1.176 亿 - 每订阅者年营收：113.16 美元 - 续约率：92.5%</p>
+<p><strong>第一步：分解成本结构</strong></p>
+<p>Netflix 的成本可以分为三类：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 45%">
+<col style="width: 27%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>成本类别</th>
+<th>金额</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>服务现有用户成本</td>
+<td>G&amp;A + 20%内容成本</td>
+<td>直接与用户数相关</td>
+</tr>
+<tr class="even">
+<td>获取新用户成本</td>
+<td>资本化内容 + 营销</td>
+<td>34.24 亿 ÷ 2380 万新用户 = 143.87 美元/新用户</td>
+</tr>
+<tr class="odd">
+<td>固定成本</td>
+<td>技术开发 + 80%内容成本</td>
+<td>不直接与用户数相关</td>
+</tr>
+</tbody>
+</table>
+<p><strong>第二步：估算现有用户价值</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>每用户年营收</td>
+<td>113.16 美元</td>
+</tr>
+<tr class="even">
+<td>每用户服务成本</td>
+<td>21.39 美元</td>
+</tr>
+<tr class="odd">
+<td>每用户税前利润</td>
+<td>91.77 美元</td>
+</tr>
+<tr class="even">
+<td>税后利润（25%税率）</td>
+<td>68.83 美元</td>
+</tr>
+<tr class="odd">
+<td>营收年增长（定价能力）</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>成本年增长</td>
+<td>2%</td>
+</tr>
+<tr class="odd">
+<td>续约率</td>
+<td>92.5%</td>
+</tr>
+<tr class="even">
+<td>用户生命周期</td>
+<td>15 年</td>
+</tr>
+<tr class="odd">
+<td>资本成本</td>
+<td>7.95%</td>
+</tr>
+</tbody>
+</table>
+<p>考虑续约率和现金流增长，每用户价值计算为：</p>
+<p><span class="math display">\[
+\text{每用户价值} = \sum_{t=1}^{15} \frac{\text{税后利润}_t \times (0.925)^{t-1}}{(1.0795)^t} = 508.89 \text{ 美元}
+\]</span></p>
+<p><span class="math display">\[
+\text{现有用户总价值} = 508.89 \times 1.176 \text{亿} = 598.46 \text{亿美元}
+\]</span></p>
+<p><strong>第三步：估算新用户价值</strong></p>
+<p>每新用户价值 = 508.89（用户价值）- 111.01（获客成本）= <strong>397.88 美元</strong></p>
+<p>假设净用户增长率： - 第 1-5 年：15%/年 - 第 6-10 年：10%/年 - 第 10 年后：1%/年</p>
+<p>新用户价值的现值 = <strong>1,373 亿美元</strong></p>
+<p><strong>第四步：扣除固定成本拖累</strong></p>
+<p>固定成本（技术开发 + 内容成本）如果持续增长，会侵蚀价值：</p>
+<ul>
+<li>技术开发成本年增长 5%</li>
+<li>内容成本年增长 3%</li>
+</ul>
+<p>固定成本的现值 = <strong>1,113 亿美元</strong>（负值）</p>
+<p><strong>第五步：汇总估值</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>金额（亿美元）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>现有用户价值</td>
+<td>598</td>
+</tr>
+<tr class="even">
+<td>+ 新用户价值</td>
+<td>1,373</td>
+</tr>
+<tr class="odd">
+<td>− 固定成本拖累</td>
+<td>(1,113)</td>
+</tr>
+<tr class="even">
+<td>= 营业资产价值</td>
+<td>859</td>
+</tr>
+<tr class="odd">
+<td>+ 现金</td>
+<td>28</td>
+</tr>
+<tr class="even">
+<td>− 债务</td>
+<td>(65)</td>
+</tr>
+<tr class="odd">
+<td>= 股权价值</td>
+<td>822</td>
+</tr>
+<tr class="even">
+<td>− 期权价值</td>
+<td>(50)</td>
+</tr>
+<tr class="odd">
+<td>= 普通股价值</td>
+<td>772</td>
+</tr>
+<tr class="even">
+<td>÷ 股数</td>
+<td>4.47 亿</td>
+</tr>
+<tr class="odd">
+<td><strong>每股价值</strong></td>
+<td><strong>172.82 美元</strong></td>
+</tr>
+</tbody>
+</table>
+<p>2018 年 4 月 16 日，Netflix 股价为 280 美元，比估算值高出 62%。这可能意味着： - 我们对 Netflix 的前景过于悲观 - 市场对 Netflix 高估了</p>
+</section>
+<section id="案例社交媒体公司的每用户价值2011-年" class="level3" data-number="8.7">
+<h3 data-number="8.7" class="anchored" data-anchor-id="案例社交媒体公司的每用户价值2011-年"><span class="header-section-number">8.7</span> 案例：社交媒体公司的每用户价值（2011 年）</h3>
+<p>2011 年 5 月，LinkedIn 成为第一家上市的主要社交媒体公司，股价首日翻倍，公司估值约 100 亿美元——尽管其营收只有 2.43 亿美元。同一时期，微软以 85 亿美元收购 Skype，而 Skype 上一年的营业亏损为 700 万美元。</p>
+<p>一种解释这些高估值的方法是用<strong>每用户价值</strong>来分析：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 21%">
+<col style="width: 19%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>用户数（百万）</th>
+<th>企业价值（百万美元）</th>
+<th>每用户价值（美元）</th>
+<th>营收（百万美元）</th>
+<th>EV/Sales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Facebook</td>
+<td>500</td>
+<td>$50,000*</td>
+<td>$100.00</td>
+<td>$710</td>
+<td>70.42</td>
+</tr>
+<tr class="even">
+<td>Twitter</td>
+<td>175</td>
+<td>$6,000*</td>
+<td>$34.29</td>
+<td>$1.30</td>
+<td>4615.38</td>
+</tr>
+<tr class="odd">
+<td>Skype</td>
+<td>170</td>
+<td>$8,500</td>
+<td>$50.00</td>
+<td>$860</td>
+<td>9.88</td>
+</tr>
+<tr class="even">
+<td>LinkedIn</td>
+<td>75</td>
+<td>$10,000</td>
+<td>$133.33</td>
+<td>$243</td>
+<td>41.15</td>
+</tr>
+</tbody>
+</table>
+<p>*注：Facebook 和 Twitter 的估值基于私人交易，其他为公开交易。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>行业特定倍数的陷阱
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>从 EV/Sales 来看，四家公司都看起来严重高估——Twitter 的 EV/Sales 高达 4,615 倍！</p>
+<p>但从每用户价值来看，Twitter 以 34 美元/用户看起来最”便宜”，LinkedIn 以 133 美元/用户最”贵”。</p>
+<p>问题在于：<strong>这些公司的收入模式完全不同</strong>。</p>
+<ul>
+<li>LinkedIn 是专业商务社交网站，可能从每个用户获取更高价值</li>
+<li>Twitter 的商业化路径当时还不清晰</li>
+<li>Facebook 的广告变现能力远超其他平台</li>
+<li>Skype 是订阅+交易混合模式</li>
+</ul>
+<p>在不同收入模式下比较每用户价值，可能完全误导。一家以 50 美元/用户交易的公司可能比 125 美元/用户的公司更贵，也可能更便宜——取决于它们的变现能力。</p>
+</div>
+</div>
+<p><strong>关键教训</strong>：行业特定倍数是”隧道视野”的极端形式。只与同行业公司比较，可能导致整个行业都被高估或低估。2011 年的社交媒体估值在很大程度上证明了这一点——有些公司确实证明了其估值（如 Facebook），而有些则一直挣扎于商业化（如 Twitter）。</p>
+</section>
+</section>
+<section id="总结" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="总结"><span class="header-section-number">9</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p><strong>营收倍数在盈利为负时最有用</strong>：PS 和 EV/Sales 几乎总是可计算的，避免了样本偏差</p></li>
+<li><p><strong>EV/Sales 比 PS 更稳健</strong>：因为它控制了杠杆差异</p></li>
+<li><p><strong>利润率是核心驱动因素</strong>：营收倍数的合理性完全取决于利润率假设。不控制利润率差异，营收倍数比较毫无意义</p></li>
+<li><p><strong>品牌价值体现在利润率中</strong>：不应在 DCF 后额外加品牌溢价，那是重复计算</p></li>
+<li><p><strong>行业特定倍数是最后手段</strong>：当传统倍数都失效时可以使用，但要警惕”隧道视野”——整个行业可能都被错误定价</p></li>
+<li><p><strong>用户价值 = 现金流的现值</strong>：对于订阅/用户型公司，核心是估算每用户现金流、续约率和用户生命周期</p></li>
+</ol>
+</div>
+</div>
+<p>回到开头的问题：当盈利为负时如何估值？</p>
+<p>答案是：使用营收倍数，但<strong>必须</strong>结合利润率分析。一家以高营收倍数交易的亏损公司，只有在你相信它的利润率会大幅改善的情况下才是合理的。否则，你可能正在为一个永远无法盈利的商业模式支付过高价格。</p>
+<p><code>✶ Insight ─────────────────────────────────────</code> <strong>Damodaran 的核心洞察</strong>：</p>
+<p>营收倍数的本质是<strong>对未来利润率的押注</strong>。当你以 5 倍营收买入一家亏损公司时，你其实在说：“我相信这家公司最终能实现 X% 的利润率。”</p>
+<p>如果你不能清晰地陈述这个利润率假设，并解释它为什么合理，那么你使用营收倍数就只是在”跟风定价”，而不是在”估值”。 <code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="思考题" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="思考题"><span class="header-section-number">10</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>PS vs EV/Sales</strong>：两家公司 A 和 B 在同一行业，营收相同。A 公司 PS=2，EV/Sales=2.5；B 公司 PS=1.5，EV/Sales=2.5。哪家公司更便宜？你能推断出它们资本结构的差异吗？</p></li>
+<li><p><strong>利润率与营收倍数</strong>：一家软件公司以 8 倍营收交易，利润率为 25%。它的竞争对手以 4 倍营收交易，利润率为 10%。哪家更可能被低估？你需要什么额外信息来做出判断？</p></li>
+<li><p><strong>品牌价值的循环问题</strong>：在估算可口可乐的品牌价值时，我们假设”无品牌”的可口可乐利润率会下降到 Cott 的水平。但 Cott 的低利润率部分原因是它的规模小。如果可口可乐失去品牌但保持规模，它的利润率会降到 Cott 的水平吗？这对品牌价值估算意味着什么？</p></li>
+<li><p><strong>互联网泡沫的教训</strong>：2000 年的互联网股票，营收倍数与当前利润率几乎没有关系。这是否意味着营收倍数完全不适用于互联网公司？还是说市场当时在定价什么其他因素？</p></li>
+<li><p><strong>Netflix 估值的敏感性</strong>：在 Netflix 的估值中，续约率假设为 92.5%。如果续约率下降到 85%，每用户价值会如何变化？你认为这个假设对估值的影响有多大？</p></li>
+<li><p><strong>行业特定倍数的陷阱</strong>：2011 年，LinkedIn 以 133 美元/用户交易，而 Twitter 只有 34 美元/用户。能否据此得出 Twitter 更便宜的结论？两家公司的商业模式有什么关键差异可能导致这种倍数差异是合理的？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
