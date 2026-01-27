@@ -1,0 +1,954 @@
+---
+title: "第5章：循环神经网络时代"
+subtitle: "当神经网络学会记忆：从RNN到Seq2Seq的序列建模之路"
+author: "Ying Zha"
+date: "2026-01-25"
+categories: [NLP, RNN, LSTM, GRU, Seq2Seq, 序列建模]
+tags: [循环神经网络, 门控机制, 梯度消失, Encoder-Decoder, 信息瓶颈]
+description: "序列建模的第一个黄金时代：RNN如何学会记忆，LSTM/GRU如何解决梯度消失，以及Seq2Seq架构的信息瓶颈问题。"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    css: styles.css
+    fig-cap-location: bottom
+---
+
+> **核心问题**：如何让神经网络处理变长序列，并捕获序列中的依赖关系？
+>
+> **历史坐标**：1997 (LSTM) → 2014 (GRU, Seq2Seq) | Hochreiter & Schmidhuber, Cho et al., Sutskever et al.
+
+---
+
+## 从上一章说起
+
+上一章我们解决了一个基础但关键的问题：如何将文本切分为模型可处理的单元。无论是BPE、WordPiece还是SentencePiece，Tokenizer的输出都是一个**token序列**。
+
+现在我们面临下一个问题：拿到这个序列后，该怎么办？
+
+回顾第3章的词向量。Word2Vec和GloVe为我们提供了将token映射为向量的方法。于是，一个句子"I love NLP"变成了三个向量的序列：$[\mathbf{v}_\text{I}, \mathbf{v}_\text{love}, \mathbf{v}_\text{NLP}]$。
+
+但这里有一个根本性的问题：**这些向量是独立的**。$\mathbf{v}_\text{love}$ 不知道它前面是"I"还是"They"，也不知道后面是"NLP"还是"cats"。每个词向量都是在真空中计算的。
+
+这在很多任务中是致命的。考虑这两个句子：
+
+- "The **bank** of the river was muddy."
+- "I went to the **bank** to deposit money."
+
+静态词向量给"bank"的表示是相同的，但它们的含义完全不同。模型需要看到上下文才能区分。
+
+更广泛地说，语言是**序列性**的。词的顺序至关重要——"dog bites man"和"man bites dog"含义截然不同。我们需要一种能够**处理序列、捕获上下文**的模型架构。
+
+这就引出了本章的主角：**循环神经网络（RNN）**及其变体。
+
+> 💡 **本章核心洞察**：RNN通过"隐藏状态"在时间维度上传递信息，让模型拥有了"记忆"。但这种记忆是有限的——长距离依赖会衰减，梯度会消失。LSTM和GRU通过门控机制缓解了这个问题，但并没有根本解决。Seq2Seq架构将RNN推向应用巅峰，也暴露了其终极瓶颈：所有信息必须压缩到一个固定长度的向量中。这个瓶颈将直接催生下一章的Attention机制。
+
+---
+
+## 问题的本质是什么？
+
+### 序列建模的核心挑战
+
+让我们精确地定义我们要解决的问题。
+
+给定一个输入序列 $\mathbf{x} = (x_1, x_2, \ldots, x_T)$，我们希望模型能够：
+
+1. **理解上下文**：$x_t$ 的表示应该依赖于 $x_1, \ldots, x_{t-1}$（以及可能的 $x_{t+1}, \ldots, x_T$）
+2. **处理变长输入**：不同的序列可能有不同的长度 $T$
+3. **捕获长距离依赖**：$x_1$ 可能影响 $x_{100}$ 的理解
+4. **输出灵活**：可能输出单个标签（分类）、同长序列（标注）、或不同长度序列（翻译）
+
+传统的前馈神经网络（MLP）无法满足这些要求。MLP接受固定大小的输入，输出固定大小的结果，没有任何机制来处理序列结构。
+
+### 为什么不能简单地拼接词向量？
+
+一个直觉的想法是：把所有词向量拼接起来，送入一个大的MLP。
+
+$$
+\mathbf{h} = \text{MLP}([\mathbf{v}_{x_1}; \mathbf{v}_{x_2}; \ldots; \mathbf{v}_{x_T}])
+$$
+
+这个方案有三个致命问题：
+
+**第一，输入维度固定**。如果我们设计网络处理最长100个词，那么99个词的句子需要填充，101个词的句子无法处理。实际文本的长度变化极大——一条推文可能5个词，一篇论文可能5000个词。
+
+**第二，参数爆炸**。假设词向量维度是300，最大序列长度是1000，那么第一层的输入维度就是300,000。这意味着海量的参数和计算。
+
+**第三，没有位置共享**。模型需要单独学习"第1个位置的'love'"和"第50个位置的'love'"的含义，无法泛化位置信息。一个词在不同位置的处理方式应该是相似的。
+
+我们需要一种更优雅的方案：让模型**逐步处理序列**，在每一步累积信息，用有限的参数处理任意长度的输入。
+
+---
+
+## RNN：时间维度上的权重共享
+
+### 核心思想
+
+RNN的核心洞察是：**用同一组参数处理序列中的每一个位置，通过隐藏状态在时间步之间传递信息**。
+
+想象你在读一本小说。你不会把整本书一次性塞进大脑，而是一个词一个词地读。关键是，当你读到第100页时，你的大脑保留着前99页的"记忆"——虽然不是逐字记忆，而是一种压缩的、与当前阅读相关的状态。这个状态会影响你对第100页的理解。
+
+RNN就是这个过程的数学模型：
+
+$$
+\mathbf{h}_t = f(\mathbf{h}_{t-1}, \mathbf{x}_t)
+$$
+
+其中 $\mathbf{h}_t$ 是第 $t$ 步的**隐藏状态**（hidden state），它编码了到目前为止序列的所有信息。$f$ 是一个函数，它接收上一步的隐藏状态和当前的输入，产生新的隐藏状态。
+
+关键点在于：**$f$ 在每一个时间步都是相同的**。这就是"时间维度上的权重共享"——不管序列有多长，我们只需要一组参数。
+
+### 数学形式化
+
+::: {.callout-note}
+## Algorithm: Vanilla RNN Forward Pass (Elman, 1990)
+
+```python
+def rnn_forward(x_sequence, h_0, W_hh, W_xh, b_h):
+    """RNN 前向传播（处理整个序列）"""
+    h_t = h_0  # 初始隐藏状态，通常为零向量
+    hidden_states = []
+
+    for x_t in x_sequence:
+        # 核心公式：线性变换 + 非线性激活
+        h_t = tanh(W_hh @ h_t + W_xh @ x_t + b_h)
+        hidden_states.append(h_t)
+
+    return hidden_states  # 返回所有时间步的隐藏状态
+```
+
+*Reference: Elman (1990) "Finding Structure in Time", Cognitive Science 14(2):179-211*
+:::
+
+最简单的RNN（vanilla RNN）使用线性变换加非线性激活：
+
+$$
+\mathbf{h}_t = \tanh(\mathbf{W}_{hh}\mathbf{h}_{t-1} + \mathbf{W}_{xh}\mathbf{x}_t + \mathbf{b}_h)
+$$
+
+其中：
+
+- $\mathbf{W}_{hh} \in \mathbb{R}^{d_h \times d_h}$：隐藏状态到隐藏状态的权重矩阵
+- $\mathbf{W}_{xh} \in \mathbb{R}^{d_h \times d_x}$：输入到隐藏状态的权重矩阵
+- $\mathbf{b}_h \in \mathbb{R}^{d_h}$：偏置向量
+- $\tanh$：激活函数，将输出压缩到 $(-1, 1)$
+
+初始隐藏状态 $\mathbf{h}_0$ 通常初始化为零向量。
+
+如果需要输出（比如每一步预测下一个词），可以加一个输出层：
+
+$$
+\mathbf{y}_t = \mathbf{W}_{hy}\mathbf{h}_t + \mathbf{b}_y
+$$
+
+### 完整数值示例：RNN前向传播
+
+让我们用一个极简的例子走一遍RNN的计算过程。
+
+**设定**：
+
+- 输入序列：两个token，维度 $d_x = 2$
+- 隐藏状态维度：$d_h = 3$
+- 输入：$\mathbf{x}_1 = [1, 0]^T$，$\mathbf{x}_2 = [0, 1]^T$
+
+**参数**（简化的小数值）：
+
+$$
+\mathbf{W}_{xh} = \begin{bmatrix} 0.5 & 0.3 \\ 0.2 & 0.4 \\ 0.1 & 0.6 \end{bmatrix}, \quad
+\mathbf{W}_{hh} = \begin{bmatrix} 0.1 & 0.2 & 0.1 \\ 0.3 & 0.1 & 0.2 \\ 0.2 & 0.3 & 0.1 \end{bmatrix}, \quad
+\mathbf{b}_h = \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}
+$$
+
+**Step 1：初始化**
+
+$$
+\mathbf{h}_0 = [0, 0, 0]^T
+$$
+
+**Step 2：处理第一个token**
+
+$$
+\begin{aligned}
+\mathbf{z}_1 &= \mathbf{W}_{hh}\mathbf{h}_0 + \mathbf{W}_{xh}\mathbf{x}_1 + \mathbf{b}_h \\
+&= \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.5 \cdot 1 + 0.3 \cdot 0 \\ 0.2 \cdot 1 + 0.4 \cdot 0 \\ 0.1 \cdot 1 + 0.6 \cdot 0 \end{bmatrix} \\
+&= \begin{bmatrix} 0.5 \\ 0.2 \\ 0.1 \end{bmatrix}
+\end{aligned}
+$$
+
+$$
+\mathbf{h}_1 = \tanh(\mathbf{z}_1) = \begin{bmatrix} \tanh(0.5) \\ \tanh(0.2) \\ \tanh(0.1) \end{bmatrix} \approx \begin{bmatrix} 0.462 \\ 0.197 \\ 0.100 \end{bmatrix}
+$$
+
+**Step 3：处理第二个token**
+
+$$
+\begin{aligned}
+\mathbf{z}_2 &= \mathbf{W}_{hh}\mathbf{h}_1 + \mathbf{W}_{xh}\mathbf{x}_2 + \mathbf{b}_h \\
+&= \begin{bmatrix} 0.1 \cdot 0.462 + 0.2 \cdot 0.197 + 0.1 \cdot 0.100 \\ 0.3 \cdot 0.462 + 0.1 \cdot 0.197 + 0.2 \cdot 0.100 \\ 0.2 \cdot 0.462 + 0.3 \cdot 0.197 + 0.1 \cdot 0.100 \end{bmatrix} + \begin{bmatrix} 0.3 \\ 0.4 \\ 0.6 \end{bmatrix} \\
+&= \begin{bmatrix} 0.046 + 0.039 + 0.010 + 0.3 \\ 0.139 + 0.020 + 0.020 + 0.4 \\ 0.092 + 0.059 + 0.010 + 0.6 \end{bmatrix} \\
+&= \begin{bmatrix} 0.395 \\ 0.579 \\ 0.761 \end{bmatrix}
+\end{aligned}
+$$
+
+$$
+\mathbf{h}_2 = \tanh(\mathbf{z}_2) \approx \begin{bmatrix} 0.375 \\ 0.521 \\ 0.642 \end{bmatrix}
+$$
+
+**解读**：$\mathbf{h}_2$ 编码了整个序列 $[\mathbf{x}_1, \mathbf{x}_2]$ 的信息。注意它不仅受 $\mathbf{x}_2$ 影响，也包含了 $\mathbf{x}_1$ 通过 $\mathbf{h}_1$ 传递过来的信息。
+
+### RNN的计算图与参数共享
+
+下图展示了RNN在时间维度上的"展开"（unrolling）：
+
+![RNN展开图：左侧是循环表示，右侧是展开后的时间步。每个时间步接收输入 $x_t$，产生隐藏状态 $h_t$。所有时间步共享同一组参数 A。](figures/chapter-5/original/fig-rnn-unrolled-colah.png){#fig-rnn-unrolled width=85%}
+
+::: {.figure-caption}
+*Source: Christopher Olah (2015) "[Understanding LSTM Networks](https://colah.github.io/posts/2015-08-Understanding-LSTMs/)"*
+:::
+
+关键观察：**所有"RNN Cell"共享相同的参数**（$\mathbf{W}_{hh}, \mathbf{W}_{xh}, \mathbf{b}_h$）。这就是权重共享——无论序列有10个token还是1000个token，参数量都是固定的。
+
+另一种理解方式是把RNN"展开"（unroll）成时间步：展开后看起来像一个很深的前馈网络，但每一层用的是同一组参数。
+
+---
+
+## 梯度消失与梯度爆炸
+
+### 问题的本质
+
+RNN理论上可以捕获任意长距离的依赖——$\mathbf{h}_{100}$ 包含了 $\mathbf{x}_1$ 的信息（通过连续的传递）。但在实践中，这个"理论上"往往不成立。
+
+问题出在**梯度的传播**上。
+
+考虑损失函数 $\mathcal{L}$ 对早期隐藏状态 $\mathbf{h}_1$ 的梯度。根据链式法则：
+
+$$
+\frac{\partial \mathcal{L}}{\partial \mathbf{h}_1} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_T} \cdot \frac{\partial \mathbf{h}_T}{\partial \mathbf{h}_{T-1}} \cdot \frac{\partial \mathbf{h}_{T-1}}{\partial \mathbf{h}_{T-2}} \cdots \frac{\partial \mathbf{h}_2}{\partial \mathbf{h}_1}
+$$
+
+关键在于这些连乘的雅可比矩阵 $\frac{\partial \mathbf{h}_{t}}{\partial \mathbf{h}_{t-1}}$。
+
+对于 vanilla RNN，我们有：
+
+$$
+\mathbf{h}_t = \tanh(\mathbf{W}_{hh}\mathbf{h}_{t-1} + \mathbf{W}_{xh}\mathbf{x}_t + \mathbf{b}_h)
+$$
+
+因此：
+
+$$
+\frac{\partial \mathbf{h}_t}{\partial \mathbf{h}_{t-1}} = \text{diag}(1 - \mathbf{h}_t^2) \cdot \mathbf{W}_{hh}
+$$
+
+其中 $\text{diag}(1 - \mathbf{h}_t^2)$ 是 $\tanh$ 的导数（因为 $\tanh'(x) = 1 - \tanh^2(x)$）。
+
+### 数学分析：为什么会消失或爆炸？
+
+当我们连乘 $T-1$ 个这样的雅可比矩阵时：
+
+$$
+\prod_{t=2}^{T} \frac{\partial \mathbf{h}_t}{\partial \mathbf{h}_{t-1}} = \prod_{t=2}^{T} \text{diag}(1 - \mathbf{h}_t^2) \cdot \mathbf{W}_{hh}
+$$
+
+简化分析：假设所有 $\mathbf{h}_t$ 接近零（激活值小），那么 $1 - \mathbf{h}_t^2 \approx 1$，连乘大约是：
+
+$$
+\mathbf{W}_{hh}^{T-1}
+$$
+
+现在，根据 $\mathbf{W}_{hh}$ 的**特征值**分布：
+
+- 如果最大特征值 $|\lambda_{\max}| < 1$：$\mathbf{W}_{hh}^{T-1} \to 0$（指数衰减）→ **梯度消失**
+- 如果最大特征值 $|\lambda_{\max}| > 1$：$\mathbf{W}_{hh}^{T-1} \to \infty$（指数增长）→ **梯度爆炸**
+
+实际情况更复杂，因为 $\tanh$ 的导数在激活值大时趋近于0，这会**加剧梯度消失**。
+
+### 直觉理解：信息的"衰减"
+
+用一个类比来理解。想象你在玩"传话游戏"：第一个人说一句话，传给第二个人，第二个人传给第三个人……传100个人之后，原始信息还剩多少？
+
+在vanilla RNN中，信息每经过一个时间步，都要经过一次"压缩和混合"（矩阵乘法+非线性）。如果这个过程是"有损"的（信息被衰减），那么经过100步后，第1步的信息几乎完全消失。
+
+这就是为什么vanilla RNN无法捕获长距离依赖：不是模型没有"记住"早期信息的能力，而是梯度无法有效地流回早期时间步，导致模型学不到长距离的模式。
+
+### 梯度爆炸的简单修复：梯度裁剪
+
+梯度爆炸相对容易处理：当梯度的范数超过某个阈值时，按比例缩小。
+
+$$
+\mathbf{g} \leftarrow \begin{cases}
+\mathbf{g} & \text{if } \|\mathbf{g}\| \leq \theta \\
+\frac{\theta}{\|\mathbf{g}\|} \mathbf{g} & \text{if } \|\mathbf{g}\| > \theta
+\end{cases}
+$$
+
+这被称为**梯度裁剪**（gradient clipping），几乎是所有RNN训练的标配。
+
+但梯度消失没有这么简单的修复方法。我们需要更根本的架构改变。
+
+---
+
+## LSTM：门控机制的智慧
+
+### 核心洞察
+
+1997年，Hochreiter和Schmidhuber提出了**长短期记忆网络**（Long Short-Term Memory, LSTM）。他们的核心洞察是：
+
+> 问题不在于RNN没有记忆能力，而在于信息在时间步之间传递时被"过度处理"了。如果我们能让某些信息**不经修改地直接传递**，就能保留长距离依赖。
+
+这个想法的具体实现是**门控机制**：用可学习的"门"来控制信息的流动——哪些信息要保留，哪些要遗忘，哪些要更新。
+
+### 直觉：细胞状态作为"传送带"
+
+LSTM引入了一个新的概念：**细胞状态**（cell state）$\mathbf{c}_t$，它像一条传送带一样在时间步之间传递。
+
+想象一个工厂的传送带：物品（信息）在传送带上移动。沿途有几个工作站：
+
+1. **遗忘门**：决定丢弃传送带上的哪些物品
+2. **输入门**：决定往传送带上放哪些新物品
+3. **输出门**：决定从传送带上取出哪些物品作为当前的输出
+
+关键在于：传送带本身的传递是**近乎恒等的**——没有被遗忘的信息可以不经修改地传到下游。这就避免了梯度消失问题。
+
+下图展示了LSTM的内部结构。与简单RNN只有一个tanh层不同，LSTM有**四个相互作用的层**（三个sigmoid门 + 一个tanh层）：
+
+![LSTM单元结构：黄色方框是神经网络层（σ = sigmoid，tanh = tanh），粉色圆圈是逐元素操作（× = 乘法，+ = 加法）。顶部的横线是细胞状态 $c_t$（"传送带"），底部的横线是隐藏状态 $h_t$。](figures/chapter-5/original/fig-lstm-chain-colah.png){#fig-lstm-chain width=90%}
+
+::: {.figure-caption}
+*Source: Christopher Olah (2015) "[Understanding LSTM Networks](https://colah.github.io/posts/2015-08-Understanding-LSTMs/)"*
+:::
+
+### 数学形式化
+
+::: {.callout-note}
+## Algorithm: LSTM Forward Pass (Hochreiter & Schmidhuber, 1997)
+
+```python
+def lstm_forward(x_t, h_prev, c_prev, W_f, W_i, W_c, W_o):
+    """LSTM 单步前向传播"""
+    concat = [h_prev, x_t]
+
+    # 遗忘门：决定丢弃多少旧的细胞状态
+    f_t = sigmoid(W_f @ concat)
+
+    # 输入门：决定写入多少新信息
+    i_t = sigmoid(W_i @ concat)
+    c_tilde = tanh(W_c @ concat)  # 候选细胞状态
+
+    # 更新细胞状态：遗忘旧信息 + 写入新信息
+    c_t = f_t * c_prev + i_t * c_tilde
+
+    # 输出门：决定输出多少细胞状态
+    o_t = sigmoid(W_o @ concat)
+    h_t = o_t * tanh(c_t)
+
+    return h_t, c_t
+```
+
+*Source: Hochreiter & Schmidhuber (1997) "Long Short-Term Memory", Neural Computation 9(8):1735-1780*
+:::
+
+LSTM在每个时间步计算以下量：
+
+**遗忘门**：决定遗忘多少旧的细胞状态
+
+$$
+\mathbf{f}_t = \sigma(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f)
+$$
+
+**输入门**：决定写入多少新信息
+
+$$
+\mathbf{i}_t = \sigma(\mathbf{W}_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i)
+$$
+
+**候选细胞状态**：新信息的候选值
+
+$$
+\tilde{\mathbf{c}}_t = \tanh(\mathbf{W}_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c)
+$$
+
+**细胞状态更新**：
+
+$$
+\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t
+$$
+
+**输出门**：决定输出多少细胞状态
+
+$$
+\mathbf{o}_t = \sigma(\mathbf{W}_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o)
+$$
+
+**隐藏状态**：
+
+$$
+\mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
+$$
+
+其中 $\sigma$ 是sigmoid函数（输出在 $(0, 1)$），$\odot$ 是逐元素乘法。
+
+### 为什么LSTM解决了梯度消失？
+
+关键在于细胞状态的更新公式：
+
+$$
+\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t
+$$
+
+考虑梯度 $\frac{\partial \mathbf{c}_t}{\partial \mathbf{c}_{t-1}}$：
+
+$$
+\frac{\partial \mathbf{c}_t}{\partial \mathbf{c}_{t-1}} = \text{diag}(\mathbf{f}_t) + \text{其他项}
+$$
+
+如果遗忘门 $\mathbf{f}_t$ 接近1，那么 $\frac{\partial \mathbf{c}_t}{\partial \mathbf{c}_{t-1}} \approx \mathbf{I}$（单位矩阵）。
+
+这意味着：**梯度可以几乎不衰减地流过多个时间步**。只要遗忘门学习到保持信息（$\mathbf{f}_t \approx 1$），早期时间步的信息就能对后期产生影响，模型也能学到长距离依赖。
+
+这和ResNet中残差连接的原理非常类似：提供一条"高速公路"让梯度直接流动。
+
+### 完整数值示例：LSTM前向传播
+
+**设定**：
+
+- 输入维度 $d_x = 2$，隐藏维度 $d_h = 2$
+- 输入序列：$\mathbf{x}_1 = [1, 0]^T$，$\mathbf{x}_2 = [0, 1]^T$
+- 初始状态：$\mathbf{h}_0 = [0, 0]^T$，$\mathbf{c}_0 = [0, 0]^T$
+
+**简化参数**（为便于计算，使用小值）：
+
+$$
+\mathbf{W}_f = \mathbf{W}_i = \mathbf{W}_c = \mathbf{W}_o = \begin{bmatrix} 0.5 & 0.5 & 0.3 & 0.3 \\ 0.3 & 0.3 & 0.5 & 0.5 \end{bmatrix}
+$$
+
+所有偏置为零。
+
+**Step 1：处理 $\mathbf{x}_1$**
+
+拼接输入：$[\mathbf{h}_0, \mathbf{x}_1] = [0, 0, 1, 0]^T$
+
+计算各个门（省略详细矩阵乘法）：
+
+$$
+\begin{aligned}
+\mathbf{f}_1 &= \sigma([0.3, 0.5]^T) = [0.574, 0.622]^T \\
+\mathbf{i}_1 &= \sigma([0.3, 0.5]^T) = [0.574, 0.622]^T \\
+\tilde{\mathbf{c}}_1 &= \tanh([0.3, 0.5]^T) = [0.291, 0.462]^T \\
+\mathbf{o}_1 &= \sigma([0.3, 0.5]^T) = [0.574, 0.622]^T
+\end{aligned}
+$$
+
+更新细胞状态：
+
+$$
+\mathbf{c}_1 = \mathbf{f}_1 \odot \mathbf{c}_0 + \mathbf{i}_1 \odot \tilde{\mathbf{c}}_1 = [0, 0] + [0.167, 0.287]^T = [0.167, 0.287]^T
+$$
+
+计算隐藏状态：
+
+$$
+\mathbf{h}_1 = \mathbf{o}_1 \odot \tanh(\mathbf{c}_1) = [0.574, 0.622] \odot [0.165, 0.279] = [0.095, 0.174]^T
+$$
+
+**Step 2：处理 $\mathbf{x}_2$**
+
+拼接输入：$[\mathbf{h}_1, \mathbf{x}_2] = [0.095, 0.174, 0, 1]^T$
+
+（类似计算，省略细节）
+
+最终得到 $\mathbf{h}_2$ 和 $\mathbf{c}_2$，编码了整个序列的信息。
+
+**关键观察**：$\mathbf{c}_1$ 中的信息通过遗忘门控制，部分保留到 $\mathbf{c}_2$。如果 $\mathbf{f}_2 \approx 1$，则 $\mathbf{x}_1$ 的信息几乎完整传递。
+
+---
+
+## GRU：门控机制的简化
+
+### 动机
+
+LSTM有4个门、两个状态（$\mathbf{h}$ 和 $\mathbf{c}$），参数量较大。2014年，Cho等人提出了**门控循环单元**（Gated Recurrent Unit, GRU），用更少的参数达到相似的效果。
+
+GRU的核心简化：
+
+1. **合并细胞状态和隐藏状态**：只保留一个状态 $\mathbf{h}$
+2. **合并遗忘门和输入门**：用一个"更新门"同时控制遗忘和写入
+
+### GRU 单元结构
+
+![GRU hidden unit 结构图：update gate (z) 控制保留多少旧状态，reset gate (r) 控制如何将旧状态与新输入结合。](figures/chapter-5/original/fig-gru-cell.png){#fig-gru-cell width=60%}
+
+::: {.figure-caption}
+*Source: Cho et al. (2014) "Learning Phrase Representations using RNN Encoder-Decoder", Figure 2. [arXiv:1406.1078](https://arxiv.org/abs/1406.1078)*
+:::
+
+### 数学形式化
+
+::: {.callout-note}
+## Algorithm: GRU Forward Pass (Cho et al., 2014)
+
+```python
+def gru_forward(x_t, h_prev, W_r, W_z, W_h):
+    """GRU 单步前向传播"""
+    # 重置门：决定忽略多少旧状态
+    r_t = sigmoid(W_r @ concat(h_prev, x_t))
+
+    # 更新门：决定保留多少旧状态
+    z_t = sigmoid(W_z @ concat(h_prev, x_t))
+
+    # 候选状态：用重置门过滤旧状态后，与新输入结合
+    h_tilde = tanh(W_h @ concat(r_t * h_prev, x_t))
+
+    # 最终状态：旧状态与候选状态的插值
+    h_t = z_t * h_prev + (1 - z_t) * h_tilde
+
+    return h_t
+```
+
+*Adapted from: Cho et al. (2014) Equations 5-8. [arXiv:1406.1078](https://arxiv.org/abs/1406.1078)*
+:::
+
+**重置门**：决定如何将过去的信息与新输入结合
+
+$$
+\mathbf{r}_t = \sigma(\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_r)
+$$
+
+**更新门**：决定保留多少旧状态
+
+$$
+\mathbf{z}_t = \sigma(\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_z)
+$$
+
+**候选隐藏状态**：
+
+$$
+\tilde{\mathbf{h}}_t = \tanh(\mathbf{W}_h [\mathbf{r}_t \odot \mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_h)
+$$
+
+**隐藏状态更新**：
+
+$$
+\mathbf{h}_t = (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t
+$$
+
+### LSTM vs GRU
+
+| 方面 | LSTM | GRU |
+|------|------|-----|
+| **状态数量** | 2（$\mathbf{h}$, $\mathbf{c}$） | 1（$\mathbf{h}$） |
+| **门数量** | 3（遗忘、输入、输出） | 2（重置、更新） |
+| **参数量** | 较多 | 较少（约75%） |
+| **性能** | 通常略好 | 相当，有时更好 |
+| **训练速度** | 较慢 | 较快 |
+
+实践中的选择：
+
+- **数据量大、任务复杂**：LSTM可能略有优势
+- **计算资源有限、需要快速迭代**：GRU是更好的选择
+- **很多情况下差异不大**：先用GRU快速验证，必要时换LSTM
+
+---
+
+## Seq2Seq：Encoder-Decoder架构
+
+### 核心问题：变长到变长的映射
+
+之前我们讨论的是"理解"任务——输入一个序列，输出一个向量（分类）或同长度序列（标注）。但很多重要任务需要**输入和输出都是序列，且长度不同**：
+
+- **机器翻译**："I love NLP" → "我喜欢自然语言处理"（3词 → 6词）
+- **文本摘要**：长文章 → 短摘要
+- **对话生成**：问题 → 回答
+
+这就需要一种新的架构：**Seq2Seq**（Sequence-to-Sequence），也称为Encoder-Decoder架构。
+
+### 架构设计
+
+Seq2Seq由两个RNN组成：
+
+1. **编码器（Encoder）**：读取输入序列，将其压缩为一个固定长度的向量
+2. **解码器（Decoder）**：接收这个向量，生成输出序列
+
+![RNN Encoder-Decoder 架构：Encoder 将输入序列 $(x_1, ..., x_T)$ 编码为上下文向量 $c$，Decoder 从 $c$ 生成输出序列 $(y_1, ..., y_{T'})$。](figures/chapter-5/original/fig-encoder-decoder.png){#fig-encoder-decoder width=50%}
+
+::: {.figure-caption}
+*Source: Cho et al. (2014) "Learning Phrase Representations using RNN Encoder-Decoder", Figure 1. [arXiv:1406.1078](https://arxiv.org/abs/1406.1078)*
+:::
+
+下图展示了 Sutskever 等人的经典 Seq2Seq 架构，注意**输入序列是反转的**（ABC 读取为 CBA），这是他们发现的一个有效技巧：
+
+![Seq2Seq 架构（Sutskever et al., 2014）：输入 "ABC" 被反转后读取，输出 "WXYZ"。模型在输出 `<EOS>` 后停止生成。](figures/chapter-5/original/fig-seq2seq.png){#fig-seq2seq width=80%}
+
+::: {.figure-caption}
+*Source: Sutskever et al. (2014) "Sequence to Sequence Learning with Neural Networks", Figure 1. [arXiv:1409.3215](https://arxiv.org/abs/1409.3215)*
+:::
+
+**编码过程**：
+
+$$
+\mathbf{h}_t^{enc} = \text{LSTM}_{enc}(\mathbf{h}_{t-1}^{enc}, \mathbf{x}_t)
+$$
+
+$$
+\mathbf{c} = \mathbf{h}_T^{enc} \quad \text{（最后一步的隐藏状态作为上下文向量）}
+$$
+
+**解码过程**：
+
+$$
+\mathbf{h}_t^{dec} = \text{LSTM}_{dec}(\mathbf{h}_{t-1}^{dec}, \mathbf{y}_{t-1})
+$$
+
+$$
+P(\mathbf{y}_t | \mathbf{y}_{<t}, \mathbf{x}) = \text{softmax}(\mathbf{W}_o \mathbf{h}_t^{dec})
+$$
+
+解码器的初始隐藏状态设为上下文向量：$\mathbf{h}_0^{dec} = \mathbf{c}$。
+
+### 训练：Teacher Forcing
+
+在训练时，我们使用**teacher forcing**：解码器的每一步输入是**真实的前一个词**（ground truth），而不是模型预测的词。
+
+$$
+\mathbf{h}_t^{dec} = \text{LSTM}_{dec}(\mathbf{h}_{t-1}^{dec}, \mathbf{y}_{t-1}^{*})
+$$
+
+其中 $\mathbf{y}_{t-1}^{*}$ 是真实的第 $t-1$ 个词。
+
+这样做的原因是：如果用模型预测的词，早期的错误会累积，导致训练不稳定。
+
+但这也带来一个问题：训练和推理时的分布不一致（**exposure bias**）。训练时解码器总是看到正确的前缀，推理时却要依赖自己的预测。
+
+### 推理：贪心搜索与束搜索
+
+在推理时，我们需要生成输出序列。两种常见策略：
+
+**贪心搜索**：每一步选择概率最高的词
+
+$$
+\hat{y}_t = \arg\max_y P(y | \hat{y}_{<t}, \mathbf{x})
+$$
+
+简单快速，但不保证全局最优。
+
+**束搜索（Beam Search）**：维护 $k$ 个候选序列，每一步扩展所有候选，保留得分最高的 $k$ 个。
+
+这是一种在搜索空间和计算成本之间的权衡。实践中 $k=4$ 或 $k=5$ 通常足够。
+
+---
+
+## 信息瓶颈：Seq2Seq的终极局限
+
+### 问题描述
+
+回顾Seq2Seq的核心假设：整个输入序列的信息被压缩到**一个固定长度的向量** $\mathbf{c}$ 中。
+
+这意味着，无论输入是5个词还是500个词，都要塞进同一个维度的向量。
+
+想象一下：你要把一本500页的书的所有信息压缩成一个1024维的向量，然后仅凭这个向量翻译成另一种语言。这能行吗？
+
+实验证据也验证了这个担忧。Sutskever等人(2014)在机器翻译任务上发现：当输入句子超过20个词时，翻译质量急剧下降。
+
+### 信息论视角
+
+从信息论角度，这个问题可以精确表述。
+
+假设输入序列 $\mathbf{x}$ 的信息熵是 $H(\mathbf{x})$。上下文向量 $\mathbf{c}$ 是 $\mathbf{x}$ 的一个有损压缩。根据数据处理不等式：
+
+$$
+I(\mathbf{y}; \mathbf{c}) \leq I(\mathbf{y}; \mathbf{x})
+$$
+
+其中 $I$ 是互信息。也就是说，$\mathbf{c}$ 中关于 $\mathbf{y}$ 的信息不可能超过 $\mathbf{x}$ 中的。
+
+如果 $\mathbf{c}$ 的维度是 $d$，它最多携带 $O(d \log |\mathcal{V}|)$ 比特的信息（$|\mathcal{V}|$ 是取值范围）。当输入序列很长时，必然有信息丢失。
+
+### 一个思考实验
+
+考虑机器翻译任务。输入是英语句子，输出是法语句子。
+
+假设我们要翻译一个很长的句子，其中第100个词是一个人名"Claude"。在输出的法语句子中，这个名字应该保持不变。
+
+但根据Seq2Seq的架构，"Claude"这个词首先要编码进隐藏状态 $\mathbf{h}_{100}^{enc}$，然后经过剩下的编码步骤，最终压缩到上下文向量 $\mathbf{c}$ 中，再由解码器提取出来。
+
+在这个过程中，"Claude"的信息可能与其他词的信息混合、被覆盖、或因梯度消失而无法有效学习。
+
+**我们需要的是什么？**
+
+理想情况下，当解码器生成这个名字时，它应该能够**直接"看"到编码器中对应的位置**，而不是只依赖一个压缩后的向量。
+
+这正是Attention机制的核心思想——**让解码器在每一步都能访问编码器的所有隐藏状态**，而不是只有最后一个。
+
+> 这个洞察将在下一章详细展开。Seq2Seq + Attention的组合，将RNN推向了最后的辉煌，也为后来完全抛弃RNN的Transformer铺平了道路。
+
+---
+
+## 工程实践：LSTM文本分类
+
+让我们用PyTorch实现一个简单的LSTM文本分类器，体会RNN的实际应用。
+
+### 模型定义
+
+```{python}
+#| code-fold: false
+import torch
+import torch.nn as nn
+
+class LSTMClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, num_classes, num_layers=1, dropout=0.5):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.lstm = nn.LSTM(
+            embed_dim,
+            hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=True,  # 双向LSTM
+            dropout=dropout if num_layers > 1 else 0
+        )
+        # 双向LSTM输出维度是 hidden_dim * 2
+        self.fc = nn.Linear(hidden_dim * 2, num_classes)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x, lengths=None):
+        # x: [batch_size, seq_len]
+        embedded = self.dropout(self.embedding(x))  # [batch_size, seq_len, embed_dim]
+
+        # LSTM前向传播
+        if lengths is not None:
+            # 使用pack_padded_sequence处理变长序列
+            packed = nn.utils.rnn.pack_padded_sequence(
+                embedded, lengths.cpu(), batch_first=True, enforce_sorted=False
+            )
+            packed_output, (hidden, cell) = self.lstm(packed)
+        else:
+            output, (hidden, cell) = self.lstm(embedded)
+
+        # hidden: [num_layers * 2, batch_size, hidden_dim] (双向)
+        # 取最后一层的前向和后向隐藏状态
+        hidden_forward = hidden[-2, :, :]  # [batch_size, hidden_dim]
+        hidden_backward = hidden[-1, :, :]  # [batch_size, hidden_dim]
+        hidden_concat = torch.cat([hidden_forward, hidden_backward], dim=1)  # [batch_size, hidden_dim * 2]
+
+        output = self.fc(self.dropout(hidden_concat))  # [batch_size, num_classes]
+        return output
+
+# 示例：创建模型
+model = LSTMClassifier(
+    vocab_size=10000,
+    embed_dim=128,
+    hidden_dim=256,
+    num_classes=2
+)
+print(f"模型参数量: {sum(p.numel() for p in model.parameters()):,}")
+```
+
+### 关键实现细节
+
+**1. 双向LSTM**
+
+使用 `bidirectional=True`，模型同时从左到右和从右到左处理序列，输出维度翻倍。这对于分类任务很有用——一个词的语义既依赖前文也依赖后文。
+
+**2. 变长序列处理**
+
+实际文本长度不一，需要填充（padding）到相同长度。`pack_padded_sequence` 和 `pad_packed_sequence` 让LSTM忽略填充位置，避免污染隐藏状态。
+
+**3. 分类策略**
+
+对于分类任务，我们用最后一个时间步的隐藏状态（或所有时间步的平均）作为序列的表示，送入分类层。
+
+### 训练技巧
+
+```python
+# 梯度裁剪（防止梯度爆炸）
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+# 学习率调度
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer, mode='min', factor=0.5, patience=2
+)
+```
+
+---
+
+## 深入理解
+
+### 为什么LSTM有效？——更深入的理论视角
+
+LSTM的成功不仅仅是"门控机制"这个技巧。从更深的角度看：
+
+**1. 常微分方程视角**
+
+可以把RNN看作离散化的常微分方程：
+
+$$
+\frac{d\mathbf{h}}{dt} = f(\mathbf{h}, \mathbf{x})
+$$
+
+Vanilla RNN对应简单的欧拉方法，而LSTM的细胞状态更新：
+
+$$
+\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t
+$$
+
+可以看作一种**自适应步长**的数值积分——遗忘门控制"衰减率"，输入门控制"增量"。
+
+**2. 记忆与计算的分离**
+
+LSTM将"记忆"（$\mathbf{c}$）和"计算"（$\mathbf{h}$）分离。细胞状态是长期记忆的载体，隐藏状态是当前的工作记忆。这种分离让模型能够同时保持长期信息和进行复杂的当前计算。
+
+**3. 可学习的遗忘**
+
+遗忘门的引入是关键创新。直觉上，保持信息似乎总是好的。但实际上，选择性遗忘同样重要——不相关的信息会干扰有用的信息。遗忘门让模型学习什么时候清除旧信息。
+
+### 边界条件与失效模式
+
+LSTM并不完美。以下是它的已知局限：
+
+**1. 顺序计算**
+
+LSTM必须按顺序处理序列，无法并行。这在GPU时代是严重的效率瓶颈。一个1000步的序列需要1000次串行计算。
+
+**2. 长距离仍有衰减**
+
+虽然比vanilla RNN好很多，但LSTM在极长序列（>1000步）上仍然会丢失信息。遗忘门不可能永远是1——那样模型就没有"忘记"的能力。
+
+**3. 缺乏显式的位置信息**
+
+LSTM通过顺序处理隐式编码位置，但无法像后来的位置编码那样精确地表示绝对或相对位置。
+
+### 开放研究问题
+
+1. **最优门控结构**：LSTM和GRU的门控设计是启发式的，是否存在理论上最优的结构？
+2. **长度泛化**：在短序列上训练的模型能否泛化到更长的序列？
+3. **RNN与Transformer的融合**：是否可以结合RNN的归纳偏置和Transformer的并行性？（如线性RNN、Mamba等近期工作）
+
+---
+
+## 局限性与展望
+
+### 本章方法的核心局限
+
+**1. 信息瓶颈（最严重）**
+
+Seq2Seq将整个输入压缩到一个固定向量，导致：
+- 长序列信息丢失
+- 无法回溯查看输入的特定位置
+
+**2. 顺序计算瓶颈**
+
+RNN必须按时间步串行计算，无法利用现代GPU的并行能力。
+
+**3. 梯度消失/爆炸（部分缓解）**
+
+LSTM/GRU缓解但未根本解决。极长序列仍有问题。
+
+### 这些局限指向什么？
+
+信息瓶颈问题促使研究者思考：**解码器是否必须只看一个向量？能否让它在每一步都访问编码器的所有状态？**
+
+这个问题的答案是**Attention机制**——下一章的主题。
+
+Attention最初被设计为Seq2Seq的补充，让解码器能够"注意"编码器的不同位置。它将RNN推向了最后的辉煌。
+
+但更具革命性的发现是：**如果Attention足够强大，我们是否还需要RNN？**
+
+这个问题的答案是Transformer——完全抛弃循环结构，用纯Attention建模序列。这将在第8章详细展开。
+
+---
+
+## 本章小结
+
+::: {.callout-important}
+## 核心要点
+
+- **RNN的核心思想**：用共享参数的循环结构处理序列，通过隐藏状态在时间步之间传递信息
+- **梯度消失问题**：vanilla RNN的梯度在时间维度上指数衰减/爆炸，无法学习长距离依赖
+- **LSTM的解决方案**：通过门控机制（遗忘门、输入门、输出门）和细胞状态，让信息可以不衰减地传递
+- **GRU的简化**：用更少的参数（重置门、更新门）达到类似效果
+- **Seq2Seq架构**：用Encoder-Decoder结构处理变长到变长的映射
+- **信息瓶颈**：Seq2Seq将整个输入压缩到一个向量，导致长序列信息丢失——这个问题催生了Attention机制
+:::
+
+### 关键公式速查
+
+**Vanilla RNN**：
+
+$$
+\mathbf{h}_t = \tanh(\mathbf{W}_{hh}\mathbf{h}_{t-1} + \mathbf{W}_{xh}\mathbf{x}_t + \mathbf{b}_h)
+$$
+
+**LSTM**：
+
+$$
+\begin{aligned}
+\mathbf{f}_t &= \sigma(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f) \\
+\mathbf{i}_t &= \sigma(\mathbf{W}_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i) \\
+\tilde{\mathbf{c}}_t &= \tanh(\mathbf{W}_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c) \\
+\mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t \\
+\mathbf{o}_t &= \sigma(\mathbf{W}_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o) \\
+\mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
+\end{aligned}
+$$
+
+**GRU**：
+
+$$
+\begin{aligned}
+\mathbf{r}_t &= \sigma(\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t]) \\
+\mathbf{z}_t &= \sigma(\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t]) \\
+\tilde{\mathbf{h}}_t &= \tanh(\mathbf{W}_h [\mathbf{r}_t \odot \mathbf{h}_{t-1}, \mathbf{x}_t]) \\
+\mathbf{h}_t &= (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t
+\end{aligned}
+$$
+
+---
+
+## 思考题
+
+1. **[概念理解]** 为什么说RNN实现了"时间维度上的权重共享"？这与CNN中的空间权重共享有什么异同？
+
+2. **[数学推导]** 证明：如果 $\mathbf{W}_{hh}$ 的所有特征值的绝对值都小于1，那么 $\mathbf{W}_{hh}^T \to \mathbf{0}$ 当 $T \to \infty$。这如何解释vanilla RNN的梯度消失？
+
+3. **[工程实践]** 在PyTorch中，`nn.LSTM` 的 `hidden_size` 和 `num_layers` 参数如何影响模型的容量和计算成本？如果要增加模型容量，增加 `hidden_size` 和增加 `num_layers` 哪个更有效？
+
+4. **[批判思考]** GRU的更新公式 $\mathbf{h}_t = (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t$ 可以看作是旧状态和新候选状态的插值。这个设计隐含了什么假设？有什么局限性？
+
+5. **[开放问题]** Seq2Seq的信息瓶颈问题有没有其他解决方案，不使用Attention？（提示：考虑使用多个向量表示输入，或使用记忆网络）
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+- **[Hochreiter & Schmidhuber, 1997] Long Short-Term Memory**
+  - LSTM的原始论文，提出门控机制
+  - 重点读：Section 3（LSTM架构）、Section 4（为什么能解决梯度消失）
+
+- **[Cho et al., 2014] Learning Phrase Representations using RNN Encoder-Decoder**
+  - 提出GRU和Encoder-Decoder架构
+  - 重点读：Section 3（GRU公式）、Section 2.2（Encoder-Decoder）
+
+- **[Sutskever et al., 2014] Sequence to Sequence Learning with Neural Networks**
+  - Seq2Seq在机器翻译上的突破性工作
+  - 重点读：Section 3.4（反转输入技巧）、实验结果
+
+### 理论基础
+
+- **[Bengio et al., 1994] Learning Long-Term Dependencies with Gradient Descent is Difficult**
+  - 梯度消失问题的理论分析
+  - 重点读：理论证明部分
+
+### 后续发展
+
+- **[Bahdanau et al., 2015] Neural Machine Translation by Jointly Learning to Align and Translate**
+  - 提出Attention机制，解决信息瓶颈问题
+  - 这是下一章的核心论文
+
+- **[Gu et al., 2023] Mamba: Linear-Time Sequence Modeling with Selective State Spaces**
+  - 结合RNN和Transformer优点的最新尝试
+  - 重点读：与Transformer的对比分析

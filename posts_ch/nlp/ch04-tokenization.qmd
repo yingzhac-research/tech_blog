@@ -1,0 +1,1101 @@
+---
+title: "第4章：Tokenization与数据基础"
+subtitle: "被低估的基础设施：从文本到模型输入的艺术"
+author: "Ying Zha"
+date: "2026-01-25"
+categories: [NLP, Tokenization, BPE, WordPiece, SentencePiece, Data]
+tags: [分词, 子词, Byte-level BPE, Unigram LM, 数据清洗, 多语言]
+description: "Tokenizer不是预处理工具，它是模型架构的隐藏维度：从词级别到子词方法的演进，以及分词策略对模型能力的深远影响。"
+image: "figures/chapter-4/fig-bpe-merge-process.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    css: styles.css
+    fig-cap-location: bottom
+---
+
+> **核心论点**：Tokenizer不是预处理工具，它是模型架构的隐藏维度。
+>
+> **历史坐标**：2016 | Sennrich et al. (BPE for NMT) | 从词级别到子词的范式转变
+
+---
+
+## 从上一章说起
+
+上一章我们学习了词向量——如何用稠密向量表示词的语义。Word2Vec、GloVe、FastText让我们第一次能够在数学上捕获"cat"和"dog"的相似性。这是表示学习的巨大进步。
+
+但我们回避了一个看似简单却极其重要的问题：**这些"词"是从哪里来的？**
+
+回顾FastText的出现动机：Word2Vec无法处理训练时没见过的词（OOV问题）。FastText通过将词分解为子词（character n-grams）来解决这个问题——即使"unfriendliness"没出现过，只要它的子词（"un"、"friend"、"ness"）出现过，就能组合出一个合理的向量。
+
+FastText的成功暗示了一个深刻的洞察：**"词"并不是文本处理的最佳单位**。
+
+这引出了本章的核心问题：在把文本送入模型之前，我们应该如何切分它？按词切？按字符切？还是有更聪明的方法？这个看似是"预处理"的问题，实际上深刻地影响着模型的能力、效率和公平性。
+
+> 💡 **本章核心洞察**：Tokenizer决定了模型"看到"什么。它不是可以随意选择的预处理步骤，而是模型架构的隐藏维度——影响计算效率、多语言公平性、数学推理能力，甚至安全性。
+
+---
+
+## 问题的本质是什么？
+
+### 什么是一个"词"？
+
+这个问题比看起来复杂得多。
+
+对于英语，我们可能直觉地认为"词就是空格分隔的单位"。但仔细想想：
+
+- "don't"是一个词还是两个？
+- "New York"是一个词还是两个？
+- "ice-cream"呢？
+- "it's"和"its"在tokenization层面应该相同还是不同？
+
+中文更麻烦。中文没有空格分隔词，需要专门的**分词**（word segmentation）算法。考虑这个句子：
+
+> "研究生命的起源"
+
+这应该切分为"研究/生命/的/起源"还是"研究生/命/的/起源"？没有上下文，无法确定。中文分词本身就是一个复杂的NLP任务，需要模型来完成——但我们现在讨论的是如何把文本送入模型，这形成了一个先有鸡还是先有蛋的悖论。
+
+再看形态丰富的语言，如德语、芬兰语、土耳其语。德语允许复合词任意组合，"Donaudampfschifffahrtsgesellschaftskapitän"（多瑙河轮船公司船长）是一个合法的德语词。土耳其语是黏着语，一个词可以通过添加后缀表达复杂的语法关系。如果坚持用词作为基本单位，词汇表会爆炸式增长，而且每个词的训练样本会稀少到无法学习。
+
+### 问题的精确定义
+
+让我们精确地定义Tokenization要解决的问题。
+
+给定一个字符串$s$，我们需要找到一个函数$\text{tokenize}: \Sigma^* \rightarrow \mathcal{V}^*$，把任意字符串映射为一个token序列，其中$\mathcal{V}$是预定义的词汇表（vocabulary）。
+
+这个函数需要满足几个关键性质：**完备性**——任何输入字符串都能被tokenize，不能有"无法处理"的情况；**确定性**——相同的输入总是产生相同的输出；以及理想情况下的**可逆性**——从token序列能够恢复原始字符串。
+
+除了这些基本约束，我们还希望函数在多个维度上表现良好。**词汇表大小**不能太大（否则embedding矩阵爆炸），也不能太小（否则序列太长）。产生的**序列长度**要合理（否则计算成本高，超出上下文窗口）。理想情况下，每个token应该有明确的**语义完整性**。此外，不同语言的相同内容，token数量应该大致相当——即**跨语言公平性**。
+
+这些目标之间存在张力。词汇表越小，序列越长；词汇表越大，稀有token越多。找到正确的平衡是tokenization的核心挑战。
+
+### 为什么这个问题重要？
+
+你可能会问：这真的那么重要吗？不就是切分文本吗？
+
+让我用几个具体的例子说明tokenizer选择对模型的深远影响。
+
+**计算效率**。同样的文本，不同tokenizer产生的序列长度可能相差2-3倍。如果你的模型有4096的上下文窗口，一个高效的tokenizer可以让你处理的实际文本量翻倍。Transformer的计算复杂度是$O(n^2)$（$n$是序列长度），序列长度减半意味着计算量减少75%。
+
+**多语言公平性**。同样的语义内容，英文可能只需要1个token，而中文可能需要2-3个token，日文可能需要更多。这意味着在相同的上下文窗口内，模型能处理的中文内容比英文少。这不是技术实现的细节，而是系统性的不公平。
+
+**数学和代码能力**。数字"380"可能被切分为单个token"380"，也可能被切分为"3"、"8"、"0"三个token。研究表明，后者会严重损害模型的算术推理能力——模型很难理解"380"和"381"只差1。类似地，代码中的缩进、变量名、运算符的切分方式直接影响模型理解代码的能力。
+
+**安全性**。Tokenizer的切分边界可能被攻击者利用。某些prompt injection攻击正是利用了特定token序列的特殊行为。理解tokenizer是理解模型安全边界的前提。
+
+---
+
+## 核心思想与直觉
+
+### 三种基本策略
+
+面对"如何切分文本"这个问题，有三种基本策略，它们代表了不同的权衡。
+
+**策略一：词级别（Word-level）**
+
+最直观的方法是按词切分。建立一个词汇表，包含训练语料中出现的所有词（或最常见的N个词），然后把每个词映射到一个token。
+
+这种方法的优点是每个token都有明确的语义——"cat"就是猫，"running"就是正在跑。但缺点也很明显：词汇表庞大（英语常用词就有几十万），OOV问题严重（任何不在词汇表中的词都无法处理），形态变化浪费空间（"run"、"runs"、"running"、"ran"是四个独立的token）。
+
+**策略二：字符级别（Character-level）**
+
+走向另一个极端：按字符切分。词汇表只需要包含所有可能的字符（英语只需要不到100个），OOV问题彻底消失。
+
+但代价是序列变得极长。"tokenization"这个词变成了13个token，计算成本大增。更糟糕的是，字符本身几乎没有语义——"t"、"o"、"k"...模型需要从这些原子构建词的含义，这是一个巨大的学习负担。
+
+**策略三：子词级别（Subword-level）**
+
+能不能找到一个中间地带？这正是现代NLP的选择：**子词分词**（subword tokenization）。
+
+核心思想是：常见的词保持完整，罕见的词分解为更小的、有意义的单元。比如：
+
+- "running" → "running"（常见，保持完整）
+- "tokenization" → "token" + "ization"（罕见，分解为常见子词）
+- "unfriendliness" → "un" + "friend" + "li" + "ness"
+
+这样，词汇表大小可控（通常32K-64K），序列长度合理，而且任何词都能被切分（最坏情况退化到字符级别）。子词还经常具有语义或语法含义——"un-"表示否定，"-ing"表示进行时，"-ness"表示名词化。
+
+![三种Tokenization策略对比：以"tokenization"为例，词级别产生1个token，字符级别产生12个token，而子词（BPE）只需要2个token——"token"和"ization"。子词方法在词汇表大小和序列长度之间找到了最佳平衡。](figures/chapter-4/fig-tokenization-strategies.png){#fig-tokenization-strategies}
+
+::: {.figure-caption}
+*Python生成，概念参考 Sennrich et al. (2016) "Neural Machine Translation of Rare Words with Subword Units". [arXiv:1508.07909](https://arxiv.org/abs/1508.07909)*
+:::
+
+### 子词分词的直觉：数据压缩
+
+理解子词分词的最佳方式是把它类比为**数据压缩**。
+
+想象你要设计一个编码方案，用最少的符号表示大量文本。直觉上，你会：
+
+1. 给最常见的模式分配短码
+2. 让不常见的模式用常见模式的组合表示
+
+这正是BPE（Byte Pair Encoding）的核心思想，而BPE最初就是一种数据压缩算法。
+
+考虑一个简单的例子。假设你的文本中经常出现"th"、"the"、"ing"这些模式。如果每次都用两个或三个字符表示它们，很浪费。不如给"th"一个专门的符号（比如"θ"），给"the"另一个符号（比如"Θ"）。这样，原本需要3个符号的"the"只需要1个符号。
+
+子词分词做的就是这件事：自动发现文本中的高频模式，给它们分配token。最终的词汇表是数据驱动的，反映了训练语料的统计规律。
+
+---
+
+## 技术细节
+
+### BPE算法：从数据压缩到NLP
+
+BPE（Byte Pair Encoding）是目前最广泛使用的子词分词算法之一，被GPT系列、RoBERTa等模型采用。
+
+**算法思想**：从字符开始，迭代地合并最频繁的相邻token对，直到达到目标词汇表大小。
+
+让我们用一个具体的例子来理解这个过程。
+
+#### 完整数值示例：BPE词汇表构建
+
+**设定**：训练语料包含以下词及其频率：
+
+| 词 | 频率 |
+|---|---|
+| low | 5 |
+| lower | 2 |
+| newest | 6 |
+| widest | 3 |
+
+**Step 0：初始化**
+
+首先，我们把每个词表示为字符序列，并添加一个特殊的词尾标记"_"（表示词边界）：
+
+```
+l o w _     : 5
+l o w e r _ : 2
+n e w e s t _ : 6
+w i d e s t _ : 3
+```
+
+初始词汇表是所有字符：`{l, o, w, e, r, n, s, t, i, d, _}`，共11个token。
+
+**Step 1：统计相邻token对频率**
+
+遍历所有词，统计相邻token对出现的总次数：
+
+| Token对 | 频率计算 | 总频率 |
+|---|---|---|
+| (l, o) | 5 + 2 = 7 | 7 |
+| (o, w) | 5 + 2 = 7 | 7 |
+| (w, _) | 5 | 5 |
+| (w, e) | 2 | 2 |
+| (e, r) | 2 | 2 |
+| (r, _) | 2 | 2 |
+| (n, e) | 6 | 6 |
+| (e, w) | 6 | 6 |
+| (e, s) | 6 + 3 = 9 | **9** |
+| (s, t) | 6 + 3 = 9 | **9** |
+| (t, _) | 6 + 3 = 9 | **9** |
+| (w, i) | 3 | 3 |
+| (i, d) | 3 | 3 |
+| (d, e) | 3 | 3 |
+
+最高频的对是 (e, s)、(s, t)、(t, _)，都是9次。我们选择第一个遇到的：**(e, s)**。
+
+**Step 2：合并最频繁的对**
+
+创建新token "es"，替换所有出现的 (e, s)：
+
+```
+l o w _     : 5
+l o w e r _ : 2
+n e w es t _ : 6
+w i d es t _ : 3
+```
+
+词汇表变为：`{l, o, w, e, r, n, s, t, i, d, _, es}`，12个token。
+
+**Step 3：重复统计和合并**
+
+继续统计相邻对频率：
+
+| Token对 | 总频率 |
+|---|---|
+| (es, t) | 6 + 3 = **9** |
+| (l, o) | 7 |
+| (o, w) | 7 |
+| ... | ... |
+
+最高频：**(es, t) = 9**，合并为 "est"：
+
+```
+l o w _     : 5
+l o w e r _ : 2
+n e w est _ : 6
+w i d est _ : 3
+```
+
+词汇表：`{l, o, w, e, r, n, s, t, i, d, _, es, est}`，13个token。
+
+**Step 4：继续合并**
+
+| Token对 | 总频率 |
+|---|---|
+| (est, _) | 6 + 3 = **9** |
+| (l, o) | 7 |
+| (o, w) | 7 |
+| ... | ... |
+
+合并 **(est, _)** 为 "est_"：
+
+```
+l o w _     : 5
+l o w e r _ : 2
+n e w est_ : 6
+w i d est_ : 3
+```
+
+**Step 5-7：继续迭代**
+
+| 迭代 | 合并的对 | 新token |
+|---|---|---|
+| 5 | (l, o) | lo |
+| 6 | (lo, w) | low |
+| 7 | (low, _) | low_ |
+
+经过7次合并后：
+
+```
+low_     : 5
+low e r _ : 2
+n e w est_ : 6
+w i d est_ : 3
+```
+
+**最终词汇表**（假设目标大小是18）：
+
+```
+{l, o, w, e, r, n, s, t, i, d, _, es, est, est_, lo, low, low_, ...}
+```
+
+**关键观察**：
+
+1. 高频词"low"被学习为完整token
+2. 常见后缀"est_"被学习为一个token
+3. 罕见词"lower"仍然需要多个token：low + e + r + _
+4. 词汇表从纯字符逐步构建，包含字符、常见子词、常见词
+
+![BPE合并过程可视化：以"lowest"为例，从字符序列出发，依次合并最高频的相邻对（e,s）→"es"、（es,t）→"est"、（l,o）→"lo"，词汇表逐步增长。每一步合并都由语料统计驱动。](figures/chapter-4/fig-bpe-merge-process.png){#fig-bpe-merge-process}
+
+::: {.figure-caption}
+*Python生成，数值示例基于 Sennrich et al. (2016) "Neural Machine Translation of Rare Words with Subword Units", Section 3. [arXiv:1508.07909](https://arxiv.org/abs/1508.07909)*
+:::
+
+#### BPE的形式化算法
+
+::: {.callout-note}
+## Algorithm 1: Learn BPE Operations (Sennrich et al., 2016)
+
+以下是论文原文中的Python实现。这段代码展示了BPE算法的核心逻辑：统计相邻符号对的频率，合并最频繁的对，重复直到达到目标词汇表大小。
+
+```python
+import re, collections
+
+def get_stats(vocab):
+    """统计所有相邻符号对的频率"""
+    pairs = collections.defaultdict(int)
+    for word, freq in vocab.items():
+        symbols = word.split()
+        for i in range(len(symbols)-1):
+            pairs[symbols[i],symbols[i+1]] += freq
+    return pairs
+
+def merge_vocab(pair, v_in):
+    """将vocab中所有出现的pair合并为新符号"""
+    v_out = {}
+    bigram = re.escape(' '.join(pair))
+    p = re.compile(r'(?<!\S)' + bigram + r'(?!\S)')
+    for word in v_in:
+        w_out = p.sub(''.join(pair), word)
+        v_out[w_out] = v_in[word]
+    return v_out
+
+# 示例词汇表（词用空格分隔的字符序列表示）
+vocab = {'l o w </w>' : 5, 'l o w e r </w>' : 2,
+         'n e w e s t </w>':6, 'w i d e s t </w>':3}
+num_merges = 10
+
+for i in range(num_merges):
+    pairs = get_stats(vocab)
+    best = max(pairs, key=pairs.get)
+    vocab = merge_vocab(best, vocab)
+    print(best)
+```
+
+**输出**（前4次合并）：
+```
+('e', 's')      →  es
+('es', 't')     →  est
+('est', '</w>') →  est</w>
+('l', 'o')      →  lo
+...
+```
+
+*Source: [Sennrich et al. (2016)](https://arxiv.org/abs/1508.07909), Algorithm 1*
+:::
+
+论文中使用`</w>`作为词尾标记（end-of-word），这与我们之前示例中的`_`作用相同。下面是一个更详细的实现版本，带有完整注释：
+
+```python
+def learn_bpe(corpus, num_merges):
+    """
+    学习BPE词汇表
+
+    Args:
+        corpus: 词频字典 {word: frequency}
+        num_merges: 合并次数（决定最终词汇表大小）
+
+    Returns:
+        merges: 合并规则列表
+        vocab: 最终词汇表
+    """
+    # Step 1: 初始化——将词拆分为字符，添加词尾标记
+    vocab = {}
+    for word, freq in corpus.items():
+        # "low" -> ['l', 'o', 'w', '_']
+        chars = list(word) + ['_']
+        vocab[tuple(chars)] = freq
+
+    merges = []
+
+    for i in range(num_merges):
+        # Step 2: 统计所有相邻token对的频率
+        pairs = defaultdict(int)
+        for word, freq in vocab.items():
+            for j in range(len(word) - 1):
+                pairs[(word[j], word[j+1])] += freq
+
+        if not pairs:
+            break
+
+        # Step 3: 找到最频繁的对
+        best_pair = max(pairs, key=pairs.get)
+        merges.append(best_pair)
+
+        # Step 4: 合并这个对，更新vocab
+        new_vocab = {}
+        for word, freq in vocab.items():
+            new_word = merge_pair(word, best_pair)
+            new_vocab[new_word] = freq
+        vocab = new_vocab
+
+    return merges, vocab
+
+def merge_pair(word, pair):
+    """将word中所有出现的pair合并"""
+    new_word = []
+    i = 0
+    while i < len(word):
+        if i < len(word) - 1 and (word[i], word[i+1]) == pair:
+            new_word.append(word[i] + word[i+1])
+            i += 2
+        else:
+            new_word.append(word[i])
+            i += 1
+    return tuple(new_word)
+```
+
+#### 使用BPE进行Tokenization
+
+训练好BPE词汇表后，如何tokenize一个新词？
+
+```python
+def tokenize_bpe(word, merges):
+    """
+    使用学习到的BPE规则tokenize一个词
+
+    核心思想：按照学习时的合并顺序，依次应用合并规则
+    """
+    # 初始化为字符序列
+    word = list(word) + ['_']
+
+    # 按顺序应用每个合并规则
+    for pair in merges:
+        i = 0
+        while i < len(word) - 1:
+            if (word[i], word[i+1]) == pair:
+                word = word[:i] + [word[i] + word[i+1]] + word[i+2:]
+            else:
+                i += 1
+
+    return word
+```
+
+**例子**：tokenize "lowest"
+
+- 初始：['l', 'o', 'w', 'e', 's', 't', '_']
+- 应用 (e, s) → 'es'：['l', 'o', 'w', 'es', 't', '_']
+- 应用 (es, t) → 'est'：['l', 'o', 'w', 'est', '_']
+- 应用 (est, _) → 'est_'：['l', 'o', 'w', 'est_']
+- 应用 (l, o) → 'lo'：['lo', 'w', 'est_']
+- 应用 (lo, w) → 'low'：['low', 'est_']
+
+最终结果：**['low', 'est_']**
+
+即使"lowest"没有出现在训练语料中，BPE也能将它合理地分解为"low"和"est_"——这两个都是学习到的有意义的子词。
+
+#### BPE与其他分词方法的实证对比
+
+Sennrich et al. (2016) 在德语语料上对比了不同分词方法的效果。下表展示了各方法的token数、词汇表大小和未知词数量：
+
+| 分词方法 | Token数量 | 词汇表大小 | 测试集未知词 |
+|----------|-----------|------------|--------------|
+| 不分词（词级别） | 100M | 1,750,000 | 1,079 |
+| 字符级别 | 550M | 3,000 | 0 |
+| Character bigrams | 306M | 20,000 | 34 |
+| Character trigrams | 214M | 120,000 | 59 |
+| 复合词拆分 | 102M | 1,100,000 | 643 |
+| Morfessor | 109M | 544,000 | 237 |
+| 连字符分割 | 186M | 404,000 | 230 |
+| **BPE** | 112M | 63,000 | **0** |
+| **BPE (joint)** | 111M | 82,000 | 32 |
+
+: 不同分词技术在德语训练语料上的统计对比。*Source: [Sennrich et al. (2016)](https://arxiv.org/abs/1508.07909), Table 1* {#tbl-segmentation-comparison}
+
+**关键观察**：
+
+- **字符级别**：完全消除未知词，但token数量爆炸（5.5倍），计算成本极高
+- **传统形态学方法**（复合词拆分、Morfessor）：仍有大量未知词，词汇表依然庞大
+- **BPE**：在保持合理token数量（仅比词级别多12%）的同时，实现了**零未知词**，词汇表紧凑（63K）
+
+这正是BPE成为现代NLP标准的原因：它在**词汇表大小**、**序列长度**和**OOV处理**之间找到了最佳平衡。
+
+### WordPiece：BERT的选择
+
+WordPiece是Google提出的子词算法，被BERT、DistilBERT等模型使用。它与BPE的思想相似，但在选择合并哪个pair时使用了不同的标准。
+
+**BPE vs WordPiece的关键区别**：
+
+- BPE选择**出现频率最高**的pair
+- WordPiece选择**合并后使语言模型困惑度下降最多**的pair
+
+WordPiece的选择标准可以写成：
+
+$$
+\text{score}(x, y) = \frac{\text{freq}(xy)}{\text{freq}(x) \times \text{freq}(y)}
+$$
+
+这个分数本质上是在问：$xy$一起出现的频率，相对于$x$和$y$各自出现频率的乘积，高多少？这类似于点互信息（PMI），衡量的是$x$和$y$的共现是否超出了随机期望。
+
+**直觉理解**：考虑"th"和"qu"。在英语中，"th"几乎总是一起出现（"the"、"this"、"that"），而"qu"后面几乎总是跟着"u"（"question"、"queen"）。WordPiece的标准会优先合并这种"绑定程度"高的pair，而不仅仅是出现次数多的pair。
+
+**WordPiece的特殊标记**：
+
+WordPiece使用"##"前缀标记非词首的子词。比如"tokenization"可能被切分为：
+
+```
+["token", "##ization"]
+```
+
+"##"告诉我们"ization"不是一个独立的词，而是接在前一个token后面的后缀。这个设计使得从token序列恢复原始文本更容易。
+
+### Unigram Language Model：概率视角
+
+Unigram LM是另一种子词分词方法，由SentencePiece库实现，被T5、ALBERT等模型使用。它采用了一个根本不同的视角：不是从小到大构建词汇表，而是从大到小剪枝。
+
+**核心思想**：假设每个子词独立出现，用一个unigram语言模型给每种切分方式打分。
+
+给定词汇表$\mathcal{V}$和每个子词$x$的概率$p(x)$，一个句子$S$的某种切分$\mathbf{x} = (x_1, x_2, \ldots, x_n)$的概率是：
+
+$$
+P(\mathbf{x}) = \prod_{i=1}^{n} p(x_i)
+$$
+
+最优切分是使这个概率最大化的切分：
+
+$$
+\mathbf{x}^* = \arg\max_{\mathbf{x}} P(\mathbf{x}) = \arg\max_{\mathbf{x}} \sum_{i=1}^{n} \log p(x_i)
+$$
+
+**训练过程**（与BPE相反）：
+
+1. 从一个很大的初始词汇表开始（包含所有字符、常见子串等）
+2. 用EM算法估计每个子词的概率
+3. 计算每个子词的"贡献"——移除它会使整体likelihood下降多少
+4. 移除贡献最小的子词（保留一定比例）
+5. 重复2-4，直到词汇表达到目标大小
+
+Unigram相比BPE有几个独特的优势。首先，它理论上更优雅——每种切分都有明确的概率解释，而不是像BPE那样依赖贪心的频率统计。更重要的是，Unigram可以为同一个词给出多种切分，这使得subword regularization成为可能：训练时按概率采样不同的切分方式作为数据增强，从而增强模型的鲁棒性。
+
+**例子**：对于"unigram"，可能的切分包括：
+
+- ["uni", "gram"] 概率$p_1$
+- ["un", "i", "gram"] 概率$p_2$
+- ["u", "n", "i", "g", "r", "a", "m"] 概率$p_3$
+
+推理时选择概率最高的切分，训练时可以按概率采样不同切分。
+
+### SentencePiece：语言无关的统一方案
+
+SentencePiece是Google开发的一个tokenization库，它的关键创新是**直接在原始文本上操作**，不需要预先的词分割。
+
+**传统流程的问题**：
+
+```
+原始文本 → 词分割（按空格或分词器）→ 子词分割（BPE/WordPiece）
+```
+
+这个流程对英语工作良好（空格是自然的词边界），但对中文、日文等没有空格的语言不友好——需要先用一个分词器，引入了额外的复杂性和错误来源。
+
+**SentencePiece的方案**：
+
+```
+原始文本（包括空格）→ 子词分割
+```
+
+SentencePiece把空格也当作一个普通字符处理，用特殊符号"▁"（U+2581）表示词边界。比如"Hello world"变成"▁Hello▁world"，然后直接在这个字符序列上做BPE或Unigram。
+
+这样，不需要任何语言特定的预处理，同一个算法可以处理任何语言。空格信息被保留在token中（以"▁"的形式），不会丢失。
+
+```python
+# SentencePiece的tokenization示例
+import sentencepiece as spm
+
+# 加载预训练模型
+sp = spm.SentencePieceProcessor()
+sp.Load("model.model")
+
+# Tokenize
+text = "Hello world"
+tokens = sp.EncodeAsPieces(text)
+# 输出: ['▁Hello', '▁world']
+
+text_zh = "你好世界"
+tokens_zh = sp.EncodeAsPieces(text_zh)
+# 输出: ['▁', '你', '好', '世', '界']  # 中文字符通常各自成为token
+```
+
+### Byte-level BPE：GPT-2的创新
+
+GPT-2引入了一个重要的创新：**Byte-level BPE**。
+
+**传统方法的问题**：即使是SentencePiece，也需要定义一个字符集。如果遇到训练时没见过的字符（比如某种稀有语言的Unicode字符），仍然会变成未知token。
+
+**Byte-level的解决方案**：不在字符级别操作，而是在**字节级别**操作。任何文本都可以用UTF-8编码为字节序列（0-255），所以基础词汇表只需要256个token。
+
+```python
+# 任何字符串都可以变成字节序列
+text = "Hello 你好 🎉"
+bytes_seq = text.encode('utf-8')
+# b'Hello \xe4\xbd\xa0\xe5\xa5\xbd \xf0\x9f\x8e\x89'
+```
+
+然后在这个字节序列上做BPE，学习常见的字节组合。
+
+Byte-level方法的关键优势在于它彻底解决了OOV问题——任何Unicode字符都能编码，无论是emoji、稀有语言、甚至乱码。同时它完全语言无关，不需要任何语言特定的处理，而且词汇表大小可控，从256个基础字节出发，通过合并操作构建到目标大小。
+
+不过这种方法也有潜在代价：多字节字符可能被切开。UTF-8编码中，中文字符通常占3个字节，一个中文字符可能被切分为多个token，导致中文的token效率比英文低。
+
+**为什么现代LLM都用Byte-level？**
+
+因为它是最"安全"的选择。对于要部署到全世界、处理任意输入的大型语言模型，不能有任何"无法处理"的情况。Byte-level BPE保证了完备性——任何输入都能被tokenize，最坏情况只是效率低一点（字节序列很长）。
+
+---
+
+## Tokenizer是模型的一部分
+
+这是本章最重要的观点：**Tokenizer不是可以随意选择的预处理步骤，它是模型架构的隐藏维度**。
+
+### 计算效率：序列长度的隐藏成本
+
+同样的文本，不同tokenizer产生的序列长度可能相差巨大。
+
+考虑这个英文句子：
+
+> "The transformer architecture revolutionized natural language processing."
+
+| Tokenizer | Token数量 | Token序列 |
+|---|---|---|
+| 词级别 | 7 | [The, transformer, architecture, revolutionized, natural, language, processing] |
+| GPT-2 (BPE) | 7 | [The, Ġtransformer, Ġarchitecture, Ġrevolution, ized, Ġnatural, Ġlanguage, Ġprocessing] |
+| 字符级别 | 62 | [T, h, e, ␣, t, r, a, n, s, ...] |
+
+对于这个简单句子，差异不大。但看看代码：
+
+```python
+def calculate_attention(query, key, value):
+    scores = torch.matmul(query, key.transpose(-2, -1))
+    return torch.softmax(scores, dim=-1) @ value
+```
+
+| Tokenizer | Token数量 |
+|---|---|
+| GPT-2 | ~40 |
+| 字符级别 | ~150 |
+
+差异接近4倍！在Transformer中，attention的计算复杂度是$O(n^2)$，这意味着字符级别的计算量是GPT-2的16倍。
+
+### 多语言公平性：隐藏的不平等
+
+这是一个经常被忽视但极其重要的问题。
+
+考虑"人工智能"这个概念：
+
+| 语言 | 文本 | GPT-2 Token数 |
+|---|---|---|
+| 英语 | artificial intelligence | 2 |
+| 中文 | 人工智能 | 4-6（取决于具体tokenizer）|
+| 日语 | 人工知能 | 4-6 |
+| 阿拉伯语 | الذكاء الاصطناعي | 8-12 |
+
+![不同语言表达"Artificial Intelligence"所需的token数量差异（GPT-2 Tokenizer）。英文仅需2个token，而阿拉伯语需要9个，中文和日文也远多于英文。这种不对称源于tokenizer训练语料中英文的主导地位。](figures/chapter-4/fig-multilingual-efficiency.png){#fig-multilingual-efficiency}
+
+::: {.figure-caption}
+*Python生成，数据参考 Petrov et al. (2023) "Language Model Tokenizers Introduce Unfairness Between Languages". [arXiv:2305.15425](https://arxiv.org/abs/2305.15425)*
+:::
+
+**这意味着什么？** 在相同的上下文窗口（比如4096 tokens）内，模型能处理的中文内容比英文少得多。由于API按token计费，中文用户的调用成本也更高。更深层地说，模型学习中文需要消耗更多的"token带宽"，这可能导致中文能力系统性地弱于英文。
+
+这不是技术实现的细节，而是系统性的不公平。解决这个问题需要在设计tokenizer时就考虑多语言平衡，或者使用专门为某种语言优化的tokenizer。
+
+### 数学和代码能力：数字的切分
+
+数字的tokenization对模型的算术能力有深远影响。
+
+考虑数字"12345"的几种切分方式：
+
+| 切分方式 | Tokens |
+|---|---|
+| 整体 | ["12345"] |
+| 按位 | ["1", "2", "3", "4", "5"] |
+| 混合 | ["123", "45"] |
+
+研究表明，当数字被切分为多个token时，模型很难进行算术运算。
+
+**为什么？**
+
+考虑加法"12345 + 67890"。如果模型看到的是：
+```
+["123", "45", "+", "678", "90"]
+```
+
+它需要：
+1. 理解"123"和"45"组合成12345
+2. 理解"678"和"90"组合成67890
+3. 进行加法
+4. 把结果拆分回token
+
+这比直接处理完整数字复杂得多。而且，不同的数字可能有不同的切分方式，模型需要学习无数种组合模式。
+
+**现代方法的改进**：
+
+- 一些模型专门把数字处理为单独的token
+- 或者把数字按位切分，统一处理方式
+- 或者在训练数据中加入大量算术例子，让模型学习切分模式
+
+### 安全性：Tokenization边界的攻击
+
+Tokenizer的切分边界可能被攻击者利用。
+
+**例子：Token边界绕过**
+
+假设某个安全过滤器阻止了"dangerous"这个词。但如果tokenizer把它切分为"danger" + "ous"，攻击者可能通过改变输入方式（比如添加空格或特殊字符）来改变切分，绕过过滤。
+
+**例子：特殊Token利用**
+
+某些tokenizer有特殊token（如`<|endoftext|>`），如果用户输入能够产生这些token，可能导致意外行为。这是一些prompt injection攻击的基础。
+
+**安全启示**：
+
+- 安全过滤应该同时在原始文本和token级别进行
+- 理解tokenizer的行为是理解模型安全边界的前提
+- 特殊token需要特别处理，防止用户输入产生它们
+
+---
+
+## 数据质量：清洗、去重与污染
+
+Tokenization是数据进入模型的入口，但数据本身的质量同样关键。"Garbage in, garbage out"在大语言模型时代更加明显。
+
+### 数据清洗：从噪声中提取信号
+
+互联网上的原始文本充满噪声——HTML标签和JavaScript代码混杂其中，导航菜单、广告、版权声明占据大量篇幅，重复的模板文本（如页脚）反复出现，编码错误导致的乱码以及色情、暴力、仇恨言论也难以避免。
+
+清洗流程通常从**语言过滤**开始，识别文本语言并保留目标语言；然后进行**质量过滤**，基于困惑度、文本长度、特殊字符比例等指标去除低质量文本；接着是**内容过滤**，移除有害内容、广告和模板文本；最后是**格式清理**，统一编码，移除HTML标签，规范化空白字符。
+
+研究表明，在同等数据量下，高质量数据训练的模型显著优于在原始数据上训练的模型。这也是为什么数据清洗是大模型训练的核心竞争力之一。
+
+### 数据去重：重复的危害
+
+大规模语料中存在大量重复。有些是完全相同的文档被爬取多次，有些是近似重复（如同一新闻的不同来源）。
+
+重复数据的危害是多方面的。最直接的影响是**浪费计算**——模型在相同内容上反复训练。更隐蔽的是，某些被大量复制的内容会获得不成比例的影响力，**偏向特定来源**。模型也可能倾向于**记忆**这些重复内容，而不是学习通用模式。此外，如果测试数据在训练集中出现过，评估结果将不可信——这就是**评估失真**问题。
+
+DeepMind的Chinchilla研究进一步凸显了数据质量的重要性：更大的、更干净的数据集可以让更小的模型达到更大模型的效果。这直接促使了对数据去重的重视。
+
+在实践中，去重方法可以按精度分级：**精确去重**基于hash（如MD5、SHA）检测完全相同的文档；**近似去重**使用MinHash、SimHash等技术识别相似但不完全相同的文档；**N-gram去重**则更为激进，移除包含训练集中大段连续文本的样本。
+
+### 数据污染：训练-测试泄漏
+
+一个更微妙的问题是**数据污染**（data contamination）：测试集的内容出现在训练集中。
+
+**为什么这是问题？**
+
+如果模型在训练时"见过"测试题和答案，它可能只是在检索记忆，而不是真正的泛化。这会导致benchmark分数虚高，无法反映模型的真实能力。
+
+**污染来源**：
+
+- 互联网上有大量benchmark数据集的讨论和解答
+- 某些评测集本身就是从互联网收集的
+- 不同数据集可能有重叠的来源
+
+**检测方法**：
+
+- 检查测试样本是否在训练集中有高度重叠
+- 使用模型的困惑度——如果模型对测试样本的困惑度异常低，可能是记忆
+- 对测试样本做微小修改（如改变人名），观察模型表现变化
+
+**案例**：GPT-4的技术报告专门讨论了数据污染问题，并对可能被污染的benchmark结果做了标注。这种透明度是负责任的做法。
+
+---
+
+## 深入理解
+
+> **研究者必读**：这一节探讨tokenization的理论基础、边界条件和开放问题
+
+### 理论视角：最优分词的条件
+
+从信息论角度，最优的tokenization应该最小化描述数据的总比特数。这等价于最大化：
+
+$$
+\mathcal{L} = \sum_{s \in \mathcal{D}} \log P(s)
+$$
+
+其中$P(s)$是分词方案下句子$s$的概率。
+
+对于Unigram模型，这有闭式解。但对于BPE这种贪心算法，只能保证局部最优。
+
+**有趣的问题**：BPE的贪心策略与全局最优差多少？实证研究表明，在大多数情况下差异不大，但理论上的保证仍然缺失。
+
+### 边界条件：子词分词的假设
+
+子词分词隐含了几个假设：
+
+**假设1：词可以有意义地分解**
+
+BPE假设常见的子词组合是有意义的。但这并不总是成立——"ing"作为后缀有语法意义，但"qu"只是拼写惯例，没有独立含义。
+
+**假设2：统计规律反映语言结构**
+
+BPE用频率来决定合并顺序，假设高频模式是语言中重要的单元。但频率受训练语料影响——如果语料偏向某个领域，分词结果也会偏向该领域。
+
+**假设3：分词策略语言无关**
+
+SentencePiece等工具用相同算法处理所有语言。但不同语言有不同的结构——中文是孤立语（morphology少），土耳其语是黏着语（morphology丰富）。同一算法可能对它们的效果不同。
+
+### 开放研究问题
+
+如果你要在tokenization方向做研究，可以考虑这些问题。
+
+**问题1：最优词汇表大小是多少？**
+
+词汇表大小是一个关键超参数。太小导致序列太长，太大导致稀有token训练不足。最优大小取决于数据量、模型大小、目标语言等因素。是否存在一个理论指导？
+
+**问题2：如何实现真正的多语言公平？**
+
+现有tokenizer对英文有系统性偏好。如何设计一个对所有语言公平的tokenizer？这可能需要权衡——让英文效率降低来提升其他语言，是否可接受？
+
+**问题3：Tokenization与模型能力的关系**
+
+数字切分影响算术能力，这已被证实。还有哪些模型能力受tokenization影响？推理、常识、代码理解...？能否设计专门的tokenization策略来增强特定能力？
+
+**问题4：端到端学习tokenization**
+
+目前tokenization与模型训练是分离的。能否让模型自己学习如何分词？这涉及到离散结构的可微分学习，是一个开放问题。
+
+---
+
+## 工程实践：Hugging Face Tokenizers库使用
+
+### 使用预训练Tokenizer
+
+```{python}
+#| code-fold: false
+#| eval: false
+
+from transformers import AutoTokenizer
+
+# 加载GPT-2的tokenizer（Byte-level BPE）
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+
+# 基本tokenization
+text = "Hello, how are you doing today?"
+tokens = tokenizer.tokenize(text)
+print(f"Tokens: {tokens}")
+# 输出: ['Hello', ',', 'Ġhow', 'Ġare', 'Ġyou', 'Ġdoing', 'Ġtoday', '?']
+# 注意：Ġ表示词前的空格（Byte-level BPE的特点）
+
+# 转换为ID
+input_ids = tokenizer.encode(text)
+print(f"Input IDs: {input_ids}")
+
+# 解码回文本
+decoded = tokenizer.decode(input_ids)
+print(f"Decoded: {decoded}")
+
+# 批量处理，带padding和truncation
+texts = ["Hello world", "This is a longer sentence for testing"]
+encoded = tokenizer(texts, padding=True, truncation=True, max_length=20, return_tensors="pt")
+print(f"Input IDs shape: {encoded['input_ids'].shape}")
+print(f"Attention mask: {encoded['attention_mask']}")
+```
+
+### 比较不同Tokenizer
+
+```{python}
+#| code-fold: false
+#| eval: false
+
+from transformers import AutoTokenizer
+
+# 加载不同模型的tokenizer
+tokenizers = {
+    "GPT-2": AutoTokenizer.from_pretrained("gpt2"),
+    "BERT": AutoTokenizer.from_pretrained("bert-base-uncased"),
+    "T5": AutoTokenizer.from_pretrained("t5-base"),
+    "LLaMA": AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf"),
+}
+
+# 测试文本
+test_texts = [
+    "The quick brown fox jumps over the lazy dog.",
+    "人工智能正在改变世界。",
+    "def fibonacci(n): return n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)",
+    "12345 + 67890 = 80235",
+]
+
+print("Token数量比较：\n")
+for text in test_texts:
+    print(f"Text: {text[:50]}...")
+    for name, tok in tokenizers.items():
+        tokens = tok.tokenize(text)
+        print(f"  {name}: {len(tokens)} tokens")
+    print()
+```
+
+### 训练自定义Tokenizer
+
+```{python}
+#| code-fold: false
+#| eval: false
+
+from tokenizers import Tokenizer, models, trainers, pre_tokenizers, decoders
+
+# 创建BPE tokenizer
+tokenizer = Tokenizer(models.BPE())
+
+# 设置预分词器（按空格和标点分割）
+tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
+
+# 设置解码器
+tokenizer.decoder = decoders.ByteLevel()
+
+# 准备训练器
+trainer = trainers.BpeTrainer(
+    vocab_size=10000,
+    min_frequency=2,
+    special_tokens=["<pad>", "<unk>", "<s>", "</s>", "<mask>"]
+)
+
+# 训练（从文件或迭代器）
+files = ["train_data.txt"]
+tokenizer.train(files, trainer)
+
+# 保存
+tokenizer.save("my_tokenizer.json")
+
+# 加载并使用
+from tokenizers import Tokenizer
+loaded_tokenizer = Tokenizer.from_file("my_tokenizer.json")
+output = loaded_tokenizer.encode("Hello, world!")
+print(f"Tokens: {output.tokens}")
+print(f"IDs: {output.ids}")
+```
+
+### 分析Tokenization效率
+
+```{python}
+#| code-fold: false
+#| eval: false
+
+import numpy as np
+from transformers import AutoTokenizer
+from collections import Counter
+
+def analyze_tokenizer(tokenizer, texts):
+    """分析tokenizer在给定文本上的效率"""
+
+    total_chars = sum(len(t) for t in texts)
+    total_tokens = sum(len(tokenizer.tokenize(t)) for t in texts)
+
+    # 字符/token比率（越高越高效）
+    ratio = total_chars / total_tokens
+
+    # Token长度分布
+    all_tokens = []
+    for t in texts:
+        all_tokens.extend(tokenizer.tokenize(t))
+
+    token_lengths = [len(t.replace('Ġ', '').replace('▁', '')) for t in all_tokens]
+
+    print(f"Total characters: {total_chars}")
+    print(f"Total tokens: {total_tokens}")
+    print(f"Characters per token: {ratio:.2f}")
+    print(f"Token length distribution:")
+    print(f"  Mean: {np.mean(token_lengths):.2f}")
+    print(f"  Median: {np.median(token_lengths):.0f}")
+    print(f"  Min: {min(token_lengths)}, Max: {max(token_lengths)}")
+
+    # 最常见的token
+    token_counts = Counter(all_tokens)
+    print(f"\nTop 10 most common tokens:")
+    for token, count in token_counts.most_common(10):
+        print(f"  {repr(token)}: {count}")
+
+# 使用示例
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+sample_texts = [
+    "Machine learning is a subset of artificial intelligence.",
+    "Deep neural networks have revolutionized natural language processing.",
+    "Transformers use self-attention mechanisms to process sequential data.",
+]
+analyze_tokenizer(tokenizer, sample_texts)
+```
+
+---
+
+## 局限性与未解决的问题
+
+### Tokenization的固有局限
+
+即使是最先进的子词tokenizer，也有一些固有的局限性。
+
+**语言偏见无法完全消除**。Tokenizer是在特定语料上训练的，必然反映该语料的语言分布。如果训练语料以英文为主，tokenizer就会对英文优化。这不是算法的问题，而是数据的问题——真正的多语言公平需要在数据收集阶段就考虑。
+
+**分词边界可能破坏语义**。无论BPE还是Unigram，都是基于统计的方法，不理解语言的语义结构。"unhappiness"可能被切分为"un"+"happiness"（语义上合理），也可能被切分为"unha"+"ppiness"（纯粹基于频率）。后者对模型学习不利。
+
+**Tokenization与模型训练的割裂**。目前的做法是先确定tokenizer，然后固定它训练模型。但最优的tokenization可能依赖于下游任务和模型架构。这种割裂是否限制了模型的上限？
+
+### 下一章的铺垫
+
+我们已经知道如何把文本转换为token序列，也知道如何用词向量表示每个token。但一个句子不只是token的无序集合——**词序蕴含着关键的语义信息**。
+
+"狗咬人"和"人咬狗"有完全不同的含义，但如果我们只是把词向量加起来或取平均，就会丢失这种区分。我们需要一种方法来建模**序列结构**，捕获词与词之间的顺序关系和长距离依赖。
+
+这正是下一章要讨论的问题。循环神经网络（RNN）通过"记忆"之前看到的内容，让模型能够处理变长序列。LSTM和GRU通过门控机制解决了梯度消失问题。但它们也有自己的局限——无法并行、长距离依赖仍然困难——这些局限最终导向了Attention机制和Transformer的诞生。
+
+> 下一章预告：第5章将介绍循环神经网络，理解它如何通过"时间上的权重共享"来处理序列，以及门控机制如何让信息在长序列中存活。
+
+---
+
+## 本章小结
+
+### 核心要点回顾
+
+这一章我们深入探讨了一个常被忽视但极其重要的问题：**如何将文本切分为模型可处理的单元**。
+
+核心洞察是：**Tokenizer不是预处理工具，而是模型架构的隐藏维度**。它影响：
+
+- **计算效率**：序列长度直接决定计算成本
+- **多语言公平性**：不同语言的token效率差异导致系统性不平等
+- **模型能力**：数字、代码的切分方式影响相应的推理能力
+- **安全性**：tokenization边界可能被攻击者利用
+
+我们学习了三种基本的tokenization策略：
+
+- **词级别**：语义清晰但OOV严重、词汇表爆炸
+- **字符级别**：没有OOV但序列太长、语义碎片化
+- **子词级别**：在两者之间找到平衡，是现代NLP的标准选择
+
+子词分词的核心算法包括：
+
+- **BPE**：贪心地合并最频繁的相邻对，从字符构建词汇表
+- **WordPiece**：类似BPE但用likelihood改进选择合并对
+- **Unigram**：概率视角，从大词汇表剪枝到目标大小
+- **Byte-level BPE**：在字节级别操作，彻底解决未知字符问题
+
+最后，我们讨论了数据质量的重要性——清洗、去重、避免污染是大模型训练的关键环节。
+
+### 关键概念速查
+
+| 概念 | 含义 |
+|------|------|
+| BPE | Byte Pair Encoding，迭代合并最频繁token对 |
+| WordPiece | Google的子词算法，用于BERT |
+| Unigram LM | 概率视角的子词分词，支持多种切分 |
+| SentencePiece | 语言无关的tokenization库 |
+| Byte-level | 在字节级别操作，彻底解决OOV |
+| OOV | Out-of-Vocabulary，无法处理的未知词 |
+| 数据污染 | 测试集内容出现在训练集中 |
+
+### 思考题
+
+1. **[概念理解]** 为什么说"Tokenizer是模型架构的隐藏维度"？试举三个具体例子说明tokenizer选择如何影响模型行为。
+
+2. **[算法实践]** 手动执行BPE算法。给定语料 {"ab": 5, "abc": 3, "abcd": 2}，执行3次合并，写出每一步的词汇表和合并规则。
+
+3. **[工程实践]** 使用Hugging Face的tokenizers库，比较GPT-2、BERT、T5的tokenizer在中文文本上的效率。计算每个tokenizer的"字符/token比率"，并分析差异的原因。
+
+4. **[研究思考]** 设计一个实验来量化tokenization对模型算术能力的影响。你会如何控制变量？需要什么样的数据集？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+- **[Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909) (Sennrich et al., 2016)**：BPE在NLP中的应用
+  - **arXiv**: 1508.07909
+  - **重点读**：
+    - Section 3.2：BPE算法描述和Algorithm 1伪代码
+    - Table 1：不同分词方法的统计对比
+    - Section 5.2：翻译示例分析
+  - **可跳过**：Section 4的实验细节（除非你要做机器翻译）
+  - **核心贡献**：将1994年的数据压缩算法引入NLP，解决OOV问题
+  - **官方代码**：[github.com/rsennrich/subword-nmt](https://github.com/rsennrich/subword-nmt)
+
+- **[SentencePiece: A simple and language independent subword tokenizer](https://arxiv.org/abs/1808.06226) (Kudo & Richardson, 2018)**
+  - **arXiv**: 1808.06226
+  - **重点读**：语言无关设计的动机——为什么不需要预分词
+
+### 理论分析
+
+- **[Subword Regularization: Improving Neural Network Translation Models with Multiple Subword Candidates](https://arxiv.org/abs/1804.10959) (Kudo, 2018)**：Unigram LM的原始论文
+  - **arXiv**: 1804.10959
+  - 概率视角的子词分词，支持训练时采样不同切分
+  - **重点读**：Section 3的Unigram Language Model formulation
+
+### 实证研究
+
+- **How Good is Your Tokenizer? (Rust et al., 2021)**：多语言tokenizer的系统性评估
+  - 揭示了英语偏见的严重程度
+
+- **Tokenizer Choice Matters: Downstream Tasks Benefit from Task-Specific Tokenization (2023)**
+  - 不同任务可能需要不同的tokenization策略
+
+### 工具和资源
+
+- **Hugging Face Tokenizers库**：高效的tokenizer训练和使用
+- **SentencePiece官方库**：Google的tokenization工具
+- **tiktoken**：OpenAI的BPE实现，用于GPT系列
+
+---
+
+## 历史注脚
+
+BPE（Byte Pair Encoding）的历史颇为有趣。它最初是Philip Gage在1994年提出的**数据压缩算法**，与NLP毫无关系。算法思想很简单：找到数据中最频繁的字节对，用一个新字节替换它们，重复这个过程直到无法进一步压缩。
+
+2016年，Edinburgh大学的Rico Sennrich等人在研究机器翻译时遇到了一个问题：神经翻译模型无法处理罕见词。他们想到了BPE——既然BPE能够压缩数据，它应该也能产生一种"压缩"的文本表示，其中常见模式被合并为单一单元。
+
+这个跨领域的知识迁移非常成功。BPE不仅解决了OOV问题，还显著提升了翻译质量，特别是在形态丰富的语言上。论文发表后迅速被广泛采用，成为现代NLP的标准组件。
+
+一个有趣的细节是，Sennrich等人的论文最初投稿时被审稿人质疑"太简单"。但正如Word2Vec的故事，最有影响力的工作往往不是最复杂的，而是找到了正确的简化。BPE的成功说明，有时候领域外的老技术，在新问题上可能有意想不到的效果。
+
+今天，几乎所有大型语言模型都使用BPE或其变体。从GPT到LLaMA，从Claude到Gemini，BPE（或其byte-level版本）是它们的共同基础。一个1994年的数据压缩算法，成为了2020年代AI革命的基石——这本身就是技术史上的一个美丽故事。

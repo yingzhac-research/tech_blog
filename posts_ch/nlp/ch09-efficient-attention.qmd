@@ -1,0 +1,767 @@
+---
+title: "第9章：高效注意力——复杂度优化"
+subtitle: "O(n²)的第一次反击"
+author: "Ying Zha"
+date: "2026-01-26"
+categories: [NLP, Deep Learning, Efficient Attention, Transformer]
+tags: [Sparse Attention, Longformer, BigBird, Performer, Linformer, Linear Attention, Kernel Methods]
+description: "当Transformer遇上长序列：Sparse Attention、Linear Attention、Low-Rank三条路线如何挑战O(n²)的魔咒，以及为什么实践给出了出人意料的答案。"
+image: "figures/efficient-attention-banner.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    css: styles.css
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Tay et al. (2022)** "Efficient Transformers: A Survey" — 参考了七大类分类体系（Figure 2）、各方法的统一比较框架
+- **Beltagy et al. (2020)** "Longformer: The Long-Document Transformer" — 参考了滑动窗口+全局注意力设计（Section 3）、注意力模式可视化（Figure 2）
+- **Zaheer et al. (2020)** "Big Bird: Transformers for Longer Sequences" — 参考了稀疏注意力的图灵完备性证明（Section 2）、三组件设计（Section 4）
+- **Choromanski et al. (2020)** "Rethinking Attention with Performers" — 参考了FAVOR+算法推导（Section 3-4）、正交随机特征
+- **Katharopoulos et al. (2020)** "Transformers are RNNs" — 参考了Transformer-RNN对偶性推导（Section 3.3）
+- **Wang et al. (2020)** "Linformer: Self-Attention with Linear Complexity" — 参考了低秩近似理论（Section 3）
+
+### 教材
+- **D2L** Section 11.6 (Self-Attention and Positional Encoding) — 参考了注意力复杂度分析的教学组织方式
+- **SLP3** Chapter 9-10 — 参考了Transformer架构和注意力机制的基础讲解框架
+
+### 课程
+- **Stanford CS224N** Lecture 9 (2025) "Pretraining" — 参考了高效注意力方法的概述与对比
+- **CMU 11-711** ANLP (2024) — 参考了长序列建模的工程挑战分析
+:::
+
+> **核心问题**：如何在保持 Transformer 表达能力的同时，打破 Self-Attention 的 $O(n^2)$ 计算瓶颈？
+>
+> **历史坐标**：2020年 | Longformer, BigBird, Performer, Linformer | "X-former"百花齐放的一年
+
+---
+
+## 从上一章说起
+
+上一章我们见证了 Transformer 的诞生。这个完全基于注意力的架构彻底抛弃了循环结构，用 Scaled Dot-Product Attention、Multi-Head、残差连接和 Layer Normalization 构建了一个并行高效、表达能力强大的序列建模框架。Transformer 在机器翻译上的表现令人震惊，训练速度比 RNN 快了一个数量级，很快成为整个 NLP 领域的基础架构。
+
+然而，我们在上一章结尾也指出了 Transformer 最大的隐患——Self-Attention 的二次复杂度。每个 token 需要与序列中所有其他 token 计算注意力分数，这意味着计算量和内存消耗都随序列长度 $n$ 呈 $O(n^2)$ 增长。对于一篇几百词的句子，这不是问题；但当我们想处理一本10万词的书、一份完整的法律合同、或一段长达数小时的对话时，$O(n^2)$ 就变成了一道不可逾越的障碍。
+
+2020年，NLP 社区对这个问题发起了集体冲锋。Longformer、BigBird、Performer、Linformer……一时间，各种 "X-former" 如雨后春笋般涌现，每一个都宣称找到了打破 $O(n^2)$ 的方法。Yi Tay 等人在一篇 survey 中将这些方法归纳为七大类——固定模式、可学习模式、低秩方法、核方法、记忆机制、下采样和循环——形成了高效 Transformer 的完整图谱。
+
+![高效 Transformer 方法分类体系。不同颜色的圈代表不同类别的方法，许多模型同时属于多个类别。](figures/chapter-9/original/tay-survey-fig2-taxonomy.png){#fig-tay-taxonomy width=75%}
+
+::: {.figure-caption}
+*Source: Tay et al. (2022) "Efficient Transformers: A Survey", Figure 2. [arXiv:2009.06732](https://arxiv.org/abs/2009.06732)*
+:::
+
+> 💡 **本章核心洞察**：打破 $O(n^2)$ 有两条主要思路。第一条是**稀疏注意力**——既然大多数注意力权重接近零，何不只计算"重要的"那些？第二条是**线性注意力**——能否用数学技巧重新组织计算，避免显式构建 $n \times n$ 的注意力矩阵？两条路线各有优劣，而实践最终给出了一个出人意料的答案。
+
+---
+
+## 问题的本质是什么？
+
+### $O(n^2)$ 到底意味着什么？
+
+让我们用具体数字感受一下二次复杂度的严重性。标准 Self-Attention 的核心计算是 $\text{softmax}(QK^\top / \sqrt{d_k}) \cdot V$，其中 $Q, K, V \in \mathbb{R}^{n \times d}$。矩阵乘法 $QK^\top$ 产生一个 $n \times n$ 的注意力矩阵——这就是二次复杂度的来源。
+
+$$
+\text{时间复杂度} = O(n^2 d) \quad \text{（计算注意力矩阵）}
+$$
+
+$$
+\text{空间复杂度} = O(n^2) \quad \text{（存储注意力矩阵）}
+$$
+
+把这个公式代入具体场景：
+
+| 序列长度 $n$ | 注意力矩阵大小 | FP16 显存 | 典型场景 |
+|-------------|---------------|-----------|---------|
+| 512 | 262K | 0.5 MB | BERT 默认 |
+| 2,048 | 4.2M | 8 MB | GPT-2 |
+| 8,192 | 67M | 128 MB | 中等文档 |
+| 32,768 | 1.07B | 2 GB | 长文档 |
+| 100,000 | 10B | 20 GB | 一本书 |
+| 1,000,000 | $10^{12}$ | 2 TB | 长代码库 |
+
+这个表格揭示了一个残酷的现实：序列长度每翻一倍，计算和内存需求翻四倍。当序列长度达到10万时，仅存储单层的注意力矩阵就需要20GB显存——这还没算多头、多层的叠加。
+
+![各类注意力方法的计算量随序列长度的增长曲线（双对数坐标）。全注意力（红色）的二次增长与线性方法（蓝、橙、绿）的差距在长序列上极为显著。](figures/chapter-9/fig-complexity-comparison.png){#fig-complexity width=80%}
+
+::: {.figure-caption}
+*作者绘制。数据基于各方法论文报告的理论复杂度计算。*
+:::
+
+### 但注意力矩阵真的"满"了吗？
+
+问题的关键在于：$O(n^2)$ 的计算真的都是必要的吗？让我们想象处理一篇长文档。当模型在理解第500段中的某个词时，它真的需要精确关注第1段里的每一个词吗？
+
+实证研究给出了否定的答案。多项研究发现，训练好的 Transformer 中，绝大多数注意力权重接近于零。注意力矩阵往往呈现出明显的**稀疏模式**：
+
+- **局部模式**：大部分注意力集中在当前位置附近的几个词上
+- **全局模式**：某些特殊 token（如 `[CLS]`、句号、频繁词）会被全局关注
+- **条纹模式**：某些层呈现规律性的跨步注意力
+
+Linformer 的作者进一步发现，注意力矩阵通常是**低秩的**——也就是说，一个 $n \times n$ 的矩阵可以被远小于 $n$ 维的信息近似表示。这些经验观察打开了优化的大门：如果我们知道大多数注意力权重不重要，为什么还要花费算力去计算它们？
+
+### 我们需要什么样的解决方案？
+
+理想的高效注意力机制应该满足以下条件：
+
+首先，**亚二次复杂度**——最好是 $O(n)$ 或 $O(n \log n)$，让序列长度的增长不再令人恐惧。其次，**性能损失可控**——如果提速10倍但效果下降5个点，那就得不偿失了。第三，**通用性**——不能只在特定任务或特定长度上有效。最后，**工程可行性**——能在现有硬件上高效实现，而非只是理论上漂亮。
+
+这四个条件构成了评判所有高效注意力方法的标尺。接下来我们将看到，不同的方法在这四个维度上做出了不同的取舍。
+
+---
+
+## 核心思想与直觉
+
+### 两条路线的直觉
+
+打破 $O(n^2)$ 的方法可以用一个生活类比来理解。
+
+想象你是一个公司的 CEO，需要了解公司里每个员工的工作状态。最原始的方式是**全员一对一面谈**——这就是标准 Self-Attention 的做法，每个人和每个人都交流一次，复杂度是 $O(n^2)$。
+
+**稀疏注意力**的思路是：不需要每个人都和每个人谈。你只需要和自己部门的同事（**局部窗口**）交流，加上几个了解全局的高管（**全局 token**），偶尔随机抽查几个人（**随机注意力**），就能掌握大致情况。这就是 Longformer 和 BigBird 的策略——显式地决定"谁和谁交流"，跳过不重要的组合。
+
+**线性注意力**的思路完全不同。它不是减少交流的次数，而是**换一种交流方式**。想象每个员工先把自己的状态压缩成一份简短的报告（特征映射），然后公司汇总所有报告得到一份全局摘要，最后每个人根据自己的需求从全局摘要中提取信息。这种"先汇总再查询"的方式，避免了所有人之间的两两交流，复杂度降到了 $O(n)$。这就是 Performer 和 Linear Transformer 的核心思想。
+
+### 从注意力公式看优化空间
+
+让我们从数学角度看这两条路线的本质。标准注意力可以写成：
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+展开对第 $i$ 个位置的输出：
+
+$$
+\text{output}_i = \frac{\sum_{j=1}^{n} \exp(q_i^\top k_j / \sqrt{d_k}) \cdot v_j}{\sum_{j=1}^{n} \exp(q_i^\top k_j / \sqrt{d_k})}
+$$
+
+**稀疏注意力**的做法是限制求和范围——不再对所有 $j \in \{1, \ldots, n\}$ 求和，而只对 $j \in \mathcal{S}_i$（一个远小于 $n$ 的子集）求和：
+
+$$
+\text{output}_i = \frac{\sum_{j \in \mathcal{S}_i} \exp(q_i^\top k_j / \sqrt{d_k}) \cdot v_j}{\sum_{j \in \mathcal{S}_i} \exp(q_i^\top k_j / \sqrt{d_k})}
+$$
+
+不同的稀疏注意力方法，本质上就是在设计不同的集合 $\mathcal{S}_i$。
+
+**线性注意力**的做法更巧妙。它用一个特征映射 $\phi$ 来近似 softmax 核：
+
+$$
+\exp(q_i^\top k_j / \sqrt{d_k}) \approx \phi(q_i)^\top \phi(k_j)
+$$
+
+这样注意力公式变成：
+
+$$
+\text{output}_i = \frac{\phi(q_i)^\top \sum_{j=1}^{n} \phi(k_j) v_j^\top}{\phi(q_i)^\top \sum_{j=1}^{n} \phi(k_j)}
+$$
+
+关键观察：$\sum_{j=1}^{n} \phi(k_j) v_j^\top$ 和 $\sum_{j=1}^{n} \phi(k_j)$ 可以**先计算一次并复用**。这就把 $O(n^2)$ 变成了 $O(n)$！
+
+![标准注意力 vs 线性注意力的计算顺序对比。左：标准注意力先计算 $QK^\top$ 产生 $n \times n$ 的瓶颈矩阵；右：线性注意力先计算 $\phi(K)^\top V$ 产生 $d \times d$ 的小矩阵，从而避免了二次复杂度。](figures/chapter-9/fig-linear-attention-order.png){#fig-linear-attention-order width=90%}
+
+::: {.figure-caption}
+*作者绘制。基于 Katharopoulos et al. (2020) "Transformers are RNNs" 的矩阵乘法结合律分析。*
+:::
+
+---
+
+## 技术细节
+
+### Sparse Attention 家族
+
+#### Longformer：滑动窗口 + 全局 token
+
+Longformer（Beltagy et al., 2020）的设计非常直观。它的注意力模式由两部分组成：
+
+**局部滑动窗口（Local Sliding Window）**。每个 token 只关注自身周围固定大小 $w$ 的窗口。对于位置 $i$，注意力范围是 $\{i - w/2, \ldots, i + w/2\}$。单层的感受野是 $w$，但通过堆叠 $L$ 层，顶层的感受野扩展到 $L \times w$——这与 CNN 的感受野增长方式完全一致。
+
+**全局注意力（Global Attention）**。某些特殊位置被赋予"全局"权限，可以关注序列中的所有 token，同时也被所有 token 关注。这些位置通常是任务相关的特殊 token，例如分类任务中的 `[CLS]`。全局 token 的数量远小于 $n$（通常只有几个），因此不影响整体复杂度。
+
+把两者组合起来，Longformer 的复杂度是 $O(n \times w)$。由于窗口大小 $w$ 是常数（通常为 256 或 512），复杂度是**关于序列长度线性的**。
+
+::: {.callout-note}
+## 直觉：为什么滑动窗口 + 全局 token 足够？
+
+想象阅读一篇论文。你在理解某个段落时，主要参考的是**上下文几段的内容**（局部窗口），偶尔需要回顾**摘要或引言中的核心论点**（全局 token）。你不需要在读每一句话时都精确回顾论文的每一个细节——局部上下文加上少量全局锚点，已经足够理解大部分内容。
+:::
+
+![四种注意力模式对比。(a) 全注意力：每个 token 关注所有位置（100%）；(b) 滑动窗口：只关注相邻位置（38%）；(c) 扩张滑动窗口：以固定间隔扩大感受野（44%）；(d) 全局+滑动窗口：特殊 token 获得全局视野（61%）。底部百分比表示活跃注意力对占全部可能的比例。](figures/chapter-9/fig-attention-patterns.png){#fig-attention-patterns width=95%}
+
+::: {.figure-caption}
+*Source: Beltagy et al. (2020) "Longformer: The Long-Document Transformer", Figure 2. [arXiv:2004.05150](https://arxiv.org/abs/2004.05150)*
+:::
+
+#### BigBird：随机 + 局部 + 全局
+
+BigBird（Zaheer et al., 2020）在 Longformer 的基础上增加了一个额外的组件——**随机注意力**。每个 token 除了关注局部窗口和全局 token 之外，还会随机关注 $r$ 个其他位置。
+
+BigBird 的注意力由三部分构成：
+
+| 组件 | 模式 | 作用 |
+|------|------|------|
+| **局部窗口** | 每个 token 关注相邻 $w$ 个 token | 捕获局部上下文 |
+| **全局 token** | $g$ 个 token 关注/被关注所有位置 | 提供全局信息通道 |
+| **随机连接** | 每个 token 随机关注 $r$ 个位置 | 缩短任意两点间的信息传播路径 |
+
+![BigBird 的注意力矩阵：绿色为全局 token（前两行/列）、蓝色为局部滑动窗口、橙色为随机连接。三者组合实现了稀疏但"连通"的注意力模式。](figures/chapter-9/original/bigbird-fig1d-combined.png){#fig-bigbird-combined width=50%}
+
+::: {.figure-caption}
+*Source: Zaheer et al. (2020) "Big Bird: Transformers for Longer Sequences", Figure 1. [arXiv:2007.14062](https://arxiv.org/abs/2007.14062)*
+:::
+
+为什么需要随机注意力？BigBird 的作者从图论的角度给出了解释。将注意力模式看作一张图：每个 token 是节点，有注意力连接的 token 之间有边。纯局部窗口构成的图，两个远距离节点之间的最短路径可能很长（需要经过多层才能通信）。加入随机边之后，根据 Watts-Strogatz 小世界网络理论，图的直径会急剧缩短——这就是"六度分隔"理论在注意力机制中的应用。
+
+更重要的是，BigBird 的作者从理论上证明了一个关键结论：**BigBird 的稀疏注意力是图灵完备的**，并且是序列到序列函数的通用逼近器。这意味着 BigBird 在理论上不会因为稀疏化而损失表达能力——当然，前提是网络足够深、全局 token 足够多。
+
+#### 完整数值示例：稀疏注意力 vs 全注意力
+
+让我们用一个小例子直观地感受稀疏注意力的效果。
+
+**设定**：4 个 token，$d_k = 2$，窗口大小 $w = 2$（每个 token 只看左右各1个邻居）。
+
+**Step 1: Q, K, V 矩阵**
+
+$$
+Q = \begin{bmatrix} 1.0 & 0.5 \\ 0.8 & 0.2 \\ 0.3 & 0.9 \\ 0.6 & 0.7 \end{bmatrix}, \quad
+K = \begin{bmatrix} 0.9 & 0.4 \\ 0.7 & 0.6 \\ 0.5 & 0.8 \\ 0.2 & 1.0 \end{bmatrix}, \quad
+V = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \\ 0.5 & 0.5 \\ 1.0 & 1.0 \end{bmatrix}
+$$
+
+**Step 2: 全注意力——计算完整的 $QK^\top / \sqrt{d_k}$**
+
+$$
+QK^\top = \begin{bmatrix}
+1.10 & 1.00 & 0.90 & 0.70 \\
+0.80 & 0.68 & 0.56 & 0.36 \\
+0.63 & 0.75 & 0.87 & 0.96 \\
+0.82 & 0.84 & 0.86 & 0.82
+\end{bmatrix}
+$$
+
+除以 $\sqrt{d_k} = \sqrt{2} \approx 1.414$：
+
+$$
+\frac{QK^\top}{\sqrt{d_k}} = \begin{bmatrix}
+0.78 & 0.71 & 0.64 & 0.50 \\
+0.57 & 0.48 & 0.40 & 0.25 \\
+0.45 & 0.53 & 0.62 & 0.68 \\
+0.58 & 0.59 & 0.61 & 0.58
+\end{bmatrix}
+$$
+
+**Step 3: 全注意力——Softmax（逐行）**
+
+对第一行：$\text{softmax}([0.78, 0.71, 0.64, 0.50])$
+
+$$
+A_{\text{full}} \approx \begin{bmatrix}
+0.279 & 0.261 & 0.243 & 0.212 \\
+0.272 & 0.249 & 0.230 & 0.198 \\
+0.229 & 0.249 & 0.272 & 0.289 \\
+0.254 & 0.256 & 0.262 & 0.253
+\end{bmatrix}
+$$
+
+**Step 4: 稀疏注意力——只保留窗口内的权重**
+
+窗口大小 $w = 2$（左右各1），每个 token 的关注范围如下：
+
+- Token 0：可关注 {0, 1}
+- Token 1：可关注 {0, 1, 2}
+- Token 2：可关注 {1, 2, 3}
+- Token 3：可关注 {2, 3}
+
+稀疏掩码：
+
+$$
+M_{\text{sparse}} = \begin{bmatrix}
+1 & 1 & 0 & 0 \\
+1 & 1 & 1 & 0 \\
+0 & 1 & 1 & 1 \\
+0 & 0 & 1 & 1
+\end{bmatrix}
+$$
+
+将被掩码的位置设为 $-\infty$（softmax 后变为 0），重新计算 softmax：
+
+$$
+A_{\text{sparse}} \approx \begin{bmatrix}
+0.517 & 0.483 & 0 & 0 \\
+0.371 & 0.339 & 0.290 & 0 \\
+0 & 0.294 & 0.336 & 0.370 \\
+0 & 0 & 0.508 & 0.492
+\end{bmatrix}
+$$
+
+**Step 5: 对比输出**
+
+$$
+\text{Output}_{\text{full}} = A_{\text{full}} \cdot V \approx \begin{bmatrix}
+0.609 & 0.607 \\
+0.594 & 0.576 \\
+0.654 & 0.680 \\
+0.637 & 0.640
+\end{bmatrix}
+$$
+
+$$
+\text{Output}_{\text{sparse}} = A_{\text{sparse}} \cdot V \approx \begin{bmatrix}
+0.517 & 0.483 \\
+0.516 & 0.484 \\
+0.662 & 0.685 \\
+0.746 & 0.746
+\end{bmatrix}
+$$
+
+**解读**：中间位置（Token 1, 2）的稀疏输出与全注意力输出比较接近，因为这些位置的窗口覆盖了大部分重要邻居。而边缘位置（Token 0, 3）的差异较大——它们失去了对远处 token 的关注能力。这正是稀疏注意力的核心权衡：**局部信息保持完好，远距离信息需要通过多层传播来弥补**。
+
+在实际应用中，通过堆叠多层（$L$ 层的感受野为 $L \times w$）以及加入全局 token，这种信息损失可以被有效缓解。
+
+### Low-Rank 方法：Linformer
+
+Linformer（Wang et al., 2020）从一个不同的角度切入：既然注意力矩阵是低秩的，何不直接用低秩近似来降低复杂度？
+
+核心思想是在计算 $K$ 和 $V$ 时，先用一个投影矩阵 $E \in \mathbb{R}^{k \times n}$（其中 $k \ll n$）将序列长度从 $n$ 压缩到 $k$：
+
+$$
+\bar{K} = E \cdot K \in \mathbb{R}^{k \times d}, \quad \bar{V} = E \cdot V \in \mathbb{R}^{k \times d}
+$$
+
+然后用压缩后的 $\bar{K}$、$\bar{V}$ 计算注意力：
+
+$$
+\text{Attention}(Q, \bar{K}, \bar{V}) = \text{softmax}\left(\frac{Q\bar{K}^\top}{\sqrt{d_k}}\right) \bar{V}
+$$
+
+此时注意力矩阵变成了 $n \times k$（而非 $n \times n$），时间和空间复杂度都降为 $O(nk)$。由于 $k$ 是固定常数，复杂度对序列长度是线性的。
+
+Linformer 的理论贡献是证明了一个关键性质：对于任意 $\epsilon > 0$，存在一个足够大的投影维度 $k = O(d / \epsilon^2)$（与 $n$ 无关），使得低秩近似的误差不超过 $\epsilon$。换句话说，**注意力矩阵的有效信息维度与序列长度无关**——这为低秩近似提供了坚实的理论基础。
+
+不过，Linformer 有一个实际上的限制：投影矩阵 $E$ 的大小是 $k \times n$，这意味着模型被绑定到固定的序列长度 $n$。推理时如果输入长度不同，需要重新训练或做额外处理。
+
+### Linear Attention 家族
+
+#### 核心洞察：核技巧（Kernel Trick）
+
+线性注意力的理论基础来自一个优雅的数学观察。让我们重新审视 softmax 注意力的公式。对于第 $i$ 个位置的输出：
+
+$$
+\text{output}_i = \frac{\sum_{j=1}^{n} \kappa(q_i, k_j) \cdot v_j}{\sum_{j=1}^{n} \kappa(q_i, k_j)}
+$$
+
+其中核函数 $\kappa(q, k) = \exp(q^\top k / \sqrt{d_k})$。如果我们能找到一个特征映射 $\phi$ 使得：
+
+$$
+\kappa(q, k) = \phi(q)^\top \phi(k)
+$$
+
+那么分子可以重写为：
+
+$$
+\sum_{j=1}^{n} \phi(q_i)^\top \phi(k_j) \cdot v_j = \phi(q_i)^\top \underbrace{\sum_{j=1}^{n} \phi(k_j) \cdot v_j^\top}_{S \in \mathbb{R}^{m \times d}}
+$$
+
+关键在于：矩阵 $S = \sum_{j=1}^{n} \phi(k_j) v_j^\top$ 只需要计算一次，所有位置的查询都可以复用。如果特征映射 $\phi$ 的维度是 $m$，那么：
+
+- 计算 $S$：$O(nmd)$
+- 对每个查询提取输出：$O(md)$
+- 总复杂度：$O(nmd)$
+
+当 $m$ 是常数时，总复杂度是 $O(nd)$——**真正的线性复杂度**！
+
+#### Performer：FAVOR+ 算法
+
+Performer（Choromanski et al., 2020）的挑战是找到一个好的特征映射 $\phi$ 来近似 softmax 核。这并不简单，因为 $\exp(q^\top k)$ 是一个非平凡的核函数。
+
+Performer 提出了 **FAVOR+**（Fast Attention Via positive Orthogonal Random features）算法。核心思想是利用随机特征来近似 softmax 核：
+
+$$
+\exp(q^\top k) = \mathbb{E}_{\omega \sim \mathcal{N}(0, I)} \left[ \exp(\omega^\top q - \|q\|^2/2) \cdot \exp(\omega^\top k - \|k\|^2/2) \right]
+$$
+
+这个等式来自高斯核的随机特征分解。基于此，Performer 定义特征映射：
+
+$$
+\phi(x) = \frac{\exp(-\|x\|^2/2)}{\sqrt{m}} \begin{bmatrix} \exp(\omega_1^\top x) \\ \exp(\omega_2^\top x) \\ \vdots \\ \exp(\omega_m^\top x) \end{bmatrix}
+$$
+
+其中 $\omega_1, \ldots, \omega_m$ 是从 $\mathcal{N}(0, I)$ 中采样的随机向量。FAVOR+ 的"+"代表两个改进：使用**正随机特征**（保证注意力权重非负）和**正交随机特征**（降低近似方差）。
+
+::: {.callout-note}
+## 直觉：为什么随机特征能近似 softmax？
+
+这背后的数学原理是 Bochner 定理：任何平移不变的正定核都可以表示为某个概率分布的傅里叶变换。对于高斯核（softmax 核的基础），这个分布恰好也是高斯分布。随机特征方法本质上是用蒙特卡洛采样来近似这个积分——采样点越多（$m$ 越大），近似越精确。
+:::
+
+::: {.callout-note}
+## 算法框：Performer FAVOR+ 前向计算
+
+**输入**：查询 $Q \in \mathbb{R}^{n \times d}$，键 $K \in \mathbb{R}^{n \times d}$，值 $V \in \mathbb{R}^{n \times d}$，随机特征维度 $m$
+
+**Step 1 — 采样正交随机矩阵**：从 $\mathcal{N}(0, I_d)$ 采样 $m$ 个向量 $\omega_1, \ldots, \omega_m$，经 Gram-Schmidt 正交化得到 $\Omega \in \mathbb{R}^{m \times d}$
+
+**Step 2 — 正随机特征映射**：对 $Q$ 和 $K$ 的每一行 $x \in \mathbb{R}^d$，计算
+$$\phi(x) = \frac{\exp(-\|x\|^2/2)}{\sqrt{m}} \begin{bmatrix} \exp(\omega_1^\top x) \\ \exp(\omega_2^\top x) \\ \vdots \\ \exp(\omega_m^\top x) \end{bmatrix} \in \mathbb{R}^m$$
+得到 $\hat{Q} = \phi(Q) \in \mathbb{R}^{n \times m}$，$\hat{K} = \phi(K) \in \mathbb{R}^{n \times m}$
+
+**Step 3 — 先聚合再查询**（避免 $n \times n$ 矩阵）：
+
+- 计算 KV 聚合矩阵：$S = \hat{K}^\top V \in \mathbb{R}^{m \times d}$ — 复杂度 $O(nmd)$
+- 计算归一化向量：$z = \hat{K}^\top \mathbf{1}_n \in \mathbb{R}^m$ — 复杂度 $O(nm)$
+
+**Step 4 — 输出**：对每个位置 $i$，$\text{output}_i = \frac{\hat{q}_i^\top S}{\hat{q}_i^\top z} \in \mathbb{R}^d$ — 复杂度 $O(md)$
+
+**总复杂度**：$O(nmd)$ 时间，$O(nm + md + nd)$ 空间。当 $m \ll n$ 时，相比标准注意力的 $O(n^2 d)$ 获得显著加速。
+
+**"+" 的含义**：(1) **Positive** — 使用 $\exp(\omega^\top x)$ 而非 $\cos/\sin$ 保证注意力权重非负；(2) **Orthogonal** — $\omega_i$ 正交化降低蒙特卡洛方差，减少所需采样数 $m$。
+:::
+
+#### Linear Transformer：Transformer 与 RNN 的对偶性
+
+Katharopoulos et al.（2020）在 "Transformers are RNNs" 中揭示了一个令人惊叹的联系。他们选择了一个简单的特征映射：
+
+$$
+\phi(x) = \text{elu}(x) + 1
+$$
+
+其中 $\text{elu}$ 是指数线性单元。这个选择虽然简单，但保证了映射后的值始终为正（核函数必须非负）。
+
+更深刻的洞察在于：当线性注意力用于**因果（自回归）**场景时，它可以被改写为一个 RNN！
+
+在因果设定下，第 $i$ 个位置只能关注 $j \leq i$ 的位置。线性注意力变成：
+
+$$
+\text{output}_i = \frac{\phi(q_i)^\top S_i}{\phi(q_i)^\top z_i}
+$$
+
+其中 $S_i = \sum_{j=1}^{i} \phi(k_j) v_j^\top$ 和 $z_i = \sum_{j=1}^{i} \phi(k_j)$ 可以**递归更新**：
+
+$$
+S_i = S_{i-1} + \phi(k_i) v_i^\top, \quad z_i = z_{i-1} + \phi(k_i)
+$$
+
+这恰好就是一个 RNN 的隐状态更新！$S_i$ 相当于 RNN 的隐藏状态，$\phi(k_i) v_i^\top$ 是每步的新信息。Transformer 和 RNN，看似截然不同的两种架构，在线性注意力的桥梁下竟然是同一枚硬币的两面。
+
+这个对偶性带来了实际好处：训练时可以用并行的"Transformer 模式"（矩阵乘法），推理时可以切换到序列的"RNN 模式"（逐步递归），两者在数学上完全等价。
+
+### 复杂度全景对比
+
+| 方法 | 时间复杂度 | 空间复杂度 | 理论保证 | 实际表现 |
+|------|-----------|-----------|---------|---------|
+| **全注意力** | $O(n^2 d)$ | $O(n^2 + nd)$ | 最优表达能力 | 基准 |
+| **Longformer** | $O(nw)$ | $O(nw)$ | 感受野 $L \times w$ | 长文档任务优秀 |
+| **BigBird** | $O(n(w+r+g))$ | $O(n(w+r+g))$ | 图灵完备 | 长文档 + QA |
+| **Linformer** | $O(nk)$ | $O(nk)$ | 低秩近似有界 | 固定长度任务 |
+| **Performer** | $O(nmd)$ | $O(nm + md + nd)$ | 无偏近似 | 语言建模稍弱 |
+| **Linear Transformer** | $O(nd^2)$ | $O(nd + d^2)$ | RNN 对偶 | 自回归推理快 |
+
+这里有一个微妙但重要的细节：$O(n)$ 复杂度中的常数因子差异很大。Longformer 的 $w$ 通常是256-512，Performer 的 $m$ 通常需要和 $d$ 同阶甚至更大才能保证近似质量。所以**渐近复杂度只是故事的一部分**。
+
+---
+
+## 工程实践
+
+### 从零实现 Sliding Window Attention
+
+下面用 PyTorch 实现 Longformer 风格的滑动窗口注意力，帮助理解其核心逻辑：
+
+```python
+import torch
+import torch.nn.functional as F
+import math
+
+def sliding_window_attention(Q, K, V, window_size, global_indices=None):
+    """
+    Longformer 风格的滑动窗口注意力
+
+    Args:
+        Q, K, V: [batch, seq_len, d_k]
+        window_size: 单侧窗口大小（总窗口 = 2 * window_size + 1）
+        global_indices: 需要全局注意力的位置索引列表
+
+    Returns:
+        output: [batch, seq_len, d_k]
+    """
+    batch, seq_len, d_k = Q.shape
+    scale = math.sqrt(d_k)
+
+    # Step 1: 构建滑动窗口掩码
+    # mask[i,j] = True 表示位置 i 可以关注位置 j
+    mask = torch.zeros(seq_len, seq_len, dtype=torch.bool, device=Q.device)
+    for i in range(seq_len):
+        left = max(0, i - window_size)
+        right = min(seq_len, i + window_size + 1)
+        mask[i, left:right] = True
+
+    # Step 2: 添加全局注意力
+    if global_indices is not None:
+        for g in global_indices:
+            mask[g, :] = True   # 全局 token 关注所有位置
+            mask[:, g] = True   # 所有位置关注全局 token
+
+    # Step 3: 计算注意力分数
+    scores = torch.matmul(Q, K.transpose(-2, -1)) / scale  # [batch, n, n]
+
+    # Step 4: 应用掩码（被掩码的位置设为 -inf）
+    scores = scores.masked_fill(~mask.unsqueeze(0), float('-inf'))
+
+    # Step 5: Softmax + 加权求和
+    attn_weights = F.softmax(scores, dim=-1)
+    attn_weights = attn_weights.masked_fill(torch.isnan(attn_weights), 0.0)
+    output = torch.matmul(attn_weights, V)
+
+    return output, attn_weights
+
+# 示例用法
+batch, seq_len, d_k = 1, 16, 64
+Q = torch.randn(batch, seq_len, d_k)
+K = torch.randn(batch, seq_len, d_k)
+V = torch.randn(batch, seq_len, d_k)
+
+output, weights = sliding_window_attention(
+    Q, K, V,
+    window_size=3,          # 每侧看3个 token
+    global_indices=[0, 15]  # 首尾 token 为全局
+)
+print(f"输出形状: {output.shape}")      # [1, 16, 64]
+print(f"注意力矩阵形状: {weights.shape}")  # [1, 16, 16]
+print(f"每个 token 平均关注 {(weights[0] > 0).sum(dim=-1).float().mean():.1f} 个位置")
+# 窗口7 + 2个全局 ≈ 9个位置（远少于16个全位置）
+```
+
+::: {.callout-warning}
+## 关于效率的重要说明
+
+上面的实现是为了**教学目的**——它仍然构建了完整的 $n \times n$ 注意力矩阵再掩码。真正高效的实现需要避免构建完整矩阵，例如使用块稀疏矩阵或自定义 CUDA kernel。Longformer 的官方实现和 Hugging Face 的 `transformers` 库提供了优化版本。
+:::
+
+### 从零实现 Linear Attention
+
+```python
+def linear_attention(Q, K, V, feature_map='elu'):
+    """
+    线性注意力（Linear Transformer 风格）
+
+    将 softmax(QK^T)V 替换为 φ(Q)(φ(K)^T V)
+    利用矩阵乘法结合律避免构建 n×n 矩阵
+    """
+    batch, seq_len, d_k = Q.shape
+
+    # Step 1: 特征映射 φ(x) = elu(x) + 1（保证非负）
+    if feature_map == 'elu':
+        phi_Q = F.elu(Q) + 1   # [batch, n, d_k]
+        phi_K = F.elu(K) + 1   # [batch, n, d_k]
+
+    # Step 2: 先计算 KV = φ(K)^T V → [batch, d_k, d_k]
+    # 这是关键：先做 K^T V 而非 Q K^T
+    KV = torch.matmul(phi_K.transpose(-2, -1), V)  # [batch, d_k, d_k]
+
+    # Step 3: 计算归一化因子 Z = φ(K)^T 1 → [batch, d_k]
+    Z = phi_K.sum(dim=-2)  # [batch, d_k]
+
+    # Step 4: 输出 = φ(Q) · KV / (φ(Q) · Z)
+    numerator = torch.matmul(phi_Q, KV)           # [batch, n, d_k]
+    denominator = torch.matmul(phi_Q, Z.unsqueeze(-1))  # [batch, n, 1]
+
+    output = numerator / (denominator + 1e-6)
+
+    return output
+
+# 对比标准注意力和线性注意力
+import time
+
+for seq_len in [512, 1024, 2048, 4096]:
+    Q = torch.randn(1, seq_len, 64)
+    K = torch.randn(1, seq_len, 64)
+    V = torch.randn(1, seq_len, 64)
+
+    # 标准注意力
+    start = time.time()
+    scores = torch.matmul(Q, K.transpose(-2, -1)) / 8.0
+    attn = F.softmax(scores, dim=-1)
+    out_standard = torch.matmul(attn, V)
+    t_standard = time.time() - start
+
+    # 线性注意力
+    start = time.time()
+    out_linear = linear_attention(Q, K, V)
+    t_linear = time.time() - start
+
+    print(f"n={seq_len:5d} | 标准: {t_standard*1000:.1f}ms | "
+          f"线性: {t_linear*1000:.1f}ms | 加速: {t_standard/t_linear:.1f}x")
+```
+
+### 使用 Hugging Face 的高效注意力模型
+
+```python
+from transformers import LongformerModel, LongformerTokenizer
+from transformers import BigBirdModel, BigBirdTokenizer
+
+# Longformer：处理最长 4096 token
+tokenizer = LongformerTokenizer.from_pretrained('allenai/longformer-base-4096')
+model = LongformerModel.from_pretrained('allenai/longformer-base-4096')
+
+text = "这是一篇非常长的文档..." * 200  # 模拟长文本
+inputs = tokenizer(text, return_tensors='pt', max_length=4096, truncation=True)
+
+# Longformer 需要指定全局注意力掩码
+global_attention_mask = torch.zeros_like(inputs['input_ids'])
+global_attention_mask[:, 0] = 1  # [CLS] 获得全局注意力
+
+outputs = model(**inputs, global_attention_mask=global_attention_mask)
+# outputs.last_hidden_state: [batch, seq_len, hidden_size]
+
+# BigBird：同样支持长序列
+tokenizer_bb = BigBirdTokenizer.from_pretrained('google/bigbird-roberta-base')
+model_bb = BigBirdModel.from_pretrained('google/bigbird-roberta-base')
+```
+
+---
+
+## 深入理解
+
+### 为什么线性注意力有性能损失？
+
+线性注意力在理论上很美，实践中却常常不如全注意力。这个差距值得深入探讨。
+
+**Softmax 的"选择性"不可替代**。标准 softmax 注意力有一个独特的性质：它是**尖锐的**（sharp）。当某个 key 与 query 特别匹配时，softmax 可以把绝大部分权重集中在这个 key 上，几乎实现"精确检索"。这种"赢者通吃"的行为对于许多 NLP 任务（如指代消解、事实提取）至关重要。
+
+而线性注意力的特征映射 $\phi$ 天然产生更"平滑"的注意力分布——它很难实现这种极端的集中。用信息论的语言来说，softmax 注意力可以实现接近零熵的分布，而线性注意力的熵有一个隐式的下界。
+
+**近似误差的累积效应**。在单层中，线性注意力对 softmax 的近似误差可能很小。但在深度网络中，这些误差会逐层累积。每一层的输出是下一层的输入，小的近似偏差可能在多层传播后被放大为显著的性能差距。Performer 的作者也承认，在语言建模任务上，FAVOR+ 需要较多的随机特征（$m$ 较大）才能达到接近全注意力的效果，这部分抵消了线性复杂度的优势。
+
+### 稀疏注意力的理论基础
+
+BigBird 的理论分析为稀疏注意力提供了坚实的数学基础。其核心结论包括：
+
+**通用逼近性**。BigBird 证明了：对于任何连续的序列到序列函数 $f$，存在一个使用 BigBird 稀疏注意力的 Transformer 网络可以以任意精度逼近 $f$。这个证明的关键是全局 token 充当了"信息中转站"，保证了任意两个位置之间的信息传播路径存在。
+
+**图灵完备性**。BigBird 还证明了稀疏注意力的图灵完备性——它可以模拟任何图灵机的计算。这个证明利用了全局 token 来模拟图灵机的磁带头。这些理论结果很重要：它们表明稀疏注意力在表达能力上**不输于全注意力**，前提是网络足够大、全局 token 的数量和位置设计得当。
+
+### 开放研究问题
+
+**最优注意力模式是什么？** Longformer 和 BigBird 使用的是人工设计的固定模式。这些模式是最优的吗？是否存在可以根据输入内容动态调整的注意力模式？Routing Transformer 和 Reformer 尝试了可学习的模式，但引入了额外的计算开销。如何在适应性和效率之间找到最佳平衡，仍是一个开放问题。
+
+**线性注意力的表达能力边界在哪里？** 虽然我们知道线性注意力在某些任务上不如 softmax 注意力，但这种差距是否可以通过更好的特征映射或更深的网络来弥补？还是说 softmax 的"选择性"是某些任务的硬性需求？
+
+**长序列中信息的自然结构是什么？** 所有高效注意力方法都隐含了一个假设——注意力矩阵存在可利用的结构（稀疏性、低秩性）。但这些结构在不同任务和不同文本类型中有多大差异？处理代码和处理小说，最优的注意力模式可能完全不同。
+
+---
+
+## 局限性与未解决的问题
+
+### 实践给出的出人意料的答案
+
+本章介绍的高效注意力方法在理论上非常优雅，但实践给出了一个令人意外的转折。在 2020-2021 年"X-former"百花齐放之后，NLP 领域的主流模型——GPT-4、Claude、LLaMA、Gemini——几乎无一例外地选择了**标准的全注意力**。
+
+为什么？答案在于 Flash Attention（Dao et al., 2022）。Flash Attention 不是从算法层面改变注意力的复杂度，而是从**硬件层面**优化了标准注意力的实现。它的核心发现是：标准注意力的实际瓶颈不是计算量（FLOPs），而是**内存读写**（IO）。通过精心设计的分块计算和内存访问模式，Flash Attention 将标准全注意力的实际速度提升了 2-4 倍，使得在主流硬件上处理数千甚至数万 token 变得可行。
+
+这给了我们一个深刻的教训：**算法复杂度不等于实际速度**。GPU 的算力增长速度远快于内存带宽，这意味着很多计算场景实际上是"IO瓶颈"而非"计算瓶颈"。线性注意力在 FLOPs 上赢了，但在实际运行时间上未必赢，因为它的内存访问模式可能对 GPU 不友好。
+
+### 高效注意力的遗产
+
+这是否意味着本章的内容"没用"了？恰恰相反。这些方法留下了宝贵的思想遗产：
+
+稀疏注意力的思想被融入了现代架构。Mistral 模型使用了滑动窗口注意力作为默认机制，在推理效率和性能之间取得了优秀的平衡。Mixture of Experts（MoE）架构中的条件计算思想与稀疏注意力一脉相承。
+
+线性注意力的 Transformer-RNN 对偶性启发了一系列新架构。Mamba（Gu & Dao, 2023）等状态空间模型可以看作线性注意力思想的自然延伸——用线性递归替代注意力，在长序列建模上取得了突破性进展。
+
+低秩近似的观察启发了 LoRA 等参数高效微调方法——如果注意力矩阵是低秩的，那么模型的权重矩阵也许同样可以用低秩方式更新。
+
+### 这些局限导向了什么？
+
+高效注意力的探索告诉我们：序列建模的核心挑战不仅在于注意力的复杂度，更在于如何让模型在大规模数据上学到有用的表示。这引出了一个更深层的范式转变——**预训练**。无论用什么注意力机制，如何训练一个好的基础模型、如何将一个大模型的知识迁移到具体任务，才是推动 NLP 前进的真正引擎。
+
+> 下一章预告：第10章将回到一个更根本的问题——预训练思想的起源。从 Word2Vec 作为"预训练的雏形"，到计算机视觉领域 ImageNet 预训练的启示，我们将追溯"先训练再迁移"这一范式是如何一步步成形的。
+
+---
+
+## 本章小结
+
+### 核心要点回顾
+
+这一章我们探讨了打破 Transformer $O(n^2)$ 复杂度的三条技术路线。核心问题是如何在保持表达能力的同时降低 Self-Attention 的计算代价。
+
+稀疏注意力（Longformer、BigBird）的策略是"只计算重要的注意力对"——通过局部窗口、全局 token 和随机连接的组合，把复杂度降到 $O(n)$，同时在理论上保持通用逼近性和图灵完备性。
+
+线性注意力（Performer、Linear Transformer）的策略是"改变计算顺序"——用核方法近似 softmax，利用矩阵乘法的结合律避免构建 $n \times n$ 矩阵，揭示了 Transformer 与 RNN 的深层对偶性。
+
+低秩方法（Linformer）的策略是"压缩 Key 和 Value"——基于注意力矩阵的低秩性质，用投影降低维度。
+
+这些方法的意义不仅在于效率优化本身，更在于它们揭示的理论洞察——注意力的稀疏性、低秩性、以及 Transformer-RNN 对偶性——深刻影响了后续的架构设计和研究方向。
+
+### 关键公式速查
+
+| 方法 | 核心公式 |
+|------|----------|
+| 标准注意力 | $\text{Attn} = \text{softmax}(QK^\top / \sqrt{d_k}) V$ |
+| 稀疏注意力 | $\text{Attn}_i = \text{softmax}_{j \in \mathcal{S}_i}(q_i^\top k_j / \sqrt{d_k}) \cdot v_j$ |
+| 线性注意力 | $\text{Attn}_i = \frac{\phi(q_i)^\top \sum_j \phi(k_j) v_j^\top}{\phi(q_i)^\top \sum_j \phi(k_j)}$ |
+| Linformer | $\text{Attn} = \text{softmax}(Q(EK)^\top / \sqrt{d_k}) \cdot EV$ |
+| 因果线性注意力 | $S_i = S_{i-1} + \phi(k_i) v_i^\top$ （RNN递归形式） |
+
+### 思考题
+
+1. **[概念理解]** 为什么稀疏注意力需要"全局 token"？如果只用滑动窗口而没有全局 token，模型在处理什么类型的任务时会遇到困难？
+
+2. **[数学推导]** 推导线性注意力的复杂度。证明：当使用特征映射 $\phi: \mathbb{R}^d \to \mathbb{R}^m$ 时，通过改变矩阵乘法的结合顺序，可以将注意力的复杂度从 $O(n^2 d)$ 降至 $O(nmd)$。
+
+3. **[数学推导-进阶]** 证明 Katharopoulos et al. 的核心结论：因果线性注意力等价于一个隐状态维度为 $d_k \times d_v$ 的 RNN。写出这个 RNN 的状态转移方程和输出方程。
+
+4. **[工程实践]** 在同一数据集（如 WikiText-2）上对比标准 Transformer 和 Longformer 的困惑度（perplexity），分别在序列长度 512、2048、8192 下测试。你观察到了什么趋势？
+
+5. **[研究思考]** Flash Attention 通过优化内存访问模式加速了标准全注意力，使得大多数高效注意力方法在实际速度上失去了优势。这是否意味着算法层面的注意力优化不再重要？考虑以下场景：(a) 序列长度超过100万（基因组学）；(b) 边缘设备上的推理；(c) 在线/流式处理任务。
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+**Beltagy et al. (2020). "Longformer: The Long-Document Transformer"**（[arXiv:2004.05150](https://arxiv.org/abs/2004.05150)）。重点阅读 Section 3 的注意力模式设计和 Section 5 的长文档实验。图1的注意力模式可视化非常直观。
+
+**Zaheer et al. (2020). "Big Bird: Transformers for Longer Sequences"**（[arXiv:2007.14062](https://arxiv.org/abs/2007.14062)）。重点阅读 Section 2 的理论分析（图灵完备性证明）和 Section 4 的三种注意力组件设计。理论部分比较硬核但很有价值。
+
+### 理论基础
+
+**Choromanski et al. (2020). "Rethinking Attention with Performers"**（[arXiv:2009.14794](https://arxiv.org/abs/2009.14794)）。FAVOR+ 算法的详细推导。重点阅读 Section 3 的核方法分析和 Section 4 的正交随机特征。发表于 ICLR 2021。
+
+**Katharopoulos et al. (2020). "Transformers are RNNs"**（[arXiv:2006.16236](https://arxiv.org/abs/2006.16236)）。Transformer-RNN 对偶性的发现。重点阅读 Section 3.3 的因果线性注意力推导。发表于 ICML 2020。
+
+**Wang et al. (2020). "Linformer: Self-Attention with Linear Complexity"**（[arXiv:2006.04768](https://arxiv.org/abs/2006.04768)）。低秩近似理论的关键分析。重点阅读 Section 3 的 Johnson-Lindenstrauss 引理应用。
+
+### 综述
+
+**Tay et al. (2022). "Efficient Transformers: A Survey"**（[arXiv:2009.06732](https://arxiv.org/abs/2009.06732)）。高效 Transformer 领域最全面的综述，提出了七大类分类体系。如果只读一篇综述，读这篇。发表于 ACM Computing Surveys。
+
+### 后续发展
+
+**Dao et al. (2022). "FlashAttention: Fast and Memory-Efficient Exact Attention"**。硬件感知的注意力优化，将在第26章详细讨论。
+
+**Gu & Dao (2023). "Mamba: Linear-Time Sequence Modeling with Selective State Spaces"**。线性注意力思想的自然延伸，用选择性状态空间模型替代注意力。
+
+### 代码资源
+
+- Longformer 官方实现：[github.com/allenai/longformer](https://github.com/allenai/longformer)
+- BigBird 官方实现：[github.com/google-research/bigbird](https://github.com/google-research/bigbird)
+- Linear Transformer 实现：[linear-transformers.com](https://linear-transformers.com/)
+- Hugging Face 的高效注意力模型集合：`transformers` 库中的 `LongformerModel`、`BigBirdModel`
+
+---
+
+## 历史注脚
+
+2020年可以被称为"X-former 之年"。在短短几个月内，Reformer（1月）、Longformer（4月）、Linformer（6月）、Linear Transformer（6月）、BigBird（7月）、Performer（9月）接连发布。每篇论文都声称找到了打破 $O(n^2)$ 的方法，一时间让人眼花缭乱。Yi Tay 等人及时推出的 survey "Efficient Transformers: A Survey" 帮助社区理清了这片混战的局面。
+
+然而，历史的走向出乎所有人意料。这些精妙的算法层面优化，最终被一个硬件层面的优化——Flash Attention——大幅抢了风头。Tri Dao（Flash Attention 的作者）日后加入了 Princeton，与 Danqi Chen 一起教授 NLP 课程，这大概是学术界对"系统优化也是科学"的最好注脚。
+
+不过，稀疏注意力的思想并未消亡。2023年发布的 Mistral 7B 模型在其架构中采用了滑动窗口注意力，证明了 Longformer 的核心思想在精简形式下仍然具有实用价值。而线性注意力的思想更是通过 Mamba 等状态空间模型获得了"第二次生命"，在长序列建模上展现出巨大的潜力。

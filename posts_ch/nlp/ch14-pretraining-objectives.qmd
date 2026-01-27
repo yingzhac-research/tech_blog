@@ -1,0 +1,830 @@
+---
+title: "第14章：预训练目标的演进"
+subtitle: "Beyond MLM: Permutation, Discrimination, Span Corruption, and Contrastive Learning"
+author: "Ying Zha"
+date: "2026-01-26"
+categories: [NLP, Deep Learning, Pre-training, XLNet, ELECTRA, T5]
+tags: [XLNet, ELECTRA, T5, 排列语言建模, 替换词检测, Span Corruption, 对比学习, SimCSE, 预训练目标]
+description: "BERT的MLM开创了双向预训练的先河，但它的15%信号效率、[MASK]标记的预训练-微调不一致、以及无法生成文本的局限性，催生了一系列创新的预训练目标：XLNet的排列语言建模、ELECTRA的替换词检测、T5的Span Corruption、以及对比学习在句子表示中的应用。"
+image: "figures/chapter-14/original/fig-t5-text-to-text.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：BERT的掩码语言模型（MLM）存在信号效率低、预训练-微调不一致等缺陷——有没有更好的预训练目标？
+>
+> **历史坐标**：2019-2020年 | XLNet (Yang et al., 2019), ELECTRA (Clark et al., 2020), T5 (Raffel et al., 2020), SimCSE (Gao et al., 2021) | 预训练目标的多元探索
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Yang et al. (2019)** "XLNet: Generalized Autoregressive Pretraining for Language Understanding" (arXiv:1906.08237) — 参考了 Section 2（排列语言建模）、Section 2.3（双流注意力）、Table 1-6（实验结果）
+- **Clark et al. (2020)** "ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators" (arXiv:2003.10555) — 参考了 Section 3（方法设计）、Figure 1（架构图）、Table 1-2（效率对比）
+- **Raffel et al. (2020)** "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer" (arXiv:1910.10683) — 参考了 Section 3（系统性实验）、Table 3-14（预训练目标对比）
+- **Gao et al. (2021)** "SimCSE: Simple Contrastive Learning of Sentence Embeddings" (arXiv:2104.08821) — 参考了 Section 3（对比学习框架）、Table 1-3（STS实验）
+
+### 教材
+- **D2L** Section 15.8-15.10 — 参考了预训练模型对比的教学框架
+- **SLP3** Chapter 11 — 参考了预训练目标的分类和讲解角度
+
+### 课程
+- **Stanford CS224N** Lecture 9-10 (2025) "Pretraining" — 参考了预训练目标演进的讲解思路
+- **CMU 11-711** ANLP (Neubig) — 参考了预训练目标的对比分析框架
+:::
+
+---
+
+## 从上一章说起
+
+上一章我们详细介绍了BERT——NLP历史上第一个真正实现深层双向预训练的模型。通过一个巧妙的改变——将"预测下一个词"替换为"预测被遮蔽的词"——BERT解除了双向性与语言建模之间的矛盾，让Transformer Encoder在预训练时每个位置都能同时看到左右两侧的上下文。在参数量几乎相同的条件下（BERT-Base 110M vs GPT-1 117M），BERT在GLUE平均分上超出GPT近7个百分点（79.6 vs 72.8），消融实验直接证明双向性是性能提升的主要来源。
+
+然而，上一章结尾我们也系统梳理了BERT的三个核心局限。
+
+第一个是**信号效率低下**。BERT的MLM每次随机遮蔽15%的token，只有这些被遮蔽的位置参与损失计算。其余85%的token虽然参与了前向传播（提供上下文），但不提供直接的训练信号。与GPT的因果语言建模相比——每个位置都预测下一个词，100%的token都贡献训练信号——BERT的信号效率大约只有GPT的$1/7$。
+
+第二个是**预训练-微调不一致**。尽管80-10-10策略做了缓解，MLM的本质问题无法回避：预训练时模型看到的输入中充斥着`[MASK]`标记，但微调时输入是干净的自然文本。模型需要在两种不同的输入分布上工作，这可能导致预训练学到的某些模式在微调时无法完全发挥作用。
+
+第三个是**不适合文本生成**。BERT的Encoder-only架构天然不适合自回归生成——训练时每个位置看到了所有其他位置（包括"未来"），但生成时"未来"还不存在。这种训练与推理的不一致使得BERT无法胜任翻译、摘要、对话等生成任务。
+
+2019到2020年间，研究者们从不同角度回应了这些局限，提出了多种创新的预训练目标。每一种方案都是对BERT某个具体痛点的直接回应。
+
+> 💡 **本章核心洞察**：BERT之后的预训练目标创新沿着四条路线展开——XLNet用**排列语言建模**在保持自回归的同时获得双向上下文，消除了`[MASK]`标记；ELECTRA用**替换词检测**将信号效率从15%提升到100%；T5用**Span Corruption**和Encoder-Decoder架构统一了理解与生成；对比学习则跳出了"预测词"的范式，直接优化句子级表示。
+
+---
+
+## 问题的本质是什么？
+
+### 预训练目标设计的核心矛盾
+
+在深入各个方案之前，我们先退一步思考：设计一个好的预训练目标，核心的矛盾是什么？
+
+回忆BERT面临的根本困境：如果让模型看到双向上下文，它就可能"偷看"到答案，使得预测变得trivial；如果限制模型只看单向上下文，它就无法利用完整的语境信息。BERT用`[MASK]`标记来解决这个矛盾——把要预测的词遮住，这样即使模型看到了双向上下文，也无法作弊。但代价是引入了预训练-微调不一致和信号效率低下。
+
+更一般地说，预训练目标的设计需要在多个维度上做权衡。
+
+### 四个维度的权衡
+
+**第一个维度是上下文的方向性**。预训练目标允许模型看到多少上下文？GPT只看左侧（单向），BERT看两侧但用`[MASK]`遮住目标（双向但有代价），XLNet通过排列看两侧且不用`[MASK]`（双向且无代价）。直觉上，看到的上下文越完整，模型对语言的理解就越深。但更多的上下文也意味着预测任务更容易，如何在"信息充分"和"任务有挑战性"之间取得平衡，是每个预训练目标都要面对的问题。
+
+**第二个维度是信号效率**。每个训练样本中，有多大比例的token贡献了训练信号？BERT是15%，GPT是100%，ELECTRA是100%。信号效率直接影响训练速度和数据利用率。在同样的计算预算下，信号效率更高的方法可以"学到更多"。
+
+**第三个维度是预训练-微调一致性**。预训练时模型看到的数据分布与微调时的数据分布有多接近？BERT的`[MASK]`标记、T5的`<extra_id>`哨兵标记都引入了人工token，造成了分布不匹配。理想情况下，预训练的输入格式应该尽量接近下游任务的自然文本。
+
+**第四个维度是任务通用性**。预训练目标让模型学到的表示能覆盖多广的下游任务？MLM训练的是token级别的预测能力，对词级别的任务（NER、完形填空）天然适配，但对句子级别的任务（文本分类、句子相似度）可能不够直接。对比学习则专注于学习句子级表示，但可能在token级任务上不够精细。
+
+### 一个不可能三角
+
+如果我们把前三个维度画成一个三角——"完全双向 + 高信号效率 + 预训练-微调一致"——会发现没有一个方法能同时满足所有三个条件。BERT牺牲了信号效率和一致性来获得双向性。GPT牺牲了双向性来获得高效率和一致性。XLNet在理论上接近了三角的中心，但实现复杂度大幅增加。ELECTRA牺牲了部分一致性（引入替换而非自然token）来获得双向性和高效率。
+
+理解了这个不可能三角，我们就能更清晰地理解每个方案的设计动机——它们不是在追求完美，而是在这个约束空间中寻找不同的最优权衡点。
+
+---
+
+## 核心思想与直觉
+
+在进入数学之前，让我们先用直觉理解四种方案的核心洞察。每一种都从不同的角度切入同一个问题。
+
+### XLNet：打乱顺序来获得双向性
+
+XLNet的核心洞察可以用一个类比来理解。想象你在做完形填空题"我去___存钱"。BERT的做法是把"银行"遮住变成"我去`[MASK]`存钱"，然后让你根据两侧上下文猜测。XLNet的做法则完全不同——它不遮住任何词，而是改变你"阅读"句子的顺序。
+
+假设句子是"我 去 银行 存钱"（4个词），XLNet可能让你按照"存钱→我→银行→去"的顺序来处理。当模型轮到处理"银行"时，它已经看到了"存钱"和"我"，但还没有看到"去"。在另一种排列"去→存钱→银行→我"中，处理"银行"时已经看到了"去"和"存钱"。对所有可能的排列取期望，"银行"在不同排列中能看到不同的上下文子集——有时看到左侧，有时看到右侧，有时两侧都看到。这样，模型就在不使用`[MASK]`的情况下获得了双向上下文信息。
+
+关键的优雅之处在于：虽然概念上我们在处理各种排列，但实际上输入序列的顺序并不改变。模型通过一种特殊的注意力掩码来模拟不同的排列——我们只是改变了"谁能看到谁"的规则，而不是真的把词打乱。
+
+### ELECTRA：做判别题而非填空题
+
+ELECTRA的洞察更加直接。BERT让模型做"填空题"——遮住一个词，预测它是什么。但填空题有一个问题：每张试卷中只有15%的空需要填，其余85%的位置虽然读了但不打分。这就像一个老师只批改试卷的15%，其他部分直接跳过——明显浪费了评估学生理解程度的机会。
+
+ELECTRA把"填空题"换成了"找错题"。首先，一个小型的"出题者"（生成器）会把句子中的某些词替换成看起来合理但可能不正确的词。然后，主模型（判别器）需要判断句子中的每一个词是原始的还是被替换过的。这就像考试改成了阅读理解中的"纠错题"——每个词都需要判断真伪，100%的位置都参与评分。
+
+举个例子，原始句子"the chef cooked the meal"经过生成器可能变成"the chef ate the meal"（"cooked"被替换为"ate"）。判别器需要对每个位置做出判断——"the"是原始的，"chef"是原始的，"ate"是被替换的（应该是"cooked"），"the"是原始的，"meal"是原始的。五个位置中只有一个被替换了，但所有五个位置都提供了训练信号。信号效率是BERT的$100\%/15\% \approx 6.7$倍。
+
+### T5：一切皆文本
+
+T5的核心洞察是一个关于任务统一的思考。在BERT时代，不同的下游任务需要不同的输出头——分类任务用`[CLS]`向量加一个线性层，问答任务预测答案的起始和结束位置，NER任务在每个token上做标注。每种任务格式都需要专门的设计，这增加了工程复杂度，也阻碍了跨任务的知识共享。
+
+T5的解决方案是彻底的简化：把所有NLP任务都统一为"文本到文本"（Text-to-Text）格式。翻译是文本到文本。摘要是文本到文本。分类也是文本到文本——输入"classify: I love this movie"，输出"positive"。问答、NER、文本蕴涵……一切皆可用文本到文本来表达。
+
+与此相应，T5的预训练目标也采用了类似的思路——**Span Corruption**。模型随机遮蔽输入中的连续span，用哨兵标记（sentinel token）替代，然后生成被遮蔽的内容。与BERT的逐token遮蔽不同，Span Corruption遮蔽的是连续的片段，迫使模型进行更高层次的推理。而且，由于T5使用Encoder-Decoder架构，它天然支持生成任务——这是BERT做不到的。
+
+::: {#fig-t5-text-to-text}
+![](figures/chapter-14/original/fig-t5-text-to-text.png){width=90%}
+
+T5 的 Text-to-Text 统一框架：所有 NLP 任务——翻译、分类、语义相似度、摘要——都被转化为相同的"文本输入→文本输出"格式，使用同一个模型、同一个损失函数、同一套超参数进行训练。*Source: Raffel et al. (2020) "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer", Figure 1*
+:::
+
+### 对比学习：不预测词，学习表示
+
+前面三种方案虽然各有创新，但本质上都是在"预测某种形式的词"——无论是预测被遮蔽的词（BERT/T5）、预测被排列到后面的词（XLNet）、还是判断词是否被替换（ELECTRA）。对比学习则跳出了这个范式，直接在句子级别优化表示的质量。
+
+对比学习的直觉很简单：相似的句子应该有相似的表示，不相似的句子应该有不同的表示。SimCSE的巧妙之处在于它发现，同一个句子通过Transformer两次（由于dropout的随机性，两次前向传播会产生略微不同的表示），这两个表示就是天然的"正样本对"——它们来自同一个句子，语义完全相同，但在表示空间中有微小的差异。其他句子的表示则作为"负样本"。通过拉近正样本、推远负样本，模型学会了更均匀、更具判别力的句子表示。
+
+这种方法的独特价值在于：它不需要任何标注数据，不需要特殊的预训练目标设计，就能大幅提升句子嵌入的质量——在语义文本相似度（STS）任务上，SimCSE将BERT的表现提升了高达16个百分点。
+
+---
+
+## 技术细节
+
+### XLNet：排列语言建模
+
+#### 排列语言建模的形式化
+
+标准的自回归语言建模将联合概率分解为从左到右的条件概率之积：
+
+$$
+P(x_1, x_2, \ldots, x_T) = \prod_{t=1}^{T} P(x_t \mid x_1, \ldots, x_{t-1})
+$$
+
+这种分解有一个隐含假设：因式分解的顺序是固定的（从左到右）。但概率论告诉我们，联合概率可以按照任意顺序分解——对于$T$个随机变量，有$T!$种合法的因式分解顺序，每一种都给出相同的联合概率。
+
+XLNet正是利用了这一点。设$\mathcal{Z}_T$为序列$[1, 2, \ldots, T]$的所有排列的集合，对于一个排列$\mathbf{z} = [z_1, z_2, \ldots, z_T]$，XLNet的训练目标是最大化所有排列的期望对数似然：
+
+$$
+\max_\theta \quad \mathbb{E}_{\mathbf{z} \sim \mathcal{Z}_T} \left[ \sum_{t=1}^{T} \log P_\theta(x_{z_t} \mid \mathbf{x}_{\mathbf{z}_{<t}}) \right]
+$$
+
+其中$\mathbf{x}_{\mathbf{z}_{\lt t}}$表示在排列$\mathbf{z}$中排在$z_t$之前的所有token。由于对所有排列取期望，每个token$x_{z_t}$在不同的排列中会以不同的子集作为上下文来预测——有时只有左侧token，有时只有右侧token，有时两侧都有。这样，模型就在保持自回归形式的同时，学到了双向上下文的信息。
+
+一个重要的细节是：排列的是因式分解的顺序，而不是输入序列本身。输入序列始终保持原始的自然顺序"the cat sat on the mat"，改变的只是模型在预测每个位置时被允许看到哪些其他位置。这通过注意力掩码来实现——对于排列$\mathbf{z}$和位置$z_t$，注意力掩码允许$z_t$关注$\{z_1, z_2, \ldots, z_{t-1}\}$中的所有位置。
+
+#### 双流自注意力
+
+但排列语言建模有一个微妙的问题。在标准的Transformer中，位置$z_t$的表示$h_{z_t}$同时包含两种信息：（1）该位置的内容信息（这个位置的token是什么），和（2）该位置的位置信息（这是序列中的第几个位置）。当我们用$h_{z_t}$去预测$x_{z_t}$时，如果$h_{z_t}$已经编码了$x_{z_t}$的内容信息，预测就变成了trivial的自环——模型直接从自己的表示中读取答案。
+
+但如果我们不在$h_{z_t}$中编码$x_{z_t}$的内容，那么当$z_t$排在其他位置之前（即$z_t$需要为后续位置提供上下文）时，后续位置就无法获得$x_{z_t}$的内容信息。
+
+XLNet的解决方案是引入**双流自注意力（Two-Stream Self-Attention）**：
+
+**内容流（Content Stream）**$h_{z_t}$：与标准的Transformer相同，编码了位置$z_t$的内容信息和位置信息。当$z_t$作为上下文为其他位置服务时，使用内容流。
+
+**查询流（Query Stream）**$g_{z_t}$：只编码位置信息和之前上下文的内容信息，不包含$z_t$自身的内容。当需要预测$z_t$位置的token时，使用查询流。
+
+用数学表达：
+
+$$
+\begin{aligned}
+g_{z_t}^{(m)} &\leftarrow \text{Attention}(Q = g_{z_t}^{(m-1)}, \; KV = h_{\mathbf{z}_{<t}}^{(m-1)}) \\
+h_{z_t}^{(m)} &\leftarrow \text{Attention}(Q = h_{z_t}^{(m-1)}, \; KV = h_{\mathbf{z}_{\leq t}}^{(m-1)})
+\end{aligned}
+$$
+
+注意两个关键区别：查询流的KV中不包含$z_t$自身（$\mathbf{z}_{\lt t}$），而内容流的KV包含$z_t$自身（$\mathbf{z}_{\leq t}$）。初始化时，查询流使用一个可学习的向量$g_{z_t}^{(0)} = w$（只含位置信息），内容流使用词嵌入$h_{z_t}^{(0)} = e(x_{z_t})$（含内容信息）。
+
+::: {#fig-xlnet-two-stream}
+![](figures/chapter-14/original/fig-xlnet-two-stream.png){width=85%}
+
+XLNet 的双流自注意力机制：(a) 内容流（Content Stream）——与标准 Transformer 相同，编码位置和内容信息，可以看到自身；(b) 查询流（Query Stream）——只编码位置信息，不能看到自身内容，用于预测当前位置的 token；(c) 排列语言建模的整体示意，展示了不同排列下的注意力掩码。*Source: Yang et al. (2019) "XLNet: Generalized Autoregressive Pretraining for Language Understanding", Figure 1*
+:::
+
+#### 数值示例：排列语言建模
+
+为了建立直觉，让我们用一个小例子走通完整的过程。
+
+**设定**：句子"I love NLP"，3个token，位置为$[1, 2, 3]$。
+
+**考虑排列 $\mathbf{z} = [3, 1, 2]$**（处理顺序：先处理位置3的"NLP"，再处理位置1的"I"，最后处理位置2的"love"）。
+
+在这个排列下，注意力掩码的规则是：
+
+- 处理位置3时（$z_1 = 3$）：之前没有其他位置，只能看到自己
+- 处理位置1时（$z_2 = 1$）：之前有位置3，可以看到"NLP"和自己
+- 处理位置2时（$z_3 = 2$）：之前有位置3和1，可以看到"NLP"、"I"和自己
+
+注意力掩码矩阵（1表示可以看到，0表示不可以）：
+
+$$
+M_{\text{content}} = \begin{bmatrix} 1 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 1 \end{bmatrix}, \quad
+M_{\text{query}} = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 0 & 0 \\ 1 & 0 & 0 \end{bmatrix}
+$$
+
+内容流掩码中，位置1（行1）可以看到位置1和位置3（因为在排列中，位置3在位置1之前），但看不到位置2。查询流掩码中，位置1不能看到自己（去掉自环），只能看到位置3。
+
+**考虑另一个排列 $\mathbf{z}' = [2, 3, 1]$**：
+
+- 处理"love"时：只看到自己
+- 处理"NLP"时：看到"love"和自己
+- 处理"I"时：看到"love"、"NLP"和自己
+
+现在预测"I"时，模型同时看到了"love"和"NLP"——既有左侧上下文也有右侧上下文。而在排列$\mathbf{z}$中，预测"love"时看到了"NLP"（右侧）和"I"（左侧）。通过在不同排列中采样，每个token最终都能获得来自各个方向的上下文信息。
+
+**在实际训练中**，我们不需要遍历所有$T!$种排列。XLNet对每个训练样本随机采样一种排列，并且只预测排列中最后若干个位置的token（因为排在前面的位置能看到的上下文太少，预测信号质量较低）。具体地，对于一个排列$\mathbf{z}$，只预测$z_{c+1}, z_{c+2}, \ldots, z_T$（其中$c$是一个截断点），使得每个被预测的token至少能看到$c$个上下文token。
+
+#### XLNet的额外优势：Transformer-XL的继承
+
+XLNet的名字中包含"XL"，因为它还继承了Transformer-XL（Dai et al., 2019）的两个关键技术。
+
+**片段循环机制（Segment Recurrence）**：在处理长文本时，将文本分成固定长度的片段。处理当前片段时，保留上一个片段的隐藏状态作为额外的记忆，使模型的有效上下文长度超过单个片段的长度。
+
+**相对位置编码**：与BERT使用的绝对位置编码不同，XLNet使用相对位置编码，编码的是两个token之间的相对距离而非各自的绝对位置。这使得模型能更好地泛化到训练时未见过的序列长度。
+
+这两项技术使XLNet不仅在预训练目标上超越了BERT，在处理长文档方面也具有优势。
+
+### ELECTRA：替换词检测
+
+#### 从生成到判别的范式转变
+
+BERT的MLM本质上是一个**生成式**预训练任务——给定上下文，生成（预测）被遮蔽的词。ELECTRA提出了一个根本性的范式转变：用**判别式**任务替代生成式任务。
+
+ELECTRA的架构包含两个网络：一个小型的**生成器**（Generator）和一个大型的**判别器**（Discriminator）。
+
+::: {#fig-electra-architecture}
+![](figures/chapter-14/original/fig-electra-architecture.png){width=85%}
+
+ELECTRA 的生成器-判别器架构：生成器（Generator）是一个小型 MLM 模型，对被遮蔽的位置预测替代词（如将 "cooked" 替换为 "ate"）；判别器（Discriminator）接收生成器"修补"后的句子，对每个位置判断是"Original"还是"Replaced"。训练完成后丢弃生成器，只保留判别器用于下游任务。*Source: Clark et al. (2020) "ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators", Figure 1*
+:::
+
+**生成器**是一个小型的MLM模型。它接收被遮蔽的输入，对每个被遮蔽的位置预测一个替代词。生成器的目标与BERT的MLM完全相同：
+
+$$
+L_{\text{MLM}}(\theta_G) = -\sum_{i \in \mathcal{M}} \log P_G(x_i \mid \tilde{\mathbf{x}})
+$$
+
+**判别器**是主模型。它接收生成器"修补"过的句子（被遮蔽的位置已被生成器的预测词替换），然后对每一个位置判断该token是"原始的"（original）还是"被替换的"（replaced）。这是一个二分类任务：
+
+$$
+L_{\text{Disc}}(\theta_D) = -\sum_{t=1}^{T} \left[ \mathbb{1}(x_t^{\text{corrupt}} = x_t) \log D(x_t^{\text{corrupt}}, t) + \mathbb{1}(x_t^{\text{corrupt}} \neq x_t) \log (1 - D(x_t^{\text{corrupt}}, t)) \right]
+$$
+
+其中$D(x_t^{\text{corrupt}}, t)$是判别器预测位置$t$的token是"原始"的概率。
+
+总损失函数是生成器和判别器损失的加权和：
+
+$$
+L = L_{\text{MLM}}(\theta_G) + \lambda \cdot L_{\text{Disc}}(\theta_D)
+$$
+
+论文中$\lambda = 50$，这意味着判别器的训练信号被大幅加权——这合理地反映了判别器才是我们最终关心的模型。
+
+::: {.callout-note}
+## 算法：替换词检测训练流程（Clark et al., 2020）
+
+**输入**：未标注语料 $\mathcal{X}$，生成器 $G$（小型 MLM），判别器 $D$（大型 Encoder）
+
+**For** each batch $\mathbf{x} \in \mathcal{X}$:
+
+1. 随机选择遮蔽位置集合 $\mathcal{M} \subset \{1, \ldots, T\}$（比例 15%）
+2. 构建遮蔽输入：$\tilde{\mathbf{x}} = \text{REPLACE}(\mathbf{x}, \mathcal{M}, \texttt{[MASK]})$
+3. **生成器前向**：对每个 $i \in \mathcal{M}$，从 $P_G(\cdot \mid \tilde{\mathbf{x}})$ 中采样替代词 $\hat{x}_i$
+4. 构建判别器输入：$\mathbf{x}^{\text{corrupt}} = \text{REPLACE}(\mathbf{x}, \mathcal{M}, \hat{\mathbf{x}})$
+5. **判别器前向**：对每个位置 $t = 1, \ldots, T$，预测 $D(\mathbf{x}^{\text{corrupt}}, t) = P(\text{original} \mid t)$
+6. 计算联合损失并更新参数：$L = L_{\text{MLM}}(\theta_G) + 50 \cdot L_{\text{Disc}}(\theta_D)$
+
+**输出**：训练好的判别器 $D$（丢弃生成器 $G$）
+
+*Source: Clark et al. (2020) "ELECTRA", Section 3.1*
+:::
+
+#### 为什么不是GAN？
+
+ELECTRA的生成器-判别器架构看起来很像GAN（生成对抗网络），但有一个根本区别：**生成器和判别器不是对抗训练的**。
+
+在GAN中，生成器的目标是"欺骗"判别器——生成器试图产生让判别器无法分辨的样本。这种对抗训练会导致训练不稳定和模式崩溃等问题。
+
+在ELECTRA中，生成器的训练目标是最大化MLM的对数似然，与判别器无关。生成器只是一个工具，用于产生"看起来合理但可能不正确"的替换词，让判别器有东西可以判断。两个网络独立地优化各自的目标函数，联合训练只是为了效率——让生成器的输出随着训练进展变得越来越逼真，从而给判别器提供越来越困难的训练样本。
+
+这个设计选择的原因是实际的：替换词是离散的token（不是连续向量），梯度无法从判别器反向传播到生成器。要做对抗训练需要强化学习等技巧，会大幅增加复杂度。ELECTRA的作者发现，简单的联合MLM训练就已经足够好了。
+
+#### 数值示例：ELECTRA的训练流程
+
+让我们用一个具体例子走通ELECTRA的完整训练过程。
+
+**输入句子**："the chef cooked the meal"
+
+**Step 1: 随机遮蔽**。按照BERT的方式，随机遮蔽15%的token。假设"cooked"和"meal"被选中遮蔽：
+
+$$
+\text{masked input: } \text{the chef [MASK] the [MASK]}
+$$
+
+**Step 2: 生成器预测**。小型生成器（如BERT-Small）对每个`[MASK]`位置生成替代词：
+
+| 位置 | 原始词 | 生成器Top-5预测 | 采样结果 |
+|------|--------|----------------|----------|
+| 3 | cooked | ate(0.25), prepared(0.20), cooked(0.18), made(0.15), served(0.12) | **ate** |
+| 5 | meal | meal(0.30), food(0.22), dinner(0.18), dish(0.15), lunch(0.10) | **meal** |
+
+注意：生成器可能恰好预测出原始词（如位置5的"meal"），也可能预测出不同的词（如位置3的"ate"替代了"cooked"）。
+
+**Step 3: 构建判别器输入**。用生成器的预测替换`[MASK]`：
+
+$$
+\text{discriminator input: } \text{the chef ate the meal}
+$$
+
+**Step 4: 判别器逐位判断**。判别器对每个位置输出"original"或"replaced"的概率：
+
+| 位置 | Token | 真实标签 | 判别器预测 $D(x_t, t)$ |
+|------|-------|----------|----------------------|
+| 1 | the | original | 0.95（正确） |
+| 2 | chef | original | 0.92（正确） |
+| 3 | ate | **replaced** | 0.30（正确，认为它被替换了）|
+| 4 | the | original | 0.88（正确） |
+| 5 | meal | original | 0.85（正确，因为生成器恰好预测了原词）|
+
+**关键观察**：所有5个位置都贡献了训练信号。即使位置1、2、4从未被遮蔽过，判别器也需要确认它们是原始的——这迫使模型对每个token建立深入的语义理解。位置5虽然经过了遮蔽-替换流程，但生成器恰好预测了原词，所以标签是"original"。
+
+#### 效率分析：小即是美
+
+ELECTRA的一个反直觉发现是：生成器应该是小的。
+
+论文比较了不同大小的生成器对判别器性能的影响。当生成器与判别器大小相同时，性能反而不是最优的——因为太强的生成器生成的替换词太过逼真，判别器难以区分，训练信号变得微弱。最佳的生成器大小大约是判别器的$1/4$到$1/3$。这让生成器足够强大，能生成语法上合理的替换词（而非随机词），但又不至于太强，保持判别任务的适当难度。
+
+在计算效率方面，ELECTRA的优势极为显著。ELECTRA-Small使用一块GPU训练4天，就能在GLUE基准上达到与GPT-Large（使用30倍计算资源训练）相当的性能。ELECTRA-Base在相同的预训练计算预算下超过了BERT-Large和XLNet-Large。
+
+### T5：Text-to-Text统一框架
+
+#### Span Corruption预训练目标
+
+T5的预训练目标叫做**Span Corruption**——随机选择输入中的若干连续span，将每个span替换为一个唯一的哨兵标记（sentinel token），然后让解码器生成被替换的内容。
+
+与BERT的MLM相比，Span Corruption在四个方面有所不同。首先，BERT遮蔽的是随机选择的单个token，而T5遮蔽的是连续的span——这迫使模型学习更高层次的短语级补全能力。其次，BERT用统一的`[MASK]`标记替换所有被遮蔽的位置，而T5为每个被遮蔽的span分配一个唯一的哨兵标记（`<extra_id_0>`、`<extra_id_1>`等），使得解码器能明确知道自己在"修复"哪个span。第三，BERT在编码器端直接预测被遮蔽token的概率分布，而T5在解码器端以自回归的方式生成被替换span的完整文本。最后，T5的目标序列只包含被遮蔽的部分（加上哨兵标记），比原始序列短得多，提高了训练效率。
+
+#### 数值示例：Span Corruption
+
+**原始句子**："Thank you for inviting me to your party last week"
+
+**Step 1: 随机选择span**。遮蔽率15%（约1-2个token的span）。假设选中"for inviting"和"last week"：
+
+**Step 2: 替换为哨兵标记**：
+
+$$
+\text{Input: } \text{Thank you } \texttt{<extra\_id\_0>} \text{ me to your party } \texttt{<extra\_id\_1>}
+$$
+
+**Step 3: 构建目标序列**：
+
+$$
+\text{Target: } \texttt{<extra\_id\_0>} \text{ for inviting } \texttt{<extra\_id\_1>} \text{ last week } \texttt{<extra\_id\_2>}
+$$
+
+目标序列的格式是：每个哨兵标记后面跟着它替代的原始span，最后一个哨兵标记`<extra_id_2>`标志着结束。
+
+**这个设计的精妙之处**在于目标序列比原始序列短得多。假设原始序列有512个token，遮蔽15%后目标序列大约只有77个token（被遮蔽的token加上哨兵标记）。这意味着解码器的计算量大大减少，训练效率更高。
+
+#### T5的系统性实验：不只是一个模型
+
+T5论文的最大贡献也许不是Span Corruption本身，而是它对预训练策略进行的前所未有的系统性消融实验。论文标题"Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer"——"探索极限"是关键词。
+
+**预训练目标的对比实验**。T5在相同的计算预算下比较了多种预训练目标：
+
+| 预训练目标 | GLUE平均分 | 特点 |
+|-----------|-----------|------|
+| 前缀语言模型（Prefix LM） | 82.5 | 编码器部分双向，解码器部分因果 |
+| 因果语言建模（Causal LM） | 80.9 | GPT风格，完全因果 |
+| BERT风格MLM（去噪） | 84.0 | 随机遮蔽+预测 |
+| **Span Corruption** | **84.6** | 遮蔽连续span+生成 |
+| Span Corruption（不同遮蔽率） | 变化不大 | 10%-25%差异不大 |
+
+结论是Span Corruption略优于BERT风格的MLM，因果语言建模（GPT风格）在同等计算量下效果最差。但差距并不巨大——预训练目标的选择没有模型规模和数据量的影响大。
+
+**架构的对比实验**。T5还比较了三种架构：
+
+| 架构 | 优势 | 劣势 |
+|------|------|------|
+| Encoder-Decoder | 编码器双向，解码器可生成 | 参数量翻倍（相对于纯编码器/解码器） |
+| Decoder-only（因果） | 简单，适合生成 | 理解任务不够好 |
+| Decoder-only（前缀） | 前缀部分双向 | 略差于Encoder-Decoder |
+
+在控制总参数量相同的条件下，Encoder-Decoder架构略优于其他两种——因为在同等参数量下，Encoder-Decoder实际上有两倍的层数（编码器N层 + 解码器N层），虽然单次前向传播中只有部分层是"激活"的。
+
+::: {#fig-t5-attention-masks}
+![](figures/chapter-14/original/fig-t5-attention-masks.png){width=80%}
+
+三种架构对应的注意力掩码模式：**Fully-visible**（全可见）对应 Encoder，每个位置可以看到所有其他位置；**Causal**（因果）对应 Decoder-only，每个位置只能看到自己和之前的位置；**Causal with prefix**（带前缀的因果）对应前缀语言模型，前缀部分全可见，其余部分因果。*Source: Raffel et al. (2020) "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer", Figure 3*
+:::
+
+### 对比学习在NLP中的应用
+
+#### SimCSE：用Dropout作为数据增强
+
+对比学习的核心框架可以概括为三步：（1）为每个样本生成正样本对，（2）将其他样本作为负样本，（3）用对比损失拉近正样本、推远负样本。在计算机视觉中，正样本对通常通过数据增强生成（如随机裁剪、颜色变换同一张图片）。但NLP中数据增强非常困难——改一个词可能改变整个句子的语义。
+
+SimCSE（Gao et al., 2021）的突破在于发现了一种极其简单的数据增强方式：**Dropout噪声**。
+
+将同一个句子通过预训练的Transformer两次，由于Dropout层的随机性，两次前向传播会产生略微不同的表示$\mathbf{h}_i$和$\mathbf{h}_i'$。这两个表示构成正样本对——语义完全相同，但在表示空间中存在微小差异（因为Dropout随机丢弃了不同的神经元）。
+
+对于一个batch中的$N$个句子，对比损失为：
+
+$$
+\ell_i = -\log \frac{e^{\text{sim}(\mathbf{h}_i, \mathbf{h}_i') / \tau}}{\sum_{j=1}^{N} e^{\text{sim}(\mathbf{h}_i, \mathbf{h}_j') / \tau}}
+$$
+
+其中$\text{sim}(\cdot, \cdot)$是余弦相似度，$\tau$是温度超参数。直觉上，分子希望$\mathbf{h}_i$和$\mathbf{h}_i'$（同一句子的两个表示）尽量接近，分母希望$\mathbf{h}_i$和其他句子的表示尽量远离。
+
+#### 数值示例：对比学习的核心计算
+
+**设定**：batch中有3个句子：$s_1$="A man is sleeping"，$s_2$="A cat sits on a mat"，$s_3$="A person is resting"。温度$\tau = 0.05$。
+
+**Step 1: 两次前向传播**。每个句子通过BERT两次（不同Dropout mask），得到`[CLS]`向量：
+
+| 句子 | 第一次表示 $\mathbf{h}$ | 第二次表示 $\mathbf{h}'$ |
+|------|------------------------|-------------------------|
+| $s_1$ "A man is sleeping" | $[0.2, 0.8, -0.1]$ | $[0.3, 0.7, -0.2]$ |
+| $s_2$ "A cat sits on a mat" | $[-0.5, 0.3, 0.6]$ | $[-0.4, 0.2, 0.7]$ |
+| $s_3$ "A person is resting" | $[0.1, 0.9, 0.0]$ | $[0.2, 0.8, -0.1]$ |
+
+**Step 2: 计算余弦相似度矩阵**（$\mathbf{h}_i$与$\mathbf{h}_j'$之间）：
+
+$$
+\text{sim}(\mathbf{h}_1, \mathbf{h}_1') = \frac{0.2 \times 0.3 + 0.8 \times 0.7 + (-0.1) \times (-0.2)}{\sqrt{0.04+0.64+0.01} \times \sqrt{0.09+0.49+0.04}} \approx 0.987
+$$
+
+类似地计算其他相似度：
+
+| | $\mathbf{h}_1'$ | $\mathbf{h}_2'$ | $\mathbf{h}_3'$ |
+|---|---|---|---|
+| $\mathbf{h}_1$ | 0.987（正样本）| -0.280 | 0.994 |
+| $\mathbf{h}_2$ | -0.185 | 0.991（正样本）| -0.249 |
+| $\mathbf{h}_3$ | 0.976 | -0.325 | 0.998（正样本）|
+
+**Step 3: 计算对比损失**（以$s_1$为例）：
+
+$$
+\ell_1 = -\log \frac{e^{0.987/0.05}}{e^{0.987/0.05} + e^{-0.280/0.05} + e^{0.994/0.05}}
+$$
+
+注意$s_3$"A person is resting"与$s_1$"A man is sleeping"语义非常接近（$\text{sim} = 0.994 > 0.987$），这个"假负样本"会让模型错误地推远语义相似的句子。这是无监督对比学习的一个已知问题。
+
+SimCSE还提出了**有监督版本**（Supervised SimCSE）：利用NLI（自然语言推理）数据集，将蕴涵（entailment）句子对作为正样本，矛盾（contradiction）句子对作为硬负样本。例如：
+
+- 正样本对：("A man is sleeping", "A person is resting") — 蕴涵关系
+- 硬负样本：("A man is sleeping", "A man is awake") — 矛盾关系
+
+有监督版本的性能显著优于无监督版本，在STS-B基准上达到86.2%（vs 无监督的76.3%）。
+
+#### 对比学习解决了什么问题？
+
+为什么BERT直接提取的句子嵌入质量不高？一个重要原因是**表示塌缩（Representation Collapse）**——BERT的`[CLS]`向量占据了表示空间中一个非常小的区域，不同句子的表示挤在一起，难以区分。
+
+Li et al. (2020) 的研究发现，BERT的词嵌入存在**各向异性（anisotropy）**问题——嵌入向量集中在一个窄锥体中，而不是均匀分布在整个空间。这意味着任意两个句子的余弦相似度都很高（通常在0.6-0.8之间），难以区分语义上真正相似和不相似的句子。
+
+对比学习通过显式地优化"相似句子接近、不同句子远离"，有效地"撑开"了表示空间，使其更加各向同性（isotropic），句子嵌入的质量大幅提升。
+
+### 方法对比总结
+
+| 维度 | BERT MLM | XLNet PLM | ELECTRA RTD | T5 Span Corruption | SimCSE |
+|------|----------|-----------|-------------|---------------------|--------|
+| **预训练类型** | 去噪 | 自回归 | 判别式 | 去噪（seq2seq） | 对比式 |
+| **上下文方向** | 双向（有[MASK]） | 双向（无[MASK]） | 双向（有替换词） | 编码器双向 | 双向 |
+| **信号效率** | ~15% | ~15%（部分预测）| **100%** | ~15% | 句子级 |
+| **架构** | Encoder-only | Encoder-only | Encoder-only | Encoder-Decoder | Encoder-only |
+| **生成能力** | ✗ | ✗ | ✗ | **✓** | ✗ |
+| **实现复杂度** | 低 | **高** | 中 | 中 | **低** |
+| **计算效率** | 基准 | 1.5-2× | **最优** | 1-1.5× | 低（仅微调）|
+| **典型应用** | 理解任务 | 理解任务 | 理解任务 | 理解+生成 | 句子嵌入 |
+
+---
+
+## 工程实践
+
+### ELECTRA的简化实现
+
+由于ELECTRA在计算效率上的巨大优势，它是最具实际工程价值的预训练目标改进。以下是判别器核心逻辑的简化实现：
+
+```python
+import torch
+import torch.nn as nn
+from transformers import BertModel, BertForMaskedLM
+
+class ELECTRA(nn.Module):
+    """简化版ELECTRA：生成器-判别器联合训练"""
+
+    def __init__(self, vocab_size, gen_hidden=256, disc_hidden=768):
+        super().__init__()
+        # 生成器：小型MLM模型
+        self.generator = BertForMaskedLM.from_pretrained(
+            'bert-base-uncased'  # 实际中应用更小的模型
+        )
+        # 判别器：大型编码器 + 二分类头
+        self.discriminator = BertModel.from_pretrained('bert-base-uncased')
+        self.disc_head = nn.Linear(disc_hidden, 1)  # 二分类：original vs replaced
+
+    def forward(self, input_ids, mask_positions):
+        """
+        input_ids: [batch, seq_len] 原始token序列
+        mask_positions: [batch, seq_len] 被遮蔽位置的bool掩码
+        """
+        # Step 1: 构建生成器输入（遮蔽指定位置）
+        masked_input = input_ids.clone()
+        masked_input[mask_positions] = 103  # [MASK] token id
+
+        # Step 2: 生成器预测被遮蔽位置的token
+        gen_output = self.generator(masked_input)
+        gen_logits = gen_output.logits  # [batch, seq_len, vocab_size]
+
+        # 从生成器的预测分布中采样替代词
+        gen_probs = torch.softmax(gen_logits, dim=-1)
+        sampled_tokens = torch.multinomial(
+            gen_probs[mask_positions], num_samples=1
+        ).squeeze(-1)
+
+        # Step 3: 构建判别器输入（用采样的token替换[MASK]）
+        disc_input = input_ids.clone()
+        disc_input[mask_positions] = sampled_tokens
+
+        # Step 4: 判别器逐位判断：original or replaced?
+        disc_output = self.discriminator(disc_input)
+        disc_logits = self.disc_head(disc_output.last_hidden_state).squeeze(-1)
+        # disc_logits: [batch, seq_len]，每个位置的"original"概率
+
+        # Step 5: 构建标签（生成器预测与原词不同的位置标记为"replaced"）
+        labels = (disc_input != input_ids).float()
+
+        return gen_logits, disc_logits, labels, mask_positions
+```
+
+### T5的Text-to-Text任务格式化
+
+T5将所有任务统一为文本到文本格式。以下是几个典型任务的输入输出格式：
+
+```python
+def format_t5_task(task_type, **kwargs):
+    """将不同NLP任务格式化为T5的text-to-text格式"""
+
+    if task_type == "classification":
+        # 输入: "classify: I love this movie"
+        # 输出: "positive"
+        return f"classify: {kwargs['text']}", kwargs['label']
+
+    elif task_type == "translation":
+        # 输入: "translate English to German: That is good."
+        # 输出: "Das ist gut."
+        return (f"translate English to {kwargs['target_lang']}: "
+                f"{kwargs['text']}", kwargs['translation'])
+
+    elif task_type == "summarization":
+        # 输入: "summarize: [长文本]"
+        # 输出: "[摘要]"
+        return f"summarize: {kwargs['text']}", kwargs['summary']
+
+    elif task_type == "nli":
+        # 输入: "mnli premise: [前提] hypothesis: [假设]"
+        # 输出: "entailment" / "neutral" / "contradiction"
+        return (f"mnli premise: {kwargs['premise']} "
+                f"hypothesis: {kwargs['hypothesis']}", kwargs['label'])
+
+    elif task_type == "qa":
+        # 输入: "question: [问题] context: [上下文]"
+        # 输出: "[答案]"
+        return (f"question: {kwargs['question']} "
+                f"context: {kwargs['context']}", kwargs['answer'])
+
+# 使用示例
+examples = [
+    format_t5_task("classification",
+                   text="I love this movie", label="positive"),
+    format_t5_task("translation",
+                   text="That is good.", target_lang="German",
+                   translation="Das ist gut."),
+    format_t5_task("nli",
+                   premise="A man is sleeping.",
+                   hypothesis="A person is resting.",
+                   label="entailment"),
+]
+```
+
+### SimCSE的训练核心
+
+```python
+import torch
+import torch.nn.functional as F
+
+def simcse_loss(model, sentences, temperature=0.05):
+    """
+    无监督SimCSE的核心训练逻辑
+    同一个句子过两次模型（不同dropout mask），构成正样本对
+    """
+    batch_size = len(sentences)
+
+    # 两次前向传播，不同的dropout mask
+    embeddings_1 = model(sentences)  # [batch, hidden_dim]
+    embeddings_2 = model(sentences)  # [batch, hidden_dim]，dropout不同
+
+    # 拼接：[2*batch, hidden_dim]
+    embeddings = torch.cat([embeddings_1, embeddings_2], dim=0)
+
+    # 计算余弦相似度矩阵：[2*batch, 2*batch]
+    sim_matrix = F.cosine_similarity(
+        embeddings.unsqueeze(1), embeddings.unsqueeze(0), dim=-1
+    ) / temperature
+
+    # 构建标签：正样本是偏移batch_size的对角线
+    # 对于embeddings_1[i]，正样本是embeddings_2[i]
+    labels = torch.arange(batch_size, device=sim_matrix.device)
+    labels = torch.cat([labels + batch_size, labels], dim=0)
+
+    # 去掉自身相似度（对角线设为极小值）
+    mask = torch.eye(2 * batch_size, dtype=torch.bool, device=sim_matrix.device)
+    sim_matrix.masked_fill_(mask, -1e9)
+
+    # 交叉熵损失
+    loss = F.cross_entropy(sim_matrix, labels)
+    return loss
+```
+
+### 使用Hugging Face快速体验
+
+```python
+from transformers import (
+    ElectraForPreTraining, ElectraTokenizer,
+    T5ForConditionalGeneration, T5Tokenizer
+)
+
+# === ELECTRA: 判断哪些词被替换了 ===
+tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-discriminator")
+model = ElectraForPreTraining.from_pretrained("google/electra-base-discriminator")
+
+sentence = "The chef ate the meal"  # "ate" 可能是替换词
+inputs = tokenizer(sentence, return_tensors="pt")
+outputs = model(**inputs)
+# outputs.logits: 每个位置的"fake"概率分数
+predictions = torch.sigmoid(outputs.logits)
+# predictions ≈ [0.02, 0.03, 0.85, 0.01, 0.02]
+# 位置2（"ate"）被高概率判断为"replaced"
+
+# === T5: Text-to-Text 任务 ===
+tokenizer = T5Tokenizer.from_pretrained("t5-base")
+model = T5ForConditionalGeneration.from_pretrained("t5-base")
+
+# 翻译
+input_text = "translate English to German: That is good."
+input_ids = tokenizer(input_text, return_tensors="pt").input_ids
+outputs = model.generate(input_ids)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+# → "Das ist gut."
+
+# 情感分类
+input_text = "sst2 sentence: I love this movie"
+input_ids = tokenizer(input_text, return_tensors="pt").input_ids
+outputs = model.generate(input_ids)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+# → "positive"
+```
+
+---
+
+## 深入理解
+
+> **研究者必读**：这一节探讨各预训练目标的理论基础、实证发现、边界条件和开放问题
+
+### 为什么有效？——理论视角
+
+**XLNet与排列的等价性**。XLNet的排列语言建模在理论上有一个优雅的性质：对所有排列取期望后，模型等价于在学习真正的联合概率分布$P(x_1, x_2, \ldots, x_T)$。与BERT的MLM不同，MLM学习的是条件概率$P(x_i \mid \mathbf{x}_{\backslash i})$（给定其他所有词预测第$i$个词），这些条件概率之间不一定是一致的——它们可能无法对应一个合法的联合概率分布。这在理论上被称为MLM的"伪似然"（pseudo-likelihood）问题。XLNet通过保持严格的自回归分解，回避了这个问题。
+
+**ELECTRA的判别式优势**。ELECTRA的核心理论优势可以从学习理论的角度理解。生成式任务（预测被遮蔽的词）要求模型学习整个词汇表上的条件概率分布——这是一个非常高维的输出空间（$V \approx 30000$）。判别式任务（判断token是否被替换）只需要做二分类——输出空间维度为1。在相同的模型容量和训练数据下，低维输出空间的任务通常更容易学习，收敛更快。
+
+从信息论的角度，ELECTRA判别器在每个位置接收的信号是1 bit（original vs replaced），但它需要对整个句子进行深层理解才能做出正确判断。这就像考试中的判断题——虽然答案只有对错两种，但正确判断需要全面的理解。
+
+**T5与多任务学习**。T5的Text-to-Text框架可以理解为一种隐式的多任务学习。当模型在预训练阶段学会了处理Span Corruption（一种去噪任务），它实际上学到了一种通用的"损坏→修复"能力。微调时，不同的任务前缀（"translate:"、"summarize:"、"classify:"）告诉模型应该以哪种"修复模式"来处理输入。这与人类的元认知能力类似——知道当前在做什么类型的任务，并相应调整处理策略。
+
+### 为什么有效？——实证视角
+
+**关键的消融实验发现**。T5论文进行了NLP领域最大规模的预训练消融研究，其中几个发现特别值得注意。
+
+第一，预训练目标的选择对最终性能的影响**没有想象中那么大**。Span Corruption、BERT风格MLM、去噪自编码器之间的性能差距通常在1-2个百分点以内。相比之下，模型规模（从Base到Large到XL）带来的提升是5-10个百分点。这暗示了一个重要的规律：**规模比目标设计更重要**。
+
+第二，预训练数据的质量和数量比预训练目标更关键。T5论文构建了C4（Colossal Clean Crawled Corpus）数据集，清洗了Common Crawl中的大量噪声数据。实验显示，使用清洗过的数据与使用原始噪声数据之间的性能差距，远大于不同预训练目标之间的差距。
+
+第三，ELECTRA在**计算效率**维度上的优势是最显著的。在相同的计算预算下（FLOPs），ELECTRA一致性地超过了所有其他方法，包括XLNet和RoBERTa。这个发现对资源受限的研究者和企业特别有意义。
+
+### 方法的边界条件
+
+**XLNet的实现复杂度问题**。XLNet的排列语言建模和双流注意力在理论上优雅，但在工程实现上引入了显著的复杂度。双流注意力需要在每一层维护两套隐藏状态（内容流和查询流），增加了约50%的内存开销和计算量。在实际应用中，这种额外的复杂度是否值得，取决于任务和资源约束。事实上，在XLNet之后，很少有后续工作继续使用排列语言建模——研究社区的注意力更多地转向了更简单的方法（如RoBERTa、ELECTRA）。
+
+**ELECTRA的生成器依赖**。ELECTRA的性能对生成器的质量和大小敏感。如果生成器太弱（如随机替换），判别任务太简单，模型学不到深层的语言知识。如果生成器太强（如与判别器大小相同），替换词太过逼真，判别任务又变得太难。这个"Goldilocks问题"需要仔细调节，增加了超参数搜索的成本。
+
+另一个边界条件是ELECTRA的判别目标可能不利于生成任务。由于判别器学习的是"这个词对不对"而非"这个位置应该是什么词"，ELECTRA的预训练模型在文本生成任务上的表现通常不如BERT或T5。
+
+**T5的参数效率问题**。T5使用Encoder-Decoder架构，在相同隐藏维度下参数量大约是Encoder-only或Decoder-only模型的两倍。例如，T5-Base有220M参数，而BERT-Base只有110M。虽然Encoder-Decoder在某些任务上略优，但参数效率的劣势使得T5在规模化时面临更大的成本压力。这也是为什么后来的LLM（如GPT-3、LLaMA）普遍选择了Decoder-only架构——在参数效率和扩展性上更有优势。
+
+**对比学习的假负样本问题**。如前面数值例子所示，无监督对比学习会将随机采样的同batch句子作为负样本，但这些"负样本"中可能包含语义上实际相似的句子。在大batch中这个问题有所缓解（因为随机碰到语义相近句子的概率降低），但无法完全消除。有监督版本通过NLI数据引入了人工标注的正负样本，显著缓解了这个问题，但又引入了对标注数据的依赖。
+
+### 开放研究问题
+
+**预训练目标与涌现能力的关系**。随着模型规模的增长，大语言模型展现出了各种涌现能力（如CoT推理、代码生成）。这些涌现能力与预训练目标的选择之间有什么关系？为什么GPT-3的因果语言建模能涌现出Few-shot能力，而BERT的MLM似乎无法做到？是因为自回归生成本身就蕴含了某种推理能力，还是仅仅是因为规模化的Decoder-only模型恰好受益于因果语言建模的简单性？
+
+**判别式预训练的规模化潜力**。ELECTRA在中小规模上展现了显著的计算效率优势，但在超大规模（百亿参数以上）上还没有充分验证。判别式预训练是否能在规模化时保持其优势？或者在足够大的规模下，预训练目标的选择会变得不重要（被规模"稀释"）？
+
+**超越"预测词"的预训练范式**。当前的预训练目标——无论是MLM、PLM、RTD还是Span Corruption——本质上都在让模型学习"词与上下文的关系"。有没有可能设计完全不同的预训练目标，直接让模型学习更高层次的语言能力（如推理、规划、常识）？这是一个开放且深远的问题。
+
+---
+
+## 局限性与未解决的问题
+
+### 预训练目标改进的"天花板"
+
+本章介绍的各种预训练目标改进，虽然在各自的维度上取得了进展，但一个不可回避的事实是：**预训练目标的设计对最终性能的影响正在被模型规模所主导**。
+
+T5的系统性实验已经暗示了这一点：不同预训练目标之间的性能差距（1-2%），远小于模型从Base扩展到Large带来的提升（5-10%）。到2020年GPT-3（175B参数）的出现，这个趋势变得更加明显——GPT-3使用的是最简单的因果语言建模（与GPT-1完全相同的目标），但通过2600倍的参数量增长，在几乎所有任务上碾压了BERT、XLNet、ELECTRA等使用"更好"预训练目标的模型。
+
+这引出了一个尖锐的问题：精巧的预训练目标设计是否只是在"小模型时代"有意义？当模型足够大时，最简单的因果语言建模是否就是最优解？这个问题至今没有确定的答案，但从实践来看，2020年之后的主流LLM几乎全部采用了因果语言建模——简单性和扩展性战胜了理论上的优雅性。
+
+### 训练策略 vs 训练目标
+
+另一个被本章低估的维度是**训练策略的重要性**。RoBERTa（Liu et al., 2019）是一个教科书式的反例：它没有改变BERT的预训练目标（仍然是MLM），只是改进了训练策略——更多数据（160GB vs 16GB）、更大batch size（8K）、去掉NSP、动态遮蔽——就在大多数任务上超过了XLNet。
+
+这暗示了一个被忽视的可能性：BERT的原始MLM也许已经足够好了，它的"不足"更多来自训练不充分，而非目标本身的缺陷。这种"训练更好"vs "设计更巧妙"的张力，是下一章的核心主题。
+
+### 这些局限导向了什么？
+
+本章的方法论启示和未解决问题自然地导向了两个方向。
+
+第一个方向是**训练策略的系统优化**——既然预训练目标的边际收益在递减，那么训练策略（数据量、batch size、学习率调度、训练时长）的优化是否能带来更大的收益？RoBERTa和ALBERT的实验给出了肯定的答案。这是第15章的主题。
+
+第二个方向是**架构选择的根本性反思**——Encoder-only、Decoder-only、Encoder-Decoder三种架构各有什么根本的优劣？为什么T5选择了Encoder-Decoder，而GPT-3选择了Decoder-only？当规模足够大时，哪种架构的扩展性最好？这是第16章要深入讨论的问题。
+
+> 下一章预告：第15章将聚焦BERT系列模型的**工程优化**。RoBERTa如何通过"训练更好"就超越了精心设计的XLNet？ALBERT如何通过参数共享将BERT的参数量减少90%而性能不降？DistilBERT如何通过知识蒸馏将BERT压缩到原来的40%大小？这些工作共同揭示了一个重要的认识：**模型的潜力往往被训练策略和工程优化所限制，而非架构或目标本身**。
+
+---
+
+## 本章小结
+
+### 核心要点回顾
+
+这一章我们系统介绍了BERT之后预训练目标的四个演进方向，每一个都是对BERT某个具体局限的直接回应。
+
+XLNet通过排列语言建模，在保持自回归框架的同时获得了双向上下文信息，彻底消除了`[MASK]`标记带来的预训练-微调不一致问题。其理论基础是概率论中联合分布的排列等价性，实现上通过双流自注意力来区分"提供上下文"和"做预测"两种角色。
+
+ELECTRA将预训练任务从生成式（预测被遮蔽的词）转变为判别式（判断每个词是否被替换），将信号效率从15%提升到100%。在相同的计算预算下，ELECTRA一致性地超过了BERT、XLNet和RoBERTa，证明了判别式预训练的计算效率优势。
+
+T5通过Text-to-Text框架和Span Corruption目标，将所有NLP任务统一为"文本到文本"格式，同时使用Encoder-Decoder架构兼顾了理解和生成能力。更重要的是，T5的系统性消融实验揭示了一个关键发现：模型规模和数据质量的影响远大于预训练目标的选择。
+
+对比学习（以SimCSE为代表）跳出了"预测词"的范式，直接优化句子级表示的质量。通过巧妙地利用Dropout作为数据增强，SimCSE以极简的方式大幅提升了句子嵌入的性能。
+
+### 关键公式速查
+
+| 公式 | 含义 |
+|------|------|
+| $\mathbb{E}_{\mathbf{z} \sim \mathcal{Z}_T} \left[ \sum_t \log P(x_{z_t} \mid \mathbf{x}_{\mathbf{z}_{\lt t}}) \right]$ | XLNet排列语言建模目标 |
+| $L_{\text{Disc}} = -\sum_t [\mathbb{1}(x_t^c = x_t) \log D_t + \mathbb{1}(x_t^c \neq x_t) \log(1-D_t)]$ | ELECTRA判别器损失 |
+| $L = L_{\text{MLM}} + \lambda \cdot L_{\text{Disc}}$ | ELECTRA总损失（$\lambda=50$） |
+| $\ell_i = -\log \frac{e^{\text{sim}(\mathbf{h}_i, \mathbf{h}_i') / \tau}}{\sum_j e^{\text{sim}(\mathbf{h}_i, \mathbf{h}_j') / \tau}}$ | SimCSE对比损失 |
+
+### 思考题
+
+1. **[概念理解]** XLNet声称通过排列语言建模获得了双向上下文，但实际训练时只对每个排列预测最后若干个位置的token。如果预测所有位置的token，会出现什么问题？提示：考虑排在排列开头的位置能看到多少上下文。
+
+2. **[数学推导]** ELECTRA论文中$\lambda = 50$，即判别器损失的权重是生成器的50倍。从梯度规模的角度分析这个选择：如果生成器和判别器的损失数值在同一量级，为什么需要大幅加权判别器？提示：考虑生成器损失（30000维softmax的交叉熵）和判别器损失（二分类的交叉熵）的梯度范数差异。
+
+3. **[工程实践]** 使用Hugging Face的ELECTRA-Small模型，在SST-2数据集上微调并报告准确率。然后与同等大小的BERT-Small对比。验证ELECTRA在小模型规模上的效率优势是否成立。
+
+4. **[对比分析]** T5的系统性实验发现"预训练目标的选择没有模型规模重要"。如果这个结论成立，为什么我们还要研究预训练目标？请从以下角度讨论：(a) 计算效率（ELECTRA的例子）；(b) 特定任务的匹配度（对比学习在句子嵌入上的优势）；(c) 规模化之外的价值。
+
+5. **[研究思考]** 本章介绍的四种方法中，XLNet和T5都尝试解决BERT的生成能力缺失，但采用了完全不同的路线（XLNet保持Encoder-only但改变训练目标，T5采用Encoder-Decoder架构）。从2025年的视角回看，Decoder-only架构（GPT系列）最终成为主流。为什么一个看似"最简单"的方案反而赢了？XLNet和T5的教训是什么？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+**Yang, Z. et al. (2019). "XLNet: Generalized Autoregressive Pretraining for Language Understanding"**。排列语言建模的原始论文。重点阅读：Section 2.1（排列语言建模的动机和形式化）、Section 2.3（双流注意力——理解内容流和查询流的区别）。可快速浏览：Section 2.4（Transformer-XL的整合细节）。[arXiv:1906.08237](https://arxiv.org/abs/1906.08237)
+
+**Clark, K. et al. (2020). "ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators"**。替换词检测的原始论文。重点阅读：Section 3.1（方法描述——生成器-判别器的训练流程）、Table 1（效率对比——这是论文最有说服力的结果）。可快速浏览：Section 3.2-3.3（各种变体的消融）。[arXiv:2003.10555](https://arxiv.org/abs/2003.10555)
+
+**Raffel, C. et al. (2020). "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer"**。T5的原始论文，也是预训练策略的百科全书。重点阅读：Section 3.3（预训练目标的系统对比）、Table 14（不同预训练目标的性能对比）。由于论文极长（67页），建议先读Table 1了解全貌，再选择感兴趣的实验深入。[arXiv:1910.10683](https://arxiv.org/abs/1910.10683)
+
+### 对比学习方向
+
+**Gao, T., Yao, X., & Chen, D. (2021). "SimCSE: Simple Contrastive Learning of Sentence Embeddings"**。对比学习在句子嵌入上的突破。重点阅读：Section 3（无监督和有监督SimCSE的方法描述）、Section 5.2（Dropout作为数据增强的分析）。[arXiv:2104.08821](https://arxiv.org/abs/2104.08821)
+
+**Li, B. et al. (2020). "On the Sentence Embeddings from Pre-trained Language Models"**。揭示了BERT句子嵌入的各向异性问题，解释了为什么直接使用BERT的[CLS]向量作为句子嵌入效果不佳。[arXiv:2011.05864](https://arxiv.org/abs/2011.05864)
+
+### 前驱工作
+
+**Dai, Z. et al. (2019). "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"**。XLNet的前驱工作，提出了片段循环机制和相对位置编码，解决了Transformer在长文本建模上的限制。[arXiv:1901.02860](https://arxiv.org/abs/1901.02860)
+
+### 后续发展
+
+**He, P. et al. (2021). "DeBERTa: Decoding-enhanced BERT with Disentangled Attention"**。在ELECTRA的判别式预训练基础上引入了解耦注意力（将内容和位置的注意力分开计算），在SuperGLUE上首次超过人类基准。[arXiv:2006.03654](https://arxiv.org/abs/2006.03654)
+
+**Xue, L. et al. (2021). "mT5: A Massively Multilingual Pre-trained Text-to-Text Transformer"**。T5的多语言版本，在101种语言上进行预训练，展示了Text-to-Text框架在多语言场景中的通用性。[arXiv:2010.11934](https://arxiv.org/abs/2010.11934)
+
+### 代码资源
+
+- **Hugging Face ELECTRA**: [huggingface.co/google/electra-base-discriminator](https://huggingface.co/google/electra-base-discriminator) — 预训练ELECTRA模型
+- **Hugging Face T5**: [huggingface.co/t5-base](https://huggingface.co/t5-base) — 预训练T5模型
+- **SimCSE官方代码**: [github.com/princeton-nlp/SimCSE](https://github.com/princeton-nlp/SimCSE) — 无监督和有监督SimCSE的完整实现
+
+---
+
+## 历史注脚
+
+XLNet、ELECTRA和T5分别代表了三个不同研究团队对BERT局限性的回应，它们的诞生几乎同时发生在2019年中到2020年初——这段时期可以称为预训练目标的"寒武纪爆发"。
+
+XLNet由Carnegie Mellon大学的Zhilin Yang和William Cohen与Google Brain合作提出。有趣的是，XLNet在提交时引发了激烈的争论：它在20个基准任务上超越了BERT，但许多研究者指出XLNet使用了更多的数据（126GB vs 16GB）和更大的计算量，性能提升是否来自排列语言建模本身，还是仅仅来自更充分的训练？这个质疑后来被RoBERTa的实验所佐证——RoBERTa不改目标只改训练策略就追上了XLNet。
+
+ELECTRA由Stanford的Kevin Clark和Google的Thang Luong（Attention变体那一章的主角）等人提出。ELECTRA最初并不被社区看好——"判别而非生成"的想法太过反直觉，很多人质疑一个二分类任务怎么可能学到丰富的语言表示。但ELECTRA-Small在单卡GPU上4天训练就超过GPT-Large的结果震惊了社区，证明了计算效率的重要性。对于很多资源有限的研究者和公司来说，ELECTRA成为了BERT的更实用的替代品。
+
+T5由Google的Colin Raffel等人提出，其67页的论文几乎成为了预训练技术的"百科全书"——它系统地比较了几乎所有当时已知的预训练策略，包括架构、目标、数据、训练策略等。T5论文的学术贡献也许不在于提出了新的Span Corruption目标，而在于通过大规模实验为社区提供了可靠的实证指南。
+
+从2020年的GPT-3开始，预训练目标的创新热潮逐渐平息。研究者们意识到，在足够大的规模下，最简单的因果语言建模可能就是最好的选择——不是因为它在理论上最优，而是因为它的简单性使其最容易规模化。这个认识标志着NLP从"精巧设计"时代向"暴力美学"时代的转变——一个至今仍在持续的范式变革。
