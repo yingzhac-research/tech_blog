@@ -342,6 +342,34 @@ Chinchilla的修正之所以影响深远，是因为它直接改变了行业的�
 
 ### 完整数值示例：用Scaling Laws规划训练
 
+::: {.callout-note appearance="minimal"}
+## Algorithm: Compute-Optimal Training Planning
+
+**Input**: 计算预算 $C$ (FLOPs)，Chinchilla 损失函数参数 $(A, \alpha, B, \beta, E)$
+
+**Output**: 最优模型大小 $N^*$，最优数据量 $D^*$，预期损失 $\hat{L}$
+
+1. **确定最优配置**（Chinchilla 法则）
+   - 由 $D^* \approx 20 \times N^*$ 和 $C \approx 6ND$ 得：$N^* = \sqrt{C / 120}$
+   - 计算 $D^* = 20 \times N^*$
+
+2. **验证计算量**
+   - 检验 $6 \times N^* \times D^* \approx C$
+
+3. **预测性能**（损失函数）
+   $$\hat{L}(N, D) = \frac{A}{N^\alpha} + \frac{B}{D^\beta} + E$$
+   - 使用 Chinchilla 参数：$A=406.4, \alpha=0.34, B=410.7, \beta=0.28, E=1.69$
+
+4. **对比替代配置**（可选）
+   - 计算非最优配置 $(N', D')$ 的损失 $\hat{L}(N', D')$
+   - 比较两种配置的各项损失分量
+
+**Return**: $(N^*, D^*, \hat{L})$
+
+<hr>
+*改编自 Hoffmann et al. (2022) "Training Compute-Optimal Large Language Models" 的 Chinchilla 法则。*
+:::
+
 让我们通过一个具体的例子来体会Scaling Laws的实用价值。假设你是一家初创公司的AI负责人，拥有一笔计算预算 $C = 6 \times 10^{21}$ FLOPs（大约相当于256块A100 GPU训练两周）。
 
 **Step 1: 使用Chinchilla法则确定最优配置**
@@ -407,9 +435,9 @@ Scaling Laws最大的实用价值在于：你可以用**小模型的实验结果
 #| fig-cap: "幂律拟合示例：在小规模上拟合，外推到大规模"
 #| code-fold: true
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 
 # =============================
 # 模拟数据：不同参数量对应的损失
@@ -424,17 +452,41 @@ L_large = np.array([2.35, 2.12, 1.95, 1.78])
 
 # =============================
 # 幂律拟合: L(N) = a * N^(-b) + c
+# 使用纯 NumPy 的网格搜索 + 线性化拟合，避免 SciPy 依赖
 # =============================
 def power_law(N, a, b, c):
     return a * N**(-b) + c
 
+def fit_power_law(N, L, c_min=None, c_max=None, num=800):
+    if c_min is None:
+        c_min = 0.5
+    if c_max is None:
+        c_max = float(np.min(L) - 1e-3)
+    c_candidates = np.linspace(c_min, c_max, num=num)
+    best = None
+    best_mse = np.inf
+    x = np.log(N)
+    for c in c_candidates:
+        y = L - c
+        if np.any(y <= 0):
+            continue
+        ylog = np.log(y)
+        slope, intercept = np.polyfit(x, ylog, 1)
+        b = -slope
+        a = np.exp(intercept)
+        pred = power_law(N, a, b, c)
+        mse = np.mean((pred - L) ** 2)
+        if mse < best_mse:
+            best_mse = mse
+            best = (a, b, c)
+    return best
+
 # 仅用小规模数据拟合
-popt, pcov = curve_fit(power_law, N_small, L_small, p0=[10, 0.07, 1.5], maxfev=10000)
-a_fit, b_fit, c_fit = popt
+a_fit, b_fit, c_fit = fit_power_law(N_small, L_small)
 
 # 外推到大规模
 N_predict = np.logspace(7, 11.5, 100)
-L_predict = power_law(N_predict, *popt)
+L_predict = power_law(N_predict, a_fit, b_fit, c_fit)
 
 # =============================
 # 可视化
@@ -465,6 +517,7 @@ ax.grid(True, alpha=0.3)
 ax.set_xlim(5e6, 3e11)
 ax.set_ylim(1.5, 3.8)
 
+os.makedirs('figures/chapter-17', exist_ok=True)
 plt.tight_layout()
 plt.savefig('figures/chapter-17/fig-scaling-law-fit-demo.png', dpi=200, bbox_inches='tight',
             facecolor='white')
@@ -473,8 +526,8 @@ plt.savefig('figures/chapter-17/fig-scaling-law-fit-demo.svg', bbox_inches='tigh
 plt.show()
 
 print(f"\nFitted parameters: a={a_fit:.2f}, b={b_fit:.4f}, c={c_fit:.2f}")
-print(f"Predicted loss at 10B params: {power_law(1e10, *popt):.2f}")
-print(f"Predicted loss at 100B params: {power_law(1e11, *popt):.2f}")
+print(f"Predicted loss at 10B params: {power_law(1e10, a_fit, b_fit, c_fit):.2f}")
+print(f"Predicted loss at 100B params: {power_law(1e11, a_fit, b_fit, c_fit):.2f}")
 ```
 
 这个例子展示了Scaling Laws在实践中的核心价值：用5个小规模实验（10M到1B参数）拟合幂律曲线，然后**外推**到100B参数级别。外推的预测与实际结果高度吻合——这就是为什么Scaling Laws被称为大模型训练的"指南针"。

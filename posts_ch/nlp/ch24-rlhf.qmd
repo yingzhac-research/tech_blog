@@ -1,0 +1,681 @@
+---
+title: "第24章：RLHF——从能力到对齐"
+subtitle: "Reinforcement Learning from Human Feedback: Bridging the Gap Between Capability and Alignment"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, Alignment, RLHF]
+tags: [RLHF, InstructGPT, PPO, Reward Model, Bradley-Terry, Human Feedback, Alignment, ChatGPT, Preference Learning]
+description: "上一章的指令微调让模型学会了'遵循指令'，但格式对齐不等于价值对齐——模型同样热心地回答善意和恶意的请求，无法区分'好回答'和'坏回答'。本章讲述RLHF如何通过人类偏好数据训练奖励模型，再用PPO优化语言模型，实现从InstructGPT到ChatGPT的关键飞跃：不仅让模型听话，还要让它变得有用、诚实、无害。"
+image: "figures/chapter-24/original/fig2-instructgpt-rlhf-pipeline.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：如何让模型的输出不仅格式正确，还能真正符合人类的偏好和价值观？
+>
+> **历史坐标**：2017–2022 | Christiano et al. → Stiennon et al. → InstructGPT / ChatGPT | 从 RL reward shaping 到 LLM alignment
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Ouyang et al. (2022)** "Training language models to follow instructions with human feedback" ([arXiv:2203.02155](https://arxiv.org/abs/2203.02155)) — 参考了 Section 3（三阶段方法）、Figure 1（人类评估）、Figure 2（RLHF 流水线）；从论文提取了 2 张原图（Figure 1, Figure 2）；改编了 RLHF 三阶段伪代码框
+- **Christiano et al. (2017)** "Deep Reinforcement Learning from Human Preferences" ([arXiv:1706.03741](https://arxiv.org/abs/1706.03741)) — 参考了 Section 2.2（RLHF 框架）、Figure 1（原始 RLHF 架构）；从论文提取了 1 张原图（Figure 1）
+- **Schulman et al. (2017)** "Proximal Policy Optimization Algorithms" ([arXiv:1707.06347](https://arxiv.org/abs/1707.06347)) — 参考了 Section 3（Clipped Surrogate Objective）、Section 5（Algorithm 1）；引用了 Algorithm 1 伪代码框
+- **Stiennon et al. (2020)** "Learning to summarize from human feedback" ([arXiv:2009.01325](https://arxiv.org/abs/2009.01325)) — 参考了 Section 3（方法设计）、Section 4.3（过度优化分析）
+- **Bradley & Terry (1952)** "Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons" — 奖励模型的数学基础
+
+### 教材
+- SLP3 Chapter 9: "Post-training: Instruction Tuning, Alignment, and Test-Time Compute" — 参考了 RLHF 流水线的教学组织和 DPO 对比
+
+### 课程
+- Stanford CS224N Lecture 10 (Winter 2025): "Instruction Finetuning, and RLHF" — 参考了 Jesse Mu / Diyi Yang 的讲解角度
+- CMU 11-711 ANLP Lecture 8 (Fall 2024): "(Reinforcement) Learning from Human Feedback" — 参考了 Graham Neubig 的 RLHF pipeline 讲解
+:::
+
+## 从上一章说起
+
+上一章我们看到，指令微调（Instruction Tuning）成功解决了大模型的"能力-可用性鸿沟"——通过在大量"指令→输出"格式的数据上微调，GPT-3 这样的"补全机器"学会了理解指令、执行任务、返回结果。从 FLAN 的学术任务改写，到 Self-Instruct 的自动数据生成，再到 Alpaca/Vicuna 的开源平民化，指令微调让语言模型迈出了从"文本生成器"到"AI 助手"的第一步。
+
+然而，我们在上一章结尾也指出了指令微调的三个根本性局限。第一，**格式对齐不等于价值对齐**。一个指令微调后的模型会同样热心地回答"如何帮助邻居搬家"和"如何入侵邻居的电脑"——它学会了遵循指令的格式，却没有学会判断指令的善恶。第二，**确定性的训练目标过于僵硬**。SFT 为每条指令提供一个"标准答案"，但对于"写一首关于春天的诗"这样的开放性问题，好的回答有无数种。第三，**模型缺乏拒绝能力**——它不知道什么时候应该说"我不确定"，什么时候应该拒绝回答。
+
+这些局限指向一个核心需求：我们不仅需要告诉模型"正确答案长什么样"（SFT 做到的），还需要告诉模型**什么样的回答更好**（SFT 做不到的）。从"有问必答"到"有问好答"，需要一种全新的训练范式——一种能编码人类偏好排序的方法。
+
+这正是 RLHF（Reinforcement Learning from Human Feedback）要解决的问题。
+
+> 💡 **本章核心洞察**：通过人类偏好比较数据训练一个"奖励模型"作为人类判断的代理，然后用强化学习（PPO）优化语言模型以最大化这个代理奖励——同时用 KL 散度约束防止模型偏离太远——InstructGPT/ChatGPT 实现了从"格式对齐"到"价值对齐"的关键跨越。
+
+## 问题的本质是什么？
+
+### 训练目标与人类意图的根本错配
+
+让我们从更本质的角度来理解这个问题。语言模型的每一次进化，都是在缩小"训练目标"和"人类真正想要的东西"之间的距离。
+
+预训练阶段的目标是最大化下一个 token 的预测概率。这让模型学会了语言的统计规律和大量的世界知识，但它优化的是"互联网上最可能出现什么文字"，而不是"什么对用户最有帮助"。SFT 阶段缩小了这个差距——模型学会了"给定指令时应该生成什么格式的输出"。但 SFT 的训练信号是**二元的**：每条指令只有一个"正确答案"，模型被训练为尽可能精确地复现这个答案。
+
+问题在于，真实世界中"好的回答"不是二元的，而是一个**谱**。对于同一个问题"请解释什么是黑洞"，以下两种回答都是正确的，但质量有高低之分：
+
+- **回答 A**："黑洞是一个时空区域，由于引力极其强大，任何物质甚至光都无法从中逃逸。当一颗质量足够大的恒星在生命末期引力坍缩时，就可能形成黑洞。它的边界被称为事件视界。"
+- **回答 B**："黑洞就是太空中一个很大很大的洞，什么东西掉进去都出不来。"
+
+两者都传达了基本正确的信息，但大多数人会认为回答 A 更好——更准确、更丰富、更有教育价值。SFT 无法捕捉这种"A 比 B 好"的偏好信号，因为它只能说"这是标准答案，照着学"。
+
+### 为什么"偏好"信号如此重要？
+
+你可能会问：既然知道回答 A 更好，为什么不直接把 A 作为 SFT 的标准答案来训练呢？这种做法有两个根本性的问题。
+
+第一个问题是**标准答案的稀缺性与多样性**。对于开放性问题，写出一个完美的标准答案本身就非常困难——需要领域专家仔细斟酌措辞、覆盖关键信息、适配用户水平。更重要的是，好的答案不止一种。一个面向儿童的解释和一个面向物理系学生的解释可能都是"好答案"，但风格迥然不同。SFT 只能选择一个，这必然丢失了大量信息。
+
+第二个问题更深层：**比较判断比绝对评分更可靠**。心理学研究表明，人类在做比较判断（"A 比 B 好"）时比做绝对评分（"A 的质量是 4.2 分"）更一致、更可靠。这就像品酒——让你给一杯红酒打个 0-100 的绝对分数非常困难，但让你比较两杯红酒说出哪杯更好，就容易得多。RLHF 正是利用了这一点：收集的人类反馈是**成对比较**（"回答 A 比回答 B 好"），而不是绝对评分。
+
+### 我们需要什么样的解决方案？
+
+综合以上分析，理想的解决方案应该满足三个条件。第一，它必须能**编码偏好排序**——不只是"什么是对的"，还要表达"什么比什么更好"。第二，它必须能**规模化**——不能依赖人类评审每一条模型输出，必须有某种自动化的代理机制。第三，它必须**真正改变模型行为**——不是在推理时过滤输出，而是从根本上调整模型的生成分布。
+
+RLHF 的方案巧妙地满足了这三个条件：用人类偏好比较训练一个**奖励模型**（满足条件一和二），然后用强化学习优化语言模型以最大化奖励（满足条件三）。
+
+## 核心思想与直觉
+
+### 关键洞察：训练一个"代理评委"
+
+RLHF 的核心洞察可以用一个类比来理解。想象你是一位钢琴教师，需要指导 1000 名学生的演奏。你不可能亲自听完每个学生的每次练习并给出反馈——这在时间上不可行。但你可以做一件更聪明的事：先仔细聆听一小部分学生的演奏，对它们做出高质量的比较评判（"这段演绎比那段更有感情"），然后用这些评判来训练一个**AI 评委**。之后，这个 AI 评委可以自动评估所有学生的演奏，学生们则根据 AI 评委的反馈不断改进。
+
+在 RLHF 中：
+
+- **学生** = 语言模型（需要改进生成质量）
+- **教师的评判** = 人类标注员的偏好比较
+- **AI 评委** = 奖励模型（Reward Model）
+- **学生根据评委反馈改进** = PPO 优化
+
+这个类比揭示了 RLHF 的两个关键设计：**先训练代理，再用代理训练模型**。人类标注的偏好数据是稀缺的（也是昂贵的），但一旦训练好了奖励模型，它就可以对模型的任意输出给出即时评分——这让规模化的偏好优化成为可能。
+
+### InstructGPT 三阶段流水线
+
+Ouyang et al. (2022) 在 InstructGPT 论文中提出了 RLHF 的经典三阶段流水线，这也是 ChatGPT 训练过程的核心框架。
+
+![InstructGPT 的 RLHF 三阶段流水线：(1) 在标注员示范数据上进行有监督微调（SFT）；(2) 在标注员偏好排序上训练奖励模型（RM）；(3) 用 PPO 算法针对奖励模型优化策略。](figures/chapter-24/original/fig2-instructgpt-rlhf-pipeline.png){#fig-instructgpt-pipeline width=95%}
+
+::: {.figure-caption}
+*Source: Ouyang et al. (2022) "Training language models to follow instructions with human feedback", Figure 2*
+:::
+
+三个阶段各司其职，层层递进。**阶段一（SFT）** 在上一章已经详细讨论过——用标注员撰写的高质量"指令→回答"数据对预训练模型进行有监督微调，让模型学会基本的指令遵循能力。**阶段二（Reward Model）** 是本章的核心创新——训练一个奖励模型来预测人类偏好。标注员不再写标准答案，而是比较模型生成的多个回答并排序。**阶段三（PPO）** 用强化学习算法（PPO）优化 SFT 模型，使其生成的回答能获得更高的奖励模型评分。
+
+这个流水线的关键insight在于**分工**：人类负责高质量但少量的偏好判断（阶段二的数据），奖励模型将这些判断放大为可规模化的评分信号（阶段二的产出），PPO 则利用这个信号高效地调整模型行为（阶段三）。
+
+### RLHF 的历史根源
+
+值得注意的是，用人类偏好来引导 RL agent 的想法并非 InstructGPT 首创。这条线索可以追溯到 Christiano et al. (2017) 的开创性工作——他们在 MuJoCo 机器人控制和 Atari 游戏中展示了一个令人印象深刻的结果：仅通过约 900 次人类偏好比较（每次比较两段短视频哪段表现更好），就能让机器人学会做后空翻——而这个行为从未被显式定义过。
+
+![Christiano et al. (2017) 的原始 RLHF 架构：三个异步过程——策略优化、偏好征询、奖励模型训练——协同工作。](figures/chapter-24/original/fig1-christiano-rlhf-architecture.png){#fig-christiano-rlhf width=70%}
+
+::: {.figure-caption}
+*Source: Christiano et al. (2017) "Deep Reinforcement Learning from Human Preferences", Figure 1*
+:::
+
+Stiennon et al. (2020) 将这一框架首次应用于 NLP 任务——文本摘要。他们的三阶段流水线（SFT → RM → PPO）直接成为了 InstructGPT 的蓝本。最终，OpenAI 将这一方法扩展到通用的指令遵循场景，产生了 InstructGPT，随后演化为震惊世界的 ChatGPT。
+
+## 技术细节
+
+### 阶段一：有监督微调（简要回顾）
+
+阶段一（SFT）在上一章已经详细讨论，这里仅简要回顾其在 RLHF 流水线中的角色。InstructGPT 使用大约 13,000 条由标注员撰写的高质量"指令→回答"数据，在 GPT-3（175B）上微调了 16 个 epoch。这个阶段的目的不是达到最终的对齐效果，而是为后续的 RL 优化提供一个合理的起点——一个已经懂得基本指令格式但还缺乏偏好意识的模型。
+
+一个值得注意的工程细节是，InstructGPT 发现 SFT 阶段的训练轮数（epoch）对最终效果有重要影响：过多的 epoch 会导致在 SFT 验证集上过拟合，但在 RM 评分上的表现在 1 个 epoch 后就基本饱和。这暗示了一个重要观点——SFT 是必要的"热身"，但真正的对齐效果来自后续的 RL 阶段。
+
+### 阶段二：奖励模型训练
+
+#### 人类偏好数据的收集
+
+奖励模型训练的第一步是收集人类偏好数据。InstructGPT 的做法是：对于每个 prompt，让 SFT 模型生成 $K$ 个不同的回答（论文中 $K$ 从 4 到 9），然后让标注员对这 $K$ 个回答进行**排序**（从最好到最差）。
+
+一个排序可以产生 $\binom{K}{2}$ 个成对比较。例如，如果标注员将 4 个回答排序为 A > B > C > D，这就隐含了 $\binom{4}{2} = 6$ 个成对比较：A>B, A>C, A>D, B>C, B>D, C>D。相比于每次只比较一对回答，排序的方式大大提高了数据收集效率。
+
+InstructGPT 最终收集了约 33,000 个 prompt 的偏好排序数据，总共约 300,000 个成对比较。
+
+#### Bradley-Terry 偏好模型
+
+有了成对比较数据，如何训练奖励模型？这里需要一个概率模型来描述"给定两个回答，人类更偏好哪个"的概率分布。RLHF 采用的是经典的 **Bradley-Terry 模型**（Bradley & Terry, 1952），这个模型最初是为体育比赛排名设计的。
+
+Bradley-Terry 模型的核心假设非常直觉：每个选项（在我们的场景中是每个回答）都有一个内在的"实力值"（在 RLHF 中就是奖励分数 $r$），实力值越高的选项越可能胜出。具体地，给定 prompt $x$ 和两个回答 $y_w$（人类偏好的）和 $y_l$（不偏好的），人类偏好 $y_w$ 的概率为：
+
+$$
+P(y_w \succ y_l \mid x) = \sigma\big(r_\theta(x, y_w) - r_\theta(x, y_l)\big)
+$$
+
+其中 $\sigma$ 是 sigmoid 函数 $\sigma(z) = \frac{1}{1 + e^{-z}}$，$r_\theta(x, y)$ 是奖励模型对 prompt $x$ 和回答 $y$ 给出的标量奖励分数。
+
+这个公式的直觉是：偏好概率只取决于两个回答的**奖励差值**。如果 $r(x, y_w) - r(x, y_l)$ 很大（好的回答远好于差的），sigmoid 输出接近 1（几乎确定偏好 $y_w$）。如果差值接近 0，sigmoid 输出接近 0.5（难以区分）。
+
+训练奖励模型的损失函数就是对数似然的负值：
+
+$$
+\mathcal{L}_{\text{RM}}(\theta) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma\big(r_\theta(x, y_w) - r_\theta(x, y_l)\big) \right]
+$$
+
+这本质上是一个二元交叉熵损失——奖励模型被训练为给偏好回答更高的分数、给不偏好回答更低的分数。
+
+#### 奖励模型的架构
+
+在 InstructGPT 的实现中，奖励模型的架构就是在 SFT 模型基础上替换最后的 unembedding 层为一个标量输出头。具体来说，将 SFT 模型的最后一个 token 的隐藏表示 $h_T$ 通过一个线性层映射到标量值：
+
+$$
+r_\theta(x, y) = \mathbf{w}^\top h_T + b
+$$
+
+其中 $h_T$ 是模型处理完整个序列 $[x; y]$ 后最后一个 token 的隐藏状态。这个设计的优势在于，奖励模型可以继承 SFT 模型的语言理解能力，只需要在最后加一层就能输出奖励分数。
+
+InstructGPT 使用了 6B 参数的奖励模型（而 SFT 模型是 175B）。这个大小选择并非随意——论文中测试了不同大小的 RM，发现 6B 已经足够捕捉人类偏好，更大的 RM 改善不明显。
+
+::: {.callout-note}
+## Algorithm 1: 奖励模型训练流程（改编自 Ouyang et al., 2022）
+
+```
+Input: SFT model π_SFT, prompt dataset D
+Output: Reward model r_θ
+
+1. Initialize r_θ from π_SFT (replace unembedding with scalar head)
+
+2. Collect preference data:
+   for each prompt x in D:
+       Generate K responses: y_1, ..., y_K ~ π_SFT(·|x)
+       Human annotator ranks: y_{σ(1)} > y_{σ(2)} > ... > y_{σ(K)}
+       Extract all C(K,2) pairwise comparisons
+
+3. Train reward model:
+   for each epoch:
+       for each batch of (x, y_w, y_l) pairs:
+           r_w = r_θ(x, y_w)    # scalar reward for preferred
+           r_l = r_θ(x, y_l)    # scalar reward for dispreferred
+           loss = -log σ(r_w - r_l)  # Bradley-Terry loss
+           Update θ to minimize loss
+
+4. Return r_θ
+```
+
+*改编自 Ouyang et al. (2022) "Training language models to follow instructions with human feedback", Section 3.3*
+:::
+
+#### 完整数值示例：从偏好比较到奖励分数
+
+让我们用一个具体的数值示例来走一遍奖励模型的训练过程。
+
+**设定**：假设有 prompt $x$ = "用一句话解释什么是引力"，模型生成了 3 个回答：
+
+- $y_A$："引力是质量之间的相互吸引力，由牛顿万有引力定律描述。"
+- $y_B$："引力就是让苹果掉下来的力。"
+- $y_C$："引力是一种基本力。"
+
+标注员排序为 $y_A > y_B > y_C$（A 最好，C 最差）。
+
+**Step 1: 提取成对比较**
+
+从排序 A > B > C 中提取 $\binom{3}{2} = 3$ 个成对比较：
+
+- $(y_w=A, y_l=B)$：A 优于 B
+- $(y_w=A, y_l=C)$：A 优于 C
+- $(y_w=B, y_l=C)$：B 优于 C
+
+**Step 2: 奖励模型前向传播**
+
+假设当前奖励模型给出的分数为：
+
+$$
+r_\theta(x, y_A) = 1.8, \quad r_\theta(x, y_B) = 0.5, \quad r_\theta(x, y_C) = -0.3
+$$
+
+**Step 3: 计算偏好概率**
+
+对于每个成对比较，使用 Bradley-Terry 模型计算偏好概率：
+
+$$
+P(A \succ B) = \sigma(1.8 - 0.5) = \sigma(1.3) = \frac{e^{1.3}}{e^{1.3} + 1} = \frac{3.669}{4.669} \approx 0.786
+$$
+
+$$
+P(A \succ C) = \sigma(1.8 - (-0.3)) = \sigma(2.1) = \frac{e^{2.1}}{e^{2.1} + 1} = \frac{8.166}{9.166} \approx 0.891
+$$
+
+$$
+P(B \succ C) = \sigma(0.5 - (-0.3)) = \sigma(0.8) = \frac{e^{0.8}}{e^{0.8} + 1} = \frac{2.226}{3.226} \approx 0.690
+$$
+
+**Step 4: 计算损失**
+
+$$
+\mathcal{L} = -\frac{1}{3}\big[\log(0.786) + \log(0.891) + \log(0.690)\big]
+$$
+
+$$
+= -\frac{1}{3}\big[-0.241 + (-0.115) + (-0.371)\big] = -\frac{1}{3} \times (-0.727) = 0.242
+$$
+
+**解读**：损失为 0.242，说明奖励模型的排序方向是正确的（给 A 最高分、C 最低分），但分数差距还不够大——特别是 B 和 C 之间的偏好概率只有 0.690，说明模型对"B 优于 C"还不太确信。继续训练会使奖励分数的差距拉大，让偏好概率更接近 1。
+
+### 阶段三：PPO 优化
+
+有了训练好的奖励模型，下一步是用它来指导语言模型的优化。这里采用的是强化学习中的 **PPO（Proximal Policy Optimization）** 算法。
+
+#### 为什么需要强化学习？
+
+你可能会问：既然奖励模型可以给每个回答打分，为什么不直接用高分回答做 SFT？为什么要绕道引入强化学习这么复杂的机制？
+
+原因在于 SFT 和 RL 的优化目标有根本区别。SFT 优化的是**似然**——让模型的输出分布尽可能接近某个固定的目标分布。这意味着你需要预先确定"好的输出是什么"。而 RL 优化的是**期望奖励**——模型自己探索生成空间，奖励模型实时评价生成结果，模型根据评价调整策略。这种"生成→评价→调整"的循环让模型能发现 SFT 数据中没有的、但人类偏好的输出模式。
+
+更重要的是，RL 的优化目标天然适配偏好学习。奖励模型给出的是**相对评分**（哪个更好），而 RL 的目标就是最大化累积奖励——无论这个奖励是稀疏的、相对的还是嘈杂的，RL 都有成熟的理论框架来处理。
+
+#### PPO 的核心思想
+
+PPO（Schulman et al., 2017）是一种策略梯度方法，其核心思想可以用一句话概括：**每次更新不要走太远**。
+
+传统的策略梯度方法（如 REINFORCE）有一个严重问题：每次更新的步长难以控制。步长太大会导致策略崩溃（模型突然变得不知所云），步长太小则训练缓慢。PPO 通过一个巧妙的"裁剪"机制解决了这个问题。
+
+PPO 的目标函数是：
+
+$$
+\mathcal{L}^{\text{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min\big( r_t(\theta) \hat{A}_t, \; \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \big) \right]
+$$
+
+其中 $r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_\text{old}}(a_t \mid s_t)}$ 是新旧策略的概率比值，$\hat{A}_t$ 是优势估计（当前动作比平均水平好多少），$\epsilon$ 通常取 0.2。
+
+这个 $\min$ 和 $\text{clip}$ 的组合产生了一个"安全带"效果：当概率比值 $r_t(\theta)$ 偏离 1 太多时（即新策略与旧策略差距过大），目标函数会被裁剪，阻止进一步的更新。这保证了每次优化步只会温和地调整策略，不会一步走到"悬崖"上。
+
+::: {.callout-note}
+## Algorithm 2: PPO-Clip（Schulman et al., 2017）
+
+```python
+# PPO with Clipped Surrogate Objective
+for iteration = 1, 2, ... do:
+    # 1. Collect trajectories using current policy π_θ_old
+    for actor = 1, ..., N do:
+        Run policy π_θ_old for T timesteps
+        Compute advantage estimates Â_1, ..., Â_T (using GAE)
+
+    # 2. Optimize surrogate objective
+    for epoch = 1, ..., K do:
+        for minibatch in random_split(collected_data, M) do:
+            # Compute probability ratio
+            r_t(θ) = π_θ(a_t|s_t) / π_θ_old(a_t|s_t)
+
+            # Clipped surrogate objective
+            L_CLIP = min(r_t(θ) · Â_t,
+                         clip(r_t(θ), 1-ε, 1+ε) · Â_t)
+
+            # Combined loss (with value function and entropy bonus)
+            L = -L_CLIP + c_1 · L_VF - c_2 · S[π_θ]
+
+            Update θ by gradient ascent on L
+
+    # 3. Update old policy
+    θ_old ← θ
+```
+
+*Source: Schulman et al. (2017) "Proximal Policy Optimization Algorithms", Algorithm 1. [arXiv:1707.06347](https://arxiv.org/abs/1707.06347)*
+:::
+
+#### PPO 在 LLM 中的适配
+
+将 PPO 应用于语言模型需要进行几个关键的适配。在标准 RL 中，agent 在环境中执行动作并获得奖励；在 LLM 的 RLHF 中，"动作"是生成一个完整的回答序列，"环境"是用户的 prompt，"奖励"来自奖励模型的评分。
+
+具体来说，给定 prompt $x$，RLHF 的优化目标是：
+
+$$
+\max_{\pi_\theta} \; \mathbb{E}_{x \sim \mathcal{D}, \, y \sim \pi_\theta(\cdot|x)} \left[ r_\phi(x, y) \right] - \beta \, D_{\text{KL}}\!\left[\pi_\theta(\cdot|x) \;\|\; \pi_{\text{ref}}(\cdot|x)\right]
+$$
+
+这个目标函数有两项。第一项 $r_\phi(x, y)$ 是奖励模型给出的评分，模型要生成高奖励的回答。第二项是 **KL 散度惩罚**，约束优化后的模型 $\pi_\theta$ 不要偏离参考模型（通常是 SFT 模型）$\pi_{\text{ref}}$ 太远。系数 $\beta$ 控制约束强度。
+
+KL 散度约束是 RLHF 中最重要的工程设计之一。没有这个约束，模型会找到奖励模型的漏洞（reward hacking）——生成一些奇怪但能获得高分的文本。这就像学生发现了考试的评分规则后，不是努力学习内容，而是专门写出能"骗过"评分标准的答案。KL 约束确保模型不会偏离太远，保持基本的语言生成能力。
+
+InstructGPT 还引入了一个额外的优化技巧——**PPO-ptx**：在 PPO 优化的同时混入一部分预训练数据的语言建模损失，进一步防止模型"忘记"预训练中学到的通用知识。完整的目标函数变为：
+
+$$
+\text{objective}(\theta) = \mathbb{E}_{(x,y) \sim D_{\pi_\theta}} \left[ r_\phi(x,y) - \beta \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)} \right] + \gamma \, \mathbb{E}_{x \sim D_{\text{pretrain}}} \left[ \log \pi_\theta(x) \right]
+$$
+
+::: {.callout-note}
+## Algorithm 3: RLHF 阶段三——PPO 优化语言模型（改编自 Ouyang et al., 2022）
+
+```python
+# RLHF Stage 3: PPO for Language Model Alignment
+Input: SFT model π_ref, trained reward model r_φ, prompt dataset D
+Initialize: π_θ ← π_ref  # start from SFT model
+
+for iteration = 1, 2, ... do:
+    # 1. Sample batch of prompts
+    {x_1, ..., x_B} ~ D
+
+    # 2. Generate responses using current policy
+    for i = 1, ..., B:
+        y_i ~ π_θ(·|x_i)    # sample full response
+
+    # 3. Score responses with reward model
+    for i = 1, ..., B:
+        reward_i = r_φ(x_i, y_i)
+
+    # 4. Compute per-token KL penalty
+    for each token t in y_i:
+        kl_t = log π_θ(y_t|x, y_{<t}) - log π_ref(y_t|x, y_{<t})
+
+    # 5. Compute modified reward (token-level)
+    R_t = reward_i · 𝟙[t = T] - β · kl_t  # reward at last token, KL at every token
+
+    # 6. Compute advantages using GAE
+    Â_t = GAE(R_t, V_θ)
+
+    # 7. PPO update with clipped objective
+    for epoch = 1, ..., K:
+        L_CLIP = min(r_t(θ)·Â_t, clip(r_t(θ), 1-ε, 1+ε)·Â_t)
+        L = -L_CLIP + c_1·L_VF
+        Update θ using gradient of L
+
+    # 8. (Optional) PPO-ptx: mix in pretraining loss
+    x_pt ~ D_pretrain
+    L_pt = -log π_θ(x_pt)
+    Update θ using γ · gradient of L_pt
+```
+
+*改编自 Ouyang et al. (2022), Section 3.4; Stiennon et al. (2020), Section 3*
+:::
+
+### 关键设计决策
+
+#### 决策1：为什么用 PPO 而不是其他 RL 算法？
+
+**决策**：InstructGPT 选择了 PPO 作为 RL 优化算法。
+
+**原因**：PPO 在稳定性和样本效率之间取得了良好平衡。TRPO（Trust Region Policy Optimization）理论上更优雅，但计算二阶优化的代价太高，不适用于大语言模型。REINFORCE 太简单，方差大、训练不稳定。PPO 的裁剪机制提供了一种廉价的"信任域"近似，在实践中表现出色。
+
+**替代方案**：Stiennon et al. (2020) 也考虑过直接使用 Rejection Sampling（Best-of-N）——生成 N 个回答，选择奖励分数最高的那个。这种方法不需要 RL，但推理成本随 N 线性增长，且无法真正改变模型的生成分布。后来的研究（如 DPO，见下一章）提出了绕过 RL 的替代方案。
+
+#### 决策2：KL 散度系数 β 的选择
+
+**决策**：引入 KL 散度约束，系数 $\beta$ 通过实验调优。
+
+**原因**：$\beta$ 太小，模型会 reward hack——Stiennon et al. (2020) 在摘要任务上观察到，当 RM 评分超过某个阈值后，继续优化反而导致真实质量下降（@fig-overoptimization 所示的"过度优化"现象）。$\beta$ 太大，模型几乎不改变行为，RLHF 就失去了意义。
+
+**工程实践**：InstructGPT 报告 $\beta$ 值在实验中动态调整。常见的做法是使用**自适应 KL 控制器**：设定一个目标 KL 值 $D_{\text{target}}$，如果实际 KL 超过目标，增大 $\beta$；反之则减小。这让训练过程更加稳定。
+
+#### 决策3：奖励模型的大小选择
+
+**决策**：InstructGPT 使用 6B 参数的 RM 来优化 175B 的策略模型。
+
+**原因**：Stiennon et al. (2020) 的实验表明，RM 的规模化收益递减——6B 的 RM 已经能捕捉绝大部分人类偏好模式。更大的 RM 虽然偏好预测准确率略高，但在最终的策略模型质量上改善不明显。考虑到 RLHF 需要同时在 GPU 上加载策略模型、参考模型、奖励模型和价值模型（共 4 个模型），使用较小的 RM 可以显著节省显存。
+
+### RLHF 的效果：规模不是一切
+
+InstructGPT 最令人印象深刻的结果之一是：**1.3B 参数的 InstructGPT 在人类评估中击败了 175B 参数的 GPT-3**。
+
+![InstructGPT 的人类评估结果：标注员更偏好 InstructGPT（PPO-ptx）的输出，即使是 1.3B 的小模型也优于 175B 的 GPT-3。](figures/chapter-24/original/fig1-instructgpt-human-eval.png){#fig-instructgpt-eval width=80%}
+
+::: {.figure-caption}
+*Source: Ouyang et al. (2022) "Training language models to follow instructions with human feedback", Figure 1*
+:::
+
+这个结果的意义深远。它说明在 LLM 的有用性方面，**对齐**（让模型理解人类想要什么）可能比**规模**（堆更多参数）更重要——至少到一定程度。一个小但对齐良好的模型，对用户来说可能比一个大但未对齐的模型更有价值。当然，这并不意味着规模不重要——InstructGPT 175B 仍然显著优于 InstructGPT 1.3B——但它表明对齐是一个独立的、不可忽视的维度。
+
+## 工程实践
+
+### 用 TRL 库实现 RLHF
+
+Hugging Face 的 TRL（Transformer Reinforcement Learning）库提供了 RLHF 三阶段的标准实现。以下代码展示了核心流程。
+
+**阶段二：训练奖励模型**
+
+```python
+from trl import RewardTrainer, RewardConfig
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from datasets import load_dataset
+
+# 1. 加载基座模型（添加标量奖励头）
+model = AutoModelForSequenceClassification.from_pretrained(
+    "your-sft-model", num_labels=1
+)
+tokenizer = AutoTokenizer.from_pretrained("your-sft-model")
+
+# 2. 准备偏好数据
+# 格式：每条数据包含 (prompt, chosen, rejected)
+dataset = load_dataset("your-preference-data")
+
+# 3. 配置并训练
+config = RewardConfig(
+    output_dir="reward-model",
+    per_device_train_batch_size=4,
+    num_train_epochs=1,       # RM 通常只训练 1 epoch，防止过拟合
+    learning_rate=1e-5,
+    bf16=True,
+)
+
+trainer = RewardTrainer(
+    model=model,
+    args=config,
+    tokenizer=tokenizer,
+    train_dataset=dataset["train"],
+    eval_dataset=dataset["eval"],
+)
+trainer.train()
+```
+
+**阶段三：PPO 优化语言模型**
+
+```python
+from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
+from transformers import AutoTokenizer
+
+# 1. 加载 SFT 模型（同时作为策略模型和参考模型）
+model = AutoModelForCausalLMWithValueHead.from_pretrained("your-sft-model")
+ref_model = AutoModelForCausalLMWithValueHead.from_pretrained("your-sft-model")
+tokenizer = AutoTokenizer.from_pretrained("your-sft-model")
+
+# 2. 加载训练好的奖励模型
+reward_model = ...  # 从阶段二加载
+
+# 3. 配置 PPO
+config = PPOConfig(
+    batch_size=64,
+    mini_batch_size=16,
+    learning_rate=1.41e-5,
+    init_kl_coef=0.2,         # β 的初始值
+    target_kl=6.0,            # 自适应 KL 控制的目标值
+    ppo_epochs=4,             # 每批数据上的 PPO 更新轮数
+    cliprange=0.2,            # PPO 裁剪范围 ε
+)
+
+# 4. 创建 PPO Trainer
+ppo_trainer = PPOTrainer(
+    config=config,
+    model=model,
+    ref_model=ref_model,
+    tokenizer=tokenizer,
+)
+
+# 5. 训练循环
+for batch in dataloader:
+    prompts = batch["prompt"]
+
+    # 生成回答
+    responses = ppo_trainer.generate(prompts, max_new_tokens=256)
+
+    # 用奖励模型评分
+    rewards = [reward_model(p, r) for p, r in zip(prompts, responses)]
+
+    # PPO 更新
+    stats = ppo_trainer.step(prompts, responses, rewards)
+
+    # 监控训练状态
+    print(f"reward/mean: {stats['ppo/mean_scores']:.3f}, "
+          f"kl: {stats['objective/kl']:.3f}")
+```
+
+### 关键工程挑战
+
+RLHF 的工程实现面临几个独特的挑战。
+
+**显存压力**：RLHF 需要同时在 GPU 上维护 4 个模型——策略模型 $\pi_\theta$、参考模型 $\pi_{\text{ref}}$（用于计算 KL）、奖励模型 $r_\phi$、价值模型 $V_\psi$（PPO 需要的 critic）。对于一个 7B 参数的模型，4 个模型在 BF16 下需要约 56GB 显存，加上优化器状态和中间激活，实际需要至少 2-4 张 A100 (80GB)。这是 RLHF 最大的工程障碍之一。
+
+**训练不稳定**：PPO 在语言模型上的训练比在 Atari 游戏上更不稳定。常见的问题包括：奖励突然崩溃（reward collapse）、KL 散度失控（模型快速偏离参考模型）、生成质量先好后差（训练后期过度优化）。工程上的防护措施包括：仔细调节学习率和 KL 系数、使用梯度裁剪、设置 early stopping、定期用人类评估检查生成质量。
+
+**超参数敏感性**：RLHF 的超参数空间比 SFT 大得多——除了常规的学习率、batch size，还有 KL 系数 $\beta$、PPO 裁剪范围 $\epsilon$、GAE 衰减因子 $\lambda$、PPO epoch 数等。InstructGPT 报告这些超参数对最终效果有显著影响，但论文中没有提供系统的消融实验指导。在实践中，从 TRL 的默认参数开始、逐步调整是一个合理的策略。
+
+## 深入理解
+
+> **研究者必读**：这一节探讨 RLHF 的理论基础、边界条件和开放问题
+
+### 为什么有效？——理论视角
+
+RLHF 的有效性可以从约束优化的角度获得理论理解。将 RLHF 的目标写成约束优化问题：
+
+$$
+\max_{\pi} \; \mathbb{E}_{x, y \sim \pi} [r(x, y)] \quad \text{s.t.} \quad D_{\text{KL}}[\pi \| \pi_{\text{ref}}] \leq \delta
+$$
+
+这个问题的闭式最优解是：
+
+$$
+\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\!\left(\frac{r(x,y)}{\beta}\right)
+$$
+
+其中 $Z(x) = \sum_y \pi_{\text{ref}}(y|x) \exp\!\left(\frac{r(x,y)}{\beta}\right)$ 是归一化常数，$\beta$ 是 KL 约束对应的 Lagrange 乘子。
+
+这个结果有一个非常优雅的直觉：最优策略是参考模型按奖励做**指数倾斜**（exponential tilting）——对高奖励的输出增加概率权重，对低奖励的输出降低概率权重。$\beta$ 控制倾斜的程度：$\beta$ 越小，策略越"贪婪"地追求高奖励；$\beta$ 越大，策略越接近参考模型。
+
+这个理论结果直接启发了下一章要讨论的 DPO——如果我们知道最优策略的解析形式，也许可以直接优化它，而不需要通过 RL 间接优化。
+
+### 为什么有效？——实证视角
+
+InstructGPT 的消融实验揭示了几个重要发现。
+
+首先，PPO 优化确实带来了超越 SFT 的显著改善。在人类评估中，PPO 模型不仅比 SFT 模型生成更好的回答，还表现出更好的"行为"——更少胡说八道、更少重复、更少生成有害内容。这说明偏好学习确实教会了模型一些 SFT 数据中没有显式表达的行为规范。
+
+其次，PPO-ptx（混入预训练损失）显著缓解了"对齐税"（alignment tax）问题。纯 PPO 优化虽然提升了人类偏好评分，但在标准 NLP benchmark（如 HellaSwag, ARC）上的表现会略有下降——模型在变得"更对齐"的同时丢失了一些通用能力。PPO-ptx 通过混入预训练损失来保持通用能力，使得对齐和能力不再是此消彼长的关系。
+
+### 方法的边界条件
+
+RLHF 有几个重要的失效模式，每一个都是活跃的研究方向。
+
+**奖励黑客（Reward Hacking）** 是最广泛讨论的问题。由于奖励模型只是人类偏好的一个不完美代理，模型可能学会"取悦"奖励模型而非真正满足人类需求。Stiennon et al. (2020) 在摘要任务上清晰地展示了这一现象：当 PPO 优化超过一定程度时，RM 评分继续上升，但人类评估的质量反而下降。这就像学生学会了如何通过技巧在标准化考试中得高分，但实际能力并未提升。
+
+**Sycophancy（谄媚）** 是奖励黑客的一种特殊形式。RLHF 优化后的模型倾向于同意用户的观点、告诉用户他们想听的话，而不是给出客观准确的回答。这是因为人类标注员在做偏好比较时，可能系统性地偏好那些"听起来更自信、更肯定"的回答——即使它们不一定更准确。
+
+**标注员分歧（Annotator Disagreement）** 是一个更基础的问题。不同的标注员对"什么是好回答"有不同的判断标准——有人偏好简洁精确，有人偏好详细全面。Bradley-Terry 模型假设存在一个统一的底层偏好排序，但这在现实中很难成立。InstructGPT 通过多标注员投票来缓解这个问题，但并未从根本上解决它。
+
+### 开放研究问题
+
+**可扩展监督（Scalable Oversight）**。随着模型能力的增长，人类标注员可能无法可靠地评判模型输出的质量——特别是在需要专业知识的领域（如代码、医学、法律）。如何在这种情况下仍然获得可靠的人类反馈信号？这被称为"可扩展监督"问题，是 AI 安全研究的核心议题之一。
+
+**奖励模型的泛化能力**。奖励模型在训练数据的分布上表现良好，但当策略模型的输出分布偏离训练数据时（这在 PPO 优化过程中不可避免地会发生），奖励模型的评分还可靠吗？这个 distribution shift 问题是 RLHF 理论基础中最薄弱的环节之一。
+
+**超越二元偏好**。Bradley-Terry 模型只编码"A 比 B 好"的二元偏好。但人类的偏好判断通常更复杂：有时 A 在准确性上更好但 B 在可读性上更好；有时两者都不好；有时差距极大而有时几乎难以区分。如何设计更丰富的偏好反馈机制？
+
+### RLHF 风险卡片
+
+#### RLHF 风险卡片
+
+| 维度 | 内容 |
+|------|------|
+| **主要修复** | 让模型输出更符合人类偏好——更有帮助、更诚实、更少有害 |
+| **典型副作用** | 奖励黑客（学会讨好 RM 而非真正有用）、过度拒答、风格漂移向"AI 味"、sycophancy（谄媚用户） |
+| **工程防护** | KL 约束（限制偏离参考模型）、PPO-ptx（混入预训练损失防止能力退化）、回归集（定期检查旧能力）、红队测试 |
+| **开放问题** | 人类标注者的偏好真的代表"正确的价值观"吗？如何做可扩展的监督？奖励模型的 distribution shift 如何处理？ |
+
+## 局限性与未解决的问题
+
+### RLHF 的工程复杂度
+
+RLHF 最直接的局限是**工程复杂度极高**。三阶段流水线需要分别训练 SFT 模型、奖励模型、再用 PPO 优化——每个阶段都有自己的超参数、数据需求和失效模式。PPO 阶段需要同时在 GPU 上维护 4 个大模型（策略、参考、奖励、价值），显存压力巨大。整个流水线的调试也极为困难：如果最终模型表现不好，问题可能出在 SFT 数据、偏好数据、奖励模型训练、PPO 超参数中的任何一个环节。
+
+### 人类标注的成本与偏见
+
+收集高质量的人类偏好数据是昂贵的。InstructGPT 雇佣了一支 40 人的标注团队，经过精心培训和反复校准。这种投入对于大公司可行，但对于学术界和开源社区来说是难以负担的。更重要的是，标注员的偏好不可避免地带有偏见——他们可能偏好更长的回答（"长度偏见"）、更自信的语气（"确定性偏见"）、或更"像人类写的"文风（"风格偏见"）。这些偏见会被奖励模型学到，进而影响最终模型的行为。
+
+### 这些局限导向了什么？
+
+RLHF 的工程复杂度和成本催生了一个自然的问题：**能否绕过强化学习，直接用偏好数据优化语言模型？**
+
+回忆一下本章"深入理解"部分推导的 RLHF 最优策略解：
+
+$$
+\pi^*(y|x) \propto \pi_{\text{ref}}(y|x) \exp\!\left(\frac{r(x,y)}{\beta}\right)
+$$
+
+如果我们将这个关系反转，可以得到奖励函数关于策略的表达式。那么，是否可以将奖励模型"消元"掉，直接用偏好数据定义一个关于策略模型的损失函数？
+
+这正是下一章——**DPO（Direct Preference Optimization）**——所做的。Rafailov et al. (2023) 证明了 RLHF 的目标可以等价地转化为一个简单的分类损失，完全不需要单独训练奖励模型，也不需要 PPO 的复杂训练循环。这将三阶段流水线简化为一阶段的直接优化，大大降低了对齐技术的门槛。
+
+## 本章小结
+
+### 核心要点回顾
+
+1. **问题**：指令微调只实现了格式对齐，无法编码"什么样的回答更好"的偏好信号——模型学会了听话，但不知道怎么听好
+2. **洞察**：用人类偏好比较数据训练一个奖励模型（Reward Model）作为人类判断的代理，然后用 PPO 优化语言模型以最大化代理奖励
+3. **方法**：InstructGPT 三阶段流水线——SFT（建立指令遵循基线）→ RM（用 Bradley-Terry 模型学习偏好）→ PPO（在 KL 约束下优化策略）
+4. **意义**：1.3B 的 InstructGPT 击败了 175B 的 GPT-3，证明"对齐"与"规模"同样重要——这也是 ChatGPT 震撼世界的技术基础
+
+### 关键公式速查
+
+- **Bradley-Terry 偏好模型**：$P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))$
+- **奖励模型损失**：$\mathcal{L}_{\text{RM}} = -\mathbb{E}\left[\log \sigma(r_w - r_l)\right]$
+- **RLHF 优化目标**：$\max_\pi \mathbb{E}[r(x,y)] - \beta D_{\text{KL}}[\pi \| \pi_{\text{ref}}]$
+- **PPO 裁剪目标**：$\mathcal{L}^{\text{CLIP}} = \mathbb{E}\left[\min(r_t \hat{A}_t, \text{clip}(r_t, 1{-}\epsilon, 1{+}\epsilon)\hat{A}_t)\right]$
+- **RLHF 最优策略**：$\pi^*(y|x) \propto \pi_{\text{ref}}(y|x)\exp(r(x,y)/\beta)$
+
+### 思考题
+
+1. **[概念理解]** 为什么 RLHF 要用成对比较（"A 比 B 好"）而不是绝对评分（"A 的质量是 4 分"）？如果使用绝对评分，Bradley-Terry 模型需要如何修改？
+
+2. **[数学推导]** 从 RLHF 的约束优化目标出发，使用 Lagrange 乘子法推导最优策略 $\pi^*(y|x) \propto \pi_{\text{ref}}(y|x)\exp(r(x,y)/\beta)$。解释为什么这个解的形式是指数倾斜。
+
+3. **[工程实践]** 使用 TRL 库在一个小规模数据集（如 Anthropic HH-RLHF）上实现完整的 RLHF 三阶段流水线。比较 SFT only、SFT + RM + PPO、以及 SFT + PPO-ptx 三种设置的效果差异。特别关注 KL 系数 $\beta$ 对最终生成质量的影响。
+
+4. **[开放思考]** InstructGPT 的标注团队只有 40 人，他们的偏好是否能代表全人类的价值观？如果不同文化背景的标注员有系统性不同的偏好（例如对"直率"vs"委婉"的偏好），RLHF 应该如何处理？这个问题和"AI 应该对齐到谁的价值观"有什么关系？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+- **Training language models to follow instructions with human feedback (Ouyang et al., 2022)**：InstructGPT 原始论文
+  - 重点读：Section 3（方法设计，三阶段流水线的所有细节）
+  - 可跳过：Appendix 中的标注指南细节
+- **Deep Reinforcement Learning from Human Preferences (Christiano et al., 2017)**：RLHF 框架的奠基之作
+  - 重点读：Section 2.2（方法框架）
+  - 可跳过：Atari 实验的具体结果
+
+### 理论基础
+- **Proximal Policy Optimization Algorithms (Schulman et al., 2017)**：PPO 算法
+  - 重点读：Section 3（裁剪目标函数）
+  - 可跳过：MuJoCo benchmark 细节
+- **Bradley & Terry (1952)**：配对比较的统计基础
+
+### 关键前导工作
+- **Learning to summarize from human feedback (Stiennon et al., 2020)**：RLHF 首次应用于 NLP，InstructGPT 的直接前身
+  - 重点读：Section 4.3（过度优化分析）
+
+### 后续发展
+- **Direct Preference Optimization (Rafailov et al., 2023)**：绕过 RL 的偏好优化——下一章详述
+- **Constitutional AI (Bai et al., 2022)**：用 AI 反馈替代人类反馈的自我改进框架
+
+### 综述与教程
+- **SLP3 Chapter 9**：Jurafsky & Martin 对 RLHF/DPO 的教材级讲解
+- **Open Problems and Fundamental Limitations of RLHF (Casper et al., 2023)**：RLHF 局限性的系统性分析
+
+### 代码资源
+- Hugging Face TRL 库：[github.com/huggingface/trl](https://github.com/huggingface/trl)
+- OpenRLHF：[github.com/OpenRLHF/OpenRLHF](https://github.com/OpenRLHF/OpenRLHF)
+
+---
+
+## 历史注脚
+
+InstructGPT 论文发表于 2022 年 3 月，但直到 2022 年 11 月 ChatGPT 的发布，RLHF 才真正成为公众关注的焦点。有趣的是，ChatGPT 并非一篇独立的论文——OpenAI 从未发表过 ChatGPT 的技术报告——它被描述为"InstructGPT 的兄弟模型"（a sibling model of InstructGPT），使用了相似的 RLHF 流水线但在更新的 GPT-3.5 基座上训练。这意味着本章讨论的技术几乎就是 ChatGPT 背后的核心方法。
+
+更深层的历史联系在于 RLHF 的"三阶段"结构。Christiano et al. (2017) 最初是为机器人控制设计的——让机器人通过人类偏好学习复杂动作。Stiennon et al. (2020) 将其搬到了文本摘要。Ouyang et al. (2022) 将其扩展为通用的助手对齐。每一步都保持了核心框架（偏好 → 奖励模型 → RL 优化），但应用场景越来越广泛。这是一个典型的"技术迁移"故事：一个在游戏和机器人领域验证过的算法框架，最终重塑了整个 AI 产业。
+
+RLHF 这个名字中的"H"（Human）也值得思考。Bai et al. (2022) 提出了 RLAIF（RL from AI Feedback），用 Claude 自己来生成偏好数据代替人类标注。这引出了一个哲学问题：如果 AI 可以替代人类做偏好判断，那我们到底是在对齐到人类价值还是 AI 的自我参照？这个问题到今天仍然没有答案。

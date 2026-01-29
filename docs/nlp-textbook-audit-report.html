@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>nlp-textbook-audit-report – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#nlp教材-ch1ch8-审核报告基于-.claudeskills" id="toc-nlp教材-ch1ch8-审核报告基于-.claudeskills" class="nav-link active" data-scroll-target="#nlp教材-ch1ch8-审核报告基于-.claudeskills"><span class="header-section-number">1</span> NLP教材 ch1–ch8 审核报告（基于 .claude/skills）</a>
+  <ul class="collapse">
+  <li><a href="#依据的-skills" id="toc-依据的-skills" class="nav-link" data-scroll-target="#依据的-skills"><span class="header-section-number">1.1</span> 依据的 skills</a></li>
+  <li><a href="#检查范围" id="toc-检查范围" class="nav-link" data-scroll-target="#检查范围"><span class="header-section-number">1.2</span> 检查范围</a></li>
+  <li><a href="#逐章问题" id="toc-逐章问题" class="nav-link" data-scroll-target="#逐章问题"><span class="header-section-number">1.3</span> 逐章问题</a>
+  <ul class="collapse">
+  <li><a href="#第1章早期探索ch01-early-explorations" id="toc-第1章早期探索ch01-early-explorations" class="nav-link" data-scroll-target="#第1章早期探索ch01-early-explorations"><span class="header-section-number">1.3.1</span> 第1章：早期探索（ch01-early-explorations）</a></li>
+  <li><a href="#第2章表示学习ch02-representation-learning" id="toc-第2章表示学习ch02-representation-learning" class="nav-link" data-scroll-target="#第2章表示学习ch02-representation-learning"><span class="header-section-number">1.3.2</span> 第2章：表示学习（ch02-representation-learning）</a></li>
+  <li><a href="#第3章tokenizationch03-tokenization" id="toc-第3章tokenizationch03-tokenization" class="nav-link" data-scroll-target="#第3章tokenizationch03-tokenization"><span class="header-section-number">1.3.3</span> 第3章：Tokenization（ch03-tokenization）</a></li>
+  <li><a href="#第4章rnnlstmch04-rnn-lstm" id="toc-第4章rnnlstmch04-rnn-lstm" class="nav-link" data-scroll-target="#第4章rnnlstmch04-rnn-lstm"><span class="header-section-number">1.3.4</span> 第4章：RNN/LSTM（ch04-rnn-lstm）</a></li>
+  <li><a href="#第5章attention-机制ch05-attention-mechanism" id="toc-第5章attention-机制ch05-attention-mechanism" class="nav-link" data-scroll-target="#第5章attention-机制ch05-attention-mechanism"><span class="header-section-number">1.3.5</span> 第5章：Attention 机制（ch05-attention-mechanism）</a></li>
+  <li><a href="#第6章attention-变体ch06-attention-variants" id="toc-第6章attention-变体ch06-attention-variants" class="nav-link" data-scroll-target="#第6章attention-变体ch06-attention-variants"><span class="header-section-number">1.3.6</span> 第6章：Attention 变体（ch06-attention-variants）</a></li>
+  <li><a href="#第7章self-attentionch07-self-attention" id="toc-第7章self-attentionch07-self-attention" class="nav-link" data-scroll-target="#第7章self-attentionch07-self-attention"><span class="header-section-number">1.3.7</span> 第7章：Self-Attention（ch07-self-attention）</a></li>
+  <li><a href="#第8章transformerch08-transformer" id="toc-第8章transformerch08-transformer" class="nav-link" data-scroll-target="#第8章transformerch08-transformer"><span class="header-section-number">1.3.8</span> 第8章：Transformer（ch08-transformer）</a></li>
+  </ul></li>
+  <li><a href="#章节之间的问题结构与内容层" id="toc-章节之间的问题结构与内容层" class="nav-link" data-scroll-target="#章节之间的问题结构与内容层"><span class="header-section-number">1.4</span> 章节之间的问题（结构与内容层）</a></li>
+  <li><a href="#可从开源教材公开课补充的精华按章节" id="toc-可从开源教材公开课补充的精华按章节" class="nav-link" data-scroll-target="#可从开源教材公开课补充的精华按章节"><span class="header-section-number">1.5</span> 可从开源教材/公开课补充的精华（按章节）</a>
+  <ul class="collapse">
+  <li><a href="#ch01-早期探索" id="toc-ch01-早期探索" class="nav-link" data-scroll-target="#ch01-早期探索"><span class="header-section-number">1.5.1</span> ch01 早期探索</a></li>
+  <li><a href="#ch02-表示学习" id="toc-ch02-表示学习" class="nav-link" data-scroll-target="#ch02-表示学习"><span class="header-section-number">1.5.2</span> ch02 表示学习</a></li>
+  <li><a href="#ch03-tokenization" id="toc-ch03-tokenization" class="nav-link" data-scroll-target="#ch03-tokenization"><span class="header-section-number">1.5.3</span> ch03 Tokenization</a></li>
+  <li><a href="#ch04-rnnlstm" id="toc-ch04-rnnlstm" class="nav-link" data-scroll-target="#ch04-rnnlstm"><span class="header-section-number">1.5.4</span> ch04 RNN/LSTM</a></li>
+  <li><a href="#ch05-attention-机制" id="toc-ch05-attention-机制" class="nav-link" data-scroll-target="#ch05-attention-机制"><span class="header-section-number">1.5.5</span> ch05 Attention 机制</a></li>
+  <li><a href="#ch06-attention-变体" id="toc-ch06-attention-变体" class="nav-link" data-scroll-target="#ch06-attention-变体"><span class="header-section-number">1.5.6</span> ch06 Attention 变体</a></li>
+  <li><a href="#ch07-self-attention" id="toc-ch07-self-attention" class="nav-link" data-scroll-target="#ch07-self-attention"><span class="header-section-number">1.5.7</span> ch07 Self-Attention</a></li>
+  <li><a href="#ch08-transformer" id="toc-ch08-transformer" class="nav-link" data-scroll-target="#ch08-transformer"><span class="header-section-number">1.5.8</span> ch08 Transformer</a></li>
+  </ul></li>
+  <li><a href="#结论性提示优先级" id="toc-结论性提示优先级" class="nav-link" data-scroll-target="#结论性提示优先级"><span class="header-section-number">1.6</span> 结论性提示（优先级）</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="nlp教材-ch1ch8-审核报告基于-.claudeskills" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> NLP教材 ch1–ch8 审核报告（基于 .claude/skills）</h1>
+<section id="依据的-skills" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="依据的-skills"><span class="header-section-number">1.1</span> 依据的 skills</h2>
+<ul>
+<li>nlp-textbook-chapter：章节结构、配图/伪代码规则、开放资源使用要求</li>
+<li>writing-style：直觉先于公式、散文式叙述、类比与数值例子</li>
+<li>technical-standards：YAML front matter、公式/Markdown/中英混排规范</li>
+<li>learner-profile：强调“为什么”、边界条件、批判性与开放问题</li>
+</ul>
+</section>
+<section id="检查范围" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="检查范围"><span class="header-section-number">1.2</span> 检查范围</h2>
+<ul>
+<li>chapters：<code>posts_ch/nlp/ch01-early-explorations.qmd</code> … <code>posts_ch/nlp/ch08-transformer.qmd</code></li>
+</ul>
+<hr>
+</section>
+<section id="逐章问题" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="逐章问题"><span class="header-section-number">1.3</span> 逐章问题</h2>
+<section id="第1章早期探索ch01-early-explorations" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="第1章早期探索ch01-early-explorations"><span class="header-section-number">1.3.1</span> 第1章：早期探索（ch01-early-explorations）</h3>
+<ul>
+<li>结构一致性：缺少模板中的“问题本质/核心思想/技术细节”主干段落，整体偏历史叙事，与后续章的模板结构不一致。</li>
+<li>图片：全章无图，未满足“关键概念需配图”的要求；N-gram/HMM/CRF/传统Pipeline 等内容应配结构图或流程图。</li>
+<li>伪代码：Viterbi Algorithm 有来源标注，符合要求。</li>
+<li>开源资源：延伸阅读仅提到 SLP3，未利用 D2L/公开课 slides 的可视化资源。</li>
+<li>技术规范：YAML 缺少 <code>tags</code> 与 <code>description</code>；表格/行内公式出现 <code>|</code>（如 <code>P(y_t | y_{t-1})</code>）应改为块级公式或 <code>\mid</code>。</li>
+</ul>
+</section>
+<section id="第2章表示学习ch02-representation-learning" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="第2章表示学习ch02-representation-learning"><span class="header-section-number">1.3.2</span> 第2章：表示学习（ch02-representation-learning）</h3>
+<ul>
+<li>图片：<code>fig3-cbow-vs-skipgram.png</code> 无来源标注，且 front matter <code>image</code> 也指向该图；需要注明“作者绘制”或替换为论文/D2L/课程图。FastText 图有来源标注 OK。</li>
+<li>伪代码：SGNS 算法有来源，但为自写 Python；若非论文原算法，需标注“改编自”。</li>
+<li>技术规范：多处行内公式含 <code>|</code>（如 <code>|\mathcal{V}|</code>、<code>P(w_o \| w_c)</code>），按规范应改为块级或使用 <code>\mid</code>。</li>
+<li>写作风格：概念解释中使用较多列表，偏离“散文式”要求。</li>
+<li>资源利用：延伸阅读仅 SLP3，无 CS224N/UDL 等公开课或开源教材的图示与讲解引用。</li>
+</ul>
+</section>
+<section id="第3章tokenizationch03-tokenization" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="第3章tokenizationch03-tokenization"><span class="header-section-number">1.3.3</span> 第3章：Tokenization（ch03-tokenization）</h3>
+<ul>
+<li>图片：正文无任何插图，仅 front matter <code>image</code>；但已有生成图（<code>fig-tokenization-strategies</code>、<code>fig-multilingual-efficiency</code>）未使用，违反“配图优先”。</li>
+<li>图片来源：front matter 图未标注来源/“作者绘制”。</li>
+<li>伪代码：BPE Algorithm 1 有来源标注，符合要求。</li>
+<li>写作风格：大量条目式列举（策略、影响、清洗步骤等），偏离散文式要求。</li>
+<li>资源利用：未引用公开教材/课程的图示或讲解（如 SLP3、CS224N 的 tokenization/LM 相关内容）。</li>
+<li>技术规范：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+</ul>
+</section>
+<section id="第4章rnnlstmch04-rnn-lstm" class="level3" data-number="1.3.4">
+<h3 data-number="1.3.4" class="anchored" data-anchor-id="第4章rnnlstmch04-rnn-lstm"><span class="header-section-number">1.3.4</span> 第4章：RNN/LSTM（ch04-rnn-lstm）</h3>
+<ul>
+<li>技术规范：行内公式含 <code>|</code>/<code>&lt;</code>（如 <code>$|\lambda_{\max}| &lt; 1$</code>、<code>O(d \log |\mathcal{V}|)</code>）应改为块级公式或使用 <code>\mid/\lt/\gt</code>。</li>
+<li>资源利用：未使用 D2L/UDL/公开课图示（尽管这些资源对 RNN/LSTM 有高质量图）。</li>
+<li>其他：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+<li>图片与伪代码：均有来源标注，符合要求。</li>
+</ul>
+</section>
+<section id="第5章attention-机制ch05-attention-mechanism" class="level3" data-number="1.3.5">
+<h3 data-number="1.3.5" class="anchored" data-anchor-id="第5章attention-机制ch05-attention-mechanism"><span class="header-section-number">1.3.5</span> 第5章：Attention 机制（ch05-attention-mechanism）</h3>
+<ul>
+<li>技术规范：行内公式含 <code>&gt;</code>（如 <code>H(x) &gt; O(d)</code>、<code>\alpha_{ij} &gt; 0</code>）应改为块级公式或使用 <code>\gt</code>。</li>
+<li>资源利用：已使用 D2L 图，但未使用公开课/其他教材图示。</li>
+<li>其他：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+</ul>
+</section>
+<section id="第6章attention-变体ch06-attention-variants" class="level3" data-number="1.3.6">
+<h3 data-number="1.3.6" class="anchored" data-anchor-id="第6章attention-变体ch06-attention-variants"><span class="header-section-number">1.3.6</span> 第6章：Attention 变体（ch06-attention-variants）</h3>
+<ul>
+<li>资源利用：未引用公开课程/教材图示（CS224N/CMU/Princeton 等）。</li>
+<li>其他：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+<li>图片与伪代码：已有论文来源标注，符合要求。</li>
+</ul>
+</section>
+<section id="第7章self-attentionch07-self-attention" class="level3" data-number="1.3.7">
+<h3 data-number="1.3.7" class="anchored" data-anchor-id="第7章self-attentionch07-self-attention"><span class="header-section-number">1.3.7</span> 第7章：Self-Attention（ch07-self-attention）</h3>
+<ul>
+<li>伪代码：<code>Algorithm: Self-Attention</code> 无来源标注，且未注明“改编自”。应引用 Vaswani et al.&nbsp;(2017) 或相关论文/公开课算法描述。</li>
+<li>重复风险：位置编码与自注意力公式在第8章再次详细出现，建议在本章完成核心推导，下一章仅引用。</li>
+<li>资源利用：未使用 D2L/UDL/公开课图示。</li>
+<li>其他：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+</ul>
+</section>
+<section id="第8章transformerch08-transformer" class="level3" data-number="1.3.8">
+<h3 data-number="1.3.8" class="anchored" data-anchor-id="第8章transformerch08-transformer"><span class="header-section-number">1.3.8</span> 第8章：Transformer（ch08-transformer）</h3>
+<ul>
+<li>图片来源缺失：
+<ul>
+<li><code>fig-rnn-seq2seq.png</code>、<code>fig-pre-post-norm.png</code>、<code>fig-cross-attention.png</code> 未标注来源（似为自绘）。</li>
+<li>两个 placeholder 图（Positional Encoding/Attention Visualization）未落地为真实图片，也未引用来源。</li>
+</ul></li>
+<li>技术规范：行内公式含 <code>&lt;</code>/<code>&gt;</code>（如 mask 的条件）应改为块级公式或使用 <code>\lt/\gt</code>。</li>
+<li>资源利用：未引用 D2L/UDL/公开课图示（尽管这些资源覆盖 Transformer 的核心结构）。</li>
+<li>其他：YAML 缺少 <code>tags</code> 与 <code>description</code>。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="章节之间的问题结构与内容层" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="章节之间的问题结构与内容层"><span class="header-section-number">1.4</span> 章节之间的问题（结构与内容层）</h2>
+<ul>
+<li>模板一致性：ch01 未按“0–7”模板结构展开，导致全书结构不统一。</li>
+<li>图/伪代码来源一致性：部分章严格标注来源，部分章无来源或 placeholder，风格不一致。</li>
+<li>开源资源利用不足：除 SLP3、D2L（单章）外，公开教材/课程几乎未被系统引用，未满足“开放资源复用”要求。</li>
+<li>重复内容：
+<ul>
+<li>Attention 的基本定义、Q/K/V 数学公式在 ch05/ch07/ch08 多次展开。</li>
+<li>位置编码在 ch07 与 ch08 重复深入讲解。</li>
+<li>RNN/Seq2Seq 局限在 ch04 与 ch08 重复叙述。</li>
+</ul></li>
+<li>写作风格：多章存在“列表密集、散文不足”的共性问题，违背写作风格要求。</li>
+<li>技术规范：所有章节 YAML 缺少 <code>tags</code>/<code>description</code>，部分章存在行内公式符号冲突问题。</li>
+</ul>
+<hr>
+</section>
+<section id="可从开源教材公开课补充的精华按章节" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="可从开源教材公开课补充的精华按章节"><span class="header-section-number">1.5</span> 可从开源教材/公开课补充的精华（按章节）</h2>
+<section id="ch01-早期探索" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="ch01-早期探索"><span class="header-section-number">1.5.1</span> ch01 早期探索</h3>
+<ul>
+<li>SLP3：N-gram/HMM/CRF 经典图示与讲解（可补结构图与示意流程）。</li>
+<li>CS224N 课程（基础 NLP 与语言模型相关 slides）可用于补充历史与范式演进图示。</li>
+</ul>
+</section>
+<section id="ch02-表示学习" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="ch02-表示学习"><span class="header-section-number">1.5.2</span> ch02 表示学习</h3>
+<ul>
+<li>CS224N “Word Vectors” Slides：向量空间直觉、类比任务示意图。</li>
+<li>SLP3 词向量相关章节：补充权威背景与经典实验对比图。</li>
+</ul>
+</section>
+<section id="ch03-tokenization" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="ch03-tokenization"><span class="header-section-number">1.5.3</span> ch03 Tokenization</h3>
+<ul>
+<li>SLP3（早期章节中的分词/预处理相关内容）：补充术语统一与语言差异图示。</li>
+<li>公开课 slides（CS224N/CMU ANLP）中的 subword/Byte-level 示例图，可补 multilingual 与效率对比。</li>
+</ul>
+</section>
+<section id="ch04-rnnlstm" class="level3" data-number="1.5.4">
+<h3 data-number="1.5.4" class="anchored" data-anchor-id="ch04-rnnlstm"><span class="header-section-number">1.5.4</span> ch04 RNN/LSTM</h3>
+<ul>
+<li>D2L RNN/LSTM/Seq2Seq 图（D2L 10.x、10.7）可替换或补充架构图。</li>
+<li>UDL RNN 章节图示（结构更清晰、风格统一）。</li>
+</ul>
+</section>
+<section id="ch05-attention-机制" class="level3" data-number="1.5.5">
+<h3 data-number="1.5.5" class="anchored" data-anchor-id="ch05-attention-机制"><span class="header-section-number">1.5.5</span> ch05 Attention 机制</h3>
+<ul>
+<li>D2L 11.4 Attention 结构图已使用，可补 attention 可视化/对齐矩阵示意图。</li>
+<li>CS224N slides 中的 attention 直觉图可补“为什么 work”。</li>
+</ul>
+</section>
+<section id="ch06-attention-变体" class="level3" data-number="1.5.6">
+<h3 data-number="1.5.6" class="anchored" data-anchor-id="ch06-attention-变体"><span class="header-section-number">1.5.6</span> ch06 Attention 变体</h3>
+<ul>
+<li>Luong 论文已有图，但可补公开课 slides 中“global/local/hard/soft”对比图，提高教学可视化质量。</li>
+</ul>
+</section>
+<section id="ch07-self-attention" class="level3" data-number="1.5.7">
+<h3 data-number="1.5.7" class="anchored" data-anchor-id="ch07-self-attention"><span class="header-section-number">1.5.7</span> ch07 Self-Attention</h3>
+<ul>
+<li>D2L 11.5/11.6 的 self-attention/positional encoding 图（规范、可复用）。</li>
+<li>UDL Transformer 章节图示用于位置编码与几何直觉补充。</li>
+</ul>
+</section>
+<section id="ch08-transformer" class="level3" data-number="1.5.8">
+<h3 data-number="1.5.8" class="anchored" data-anchor-id="ch08-transformer"><span class="header-section-number">1.5.8</span> ch08 Transformer</h3>
+<ul>
+<li>D2L 11.7 Transformer 架构图与多头注意力图可统一风格。</li>
+<li>UDL/CS224N 的 Pre-Norm vs Post-Norm、训练稳定性图示可替换自绘图。</li>
+<li>公开课 slides 可补充 attention pattern 可视化图，替换 placeholder。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="结论性提示优先级" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="结论性提示优先级"><span class="header-section-number">1.6</span> 结论性提示（优先级）</h2>
+<ol type="1">
+<li><strong>补齐来源</strong>：所有未标注来源的图片/伪代码必须补充来源或明确“作者绘制/改编自”。</li>
+<li><strong>补齐图片</strong>：ch01、ch03 需要新增关键图；ch08 placeholder 必须落地。</li>
+<li><strong>统一技术规范</strong>：所有章节补 <code>tags</code>/<code>description</code>；修正行内公式含 <code>|&lt;&gt;</code> 的渲染风险。</li>
+<li><strong>削减重复</strong>：注意力/位置编码/Seq2Seq 局限内容需跨章收敛，避免重复讲解。</li>
+<li><strong>提升资源利用率</strong>：系统引入 D2L/UDL/CS224N 等公开资源中的核心图和讲解。</li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

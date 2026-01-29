@@ -1,0 +1,2709 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="为什么有些公司愿意投资 NPV 为负的项目？本章深入解析扩张期权、放弃期权、财务灵活性期权的估值方法，涵盖 Ambev 市场扩张、Secure Mail 软件公司、Home Depot 财务灵活性、Airbus 联合开发等核心案例。">
+
+<title>【第29章】扩张与放弃期权：战略灵活性的价值 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#扩张期权的估值框架" id="toc-扩张期权的估值框架" class="nav-link" data-scroll-target="#扩张期权的估值框架"><span class="header-section-number">2</span> 扩张期权的估值框架</a>
+  <ul class="collapse">
+  <li><a href="#为什么公司愿意亏钱买机会" id="toc-为什么公司愿意亏钱买机会" class="nav-link" data-scroll-target="#为什么公司愿意亏钱买机会"><span class="header-section-number">2.1</span> 为什么公司愿意「亏钱买机会」？</a></li>
+  <li><a href="#扩张期权的收益结构" id="toc-扩张期权的收益结构" class="nav-link" data-scroll-target="#扩张期权的收益结构"><span class="header-section-number">2.2</span> 扩张期权的收益结构</a></li>
+  <li><a href="#扩张期权的输入参数" id="toc-扩张期权的输入参数" class="nav-link" data-scroll-target="#扩张期权的输入参数"><span class="header-section-number">2.3</span> 扩张期权的输入参数</a></li>
+  <li><a href="#illustration-29.1ambev-和-guarana-扩张期权" id="toc-illustration-29.1ambev-和-guarana-扩张期权" class="nav-link" data-scroll-target="#illustration-29.1ambev-和-guarana-扩张期权"><span class="header-section-number">2.4</span> Illustration 29.1：Ambev 和 Guarana 扩张期权</a></li>
+  <li><a href="#扩张期权估值的局限性" id="toc-扩张期权估值的局限性" class="nav-link" data-scroll-target="#扩张期权估值的局限性"><span class="header-section-number">2.5</span> 扩张期权估值的局限性</a></li>
+  <li><a href="#竞争约束下的期权估值" id="toc-竞争约束下的期权估值" class="nav-link" data-scroll-target="#竞争约束下的期权估值"><span class="header-section-number">2.6</span> 竞争约束下的期权估值</a></li>
+  </ul></li>
+  <li><a href="#扩张期权的延伸应用" id="toc-扩张期权的延伸应用" class="nav-link" data-scroll-target="#扩张期权的延伸应用"><span class="header-section-number">3</span> 扩张期权的延伸应用</a>
+  <ul class="collapse">
+  <li><a href="#战略并购中的考量" id="toc-战略并购中的考量" class="nav-link" data-scroll-target="#战略并购中的考量"><span class="header-section-number">3.1</span> 战略并购中的考量</a></li>
+  <li><a href="#rd-和市场测试支出" id="toc-rd-和市场测试支出" class="nav-link" data-scroll-target="#rd-和市场测试支出"><span class="header-section-number">3.2</span> R&amp;D 和市场测试支出</a></li>
+  <li><a href="#多阶段项目投资" id="toc-多阶段项目投资" class="nav-link" data-scroll-target="#多阶段项目投资"><span class="header-section-number">3.3</span> 多阶段项目投资</a></li>
+  </ul></li>
+  <li><a href="#何时扩张期权有价值" id="toc-何时扩张期权有价值" class="nav-link" data-scroll-target="#何时扩张期权有价值"><span class="header-section-number">4</span> 何时扩张期权有价值？</a>
+  <ul class="collapse">
+  <li><a href="#定量估计的必要性" id="toc-定量估计的必要性" class="nav-link" data-scroll-target="#定量估计的必要性"><span class="header-section-number">4.1</span> 定量估计的必要性</a></li>
+  <li><a href="#扩张期权有价值的三个测试" id="toc-扩张期权有价值的三个测试" class="nav-link" data-scroll-target="#扩张期权有价值的三个测试"><span class="header-section-number">4.2</span> 扩张期权有价值的三个测试</a></li>
+  </ul></li>
+  <li><a href="#含扩张期权的公司估值" id="toc-含扩张期权的公司估值" class="nav-link" data-scroll-target="#含扩张期权的公司估值"><span class="header-section-number">5</span> 含扩张期权的公司估值</a>
+  <ul class="collapse">
+  <li><a href="#与-dcf-估值的关系" id="toc-与-dcf-估值的关系" class="nav-link" data-scroll-target="#与-dcf-估值的关系"><span class="header-section-number">5.1</span> 与 DCF 估值的关系</a></li>
+  <li><a href="#扩张期权估值的输入" id="toc-扩张期权估值的输入" class="nav-link" data-scroll-target="#扩张期权估值的输入"><span class="header-section-number">5.2</span> 扩张期权估值的输入</a></li>
+  <li><a href="#illustration-29.2secure-mail-公司估值" id="toc-illustration-29.2secure-mail-公司估值" class="nav-link" data-scroll-target="#illustration-29.2secure-mail-公司估值"><span class="header-section-number">5.3</span> Illustration 29.2：Secure Mail 公司估值</a></li>
+  </ul></li>
+  <li><a href="#用户与数据的期权价值" id="toc-用户与数据的期权价值" class="nav-link" data-scroll-target="#用户与数据的期权价值"><span class="header-section-number">6</span> 用户与数据的期权价值</a>
+  <ul class="collapse">
+  <li><a href="#用户的期权价值" id="toc-用户的期权价值" class="nav-link" data-scroll-target="#用户的期权价值"><span class="header-section-number">6.1</span> 用户的期权价值</a></li>
+  <li><a href="#用户期权价值的驱动因素" id="toc-用户期权价值的驱动因素" class="nav-link" data-scroll-target="#用户期权价值的驱动因素"><span class="header-section-number">6.2</span> 用户期权价值的驱动因素</a></li>
+  <li><a href="#平台比较谁的用户期权价值更高" id="toc-平台比较谁的用户期权价值更高" class="nav-link" data-scroll-target="#平台比较谁的用户期权价值更高"><span class="header-section-number">6.3</span> 平台比较：谁的用户期权价值更高？</a></li>
+  <li><a href="#数据的期权价值" id="toc-数据的期权价值" class="nav-link" data-scroll-target="#数据的期权价值"><span class="header-section-number">6.4</span> 数据的期权价值</a></li>
+  </ul></li>
+  <li><a href="#财务灵活性的价值" id="toc-财务灵活性的价值" class="nav-link" data-scroll-target="#财务灵活性的价值"><span class="header-section-number">7</span> 财务灵活性的价值</a>
+  <ul class="collapse">
+  <li><a href="#财务灵活性的决定因素" id="toc-财务灵活性的决定因素" class="nav-link" data-scroll-target="#财务灵活性的决定因素"><span class="header-section-number">7.1</span> 财务灵活性的决定因素</a></li>
+  <li><a href="#illustration-29.3home-depot-的财务灵活性1999" id="toc-illustration-29.3home-depot-的财务灵活性1999" class="nav-link" data-scroll-target="#illustration-29.3home-depot-的财务灵活性1999"><span class="header-section-number">7.2</span> Illustration 29.3：Home Depot 的财务灵活性（1999）</a></li>
+  <li><a href="#财务灵活性期权的含义" id="toc-财务灵活性期权的含义" class="nav-link" data-scroll-target="#财务灵活性期权的含义"><span class="header-section-number">7.3</span> 财务灵活性期权的含义</a></li>
+  </ul></li>
+  <li><a href="#放弃期权" id="toc-放弃期权" class="nav-link" data-scroll-target="#放弃期权"><span class="header-section-number">8</span> 放弃期权</a>
+  <ul class="collapse">
+  <li><a href="#放弃期权的收益结构" id="toc-放弃期权的收益结构" class="nav-link" data-scroll-target="#放弃期权的收益结构"><span class="header-section-number">8.1</span> 放弃期权的收益结构</a></li>
+  <li><a href="#illustration-29.4airbus-与-lear-aircraft-的放弃期权" id="toc-illustration-29.4airbus-与-lear-aircraft-的放弃期权" class="nav-link" data-scroll-target="#illustration-29.4airbus-与-lear-aircraft-的放弃期权"><span class="header-section-number">8.2</span> Illustration 29.4：Airbus 与 Lear Aircraft 的放弃期权</a></li>
+  <li><a href="#放弃期权估值的局限性" id="toc-放弃期权估值的局限性" class="nav-link" data-scroll-target="#放弃期权估值的局限性"><span class="header-section-number">8.3</span> 放弃期权估值的局限性</a></li>
+  <li><a href="#放弃期权的延伸应用" id="toc-放弃期权的延伸应用" class="nav-link" data-scroll-target="#放弃期权的延伸应用"><span class="header-section-number">8.4</span> 放弃期权的延伸应用</a></li>
+  </ul></li>
+  <li><a href="#npv-与实物期权估值的调和" id="toc-npv-与实物期权估值的调和" class="nav-link" data-scroll-target="#npv-与实物期权估值的调和"><span class="header-section-number">9</span> NPV 与实物期权估值的调和</a>
+  <ul class="collapse">
+  <li><a href="#传统-npv-的局限" id="toc-传统-npv-的局限" class="nav-link" data-scroll-target="#传统-npv-的局限"><span class="header-section-number">9.1</span> 传统 NPV 的局限</a></li>
+  <li><a href="#决策树与二叉树的区别" id="toc-决策树与二叉树的区别" class="nav-link" data-scroll-target="#决策树与二叉树的区别"><span class="header-section-number">9.2</span> 决策树与二叉树的区别</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">10</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">11</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第29章】扩张与放弃期权：战略灵活性的价值</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    为什么有些公司愿意投资 NPV 为负的项目？本章深入解析扩张期权、放弃期权、财务灵活性期权的估值方法，涵盖 Ambev 市场扩张、Secure Mail 软件公司、Home Depot 财务灵活性、Airbus 联合开发等核心案例。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月29日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你是巴西饮料巨头 Ambev 的战略负责人。公司正在考虑将其明星产品 Guarana（一种咖啡因软饮）引入美国市场。</p>
+<p><strong>第一阶段</strong>：先在大城市小规模试水</p>
+<ul>
+<li>投资成本：5 亿美元</li>
+<li>预期现金流现值：4 亿美元</li>
+<li>NPV = -1 亿美元（负值！）</li>
+</ul>
+<p><strong>第二阶段</strong>：如果试水成功，全面进入美国市场</p>
+<ul>
+<li>投资成本：10 亿美元</li>
+<li>预期现金流现值：7.5 亿美元</li>
+<li>NPV = -2.5 亿美元（更负！）</li>
+</ul>
+<p>传统投资分析的结论很明确：<strong>不要投资</strong>。第一阶段亏 1 亿，第二阶段亏 2.5 亿，为什么要进入这个市场？</p>
+<p>但 Ambev 的管理层可能会说：「你没有考虑到<strong>战略价值</strong>。」</p>
+<p>他们的逻辑是：第二阶段是一个<strong>期权</strong>，不是<strong>义务</strong>。如果试水失败，我们不会投资 10 亿；但如果市场比预期好得多，我们可以选择扩张，赚取巨额回报。</p>
+<p><strong>问题是</strong>：这种「战略价值」能被量化吗？它真的能抵消第一阶段的 1 亿亏损吗？</p>
+<p>这就是本章要回答的问题。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>本章的核心信息
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在第 28 章，我们学习了<strong>延迟期权</strong>——等待投资的权利。本章探讨另外两种嵌入在投资中的期权：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>期权类型</th>
+<th>核心问题</th>
+<th>期权性质</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>扩张期权</strong></td>
+<td>今天的小投资能否打开未来大市场的大门？</td>
+<td>看涨期权</td>
+</tr>
+<tr class="even">
+<td><strong>放弃期权</strong></td>
+<td>如果项目失败，我能否止损退出？</td>
+<td>看跌期权</td>
+</tr>
+<tr class="odd">
+<td><strong>财务灵活性</strong></td>
+<td>保留借债能力有什么价值？</td>
+<td>看涨期权</td>
+</tr>
+</tbody>
+</table>
+<p>这些期权可以让一些 <strong>NPV 为负的项目变得值得投资</strong>，也可以让一些 <strong>NPV 为正的项目变得更有价值</strong>。</p>
+</div>
+</div>
+<p>本章将深入探讨：</p>
+<ul>
+<li><strong>扩张期权的估值框架</strong>——Ambev/Guarana 完整案例</li>
+<li><strong>扩张期权的应用</strong>——战略并购、R&amp;D 支出、多阶段项目</li>
+<li><strong>何时扩张期权有价值？</strong>——三个关键测试</li>
+<li><strong>公司估值中的扩张期权</strong>——Secure Mail 软件公司案例</li>
+<li><strong>用户与数据的期权价值</strong>——Meta、Netflix、Amazon 的启示</li>
+<li><strong>财务灵活性期权</strong>——Home Depot 案例</li>
+<li><strong>放弃期权的估值</strong>——Airbus/Lear Aircraft 联合开发案例</li>
+<li><strong>NPV 与实物期权估值的调和</strong></li>
+</ul>
+</section>
+<section id="扩张期权的估值框架" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="扩张期权的估值框架"><span class="header-section-number">2</span> 扩张期权的估值框架</h2>
+<section id="为什么公司愿意亏钱买机会" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="为什么公司愿意亏钱买机会"><span class="header-section-number">2.1</span> 为什么公司愿意「亏钱买机会」？</h3>
+<p>公司有时投资于项目，不是因为项目本身有正 NPV，而是因为这个项目能让公司<strong>进一步投资</strong>或<strong>进入其他市场</strong>。换句话说，初始项目产生了<strong>期权</strong>，而这些期权有价值。</p>
+<p>从另一个角度看：<strong>公司可能接受初始项目的负 NPV，因为它期望未来项目有高额正 NPV 的可能</strong>。</p>
+<p>这听起来像是为战略性亏损找借口，但期权定价框架能帮我们判断：什么时候这种逻辑是合理的，什么时候只是管理层的一厢情愿。</p>
+</section>
+<section id="扩张期权的收益结构" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="扩张期权的收益结构"><span class="header-section-number">2.2</span> 扩张期权的收益结构</h3>
+<p>假设初始项目给公司带来了未来扩张的<strong>权利</strong>（不是义务）：</p>
+<ul>
+<li>如果今天就投资扩张项目，预期现金流的现值为 <span class="math inline">\(V\)</span></li>
+<li>扩张所需的总投资为 <span class="math inline">\(X\)</span></li>
+<li>公司有 <span class="math inline">\(T\)</span> 年的时间窗口来决定是否扩张</li>
+<li>如果不先做初始项目，就无法获得扩张的机会</li>
+</ul>
+<p>到期时（<span class="math inline">\(T\)</span> 年后），公司的决策很简单：</p>
+<ul>
+<li>如果 <span class="math inline">\(V &gt; X\)</span>：扩张，收益 = <span class="math inline">\(V - X\)</span></li>
+<li>如果 <span class="math inline">\(V \leq X\)</span>：不扩张，收益 = 0</li>
+</ul>
+<p>收益结构：</p>
+<p><span class="math display">\[
+\text{扩张期权收益} = \max(V - X, 0)
+\]</span></p>
+<pre><code>扩张期权收益
+   ^
+   |          /
+   |         /
+   |        /
+   |-------*---------&gt; V（扩张项目现值）
+   |       X（扩张成本）
+   | 如果V&lt;X，不扩张，损失=0</code></pre>
+<p><strong>这正是看涨期权的收益结构！</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>看涨期权术语</th>
+<th>扩张期权对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产价格 S</td>
+<td>扩张项目现金流现值 V</td>
+</tr>
+<tr class="even">
+<td>执行价格 K</td>
+<td>扩张所需投资 X</td>
+</tr>
+<tr class="odd">
+<td>到期时间 T</td>
+<td>扩张决策的时间窗口</td>
+</tr>
+<tr class="even">
+<td>波动率 σ</td>
+<td>扩张项目现值的波动率</td>
+</tr>
+<tr class="odd">
+<td>股息率 y</td>
+<td>延迟扩张的成本</td>
+</tr>
+</tbody>
+</table>
+<p>关键区别：初始项目是<strong>传统投资</strong>（可能 NPV 为负），而<strong>扩张期权</strong>才是带来额外价值的部分。</p>
+</section>
+<section id="扩张期权的输入参数" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="扩张期权的输入参数"><span class="header-section-number">2.3</span> 扩张期权的输入参数</h3>
+<section id="标的资产价值扩张项目的现值" class="level4" data-number="2.3.1">
+<h4 data-number="2.3.1" class="anchored" data-anchor-id="标的资产价值扩张项目的现值"><span class="header-section-number">2.3.1</span> 标的资产价值：扩张项目的现值</h4>
+<p>如果今天就投资扩张项目，预期现金流的现值是多少？这就是期权定价模型中的 <span class="math inline">\(S\)</span>。</p>
+<p>这是<strong>扩张</strong>项目的现值，不是初始项目的现值。两者是独立的。</p>
+<p><strong>关键点</strong>：如果扩张潜力存在很大不确定性，这个现值可能会随时间大幅变化。正是这种<strong>不确定性</strong>赋予了期权价值——如果一切都是确定的，就没有必要等待。</p>
+</section>
+<section id="波动率扩张项目价值的方差" class="level4" data-number="2.3.2">
+<h4 data-number="2.3.2" class="anchored" data-anchor-id="波动率扩张项目价值的方差"><span class="header-section-number">2.3.2</span> 波动率：扩张项目价值的方差</h4>
+<p>由于项目本身不可交易，波动率需要估计。两种方法：</p>
+<ol type="1">
+<li><strong>蒙特卡洛模拟</strong>：模拟关键输入变量的分布，得出项目现值的方差</li>
+<li><strong>可比公司法</strong>：用同行业上市公司的公司价值波动率作为代理</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>蒙特卡洛模拟估计方差
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>蒙特卡洛模拟的三个步骤：</p>
+<ol type="1">
+<li><strong>定义概率分布</strong>：为关键输入（市场规模、市场份额、利润率等）设定分布和参数</li>
+<li><strong>重复抽样</strong>：每次模拟从各分布中抽取一个结果，计算项目现值</li>
+<li><strong>汇总结果</strong>：多次模拟后，现值分布的均值是期望值，标准差就是波动率</li>
+</ol>
+<p><strong>注意事项</strong>：</p>
+<ul>
+<li>最难的是估计输入的概率分布，如果分布假设是随机的，输出就没有意义</li>
+<li>你需要的是<strong>价值随时间变化的方差</strong>，不是某一时点的估计不确定性</li>
+<li>应该估计<strong>项目总价值</strong>的标准差，不是年度收入或现金流的标准差</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="执行价格扩张成本" class="level4" data-number="2.3.3">
+<h4 data-number="2.3.3" class="anchored" data-anchor-id="执行价格扩张成本"><span class="header-section-number">2.3.3</span> 执行价格：扩张成本</h4>
+<p>如果决定扩张，需要支付的前期投资成本。这就是期权的执行价格。</p>
+</section>
+<section id="期权期限决策时间窗口" class="level4" data-number="2.3.4">
+<h4 data-number="2.3.4" class="anchored" data-anchor-id="期权期限决策时间窗口"><span class="header-section-number">2.3.4</span> 期权期限：决策时间窗口</h4>
+<p>这是最难确定的输入之一。与专利不同（专利有法定期限），扩张期权通常<strong>没有外部强加的行权期</strong>。</p>
+<p>期限通常是公司<strong>内部约束</strong>：</p>
+<ul>
+<li><strong>融资约束</strong>：贷款什么时候到期？</li>
+<li><strong>战略考量</strong>：资源必须在何时分配到其他地方？</li>
+<li><strong>人员决策</strong>：管理层必须何时到位？</li>
+</ul>
+<p>例如：Ambev 可能给自己设定 5 年期限——要么在 5 年内决定全面扩张，要么退出美国市场。</p>
+</section>
+<section id="延迟成本等待的代价" class="level4" data-number="2.3.5">
+<h4 data-number="2.3.5" class="anchored" data-anchor-id="延迟成本等待的代价"><span class="header-section-number">2.3.5</span> 延迟成本：等待的代价</h4>
+<p>与其他实物期权一样，一旦扩张期权变得「价内」（V &gt; X），等待就有成本。这个成本可能是：</p>
+<ul>
+<li><strong>放弃的现金流</strong>：如果不扩张，本可以获得的现金流就损失了</li>
+<li><strong>维持成本</strong>：公司可能需要每年支付费用来维持扩张的可能性</li>
+</ul>
+</section>
+</section>
+<section id="illustration-29.1ambev-和-guarana-扩张期权" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="illustration-29.1ambev-和-guarana-扩张期权"><span class="header-section-number">2.4</span> Illustration 29.1：Ambev 和 Guarana 扩张期权</h3>
+<p>让我们回到开头的 Ambev 案例，用期权框架重新分析。</p>
+<p><strong>情景设定</strong>：</p>
+<p>Guarana 是巴西非常流行的咖啡因软饮，Ambev 是全球最大的 Guarana 生产商。公司正在考虑分两步进入美国市场：</p>
+<p><strong>第一步：有限市场试水</strong></p>
+<ul>
+<li>仅在美国大城市推出</li>
+<li>投资成本：5 亿美元</li>
+<li>预期现金流现值：4 亿美元</li>
+<li>NPV = -1 亿美元（<strong>负值</strong>）</li>
+</ul>
+<p><strong>第二步：全面市场扩张（如果试水成功）</strong></p>
+<ul>
+<li>进入全美市场</li>
+<li>投资成本：10 亿美元</li>
+<li>预期现金流现值：7.5 亿美元</li>
+<li>NPV = -2.5 亿美元（<strong>也是负值</strong>）</li>
+</ul>
+<p>乍一看，用一个亏损项目换取投资另一个更亏损项目的机会，似乎毫无意义。</p>
+<p><strong>但第二步有一个关键特征</strong>：它是一个<strong>期权</strong>。</p>
+<p>Ambev 不会在扩张现金流现值低于 10 亿美元时扩张。而且，这个市场存在很大的不确定性——市场可能比预期小得多，也可能大得多。</p>
+<section id="期权估值输入" class="level4" data-number="2.4.1">
+<h4 data-number="2.4.1" class="anchored" data-anchor-id="期权估值输入"><span class="header-section-number">2.4.1</span> 期权估值输入</h4>
+<p>为了估计扩张期权的价值：</p>
+<ul>
+<li><strong>标的资产（S）</strong>：扩张项目的预期现金流现值 = <strong>7.5 亿美元</strong></li>
+<li><strong>执行价格（K）</strong>：扩张投资成本 = <strong>10 亿美元</strong></li>
+<li>这是一个<strong>价外期权</strong>（S &lt; K）</li>
+</ul>
+<p>两个最棘手的假设是<strong>波动率</strong>和<strong>期限</strong>：</p>
+<ul>
+<li><strong>波动率</strong>：用美国小型上市饮料公司的公司价值标准差，估计为 <strong>35%</strong></li>
+<li><strong>期限</strong>：假设 Ambev 有 <strong>5 年</strong>的决策窗口（由融资约束、战略考量、人员决策等因素决定）</li>
+</ul>
+<p>其他参数：</p>
+<ul>
+<li>无风险利率：<strong>5%</strong></li>
+</ul>
+</section>
+<section id="二叉树估值" class="level4" data-number="2.4.2">
+<h4 data-number="2.4.2" class="anchored" data-anchor-id="二叉树估值"><span class="header-section-number">2.4.2</span> 二叉树估值</h4>
+<p>从标准差计算上涨和下跌乘数：</p>
+<p><span class="math display">\[
+u = e^{\sigma} = e^{0.35} = 1.4032
+\]</span></p>
+<p><span class="math display">\[
+d = e^{-\sigma} = e^{-0.35} = 0.6968
+\]</span></p>
+<p>从初始值 7.5 亿美元出发，构建 5 期二叉树：</p>
+<pre><code>年份 0      1        2        3        4        5
+                                              40.80
+                                       29.08 /
+                                20.72 /      \ 20.26
+                          14.77 /     \ 14.44
+                    10.52 /     \ 10.29      \ 10.06
+               7.50 /     \  7.33      \ 7.17
+                   \ 5.23       \ 5.11      \ 5.00
+                          \ 3.64       \ 3.56
+                                 \ 2.54      \ 2.48
+                                       \ 1.77
+                                              \ 1.23
+（单位：亿美元）</code></pre>
+<p>在第 5 年末，扩张期权的价值 = max(V - 10, 0)：</p>
+<ul>
+<li>如果 V = 40.80 亿，期权价值 = 30.80 亿</li>
+<li>如果 V = 20.26 亿，期权价值 = 10.26 亿</li>
+<li>如果 V = 10.06 亿，期权价值 = 0.06 亿</li>
+<li>如果 V &lt; 10 亿，期权价值 = 0</li>
+</ul>
+<p>用复制组合框架回溯计算，<strong>扩张期权价值 = 2.03 亿美元</strong>。</p>
+</section>
+<section id="投资决策" class="level4" data-number="2.4.3">
+<h4 data-number="2.4.3" class="anchored" data-anchor-id="投资决策"><span class="header-section-number">2.4.3</span> 投资决策</h4>
+<p><span class="math display">\[
+\text{有限市场试水的 NPV} = -5 + 4 = -1 \text{ 亿美元}
+\]</span></p>
+<p><span class="math display">\[
+\text{扩张期权价值} = 2.03 \text{ 亿美元}
+\]</span></p>
+<p><span class="math display">\[
+\text{含扩张期权的总 NPV} = -1 + 2.03 = +1.03 \text{ 亿美元}
+\]</span></p>
+<p><strong>结论</strong>：Ambev 应该进行有限市场试水，即使它有负的 NPV，因为它获得的扩张期权价值更高。</p>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>为什么「亏钱买机会」有时是合理的？</strong></p>
+<ol type="1">
+<li><strong>不确定性的价值</strong>：35% 的波动率意味着市场可能比预期好得多</li>
+<li><strong>有限下行</strong>：如果市场不好，Ambev 不会投资 10 亿，最多损失 1 亿（试水成本）</li>
+<li><strong>时间的价值</strong>：5 年的观察期让 Ambev 可以学习和适应</li>
+</ol>
+<p><strong>但也要注意</strong>：期权是价外的（S = 7.5 亿 &lt; K = 10 亿），说明基于当前预期，扩张是不划算的。期权的价值完全来自<strong>上行的可能性</strong>。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+</section>
+<section id="扩张期权估值的局限性" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="扩张期权估值的局限性"><span class="header-section-number">2.5</span> 扩张期权估值的局限性</h3>
+<p>虽然期权框架提供了有价值的视角，但存在一些实践问题：</p>
+<p><strong>问题一：期限不确定</strong></p>
+<p>与专利不同，扩张期权通常没有明确的到期日。公司可能随时决定扩张或放弃。我们在 Ambev 案例中假设 5 年，但这是<strong>任意的</strong>。</p>
+<p><strong>问题二：输入参数不确定</strong></p>
+<p>在做初始投资时，公司可能对扩张的成本和市场潜力都没有好的估计——毕竟，做初始投资的目的之一就是<strong>收集信息</strong>。</p>
+<p><strong>问题三：竞争反应</strong></p>
+<p>如果 Ambev 的试水成功，可口可乐和百事可乐可能推出自己的 Guarana 版本。初始投资可能为竞争对手提供了市场信息，而 Ambev 在全面扩张时可能面临更激烈的竞争。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>扩张期权 vs 排他性
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>回顾第 28 章的核心洞察：<strong>期权价值来自排他性</strong>。</p>
+<p>在 Ambev 案例中：</p>
+<ul>
+<li>Ambev 是全球最大的 Guarana 生产商，但<strong>不拥有 Guarana 的专利</strong></li>
+<li>如果试水成功，竞争对手完全可以生产自己的 Guarana</li>
+<li>如果 Ambev 得不到竞争优势，扩张期权就<strong>没有价值</strong></li>
+</ul>
+<p>这意味着：如果我们认为竞争会完全消除超额回报，Ambev 就相当于花了 1 亿美元为竞争对手做市场调研！</p>
+</div>
+</div>
+</section>
+<section id="竞争约束下的期权估值" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="竞争约束下的期权估值"><span class="header-section-number">2.6</span> 竞争约束下的期权估值</h3>
+<p>如果 Ambev 因为初始投资获得了一些竞争优势（但不是完全排他），可以通过两种方式调整估值：</p>
+<p><strong>方法一：调整现金流</strong></p>
+<p>假设 Ambev 有一定的领先时间优势，可以：</p>
+<ul>
+<li>在领先期内使用较高的现金流预测</li>
+<li>领先期后，现金流下降到正常竞争水平</li>
+</ul>
+<p>这会降低扩张项目的现值（S），从而降低期权价值。</p>
+<p><strong>方法二：设置现值上限</strong></p>
+<p>假设竞争会限制扩张项目的最大价值（如：现值不能超过 20 亿美元），然后估值一个「有上限的看涨期权」。</p>
+<p>例如：如果假设现值上限为 20 亿美元，Ambev 扩张期权的价值从 2.03 亿降至 <strong>1.42 亿美元</strong>。</p>
+</section>
+</section>
+<section id="扩张期权的延伸应用" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="扩张期权的延伸应用"><span class="header-section-number">3</span> 扩张期权的延伸应用</h2>
+<p>扩张期权框架可以为一些传统 NPV 分析难以处理的情况提供洞察。</p>
+<section id="战略并购中的考量" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="战略并购中的考量"><span class="header-section-number">3.1</span> 战略并购中的考量</h3>
+<p>在很多并购中，收购方认为交易会带来<strong>未来的竞争优势</strong>。这些优势包括：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>竞争优势</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>进入大市场</strong></td>
+<td>美国零售商收购墨西哥公司，意图进入墨西哥市场</td>
+</tr>
+<tr class="even">
+<td><strong>技术专长</strong></td>
+<td>收购是为了获得专有技术，用于扩展现有市场或进入新市场</td>
+</tr>
+<tr class="odd">
+<td><strong>品牌名称</strong></td>
+<td>支付高溢价收购有价值品牌的公司，用于未来市场扩张</td>
+</tr>
+</tbody>
+</table>
+<p>虽然这些都可以用来为高溢价辩护，但<strong>不是所有优势都能创造有价值的期权</strong>。</p>
+<p><strong>两个关键问题</strong>：</p>
+<ol type="1">
+<li><strong>这些优势能被视为有价值的扩张期权吗？</strong>
+<ul>
+<li>需要某种形式的排他性</li>
+<li>没有排他性 = 没有期权价值</li>
+</ul></li>
+<li><strong>即使是有价值的期权，其价值是否超过支付的溢价？</strong>
+<ul>
+<li>期权价值需要量化</li>
+<li>期权价值 &gt; 溢价 → 股东获益</li>
+<li>期权价值 &lt; 溢价 → 收购方多付了</li>
+</ul></li>
+</ol>
+</section>
+<section id="rd-和市场测试支出" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="rd-和市场测试支出"><span class="header-section-number">3.2</span> R&amp;D 和市场测试支出</h3>
+<p>投入大量研发和市场测试费用的公司，在评估这些支出时往往很困惑——收益是未来投资的形式，而且很可能这些钱花完后，产品或项目根本不可行，支出就成了沉没成本。</p>
+<p>事实上，<strong>R&amp;D 具有看涨期权的特征</strong>：</p>
+<ul>
+<li>R&amp;D 支出 = 期权费（购买期权的成本）</li>
+<li>可能产生的产品/项目 = 期权收益</li>
+</ul>
+<p>如果产品可行（现金流现值 &gt; 所需投资），收益 = 两者之差。</p>
+<p><strong>这个视角的几个含义</strong>：</p>
+<ol type="1">
+<li><p><strong>波动性高的业务，R&amp;D 更有价值</strong></p>
+<p>其他条件相同，研发支出对<strong>高波动性业务</strong>的公司更有价值，因为产品/项目现金流的方差与看涨期权价值正相关。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>业务类型</th>
+<th>R&amp;D 期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3M</td>
+<td>基础办公产品（便利贴等）</td>
+<td>较低</td>
+</tr>
+<tr class="even">
+<td>Amgen</td>
+<td>生物技术产品</td>
+<td>较高</td>
+</tr>
+</tbody>
+</table>
+<p>原因：生物技术产品的现金流不确定性远高于办公产品。</p></li>
+<li><p><strong>R&amp;D 价值随业务成熟而变化</strong></p>
+<p>最好的例子是制药行业：</p>
+<ul>
+<li>1980 年代：大量研发投入，新产品高回报（医疗成本扩张）</li>
+<li>1990 年代：医疗成本开始稳定，相同研发的回报下降</li>
+<li>应对策略：有些公司将研发资源从传统药物转向<strong>生物技术产品</strong>（不确定性仍然很高）</li>
+</ul></li>
+</ol>
+</section>
+<section id="多阶段项目投资" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="多阶段项目投资"><span class="header-section-number">3.3</span> 多阶段项目投资</h3>
+<p>进入新业务或新投资时，公司有时可以选择<strong>分阶段进行</strong>。虽然这可能降低潜在上行，但它也<strong>保护公司免受下行风险</strong>——在每个阶段，公司可以评估需求，决定是否继续。</p>
+<p>换句话说，一个标准项目可以被重构为<strong>一系列扩张期权</strong>，每个期权依赖于前一个。</p>
+<p><strong>两个命题</strong>：</p>
+<ol type="1">
+<li>一些以<strong>完全投资</strong>为基础没有吸引力的项目，如果分阶段投资，可能创造价值</li>
+<li>一些以完全投资为基础有吸引力的项目，如果分阶段投资，可能变得<strong>更有吸引力</strong></li>
+</ol>
+<p><strong>多阶段投资的收益需要与成本权衡</strong>：</p>
+<ul>
+<li><strong>竞争风险</strong>：分阶段可能让全力投入的竞争对手抢占市场</li>
+<li><strong>规模不经济</strong>：每阶段成本可能更高，因为没有充分利用规模经济</li>
+</ul>
+<p><strong>何时多阶段投资收益最大？</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>项目特征</th>
+<th>为什么多阶段投资有利</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>高进入壁垒</strong></td>
+<td>有专利或法律保护，竞争对手无法利用延迟</td>
+</tr>
+<tr class="even">
+<td><strong>市场不确定性高</strong></td>
+<td>分阶段可以减少损失，同时学习市场信息</td>
+</tr>
+<tr class="odd">
+<td><strong>高基础设施投资/高运营杠杆</strong></td>
+<td>分阶段的节省主要来自延迟的投资，这些项目节省最多</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>序列期权和复合期权
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>复合期权</strong>（Compound Option）是「期权的期权」。例如：一家小公司只有一项资产——一个专利。对这家公司的看涨期权就是一个复合期权（因为专利本身就是期权）。</p>
+<p><strong>序列期权</strong>（Sequential Options）是指每个期权的价值取决于前一个期权是否行权。例如：一个五阶段项目，第五阶段取决于前四阶段是否完成。</p>
+<p>这些期权的定价更复杂。两种选择：</p>
+<ol type="1">
+<li><strong>简化处理</strong>：作为简单期权估值，接受结果是近似值</li>
+<li><strong>修改模型</strong>：调整 Black-Scholes 或二叉树模型来处理复合/序列特征</li>
+</ol>
+<p>本书不详细介绍这些模型，但你应该知道它们存在。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="何时扩张期权有价值" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="何时扩张期权有价值"><span class="header-section-number">4</span> 何时扩张期权有价值？</h2>
+<p>虽然「很多投资包含有价值的战略/扩张期权」这个论点很有吸引力，但存在一个危险：<strong>这个论点可能被用来为糟糕的投资辩护</strong>。</p>
+<p>事实上，收购方长期以来用「协同效应」和「战略考量」为高溢价并购辩护。我们需要更严格地衡量实物期权的价值，以及它们作为支付高价或进行差投资的理由的使用。</p>
+<section id="定量估计的必要性" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="定量估计的必要性"><span class="header-section-number">4.1</span> 定量估计的必要性</h3>
+<p>当用实物期权来为决策辩护时，辩护必须<strong>超越定性层面</strong>。换句话说，管理层如果用实物期权来为投资负 NPV 项目或支付并购溢价辩护，应该被要求<strong>量化这些实物期权的价值</strong>，并证明经济收益超过成本。</p>
+<p>反对这个要求的两个论点：</p>
+<ol type="1">
+<li>实物期权<strong>难以估值</strong>——输入难以获得，而且噪声很大</li>
+<li>期权定价模型的输入<strong>容易被操纵</strong>，可以用来支持任何预设结论</li>
+</ol>
+<p>虽然这两个论点有一定道理，但<strong>有估计总比没有估计好</strong>，而且尝试估计实物期权价值的过程本身，就是理解其价值驱动因素的第一步。</p>
+</section>
+<section id="扩张期权有价值的三个测试" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="扩张期权有价值的三个测试"><span class="header-section-number">4.2</span> 扩张期权有价值的三个测试</h3>
+<p>不是所有投资都包含期权，不是所有期权（即使存在）都有显著价值。要评估一个投资是否创造了需要分析和估值的有价值期权，需要回答三个关键问题：</p>
+<section id="测试一初始投资是否是后续投资的前提" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="测试一初始投资是否是后续投资的前提"><span class="header-section-number">4.2.1</span> 测试一：初始投资是否是后续投资的前提？</h4>
+<p>考虑我们之前分析的专利价值或未开发石油储量：</p>
+<ul>
+<li>公司不投资研发或支付专利费，就无法获得专利</li>
+<li>公司不投资勘探、参加政府拍卖或从其他公司购买，就无法获得未开发储量</li>
+</ul>
+<p>显然，初始投资是后续投资的<strong>必要条件</strong>。</p>
+<p>现在考虑 Ambev 的有限市场试水和扩张期权：</p>
+<ul>
+<li>初始投资提供了<strong>市场潜力的信息</strong></li>
+<li>没有这些信息，Ambev（据说）不愿意全面扩张</li>
+<li>但与专利和储量不同，初始投资<strong>不是</strong>扩张的先决条件——Ambev 技术上可以直接全面进入</li>
+</ul>
+<p><strong>联系越弱，期权价值越低</strong>。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>联系强度</th>
+<th>例子</th>
+<th>期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>强（必要条件）</strong></td>
+<td>研发 → 专利；勘探 → 储量</td>
+<td>高</td>
+</tr>
+<tr class="even">
+<td><strong>中（信息收集）</strong></td>
+<td>试水 → 市场信息 → 扩张</td>
+<td>中</td>
+</tr>
+<tr class="odd">
+<td><strong>弱（模糊「战略」）</strong></td>
+<td>收购社交媒体公司 → 「社交媒体市场」</td>
+<td>低</td>
+</tr>
+<tr class="even">
+<td><strong>无</strong></td>
+<td>收购啤酒厂 → 「中国啤酒市场」</td>
+<td>几乎为零</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="测试二公司是否对后续投资有排他权" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="测试二公司是否对后续投资有排他权"><span class="header-section-number">4.2.2</span> 测试二：公司是否对后续投资有排他权？</h4>
+<p>期权的价值最终来自<strong>超额回报</strong>，不只是现金流。而超额回报的潜力与初始投资能给后续投资带来多大的<strong>竞争优势</strong>密切相关。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>竞争优势程度</th>
+<th>例子</th>
+<th>期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>完全排他</strong></td>
+<td>专利（法律保护）</td>
+<td>最高</td>
+</tr>
+<tr class="even">
+<td><strong>高度排他</strong></td>
+<td>稀缺自然资源的开采权</td>
+<td>高</td>
+</tr>
+<tr class="odd">
+<td><strong>有限优势</strong></td>
+<td>先发优势、品牌效应</td>
+<td>中等</td>
+</tr>
+<tr class="even">
+<td><strong>无优势</strong></td>
+<td>进入开放市场</td>
+<td>几乎为零</td>
+</tr>
+</tbody>
+</table>
+<p>再看 Ambev 案例：虽然 Ambev 是全球最大的 Guarana 生产商，但它<strong>没有产品专利</strong>。如果试水成功，可口可乐和百事可乐完全可以生产自己的 Guarana。</p>
+<p><strong>如果 Ambev 得不到竞争优势，扩张期权就失去了价值</strong>，初始投资变成了为竞争对手做免费市场调研。</p>
+</section>
+<section id="测试三竞争优势是否可持续" class="level4" data-number="4.2.3">
+<h4 data-number="4.2.3" class="anchored" data-anchor-id="测试三竞争优势是否可持续"><span class="header-section-number">4.2.3</span> 测试三：竞争优势是否可持续？</h4>
+<p>在竞争市场中，超额回报会吸引竞争者，而竞争会侵蚀超额回报。竞争优势越<strong>可持续</strong>，期权价值越高。</p>
+<p>可持续性取决于两个因素：</p>
+<ol type="1">
+<li><strong>竞争的性质</strong>：在竞争对手激进的行业，竞争优势消失得更快</li>
+<li><strong>竞争优势的性质</strong>：
+<ul>
+<li>如果优势来自<strong>稀缺资源</strong>（自然资源储量、空置土地），优势可能持续很长时间</li>
+<li>如果优势来自<strong>先发优势</strong>或<strong>技术专长</strong>，可能很快被挑战</li>
+</ul></li>
+</ol>
+<p><strong>反映竞争压力的最直接方式</strong>：估计竞争优势的期限，只有在这个期限内赚取的超额回报才计入期权价值。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>三个测试的应用
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>如果三个问题的答案都是「是」，扩张期权可能有价值。</strong></p>
+<p>将这三个测试应用于 Ambev 扩张期权：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>测试</th>
+<th>Ambev 案例</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>初始投资是扩张的前提？</td>
+<td>不是必要的，但提供市场信息</td>
+<td><strong>部分通过</strong></td>
+</tr>
+<tr class="even">
+<td>有排他权或竞争优势？</td>
+<td>没有专利，竞争对手可以模仿</td>
+<td><strong>未通过</strong></td>
+</tr>
+<tr class="odd">
+<td>竞争优势可持续？</td>
+<td>如果没有竞争优势，无从谈可持续</td>
+<td><strong>未通过</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这意味着 Ambev 扩张期权的实际价值可能<strong>远低于</strong>我们前面计算的 2.03 亿美元。如果考虑竞争约束（现值上限 20 亿美元），价值降至 1.42 亿美元，仍然可能<strong>高估</strong>了。</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="含扩张期权的公司估值" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="含扩张期权的公司估值"><span class="header-section-number">5</span> 含扩张期权的公司估值</h2>
+<p>扩张期权是否能导致一些公司以高于 DCF 价值的溢价交易？至少在理论上，对于<strong>大型演变中市场里的小型高增长公司</strong>，这个论点有一定道理。</p>
+<p>DCF 估值基于预期现金流和预期增长，这些预期应该反映公司可能大成功（或大失败）的概率。但预期可能没有考虑到的是：<strong>如果成功，公司可以投资更多、增加新产品、进入新市场，从而放大成功</strong>。</p>
+<p>这就是创造额外价值的实物期权。</p>
+<section id="与-dcf-估值的关系" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="与-dcf-估值的关系"><span class="header-section-number">5.1</span> 与 DCF 估值的关系</h3>
+<p>如果扩张期权的价值被估计出来，公司价值可以写成两个部分之和：</p>
+<p><span class="math display">\[
+\text{公司价值} = \text{DCF 价值} + \text{扩张期权价值}
+\]</span></p>
+<p>期权定价方法为这个论点增加了严谨性，并提供了何时扩张期权最有价值的洞察：</p>
+<ul>
+<li><strong>波动性高</strong>的业务</li>
+<li><strong>项目回报高</strong>的业务</li>
+<li><strong>竞争进入壁垒高</strong>的业务（如新技术）</li>
+</ul>
+<p>相比之下，扩张期权在<strong>稳定业务</strong>（如住宅、公用事业、汽车生产）中价值较低。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>避免双重计算
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>你必须小心不要双重计算期权的价值。</p>
+<p>如果你在 DCF 估值中使用了<strong>比预期更高的增长率</strong>（因为扩张期权），你就已经在 DCF 价值中计入了期权价值。再加上一个单独的扩张期权组成部分就是双重计算。</p>
+</div>
+</div>
+</section>
+<section id="扩张期权估值的输入" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="扩张期权估值的输入"><span class="header-section-number">5.2</span> 扩张期权估值的输入</h3>
+<p>要估值一个有扩张期权的公司，你需要：</p>
+<ol type="1">
+<li><strong>定义市场</strong>：公司有期权进入的市场是什么？</li>
+<li><strong>明确竞争优势</strong>：什么能给公司一定程度的排他性？</li>
+<li><strong>估计当前现金流</strong>：如果今天进入市场，预期现金流是多少？（假设成本超过现金流，否则已经进入了）</li>
+<li><strong>估计进入成本</strong>：进入市场的成本是期权的执行价格</li>
+<li><strong>估计方差</strong>：用模拟或可比公司波动率</li>
+<li><strong>指定期限</strong>：何时必须做出是否进入的决策？可以与竞争优势假设相联系</li>
+</ol>
+</section>
+<section id="illustration-29.2secure-mail-公司估值" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="illustration-29.2secure-mail-公司估值"><span class="header-section-number">5.3</span> Illustration 29.2：Secure Mail 公司估值</h3>
+<p>Secure Mail 是一家专门从事安全软件的年轻软件公司。假设你完成了传统 DCF 估值，估计公司价值为 <strong>1.1154 亿美元</strong>。</p>
+<p>但是，公司可能利用其杀毒软件开发的<strong>客户基础</strong>和<strong>底层技术</strong>，在未来 5 年内创建一个数据库软件项目。你收集了以下关于扩张潜力的信息：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>开发新数据库程序的成本</td>
+<td>5 亿美元</td>
+<td>今天的成本</td>
+</tr>
+<tr class="even">
+<td>数据库项目预期年税后现金流</td>
+<td>4000 万美元/年</td>
+<td>持续 10 年</td>
+</tr>
+<tr class="odd">
+<td>私人数据库软件公司的资本成本</td>
+<td>12%</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>上市数据库公司的公司价值波动率</td>
+<td>50%</td>
+<td>年化标准差</td>
+</tr>
+<tr class="odd">
+<td>五年期国债利率</td>
+<td>3%</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>计算扩张项目的现值</strong>：</p>
+<p><span class="math display">\[
+S = \frac{4000 \times \left(1 - \frac{1}{1.12^{10}}\right)}{0.12} = 22600 \text{ 万美元} = 2.26 \text{ 亿美元}
+\]</span></p>
+<p><strong>期权输入参数</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>输入</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S（扩张项目现值）</td>
+<td>2.26 亿美元</td>
+</tr>
+<tr class="even">
+<td>K（进入成本）</td>
+<td>5 亿美元</td>
+</tr>
+<tr class="odd">
+<td>T（期权期限）</td>
+<td>5 年</td>
+</tr>
+<tr class="even">
+<td>σ（波动率）</td>
+<td>50%</td>
+</tr>
+<tr class="odd">
+<td>r（无风险利率）</td>
+<td>3%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Black-Scholes 计算</strong>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(2.26/5) + (0.03 + 0.50^2/2) \times 5}{0.50\sqrt{5}} = \frac{-0.7946 + 0.775}{1.118} = -0.0175
+\]</span></p>
+<p><span class="math display">\[
+d_2 = -0.0175 - 0.50\sqrt{5} = -1.1351
+\]</span></p>
+<p><span class="math display">\[
+N(d_1) = 0.4932, \quad N(d_2) = 0.1282
+\]</span></p>
+<p><span class="math display">\[
+\text{扩张期权价值} = 2.26 \times 0.4932 - 5 \times e^{-0.03 \times 5} \times 0.1282
+\]</span></p>
+<p><span class="math display">\[
+= 1.115 - 0.552 = 0.563 \text{ 亿美元} = \textbf{5630 万美元}
+\]</span></p>
+<p><strong>注意</strong>：这些数字<strong>不支持</strong>今天就开发数据库程序——现值（2.26 亿）远低于成本（5 亿）。</p>
+<p>但 Secure Mail 有两个有利因素：</p>
+<ol type="1">
+<li>可以根据杀毒软件的表现<strong>完善市场评估</strong></li>
+<li>可以根据收集的信息<strong>调整数据库程序</strong>，增加潜在市场和现金流</li>
+</ol>
+<p><strong>公司总价值</strong>：</p>
+<p><span class="math display">\[
+\text{Secure Mail 价值} = 1.1154 + 0.5630 = \textbf{1.6784 亿美元}
+\]</span></p>
+<p><strong>期权定价模型的使用辩护</strong>：Secure Mail 的排他性来自其<strong>专有技术</strong>和<strong>客户名单</strong>（来自杀毒软件程序）。</p>
+</section>
+</section>
+<section id="用户与数据的期权价值" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="用户与数据的期权价值"><span class="header-section-number">6</span> 用户与数据的期权价值</h2>
+<p>在过去二十年，互联网接入的普及和连接设备（智能手机、平板等）的无处不在，催生了两股推动商业和市场的力量：</p>
+<ol type="1">
+<li><strong>用户聚集</strong>：数百万甚至数十亿用户聚集在平台上（Google、Meta、Netflix、Amazon）</li>
+<li><strong>数据收集</strong>：这些公司收集了大量用户行为和偏好数据</li>
+</ol>
+<p><strong>海量用户 + 大数据</strong>被用来为高估值辩护。虽然部分论点是关于内在价值（更高的盈利和增长），但部分是基于用户和数据的<strong>未指明的未来收益的承诺和潜力</strong>——即它们的<strong>期权价值</strong>。</p>
+<section id="用户的期权价值" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="用户的期权价值"><span class="header-section-number">6.1</span> 用户的期权价值</h3>
+<p>在第 23 章（初创公司估值），我们估计了用户/订阅者的<strong>内在价值</strong>——来自用户在平台上的预期任期和公司从用户那里产生的预期现金流。这种方法可以用于估值 Netflix 订阅者、Amazon Prime 会员，甚至 Facebook 用户。</p>
+<p><strong>为什么还需要引入期权？</strong></p>
+<p>考虑 Meta：拥有近 30 亿用户在其多个平台（Facebook、Instagram、WhatsApp）上。假设你基于广告收入（目前的主要变现方式）进行估值，得出每股内在价值 500 美元，接近当前市价（2024 年 6 月）。</p>
+<p>虽然公司基于内在价值看起来合理估值，但存在一种可能性：Meta 可能找到<strong>其他方式</strong>从用户基础产生收入（娱乐、零售、游戏）。虽然这些可能性今天可能不可行，但未来可能可行。</p>
+<p>这实际上是一个<strong>期权论点</strong>——它会让你愿意支付高于内在价值的溢价，将股票从「合理估值」变成「低估」。</p>
+<p><strong>但这打开了潘多拉魔盒</strong>：这个论点会被用于任何拥有大型用户/订阅者平台的公司，而且溢价不会被限制在合理数字范围内。</p>
+</section>
+<section id="用户期权价值的驱动因素" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="用户期权价值的驱动因素"><span class="header-section-number">6.2</span> 用户期权价值的驱动因素</h3>
+<p>虽然可能还不能将期权定价输入附加到平台期权并导出实际价值，但考虑以下因素可以判断溢价是否应该存在，以及应该大还是小：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    平台期权价值驱动因素                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐                                               │
+│  │  用户数量    │ ──→ 用户越多，实物期权价值越高                  │
+│  └──────────────┘                                               │
+│         ×                                                       │
+│  ┌──────────────┐     ┌───────────────────────────────────────┐ │
+│  │ 用户黏性和   │ ──→ │ 用户留存时间 = 期权期限                 │ │
+│  │ 忠诚度       │     │ 更黏的用户 = 更长期限 = 更高期权价值   │ │
+│  └──────────────┘     └───────────────────────────────────────┘ │
+│         ×                                                       │
+│  ┌──────────────┐     ┌───────────────────────────────────────┐ │
+│  │ 每用户实物   │     │ 新产品预期现金流 = S（标的资产价值）    │ │
+│  │ 期权价值     │ ←── │ 推出新产品成本 = K（执行价格）          │ │
+│  └──────────────┘     │ 技术/消费者不确定性 = σ（方差）         │ │
+│         │             └───────────────────────────────────────┘ │
+│         │                                                       │
+│         ↓                                                       │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ 用户互动强度：更高互动的用户更可能接受新产品/服务         │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>实物期权价值来自排他性</strong>——如果你有<strong>黏性强、互动深</strong>的用户，你就有一个可以用来试验其他产品和服务的客户基础。</p>
+<p><strong>用户基础期权价值最高的公司特征</strong>：</p>
+<ul>
+<li>大量<strong>黏性强、互动深</strong>的用户</li>
+<li>处于<strong>产品/服务技术和消费者口味不可预测</strong>的业务</li>
+</ul>
+</section>
+<section id="平台比较谁的用户期权价值更高" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="平台比较谁的用户期权价值更高"><span class="header-section-number">6.3</span> 平台比较：谁的用户期权价值更高？</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 16%">
+<col style="width: 25%">
+<col style="width: 29%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>用户数量</th>
+<th>用户黏性/互动</th>
+<th>新产品/服务潜力</th>
+<th>期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Meta</strong></td>
+<td>~30 亿</td>
+<td>高（大量时间在平台）</td>
+<td>娱乐、零售、游戏</td>
+<td><strong>高</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Snapchat</strong></td>
+<td>数亿</td>
+<td>较低（用户不太黏）</td>
+<td>有限</td>
+<td><strong>低</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>Amazon Prime</strong></td>
+<td>1.5 亿</td>
+<td>极高（多次交易建立忠诚）</td>
+<td>支付（PayPal）、药品（CVS）</td>
+<td><strong>最高</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Netflix</strong></td>
+<td>2 亿+</td>
+<td>中等</td>
+<td>有限（主要是娱乐）</td>
+<td><strong>中等</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Amazon Prime 的独特优势</strong>：拥有 1.5 亿 Prime 会员的潜在上行，就像拥有一支军队来支持 Amazon 的颠覆平台进入几乎任何业务。</p>
+<p>相比之下，Netflix 模式在其他可以向订阅者销售的产品和服务方面的潜在上行较少，因此期权价值较低。</p>
+</section>
+<section id="数据的期权价值" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="数据的期权价值"><span class="header-section-number">6.4</span> 数据的期权价值</h3>
+<p>2017 年，MoviePass 推出了一个几乎可笑的糟糕商业模式：每月支付 10 美元，订阅者可以在任何影院看任意多部电影。管理层辩护说：不仅会吸引数百万用户，而且公司可以收集用户对电影反应和偏好的信息，这些信息可以变现。</p>
+<p>这个承诺从未兑现，商业模式失败了。但在那十年里，有数百家公司用<strong>大数据的承诺</strong>来获取高市场估值。在很多情况下，论点是今天收集的数据会在未来某个时候找到<strong>未指明的用途</strong>，带来显著经济收益——即一个期权论点。</p>
+<p><strong>我们相信数据的价值，但对大数据价值主张持怀疑态度</strong>，因为大多数主张建立在脆弱的基础上。</p>
+<section id="数据有价值的三个条件" class="level4" data-number="6.4.1">
+<h4 data-number="6.4.1" class="anchored" data-anchor-id="数据有价值的三个条件"><span class="header-section-number">6.4.1</span> 数据有价值的三个条件</h4>
+<ol type="1">
+<li><p><strong>数据必须是排他的</strong></p>
+<p>要让数据有价值，你必须在获取数据或处理数据方面有某种程度的<strong>排他性</strong>。这是投资者无法将更多金融数据访问转化为投资利润的原因之一——数据对所有人都可用。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>数据类型</th>
+<th>排他性</th>
+<th>数据价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Netflix</strong></td>
+<td>订阅者观看/停止观看的内容</td>
+<td>高（专有）</td>
+<td><strong>高</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Bird Scooters</strong></td>
+<td>位置数据</td>
+<td>低（数十个实体都有）</td>
+<td><strong>几乎为零</strong></td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>数据必须是可操作的</strong></p>
+<p>要将数据转化为利润，你需要能够<strong>将数据优势变现</strong>。对于提供产品和服务的公司，这意味着根据数据学习修改现有产品/服务或推出新产品/服务。</p>
+<ul>
+<li><strong>抽象的</strong>、难以想象变现方式的数据 → 价值较低</li>
+<li><strong>具体的</strong>、提供变现路径的数据（即使今天不可行）→ 价值较高</li>
+</ul></li>
+<li><p><strong>数据必须解决（某些）不确定性</strong></p>
+<p>与期权从不确定性中获取价值的原则一致：在<strong>结果或行为存在显著不确定性</strong>的领域收集的数据，比在<strong>偏差较小</strong>的领域收集的数据更有价值。</p></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>大数据主张检查清单
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>用这个清单评估大数据价值主张，会让你在评估数据价值时更有鉴别力：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>问题</th>
+<th>高价值数据</th>
+<th>低价值数据</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>数据是排他的吗？</td>
+<td>是（专有、难以复制）</td>
+<td>否（公开或易获取）</td>
+</tr>
+<tr class="even">
+<td>数据是可操作的吗？</td>
+<td>是（有明确变现路径）</td>
+<td>否（抽象、用途不明）</td>
+</tr>
+<tr class="odd">
+<td>数据能解决不确定性吗？</td>
+<td>是（高变异领域）</td>
+<td>否（标准行为领域）</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="财务灵活性的价值" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="财务灵活性的价值"><span class="header-section-number">7</span> 财务灵活性的价值</h2>
+<p>在做财务决策时，管理层会考虑这些决策对其在未来期间<strong>进行新投资</strong>或<strong>应对意外情况</strong>的能力的影响。</p>
+<p>实际上，这转化为公司维持<strong>超额债务容量</strong>或比当前需要更大的<strong>现金余额</strong>。虽然维持这种财务灵活性对公司有价值，但它也有成本：</p>
+<ul>
+<li><strong>大额现金余额</strong>可能获得低于市场的回报</li>
+<li><strong>超额债务容量</strong>意味着公司放弃了一些价值，资本成本更高</li>
+</ul>
+<section id="财务灵活性的决定因素" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="财务灵活性的决定因素"><span class="header-section-number">7.1</span> 财务灵活性的决定因素</h3>
+<p>公司维持大额现金余额和超额债务容量的一个原因是：拥有<strong>未来选择权</strong>来投资高回报的意外项目。</p>
+<p>要将财务灵活性作为期权估值，假设：</p>
+<ul>
+<li>公司基于自身历史和行业当前状况，对<strong>未来再投资需求</strong>有预期</li>
+<li>公司对<strong>未来能从内部资金和正常资本市场融资</strong>有预期</li>
+<li>未来再投资需求存在<strong>不确定性</strong>（简化起见，假设融资能力已知）</li>
+</ul>
+<p>拥有超额债务容量或大额现金余额的优势：公司可以用其债务容量来满足超出可用资金的任何再投资需求。</p>
+<p>但收益来自这些项目的<strong>超额回报</strong>。因此，要以年度为基础估值财务灵活性，使用以下衡量标准：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>期权输入</th>
+<th>衡量标准</th>
+<th>估计方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>S</strong></td>
+<td>预期年再投资需求占公司价值的百分比</td>
+<td>历史平均（净资本支出 + 营运资本变化）/ 公司市值</td>
+</tr>
+<tr class="even">
+<td><strong>K</strong></td>
+<td>无需财务灵活性可融资的年再投资需求占公司价值的百分比</td>
+<td>如果不使用外部融资：（净利润 - 股息 + 折旧）/ 公司市值；如果使用外部资本：加上净外部融资</td>
+</tr>
+<tr class="odd">
+<td><strong>σ²</strong></td>
+<td>再投资需求的方差</td>
+<td>再投资占公司价值百分比的历史方差</td>
+</tr>
+<tr class="even">
+<td><strong>t</strong></td>
+<td>1 年</td>
+<td>获得年度灵活性价值估计</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="illustration-29.3home-depot-的财务灵活性1999" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="illustration-29.3home-depot-的财务灵活性1999"><span class="header-section-number">7.2</span> Illustration 29.3：Home Depot 的财务灵活性（1999）</h3>
+<p>Home Depot 是一家销售家居改善产品的大型零售连锁店，主要在美国运营。这家公司传统上很少使用债务，而且在过去十年以非凡的速度增长。</p>
+<section id="计算再投资需求" class="level4" data-number="7.2.1">
+<h4 data-number="7.2.1" class="anchored" data-anchor-id="计算再投资需求"><span class="header-section-number">7.2.1</span> 计算再投资需求</h4>
+<p>首先，估计 1989-1998 年再投资占公司价值的百分比：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 27%">
+<col style="width: 26%">
+<col style="width: 17%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>再投资需求（百万美元）</th>
+<th>公司价值（百万美元）</th>
+<th>再投资占价值%</th>
+<th>ln(再投资需求)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1989</td>
+<td>175</td>
+<td>2,758</td>
+<td>6.35%</td>
+<td>-2.757</td>
+</tr>
+<tr class="even">
+<td>1990</td>
+<td>374</td>
+<td>3,815</td>
+<td>9.80%</td>
+<td>-2.322</td>
+</tr>
+<tr class="odd">
+<td>1991</td>
+<td>427</td>
+<td>5,137</td>
+<td>8.31%</td>
+<td>-2.487</td>
+</tr>
+<tr class="even">
+<td>1992</td>
+<td>456</td>
+<td>7,148</td>
+<td>6.38%</td>
+<td>-2.752</td>
+</tr>
+<tr class="odd">
+<td>1993</td>
+<td>927</td>
+<td>9,239</td>
+<td>10.03%</td>
+<td>-2.299</td>
+</tr>
+<tr class="even">
+<td>1994</td>
+<td>1,176</td>
+<td>12,477</td>
+<td>9.43%</td>
+<td>-2.362</td>
+</tr>
+<tr class="odd">
+<td>1995</td>
+<td>1,344</td>
+<td>15,470</td>
+<td>8.69%</td>
+<td>-2.443</td>
+</tr>
+<tr class="even">
+<td>1996</td>
+<td>1,086</td>
+<td>19,535</td>
+<td>5.56%</td>
+<td>-2.890</td>
+</tr>
+<tr class="odd">
+<td>1997</td>
+<td>1,589</td>
+<td>24,156</td>
+<td>6.58%</td>
+<td>-2.721</td>
+</tr>
+<tr class="even">
+<td>1998</td>
+<td>1,817</td>
+<td>30,219</td>
+<td>6.01%</td>
+<td>-2.811</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\text{平均再投资需求占公司价值%} = 7.71\%
+\]</span></p>
+<p><span class="math display">\[
+\text{ln(再投资需求)的标准差} = 22.36\%
+\]</span></p>
+</section>
+<section id="计算内部资金" class="level4" data-number="7.2.2">
+<h4 data-number="7.2.2" class="anchored" data-anchor-id="计算内部资金"><span class="header-section-number">7.2.2</span> 计算内部资金</h4>
+<p>接下来，估计内部资金占公司价值的百分比（使用净利润 + 折旧作为内部资金的衡量）：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 27%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>净利润（百万美元）</th>
+<th>折旧（百万美元）</th>
+<th>公司价值（百万美元）</th>
+<th>内部资金/价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1989</td>
+<td>112</td>
+<td>21</td>
+<td>2,758</td>
+<td>4.82%</td>
+</tr>
+<tr class="even">
+<td>1990</td>
+<td>163</td>
+<td>34</td>
+<td>3,815</td>
+<td>5.16%</td>
+</tr>
+<tr class="odd">
+<td>1991</td>
+<td>249</td>
+<td>52</td>
+<td>5,137</td>
+<td>5.86%</td>
+</tr>
+<tr class="even">
+<td>1992</td>
+<td>363</td>
+<td>70</td>
+<td>7,148</td>
+<td>6.06%</td>
+</tr>
+<tr class="odd">
+<td>1993</td>
+<td>457</td>
+<td>90</td>
+<td>9,239</td>
+<td>5.92%</td>
+</tr>
+<tr class="even">
+<td>1994</td>
+<td>605</td>
+<td>130</td>
+<td>12,477</td>
+<td>5.89%</td>
+</tr>
+<tr class="odd">
+<td>1995</td>
+<td>732</td>
+<td>181</td>
+<td>15,470</td>
+<td>5.90%</td>
+</tr>
+<tr class="even">
+<td>1996</td>
+<td>938</td>
+<td>232</td>
+<td>19,535</td>
+<td>5.99%</td>
+</tr>
+<tr class="odd">
+<td>1997</td>
+<td>1,160</td>
+<td>283</td>
+<td>24,156</td>
+<td>5.97%</td>
+</tr>
+<tr class="even">
+<td>1998</td>
+<td>1,614</td>
+<td>373</td>
+<td>30,219</td>
+<td>6.58%</td>
+</tr>
+</tbody>
+</table>
+<p>1989-1998 年间，内部资金平均为公司价值的 <strong>5.82%</strong>。</p>
+<p>由于公司几乎不使用外部债务，它通过<strong>发行股票</strong>弥补再投资需求（7.71%）和内部资金生成（5.82%）之间的差异。</p>
+<p>假设展望未来，Home Depot 将不再发行新股。</p>
+</section>
+<section id="最优资本结构与超额债务容量" class="level4" data-number="7.2.3">
+<h4 data-number="7.2.3" class="anchored" data-anchor-id="最优资本结构与超额债务容量"><span class="header-section-number">7.2.3</span> 最优资本结构与超额债务容量</h4>
+<p>Home Depot 当前债务比率为 <strong>4.55%</strong>，当前资本成本为 <strong>9.51%</strong>。</p>
+<p>用第 15 章的资本成本框架，估计其最优债务比率为 <strong>20%</strong>，最优资本成本为 <strong>9.17%</strong>。</p>
+<p>最后，Home Depot 1998 年的资本回报率为 <strong>16.37%</strong>，假设这也是新项目的预期回报率。</p>
+</section>
+<section id="期权估值" class="level4" data-number="7.2.4">
+<h4 data-number="7.2.4" class="anchored" data-anchor-id="期权估值"><span class="header-section-number">7.2.4</span> 期权估值</h4>
+<p><strong>期权输入</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>输入</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S</td>
+<td>7.71%（预期再投资需求占公司价值%）</td>
+</tr>
+<tr class="even">
+<td>K</td>
+<td>5.82%（无需灵活性可融资的再投资需求%）</td>
+</tr>
+<tr class="odd">
+<td>t</td>
+<td>1 年</td>
+</tr>
+<tr class="even">
+<td>σ²</td>
+<td>(0.2237)² = 0.05</td>
+</tr>
+<tr class="odd">
+<td>r</td>
+<td>6%</td>
+</tr>
+</tbody>
+</table>
+<p>用这些输入，期权价值为 <strong>0.02277</strong>。</p>
+<p>然后将期权价值转换为随时间推移的价值衡量，乘以年超额回报，并假设公司永远放弃这个超额回报：</p>
+<p><span class="math display">\[
+\text{灵活性价值} = 0.02277 \times \frac{\text{资本回报率} - \text{资本成本}}{\text{资本成本}}
+\]</span></p>
+<p><span class="math display">\[
+= 0.02277 \times \frac{0.1637 - 0.0951}{0.0951} = \textbf{1.6425\%}
+\]</span></p>
+<p><strong>年度基础上，超额债务容量产生的灵活性价值为公司价值的 1.6425%</strong>。</p>
+<p>这远超过使用超额债务容量能实现的资本成本节省（9.51% - 9.17% = 0.34%）。</p>
+</section>
+<section id="考虑灵活性上限" class="level4" data-number="7.2.5">
+<h4 data-number="7.2.5" class="anchored" data-anchor-id="考虑灵活性上限"><span class="header-section-number">7.2.5</span> 考虑灵活性上限</h4>
+<p>最后一个考虑：上述估计没有考虑到 Home Depot 没有<strong>无限的财务灵活性</strong>。</p>
+<p>假设 Home Depot 的超额债务容量（15.45% = 最优债务比率 20% - 当前债务比率 4.55%）是财务灵活性的上限。</p>
+<p>我们可以通过估值一个具有相同参数但执行价格为 21.27%（15.45% + 5.82%）的看涨期权来估值这个上限的影响。</p>
+<p>在这种情况下，施加这个约束对灵活性价值的影响<strong>可以忽略不计</strong>。</p>
+</section>
+</section>
+<section id="财务灵活性期权的含义" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="财务灵活性期权的含义"><span class="header-section-number">7.3</span> 财务灵活性期权的含义</h3>
+<p>将财务灵活性作为期权来看，能提供关于何时财务灵活性最有价值的洞察：</p>
+<ol type="1">
+<li><p><strong>项目回报高于门槛率的公司更重视灵活性</strong></p>
+<p>在项目获得大幅超额回报的业务中运营的公司，应该比在超额回报较小的稳定业务中运营的公司更重视灵活性。</p>
+<p>这意味着像 <strong>Microsoft</strong> 和 <strong>Nvidia</strong> 这样在项目上获得大额超额回报的公司，可以用财务灵活性的需要来为持有大额现金余额和维持超额债务容量辩护。</p></li>
+<li><p><strong>内部资金稳定的公司灵活性价值较低</strong></p>
+<p>由于公司为这些再投资需求融资的能力取决于其产生内部资金的能力，其他条件相同，财务灵活性对<strong>盈利大且稳定</strong>（占公司价值百分比）的公司价值较低。</p>
+<p>盈利小或为负（因此产生内部资金能力低得多）的公司更重视灵活性。</p></li>
+<li><p><strong>能获得外部资本的公司灵活性价值较低</strong></p>
+<p>内部资金有限的公司如果能够<strong>利用外部资本市场</strong>（银行贷款、债券、新股发行），仍然可以几乎不需要财务灵活性。</p>
+<p>这可能解释了为什么<strong>私人或小型公司</strong>（获得资本的渠道少得多）比大型上市公司更重视财务灵活性。公司债券市场的存在也会产生影响——在公司不能发债、必须完全依赖银行融资的市场，获得资本的渠道更少，维持财务灵活性的需要更大。</p></li>
+<li><p><strong>再投资需求不确定性高的公司灵活性价值更高</strong></p>
+<p>灵活性的需要和价值是公司对未来再投资需求<strong>不确定程度</strong>的函数。再投资需求可预测的公司应该比再投资需求在期间之间波动的业务中的公司更少重视灵活性。</p></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>净债务比率与现金积累
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在 Home Depot 分析中，我们考虑了公司的<strong>总债务比率</strong>，它不能低于 0%。</p>
+<p>如果我们考虑公司的<strong>净债务比率</strong>（总债务减去现金），我们会看到公司完全有可能有<strong>负的净债务比率</strong>。</p>
+<p>延伸财务灵活性论点：在极端情况下（低或负的内部现金流，没有资本市场渠道），公司不仅不会使用其债务容量（从而将总债务比率推向零），而且会<strong>积累现金</strong>。</p>
+<p>这可能解释了为什么许多<strong>新兴市场公司</strong>和<strong>年轻科技公司</strong>不使用债务并积累大额现金余额。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="放弃期权" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="放弃期权"><span class="header-section-number">8</span> 放弃期权</h2>
+<p>投资新项目时，公司担心投资不会有回报，实际现金流不会达到预期的风险。拥有<strong>放弃不成功项目</strong>的期权可能很有价值，特别是对于<strong>损失潜力大</strong>的项目。</p>
+<section id="放弃期权的收益结构" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="放弃期权的收益结构"><span class="header-section-number">8.1</span> 放弃期权的收益结构</h3>
+<p>期权定价方法提供了一种估计和内置放弃价值的一般方式。</p>
+<p>假设：</p>
+<ul>
+<li><span class="math inline">\(V\)</span> = 项目继续到寿命结束的剩余价值</li>
+<li><span class="math inline">\(L\)</span> = 同一时点项目的清算或放弃价值</li>
+</ul>
+<p>如果项目有 <span class="math inline">\(n\)</span> 年的剩余寿命，继续项目的价值可以与清算（放弃）价值比较：</p>
+<ul>
+<li>如果继续的价值更高 → 继续项目</li>
+<li>如果放弃的价值更高 → 放弃项目</li>
+</ul>
+<p><span class="math display">\[
+\text{放弃期权收益} = \max(L - V, 0)
+\]</span></p>
+<pre><code>放弃期权收益
+   ^
+   |
+   |\
+   | \
+   |  \
+   |   *---------&gt; V（项目继续的价值）
+   |   L（清算价值）
+   | 如果V&gt;L，不放弃，收益=0</code></pre>
+<p>与前两种期权不同，<strong>放弃期权具有看跌期权的特征</strong>！</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>看跌期权术语</th>
+<th>放弃期权对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产价格 S</td>
+<td>项目继续的剩余价值 V</td>
+</tr>
+<tr class="even">
+<td>执行价格 K</td>
+<td>清算/放弃价值 L</td>
+</tr>
+<tr class="odd">
+<td>到期时间 T</td>
+<td>放弃期权持续的期限</td>
+</tr>
+<tr class="even">
+<td>波动率 σ</td>
+<td>项目价值的波动率</td>
+</tr>
+<tr class="odd">
+<td>股息率 y</td>
+<td>有限寿命项目的价值衰减率</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="illustration-29.4airbus-与-lear-aircraft-的放弃期权" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="illustration-29.4airbus-与-lear-aircraft-的放弃期权"><span class="header-section-number">8.2</span> Illustration 29.4：Airbus 与 Lear Aircraft 的放弃期权</h3>
+<p>假设 Lear Aircraft 有兴趣建造一架小型客机，并向 Airbus 提出联合开发的建议。每家公司将投资 <strong>5 亿美元</strong>，共同生产飞机。</p>
+<p>投资预期有 <strong>30 年</strong>的寿命。</p>
+<p><strong>Airbus 的传统投资分析</strong>：</p>
+<p>Airbus 进行传统投资分析，得出结论：其预期现金流份额的现值只有 <strong>4.8 亿美元</strong>。项目的净现值为负，Airbus 不愿意参与这个联合开发。</p>
+<p><span class="math display">\[
+\text{NPV} = 4.8 - 5.0 = -0.2 \text{ 亿美元}
+\]</span></p>
+<p><strong>Lear 的「甜头」</strong>：</p>
+<p>被拒绝后，Lear 向 Airbus 提出一个「甜头」：在接下来 5 年的任何时候，Lear 愿意以 <strong>4 亿美元</strong>买下 Airbus 的 50% 联合开发股份。</p>
+<p>这低于 Airbus 的初始投资，但它为损失设置了一个<strong>下限</strong>，因此给了 Airbus 一个<strong>放弃期权</strong>。</p>
+<section id="放弃期权估值" class="level4" data-number="8.2.1">
+<h4 data-number="8.2.1" class="anchored" data-anchor-id="放弃期权估值"><span class="header-section-number">8.2.1</span> 放弃期权估值</h4>
+<p><strong>期权输入</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>输入</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S（今天投资现金流份额的现值）</td>
+<td>4.8 亿美元</td>
+</tr>
+<tr class="even">
+<td>K（放弃价值）</td>
+<td>4.0 亿美元</td>
+</tr>
+<tr class="odd">
+<td>t（放弃期权持续期限）</td>
+<td>5 年</td>
+</tr>
+<tr class="even">
+<td>σ（项目价值标准差）</td>
+<td>25%（来自蒙特卡洛模拟）</td>
+</tr>
+<tr class="odd">
+<td>y（延迟成本/价值衰减率）</td>
+<td>1/30 = 3.33%（项目剩余寿命的倒数）</td>
+</tr>
+<tr class="even">
+<td>r（无风险利率）</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么有延迟成本？</strong></p>
+<p>由于项目是有限寿命项目，随着时间推移，现值会下降，因为剩余的现金流年数减少。简化起见，假设这与项目剩余时间成比例。</p>
+<p><strong>看跌期权估值</strong>（使用 Black-Scholes 的看跌期权公式）：</p>
+<p>首先调整标的资产价值以反映延迟成本：</p>
+<p><span class="math display">\[
+S_{\text{调整后}} = S \times e^{-yt} = 4.8 \times e^{-0.0333 \times 5} = 4.8 \times 0.847 = 4.07 \text{ 亿美元}
+\]</span></p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(4.07/4.0) + (0.05 + 0.25^2/2) \times 5}{0.25\sqrt{5}} = \frac{0.0174 + 0.4063}{0.559} = 0.758
+\]</span></p>
+<p><span class="math display">\[
+d_2 = 0.758 - 0.559 = 0.199
+\]</span></p>
+<p><span class="math display">\[
+N(-d_1) = 1 - 0.7748 = 0.2252, \quad N(-d_2) = 1 - 0.5776 = 0.4224
+\]</span></p>
+<p><span class="math display">\[
+\text{放弃期权价值} = K \times e^{-rt} \times N(-d_2) - S_{\text{调整后}} \times N(-d_1)
+\]</span></p>
+<p><span class="math display">\[
+= 4.0 \times e^{-0.05 \times 5} \times 0.4224 - 4.07 \times 0.2252
+\]</span></p>
+<p><span class="math display">\[
+= 4.0 \times 0.7788 \times 0.4224 - 0.916
+\]</span></p>
+<p><span class="math display">\[
+= 1.316 - 0.916 = \textbf{0.40 亿美元}
+\]</span></p>
+<p><strong>投资决策</strong>：</p>
+<p><span class="math display">\[
+\text{联合开发的 NPV} = -0.2 \text{ 亿美元}
+\]</span></p>
+<p><span class="math display">\[
+\text{放弃期权价值} = +0.40 \text{ 亿美元}
+\]</span></p>
+<p><span class="math display">\[
+\text{含放弃期权的总价值} = -0.2 + 0.40 = +0.20 \text{ 亿美元}
+\]</span></p>
+<p>由于放弃期权价值超过了投资的负 NPV，<strong>Airbus 应该加入这个联合开发</strong>。</p>
+<p>另一方面，<strong>Lear 需要能够产生至少 0.40 亿美元的正 NPV</strong>来补偿放弃这个期权的损失。</p>
+</section>
+</section>
+<section id="放弃期权估值的局限性" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="放弃期权估值的局限性"><span class="header-section-number">8.3</span> 放弃期权估值的局限性</h3>
+<p>Illustration 29.4 假设（相当不现实地）放弃价值是明确指定的，且在项目生命周期内不变。这在某些非常具体的情况下可能是真的——放弃期权被内置到合同中。</p>
+<p>但更常见的是：</p>
+<ul>
+<li>公司有放弃的期权，但清算价值只能估计</li>
+<li>放弃价值可能在项目生命周期内变化，使传统期权定价技术难以应用</li>
+<li>放弃项目可能不会带来清算价值，而是<strong>产生成本</strong>（如：制造业公司可能需要向工人支付遣散费）</li>
+</ul>
+<p>在这种情况下，除非项目现金流更负，否则放弃没有意义。</p>
+</section>
+<section id="放弃期权的延伸应用" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="放弃期权的延伸应用"><span class="header-section-number">8.4</span> 放弃期权的延伸应用</h3>
+<section id="合同中的退出条款" class="level4" data-number="8.4.1">
+<h4 data-number="8.4.1" class="anchored" data-anchor-id="合同中的退出条款"><span class="header-section-number">8.4.1</span> 合同中的退出条款</h4>
+<p>创建放弃期权的最直接方式是在与项目相关的其他方的合同中<strong>建立运营灵活性</strong>：</p>
+<ul>
+<li><strong>供应商合同</strong>可以按年签订而不是长期</li>
+<li><strong>员工</strong>可以临时雇用而不是永久</li>
+<li><strong>物理设施</strong>可以短期租赁而不是购买</li>
+<li><strong>财务投资</strong>可以分阶段而不是一次性投入</li>
+</ul>
+<p>虽然建立这种灵活性有成本，但在<strong>波动性高</strong>的业务中，收益可能远超成本。</p>
+</section>
+<section id="客户激励的成本" class="level4" data-number="8.4.2">
+<h4 data-number="8.4.2" class="anchored" data-anchor-id="客户激励的成本"><span class="header-section-number">8.4.2</span> 客户激励的成本</h4>
+<p>在交易的另一边，向客户和联合开发伙伴提供放弃期权可能对价值产生<strong>负面影响</strong>。</p>
+<p>例如：假设一家公司以多年合同销售产品，同时向客户提供随时取消合同的期权。虽然这可能增加销售，但可能有很大成本。</p>
+<p>在经济衰退时，无法履行义务的客户很可能取消合同。通过提供取消诱因获得的初始销售收益，可能被提供给客户的期权成本所抵消。</p>
+</section>
+</section>
+</section>
+<section id="npv-与实物期权估值的调和" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="npv-与实物期权估值的调和"><span class="header-section-number">9</span> NPV 与实物期权估值的调和</h2>
+<p>为什么用实物期权方法估值时，投资有时比用传统 DCF 模型估值更高？</p>
+<p>答案在于公司根据市场观察来<strong>改变投资和运营项目方式的灵活性</strong>。因此，石油公司在油价 15 美元/桶时不会生产同样多的石油或钻同样多的新井，如果油价涨到 95 美元/桶的话。</p>
+<section id="传统-npv-的局限" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="传统-npv-的局限"><span class="header-section-number">9.1</span> 传统 NPV 的局限</h3>
+<p>在传统 NPV 中，我们考虑预期行动及其现金流后果来估计投资价值。如果未来有进一步投资、扩张或放弃的可能，我们能做的只是考虑这些行动的概率，并将它们内置到现金流中。</p>
+<p>分析师经常通过使用<strong>决策树</strong>来考虑灵活性，根据每个结果绘制最优路径。然后你可以用每个分支的概率和每个分支现金流的现值来估计今天的项目价值。</p>
+</section>
+<section id="决策树与二叉树的区别" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="决策树与二叉树的区别"><span class="header-section-number">9.2</span> 决策树与二叉树的区别</h3>
+<p>决策树确实与我们用来估值实物期权的二叉树方法有显著相似性，但有两个区别：</p>
+<ol type="1">
+<li><strong>概率的使用</strong>：实物期权不直接使用结果的概率来估值</li>
+<li><strong>分支数量</strong>：二叉树在每个节点只有两个分支</li>
+</ol>
+<p>你可能会问：为什么两种方法会给出不同的项目价值？</p>
+<p><strong>答案出乎意料地简单：它在于我们用来计算价值的折现率假设。</strong></p>
+<ul>
+<li>在<strong>实物期权方法</strong>中，你使用复制组合来计算价值</li>
+<li>在<strong>决策树</strong>中，你在整个过程中使用项目的资本成本作为折现率</li>
+</ul>
+<p>如果决定资本成本的<strong>市场风险敞口</strong>在每个节点都变化，你可以论证：在整个过程中使用相同的资本成本是不正确的，你应该在时间推移中修改折现率。</p>
+<p><strong>如果你这样做，两种方法会得到相同的价值。</strong></p>
+<p>实物期权方法确实允许更多的复杂性，而且在连续分布（而不是决策树假设的离散结果）下更容易使用。我们将在第 33 章回来检验决策树和其他概率方法。</p>
+</section>
+</section>
+<section id="总结" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="总结"><span class="header-section-number">10</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>扩张期权</strong>可以让一些 NPV 为负的项目变得值得投资——因为它们打开了未来正 NPV 项目的大门</li>
+<li><strong>放弃期权</strong>可以让一些高风险项目变得更有价值——因为它减少了对最差结果的暴露</li>
+<li><strong>财务灵活性</strong>具有期权价值——特别是对于超额回报高、再投资需求波动大的公司</li>
+</ul>
+<p><strong>三个测试判断扩张期权是否有价值</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>测试</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>测试一</strong></td>
+<td>初始投资是否是后续投资的前提？</td>
+</tr>
+<tr class="even">
+<td><strong>测试二</strong></td>
+<td>公司是否对后续投资有排他权或竞争优势？</td>
+</tr>
+<tr class="odd">
+<td><strong>测试三</strong></td>
+<td>竞争优势是否可持续？</td>
+</tr>
+</tbody>
+</table>
+<p>如果三个答案都是「是」，扩张期权可能有价值。</p>
+<p><strong>用户与数据的期权价值</strong>：</p>
+<ul>
+<li>用户期权价值来自<strong>黏性、互动深</strong>的用户基础</li>
+<li>数据期权价值需要<strong>排他性、可操作性、解决不确定性</strong></li>
+</ul>
+</div>
+</div>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>Damodaran 的核心洞察</strong>：</p>
+<p>实物期权框架提供了一个<strong>严谨的方式</strong>来量化「战略价值」——这个概念经常被滥用来为糟糕的投资决策辩护。</p>
+<p>但实物期权不是万能的：</p>
+<ol type="1">
+<li><strong>排他性是关键</strong>：没有排他性，就没有期权价值。「进入大市场的机会」不是期权</li>
+<li><strong>需要量化</strong>：定性地说「有战略价值」是不够的，必须估计这个价值是否超过成本</li>
+<li><strong>注意双重计算</strong>：如果 DCF 中已经用了高增长率，再加期权价值就是双重计算</li>
+</ol>
+<p>实物期权分析不是为了得到一个精确数字，而是为了<strong>理解</strong>价值来源，并区分合理的战略投资和管理层的一厢情愿。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="思考题" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="思考题"><span class="header-section-number">11</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>扩张期权的测试</strong>：一家中国电动车公司宣布在欧洲建厂，即使预计 NPV 为负，因为这「打开了欧洲市场的大门」。用三个测试评估这个论点的合理性。</p></li>
+<li><p><strong>R&amp;D 的期权价值</strong>：为什么生物技术公司的研发支出可能比消费品公司的研发支出有更高的期权价值？如果生物技术行业成熟，这个结论会如何变化？</p></li>
+<li><p><strong>财务灵活性的权衡</strong>：Home Depot 的财务灵活性每年价值公司价值的 1.64%，而使用超额债务容量的资本成本节省只有 0.34%。这意味着 Home Depot 应该永远保持低债务吗？在什么情况下，结论会改变？</p></li>
+<li><p><strong>放弃期权与合同谈判</strong>：你是一家初创公司，正在与大型企业客户谈判一个 5 年期的软件合同。客户要求加入「随时取消」条款。你应该如何评估这个条款的成本？</p></li>
+<li><p><strong>用户期权 vs 数据期权</strong>：Meta 和 Netflix 都拥有大量用户。为什么 Meta 的用户可能比 Netflix 的订阅者有更高的期权价值？</p></li>
+<li><p><strong>决策树与实物期权</strong>：用决策树和用二叉树估值一个项目，在什么情况下会给出相同的结果？在什么情况下会不同？</p></li>
+</ol>
+<hr>
+<p><em>本章内容基于 Aswath Damodaran《Investment Valuation》第 29 章</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

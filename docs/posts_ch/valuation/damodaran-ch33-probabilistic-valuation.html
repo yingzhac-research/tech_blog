@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="传统DCF只给出一个点估计值，但风险资产的价值可能有数百种结果。本章探讨三种概率方法——情景分析、决策树和蒙特卡洛模拟——如何帮助我们理解价值的完整分布，以及如何避免风险的双重计数陷阱。">
+
+<title>【第33章】概率估值方法：情景分析、决策树与蒙特卡洛模拟 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#情景分析scenario-analysis" id="toc-情景分析scenario-analysis" class="nav-link" data-scroll-target="#情景分析scenario-analysis"><span class="header-section-number">2</span> 情景分析（Scenario Analysis）</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要情景分析" id="toc-为什么需要情景分析" class="nav-link" data-scroll-target="#为什么需要情景分析"><span class="header-section-number">2.1</span> 为什么需要情景分析？</a></li>
+  <li><a href="#最佳最差情景分析" id="toc-最佳最差情景分析" class="nav-link" data-scroll-target="#最佳最差情景分析"><span class="header-section-number">2.2</span> 最佳/最差情景分析</a></li>
+  <li><a href="#多情景分析" id="toc-多情景分析" class="nav-link" data-scroll-target="#多情景分析"><span class="header-section-number">2.3</span> 多情景分析</a></li>
+  <li><a href="#illustration-33.1国有化风险下的委内瑞拉公司估值" id="toc-illustration-33.1国有化风险下的委内瑞拉公司估值" class="nav-link" data-scroll-target="#illustration-33.1国有化风险下的委内瑞拉公司估值"><span class="header-section-number">2.4</span> Illustration 33.1：国有化风险下的委内瑞拉公司估值</a></li>
+  <li><a href="#illustration-33.2监管风险下的-wells-fargo-估值2009年" id="toc-illustration-33.2监管风险下的-wells-fargo-估值2009年" class="nav-link" data-scroll-target="#illustration-33.2监管风险下的-wells-fargo-估值2009年"><span class="header-section-number">2.5</span> Illustration 33.2：监管风险下的 Wells Fargo 估值（2009年）</a></li>
+  <li><a href="#情景分析的价值与局限" id="toc-情景分析的价值与局限" class="nav-link" data-scroll-target="#情景分析的价值与局限"><span class="header-section-number">2.6</span> 情景分析的价值与局限</a></li>
+  </ul></li>
+  <li><a href="#决策树decision-trees" id="toc-决策树decision-trees" class="nav-link" data-scroll-target="#决策树decision-trees"><span class="header-section-number">3</span> 决策树（Decision Trees）</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要决策树" id="toc-为什么需要决策树" class="nav-link" data-scroll-target="#为什么需要决策树"><span class="header-section-number">3.1</span> 为什么需要决策树？</a></li>
+  <li><a href="#决策树的四种节点" id="toc-决策树的四种节点" class="nav-link" data-scroll-target="#决策树的四种节点"><span class="header-section-number">3.2</span> 决策树的四种节点</a></li>
+  <li><a href="#决策树分析的五个步骤" id="toc-决策树分析的五个步骤" class="nav-link" data-scroll-target="#决策树分析的五个步骤"><span class="header-section-number">3.3</span> 决策树分析的五个步骤</a></li>
+  <li><a href="#illustration-33.3生物技术公司决策树估值" id="toc-illustration-33.3生物技术公司决策树估值" class="nav-link" data-scroll-target="#illustration-33.3生物技术公司决策树估值"><span class="header-section-number">3.4</span> Illustration 33.3：生物技术公司决策树估值</a></li>
+  <li><a href="#决策树在决策中的价值" id="toc-决策树在决策中的价值" class="nav-link" data-scroll-target="#决策树在决策中的价值"><span class="header-section-number">3.5</span> 决策树在决策中的价值</a></li>
+  <li><a href="#决策树的局限" id="toc-决策树的局限" class="nav-link" data-scroll-target="#决策树的局限"><span class="header-section-number">3.6</span> 决策树的局限</a></li>
+  <li><a href="#决策树与风险调整价值" id="toc-决策树与风险调整价值" class="nav-link" data-scroll-target="#决策树与风险调整价值"><span class="header-section-number">3.7</span> 决策树与风险调整价值</a></li>
+  </ul></li>
+  <li><a href="#蒙特卡洛模拟monte-carlo-simulation" id="toc-蒙特卡洛模拟monte-carlo-simulation" class="nav-link" data-scroll-target="#蒙特卡洛模拟monte-carlo-simulation"><span class="header-section-number">4</span> 蒙特卡洛模拟（Monte Carlo Simulation）</a>
+  <ul class="collapse">
+  <li><a href="#为什么需要模拟" id="toc-为什么需要模拟" class="nav-link" data-scroll-target="#为什么需要模拟"><span class="header-section-number">4.1</span> 为什么需要模拟？</a></li>
+  <li><a href="#模拟的四个步骤" id="toc-模拟的四个步骤" class="nav-link" data-scroll-target="#模拟的四个步骤"><span class="header-section-number">4.2</span> 模拟的四个步骤</a></li>
+  <li><a href="#illustration-33.4exxon-mobil-蒙特卡洛模拟" id="toc-illustration-33.4exxon-mobil-蒙特卡洛模拟" class="nav-link" data-scroll-target="#illustration-33.4exxon-mobil-蒙特卡洛模拟"><span class="header-section-number">4.3</span> Illustration 33.4：Exxon Mobil 蒙特卡洛模拟</a></li>
+  <li><a href="#带约束的模拟" id="toc-带约束的模拟" class="nav-link" data-scroll-target="#带约束的模拟"><span class="header-section-number">4.4</span> 带约束的模拟</a></li>
+  <li><a href="#模拟的价值与局限" id="toc-模拟的价值与局限" class="nav-link" data-scroll-target="#模拟的价值与局限"><span class="header-section-number">4.5</span> 模拟的价值与局限</a></li>
+  <li><a href="#模拟与风险调整价值" id="toc-模拟与风险调整价值" class="nav-link" data-scroll-target="#模拟与风险调整价值"><span class="header-section-number">4.6</span> 模拟与风险调整价值</a></li>
+  </ul></li>
+  <li><a href="#三种方法的比较与选择" id="toc-三种方法的比较与选择" class="nav-link" data-scroll-target="#三种方法的比较与选择"><span class="header-section-number">5</span> 三种方法的比较与选择</a>
+  <ul class="collapse">
+  <li><a href="#方法选择矩阵" id="toc-方法选择矩阵" class="nav-link" data-scroll-target="#方法选择矩阵"><span class="header-section-number">5.1</span> 方法选择矩阵</a></li>
+  <li><a href="#补充-vs-替代风险调整估值" id="toc-补充-vs-替代风险调整估值" class="nav-link" data-scroll-target="#补充-vs-替代风险调整估值"><span class="header-section-number">5.2</span> 补充 vs 替代风险调整估值</a></li>
+  </ul></li>
+  <li><a href="#实践中的概率方法" id="toc-实践中的概率方法" class="nav-link" data-scroll-target="#实践中的概率方法"><span class="header-section-number">6</span> 实践中的概率方法</a></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">7</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第33章】概率估值方法：情景分析、决策树与蒙特卡洛模拟</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    传统DCF只给出一个点估计值，但风险资产的价值可能有数百种结果。本章探讨三种概率方法——情景分析、决策树和蒙特卡洛模拟——如何帮助我们理解价值的完整分布，以及如何避免风险的双重计数陷阱。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2026年1月2日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>在本书的大部分章节中，我们使用 DCF 模型给出一个<strong>点估计值</strong>——“这家公司值 $50 亿”。但这个数字隐藏了一个关键问题：</p>
+<blockquote class="blockquote">
+<p><strong>我们有多大把握这个估值是对的？</strong></p>
+</blockquote>
+<p>传统方法将风险浓缩为一个数字：更高的折现率、更低的现金流、或者对价值的折扣。但这种做法有几个局限：</p>
+<ol type="1">
+<li><strong>模糊了风险的本质</strong>：折现率是一个”钝器”，无法区分不同类型的风险</li>
+<li><strong>忽略了结果的分布</strong>：一家公司可能在最好情况下值 $100 亿，在最坏情况下值 $10 亿——这种信息在点估计中完全消失了</li>
+<li><strong>无法处理离散风险</strong>：某些风险是”全有或全无”的——药品获批或被拒、公司被国有化或不被国有化——折现率无法捕捉这种二元性</li>
+</ol>
+<p>本章将探讨三种<strong>概率估值方法（Probabilistic Approaches）</strong>，它们不只给出期望值，还能揭示价值的完整分布：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 30%">
+<col style="width: 51%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>核心思想</th>
+<th>最适合的风险类型</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>情景分析</strong></td>
+<td>在几个关键情景下估值</td>
+<td>离散、同时发生、相关的风险</td>
+</tr>
+<tr class="even">
+<td><strong>决策树</strong></td>
+<td>将风险分解为阶段，追踪最优决策</td>
+<td>离散、顺序发生、独立的风险</td>
+</tr>
+<tr class="odd">
+<td><strong>蒙特卡洛模拟</strong></td>
+<td>从概率分布中抽样，运行数千次估值</td>
+<td>连续风险，需要完整分布</td>
+</tr>
+</tbody>
+</table>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>Damodaran 的核心洞察</strong>：</p>
+<p>概率方法不是 DCF 的替代品，而是<strong>补充</strong>。它们帮助我们理解： - 价值的<strong>范围</strong>而非单一数字 - 哪些<strong>输入变量</strong>对价值影响最大 - 在不同情景下应该采取什么<strong>行动</strong></p>
+<p>但要注意：这些方法容易导致<strong>风险的双重计数</strong>——在折现率中计入风险，又在模拟结果中惩罚高波动性。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+<hr>
+</section>
+<section id="情景分析scenario-analysis" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="情景分析scenario-analysis"><span class="header-section-number">2</span> 情景分析（Scenario Analysis）</h2>
+<section id="为什么需要情景分析" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="为什么需要情景分析"><span class="header-section-number">2.1</span> 为什么需要情景分析？</h3>
+<p>我们用来估值的”预期现金流”可以通过两种方式估计：</p>
+<ol type="1">
+<li><strong>概率加权平均</strong>：考虑所有可能情景，用概率加权</li>
+<li><strong>最可能情景</strong>：只用最可能发生的那个情景</li>
+</ol>
+<p>前者更精确，但很少使用——因为需要太多信息。后者更常见，但遗漏了其他情景的信息。</p>
+<p><strong>情景分析</strong>提供了一个中间路径：在<strong>几个关键情景</strong>下估计现金流和价值，帮助我们理解风险对价值的影响。</p>
+</section>
+<section id="最佳最差情景分析" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="最佳最差情景分析"><span class="header-section-number">2.2</span> 最佳/最差情景分析</h3>
+<p>最简单的情景分析只考虑三个情景：</p>
+<ul>
+<li><strong>最佳情景（Best Case）</strong>：一切顺利</li>
+<li><strong>最可能情景（Most Likely Case）</strong>：基准情况</li>
+<li><strong>最差情景（Worst Case）</strong>：一切出问题</li>
+</ul>
+<p><strong>两种构建方法</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>做法</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>极端输入法</strong></td>
+<td>每个输入设为最佳/最差值</td>
+<td>可能<strong>不可行</strong>——高增长可能需要低价格</td>
+</tr>
+<tr class="even">
+<td><strong>可行组合法</strong></td>
+<td>在输入之间的关系约束下，找到最大/最小价值</td>
+<td>更<strong>现实</strong>，但需要更多工作</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最佳/最差分析的价值</strong>：</p>
+<ol type="1">
+<li><strong>风险度量</strong>：价值范围（scaled to size）越大，风险越高</li>
+<li><strong>下行风险评估</strong>：帮助投资者了解最坏情况的影响</li>
+</ol>
+<p><strong>但总体而言，最佳/最差分析信息量有限</strong>。知道一只股票在最好情况下值 $80、最差情况下值 $10，并不能帮助你判断 $50 的市价是否合理。</p>
+</section>
+<section id="多情景分析" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="多情景分析"><span class="header-section-number">2.3</span> 多情景分析</h3>
+<p>情景分析不必局限于三个情景。在更一般的形式中，我们可以在<strong>多个情景</strong>下估值，变化宏观经济和公司特定变量的假设。</p>
+<p><strong>情景分析的四个步骤</strong>：</p>
+<p><strong>步骤1：确定关键因素</strong></p>
+<p>情景应该围绕<strong>2-3个最关键的因素</strong>构建：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司类型</th>
+<th>关键因素示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>汽车公司考虑新工厂</td>
+<td>经济状况</td>
+</tr>
+<tr class="even">
+<td>消费品公司推出新产品</td>
+<td>竞争对手反应</td>
+</tr>
+<tr class="odd">
+<td>受监管公司推出新服务</td>
+<td>监管部门态度</td>
+</tr>
+</tbody>
+</table>
+<p><strong>步骤2：确定每个因素的情景数量</strong></p>
+<p>更多情景更现实，但也更难： - 收集信息更困难 - 区分情景之间的现金流差异更难 - 5个情景比15个情景更容易操作</p>
+<p><strong>步骤3：估计每个情景下的现金流、折现率和价值</strong></p>
+<p>这是情景分析最耗时的部分。这也是为什么步骤1和2要聚焦于少数关键因素。</p>
+<p><strong>步骤4：分配概率</strong></p>
+<p>对于宏观经济因素（汇率、利率、经济增长），可以借助专业预测服务。对于行业或竞争因素，需要依靠你自己的行业知识。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>定量 vs 定性视角
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>定量分析师将情景分析视为计算期望值的工具。但战略家们有不同看法：情景分析的主要价值是<strong>拓宽决策者的思维</strong>——思考”合理的未来叙事”而非”最可能的结果”。</p>
+<p>即使某些情景发生的概率很低，考虑它们的价值在于：<strong>迫使你思考与基准情况不同的可能性</strong>。</p>
+</div>
+</div>
+</section>
+<section id="illustration-33.1国有化风险下的委内瑞拉公司估值" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="illustration-33.1国有化风险下的委内瑞拉公司估值"><span class="header-section-number">2.4</span> Illustration 33.1：国有化风险下的委内瑞拉公司估值</h3>
+<p>某些风险很难通过折现率来处理。<strong>国有化风险</strong>就是一个典型例子——它是离散的、全有或全无的。</p>
+<p>假设你正在估值一家委内瑞拉公司：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>明年税后营业收入</td>
+<td>$1,000 万（美元计）</td>
+</tr>
+<tr class="even">
+<td>永续增长率</td>
+<td>3%</td>
+</tr>
+<tr class="odd">
+<td>资本回报率</td>
+<td>20%（投入资本 $5,000 万）</td>
+</tr>
+<tr class="even">
+<td>资本成本</td>
+<td>12%（含国家宏观风险，不含国有化风险）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>情景1：持续经营（Going Concern）</strong></p>
+<p><span class="math display">\[
+\text{再投资率} = \frac{g}{\text{ROC}} = \frac{3\%}{20\%} = 15\%
+\]</span></p>
+<p><span class="math display">\[
+\text{经营资产价值} = \frac{\text{EBIT}(1-t)(1 - \frac{g}{\text{ROC}})}{k_c - g} = \frac{\$10M \times (1 - 0.15)}{0.12 - 0.03} = \$94.44M
+\]</span></p>
+<p><strong>情景2：国有化</strong></p>
+<p>假设国有化后，政府只支付账面价值作为补偿：</p>
+<p><span class="math display">\[
+\text{国有化价值} = \text{账面价值} = \$50M
+\]</span></p>
+<p><strong>概率加权期望值</strong>（假设国有化概率25%）：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{期望价值} &amp;= \text{持续经营价值} \times (1 - P_{\text{国有化}}) + \text{国有化价值} \times P_{\text{国有化}} \\
+&amp;= \$94.44M \times 0.75 + \$50M \times 0.25 \\
+&amp;= \$83.33M
+\end{aligned}
+\]</span></p>
+<p><strong>关键洞察</strong>：国有化概率越高、补偿越低，期望价值越低。这种信息无法通过简单调整折现率来捕捉。</p>
+<hr>
+</section>
+<section id="illustration-33.2监管风险下的-wells-fargo-估值2009年" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="illustration-33.2监管风险下的-wells-fargo-估值2009年"><span class="header-section-number">2.5</span> Illustration 33.2：监管风险下的 Wells Fargo 估值（2009年）</h3>
+<p>让我们看一个更复杂的多情景分析案例。2009年初，在金融危机之后估值 Wells Fargo 面临巨大的不确定性：</p>
+<p><strong>历史数据（2001-2008）</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>净利润</th>
+<th>账面股权</th>
+<th>ROE</th>
+<th>股息支付率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2007</td>
+<td>$80.57 亿</td>
+<td>$458.76 亿</td>
+<td>17.56%</td>
+<td>49.09%</td>
+</tr>
+<tr class="even">
+<td>2008</td>
+<td>$28.42 亿</td>
+<td>$476.28 亿</td>
+<td>5.97%</td>
+<td>202.36%</td>
+</tr>
+<tr class="odd">
+<td>01-07 平均</td>
+<td>-</td>
+<td>-</td>
+<td>18.91%</td>
+<td>43.73%</td>
+</tr>
+</tbody>
+</table>
+<p>2008年是灾难性的一年——净利润暴跌65%，ROE 从18%降到6%。面对这种情况，分析师需要回答：</p>
+<ol type="1">
+<li><strong>基期数据用什么？</strong> 2008是异常值，还是新常态的开始？</li>
+<li><strong>Beta 用多少？</strong> 银行历史 Beta 约为1，但危机揭示了隐藏风险</li>
+</ol>
+<p><strong>三情景框架</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>概率</th>
+<th>ROE</th>
+<th>股权成本</th>
+<th>假设</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>快速恢复</td>
+<td>10%</td>
+<td>18.91%</td>
+<td>9%</td>
+<td>危机很快过去，监管不变</td>
+</tr>
+<tr class="even">
+<td>缓慢恢复</td>
+<td>60%</td>
+<td>15.00%</td>
+<td>10%</td>
+<td>危机缓慢消退，监管资本要求提高</td>
+</tr>
+<tr class="odd">
+<td>新世界秩序</td>
+<td>30%</td>
+<td>12.00%</td>
+<td>11%</td>
+<td>危机持续，监管大幅收紧</td>
+</tr>
+</tbody>
+</table>
+<p><strong>估值公式</strong>（稳定增长3%）：</p>
+<p><span class="math display">\[
+\text{股权价值} = \frac{\text{账面股权} \times \text{ROE} \times (1 - \frac{g}{\text{ROE}})}{k_e - g}
+\]</span></p>
+<p><strong>各情景估值</strong>（使用账面股权 $476.28 亿）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>情景</th>
+<th>净利润</th>
+<th>股权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>快速恢复</td>
+<td>$90.06 亿</td>
+<td>$1,262.94 亿</td>
+</tr>
+<tr class="even">
+<td>缓慢恢复</td>
+<td>$71.44 亿</td>
+<td>$816.48 亿</td>
+</tr>
+<tr class="odd">
+<td>新世界秩序</td>
+<td>$57.15 亿</td>
+<td>$535.82 亿</td>
+</tr>
+</tbody>
+</table>
+<p><strong>期望价值</strong>：</p>
+<p><span class="math display">\[
+E(\text{股权}) = 0.10 \times \$1262.94 + 0.60 \times \$816.48 + 0.30 \times \$535.82 = \$776.93 \text{亿}
+\]</span></p>
+<p>当时 Wells Fargo 的市值约为 $666 亿。<strong>按期望值计算，股票被低估了约16%</strong>。但估值对情景概率非常敏感——如果”新世界秩序”的概率更高，股票可能是高估的。</p>
+<hr>
+</section>
+<section id="情景分析的价值与局限" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="情景分析的价值与局限"><span class="header-section-number">2.6</span> 情景分析的价值与局限</h3>
+<p><strong>价值</strong>：</p>
+<ol type="1">
+<li><strong>风险可视化</strong>：价值范围反映了资产的风险程度</li>
+<li><strong>敏感性识别</strong>：发现哪些输入对价值影响最大</li>
+<li><strong>对冲指导</strong>：如果某些情景下价值大幅下降，可以考虑对冲</li>
+</ol>
+<p><strong>局限</strong>：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>问题</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>垃圾进，垃圾出</strong></td>
+<td>情景必须<strong>现实</strong>且<strong>覆盖可能性全谱</strong></td>
+</tr>
+<tr class="even">
+<td><strong>连续风险</strong></td>
+<td>情景分析最适合离散风险；连续风险需要划分为离散类别</td>
+</tr>
+<tr class="odd">
+<td><strong>风险双重计数</strong></td>
+<td>可能在折现率中计入风险，又因为某些情景价值低而拒绝投资</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>常见错误：基于情景拒绝投资
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>假设一只股票： - 期望价值：$50（风险调整后） - 市价：$40 - 最差情景价值：$20</p>
+<p>分析师可能因为最差情景下”大幅高估”而拒绝买入。但这是<strong>双重计数风险</strong>——期望价值已经是风险调整后的，不应该再因为某些情景价值低而惩罚。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="决策树decision-trees" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="决策树decision-trees"><span class="header-section-number">3</span> 决策树（Decision Trees）</h2>
+<section id="为什么需要决策树" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="为什么需要决策树"><span class="header-section-number">3.1</span> 为什么需要决策树？</h3>
+<p>有些风险不只是离散的，而且是<strong>顺序的（Sequential）</strong>。资产要有价值，必须通过一系列测试，任何一个阶段失败都可能导致完全损失。</p>
+<p><strong>典型例子：FDA 药品审批流程</strong></p>
+<pre><code>临床前 → Phase 1 → Phase 2 → Phase 3 → 审批 → 商业化
+         (安全性)   (有效性)   (长期效果)</code></pre>
+<p>每个阶段都可能失败。对于大型制药公司，这种风险可以在药品组合中平均化，使用传统 DCF。但对于只有一个药品的小型生物技术公司，<strong>整个公司的价值取决于这个顺序风险过程</strong>。</p>
+<p>决策树允许我们： 1. 分阶段考虑风险 2. 在每个阶段根据结果制定最优决策</p>
+</section>
+<section id="决策树的四种节点" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="决策树的四种节点"><span class="header-section-number">3.2</span> 决策树的四种节点</h3>
+<p>理解决策树首先要区分四种节点：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>节点类型</th>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>根节点（Root Node）</strong></td>
+<td>-</td>
+<td>起点，可能是决策或不确定事件</td>
+</tr>
+<tr class="even">
+<td><strong>事件节点（Event Node）</strong></td>
+<td>○</td>
+<td>不确定结果，需要估计概率</td>
+</tr>
+<tr class="odd">
+<td><strong>决策节点（Decision Node）</strong></td>
+<td>□</td>
+<td>决策者的选择</td>
+</tr>
+<tr class="even">
+<td><strong>终节点（End Node）</strong></td>
+<td>◁</td>
+<td>最终结果</td>
+</tr>
+</tbody>
+</table>
+<p><strong>简单示例</strong>：你可以选择确定的 $20，或者参与一个赌博（50%概率赢 $50，50%概率赢 $10）。</p>
+<pre><code>                    赢大
+                  / $50
+                 /  50%
+        赌博 ○ ─
+      / $30    \
+     /          \ 50%
+□ ─             赢小
+     \           $10
+      \
+       确定金额
+         $20</code></pre>
+<p>期望值计算：赌博的期望值 = 0.5 × $50 + 0.5 × $10 = $30 &gt; $20，所以应该选择赌博。</p>
+</section>
+<section id="决策树分析的五个步骤" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="决策树分析的五个步骤"><span class="header-section-number">3.3</span> 决策树分析的五个步骤</h3>
+<p><strong>步骤1：将风险分解为阶段</strong></p>
+<p>关键是识别未来会面临的风险阶段。有时这很容易（如 FDA 审批只有通过/不通过），有时需要将连续结果划分为离散类别（如市场测试结果分为”大成功”、“一般”、“失败”）。</p>
+<p><strong>步骤2：估计每个阶段的结果概率</strong></p>
+<p>概率需要满足： - 每个阶段的概率之和 = 1 - 考虑<strong>条件概率</strong>：一个阶段的结果可能影响下一阶段的概率</p>
+<p><strong>步骤3：定义决策点</strong></p>
+<p>在决策树中嵌入决策点：根据前一阶段的结果和对未来的预期，决定最优行动。例如： - 市场测试失败后：放弃 vs 继续 vs 做第二次测试？</p>
+<p><strong>步骤4：计算终节点的现金流/价值</strong></p>
+<ul>
+<li>有些终节点容易计算（如放弃 = 已花费的成本）</li>
+<li>有些需要完整的 DCF（如全国推广 = 产品生命周期内现金流的现值）</li>
+</ul>
+<p><strong>步骤5：“折叠”决策树</strong></p>
+<p>从终节点开始，<strong>逆向计算期望值</strong>： - <strong>事件节点</strong>：概率加权平均 - <strong>决策节点</strong>：选择期望值最高的分支</p>
+<p>最终得到今天的期望价值。</p>
+<hr>
+</section>
+<section id="illustration-33.3生物技术公司决策树估值" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="illustration-33.3生物技术公司决策树估值"><span class="header-section-number">3.4</span> Illustration 33.3：生物技术公司决策树估值</h3>
+<p>让我们估值一家只有一个产品的小型生物技术公司——一种治疗 I 型糖尿病的药物，即将进入 FDA Phase 1。</p>
+<p><strong>Phase 信息</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶段</th>
+<th>成本</th>
+<th>时间</th>
+<th>成功概率</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Phase 1</td>
+<td>$5,000 万</td>
+<td>1年</td>
+<td>70%</td>
+<td>100名志愿者，测试安全性和剂量</td>
+</tr>
+<tr class="even">
+<td>Phase 2</td>
+<td>$1 亿</td>
+<td>2年</td>
+<td>见下方</td>
+<td>250名志愿者，测试有效性</td>
+</tr>
+<tr class="odd">
+<td>Phase 3</td>
+<td>$2.5-3 亿</td>
+<td>4年</td>
+<td>75-80%</td>
+<td>4,000名志愿者，测试长期效果</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Phase 2 结果的条件概率</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>结果</th>
+<th>概率</th>
+<th>后续</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>仅对 I 型有效</td>
+<td>30%</td>
+<td>Phase 3 成本 $2.5 亿，成功率 80%</td>
+</tr>
+<tr class="even">
+<td>仅对 II 型有效</td>
+<td>10%</td>
+<td>Phase 3 成本 $2.5 亿，成功率 80%</td>
+</tr>
+<tr class="odd">
+<td>对 I 型和 II 型都有效</td>
+<td>10%</td>
+<td>Phase 3 成本 $3 亿，成功率 75%</td>
+</tr>
+<tr class="even">
+<td>失败</td>
+<td>50%</td>
+<td>放弃</td>
+</tr>
+</tbody>
+</table>
+<p><strong>商业化参数</strong>（通过 Phase 3 后）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>适应症</th>
+<th>开发成本</th>
+<th>年现金流</th>
+<th>年限</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>仅 I 型</td>
+<td>$5 亿</td>
+<td>$3 亿</td>
+<td>15年</td>
+</tr>
+<tr class="even">
+<td>仅 II 型</td>
+<td>$5 亿</td>
+<td>$1.25 亿</td>
+<td>15年</td>
+</tr>
+<tr class="odd">
+<td>I 型 + II 型</td>
+<td>$6 亿</td>
+<td>$4 亿</td>
+<td>15年</td>
+</tr>
+</tbody>
+</table>
+<p><strong>资本成本</strong>：10%</p>
+<p><strong>决策树结构</strong>：</p>
+<pre><code>Year 1          Years 2-3       Years 4-7        Years 8-22
+
+                              成功 ─ 开发 → $400M×PVA(10%,15y)
+                             / 75%    -$600M
+              I+II型 ○──────
+             / 10%  -$300M  \ 失败 → 放弃
+            /                 25%
+成功 ○────── II型 ○──成功 80% → 开发 → $125M×PVA
+ 70%       | 10% -$250M  失败 20% → 放弃
+-$100M     |
+           | I型 ○──成功 80% → 开发 → $300M×PVA
+测试       | 30% -$250M  失败 20% → 放弃
+○─$50M     |
+           \ 失败 50%
+            \
+             → 放弃
+
+失败 30% → 放弃</code></pre>
+<p><strong>终节点现值计算</strong>（以 I 型 + II 型为例，假设成功）：</p>
+<p>首先计算15年年金的现值因子：</p>
+<p><span class="math display">\[
+\text{PVA}(10\%, 15年) = \frac{1 - (1.1)^{-15}}{0.10} = 7.606
+\]</span></p>
+<p>开发成功后的价值（第7年末）：</p>
+<p><span class="math display">\[
+\text{PV}_7 = -\$600M + \$400M \times 7.606 = \$2,442.4M
+\]</span></p>
+<p>折现到今天：</p>
+<p><span class="math display">\[
+\text{PV}_0 = \frac{-\$50M}{1.1^0} + \frac{-\$100M}{1.1^1} + \frac{-\$300M}{1.1^3} + \frac{\$2,442.4M}{1.1^7}
+\]</span></p>
+<p><span class="math display">\[
+= -\$50M - \$90.91M - \$225.39M + \$1,253.35M = \$887.05M
+\]</span></p>
+<p><strong>决策树折叠计算</strong>：</p>
+<p>从终节点逆向计算：</p>
+<ol type="1">
+<li><p><strong>I 型 + II 型路径</strong>：</p>
+<ul>
+<li>Phase 3 后决策：开发（$887.05M）vs 放弃（−$366.30M）→ 选择开发</li>
+<li>Phase 3 前期望值：0.75 × $887.05M + 0.25 × (−$366.30M) = $573.71M</li>
+</ul></li>
+<li><p><strong>仅 II 型路径</strong>（有趣的情况）：</p>
+<ul>
+<li>开发后 PV = −$97.43M</li>
+<li>放弃 PV = −$328.74M</li>
+<li><strong>虽然开发是负值，但仍应开发</strong>——因为放弃更差！</li>
+</ul>
+<p>这是因为到那时，Phase 1-3 的成本已经是<strong>沉没成本</strong>。从第7年看：</p>
+<p><span class="math display">\[
+\text{边际PV} = -\$500M + \$125M \times 7.606 = +\$450.75M &gt; 0
+\]</span></p></li>
+<li><p><strong>汇总期望值</strong>：</p></li>
+</ol>
+<p><span class="math display">\[
+\text{公司价值} = \$50.36M
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>决策树的两个关键输出
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>今天的期望价值</strong>：$50.36M，反映了所有可能路径的概率加权</li>
+<li><strong>价值范围</strong>：从 −$366.30M（Phase 3 失败，I+II型）到 +$887.05M（成功开发 I+II型）</li>
+</ol>
+<p>后者揭示了<strong>这家公司的风险有多大</strong>——价值可能完全归零，也可能翻10倍以上。</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="决策树在决策中的价值" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="决策树在决策中的价值"><span class="header-section-number">3.5</span> 决策树在决策中的价值</h3>
+<p><strong>动态风险响应</strong>：决策树迫使你思考”如果…那么…“——不管哪种结果出现，你都有准备好的行动计划。</p>
+<p><strong>信息价值</strong>：决策树帮助你评估获取更多信息的价值。例如：市场测试的成本 vs 它提供的关于成功概率的改进信息。</p>
+<p><strong>风险管理</strong>：决策树展示了现金流如何随时间展开，帮助你决定应该对冲哪些风险。</p>
+</section>
+<section id="决策树的局限" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="决策树的局限"><span class="header-section-number">3.6</span> 决策树的局限</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>局限</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>适合顺序风险</strong></td>
+<td>同时发生的风险难以在决策树中建模</td>
+</tr>
+<tr class="even">
+<td><strong>需要离散结果</strong></td>
+<td>连续结果需要划分为类别</td>
+</tr>
+<tr class="odd">
+<td><strong>概率估计困难</strong></td>
+<td>需要估计每个阶段的成功概率</td>
+</tr>
+<tr class="even">
+<td><strong>依赖纪律</strong></td>
+<td>期望值基于你会在决策点做出最优选择的假设</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="决策树与风险调整价值" class="level3" data-number="3.7">
+<h3 data-number="3.7" class="anchored" data-anchor-id="决策树与风险调整价值"><span class="header-section-number">3.7</span> 决策树与风险调整价值</h3>
+<p>一个常见的误解是：决策树因为考虑了好坏结果的概率，所以已经是风险调整的，应该用<strong>无风险利率</strong>折现。</p>
+<p><strong>这通常是错误的。</strong></p>
+<p>概率加权的期望值<strong>不是</strong>风险调整值。唯一可以用无风险利率的情况是：不确定结果中的风险是<strong>资产特定的、可分散的</strong>。</p>
+<p>例如，在药品审批例子中： - <strong>前7年</strong>（审批阶段）：风险主要是审批风险——这是资产特定的，可能可分散。可以考虑用接近无风险利率折现 - <strong>第7年后</strong>（商业化阶段）：风险包含市场风险——不可分散，必须用风险调整利率</p>
+<p><strong>避免双重计数的关键</strong>：</p>
+<p>如果折现率已经反映了失败风险（如风险投资的目标回报率），那么在决策树中再次用概率调整就是双重计数。</p>
+<p><span class="math display">\[
+\text{估计价值} = \$89.20M = \frac{\$400M}{1.35^5}
+\]</span></p>
+<p>35%的目标回报率<strong>已经内嵌了失败概率</strong>。如果你用正确的业务折现率（如15%）并显式建模失败概率：</p>
+<p><span class="math display">\[
+\$89.20M = \frac{\$400M}{1.15^5} \times p \implies p = 44.85\%
+\]</span></p>
+<p>用35%在决策树中折现会<strong>低估</strong>投资价值。</p>
+<hr>
+</section>
+</section>
+<section id="蒙特卡洛模拟monte-carlo-simulation" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="蒙特卡洛模拟monte-carlo-simulation"><span class="header-section-number">4</span> 蒙特卡洛模拟（Monte Carlo Simulation）</h2>
+<section id="为什么需要模拟" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="为什么需要模拟"><span class="header-section-number">4.1</span> 为什么需要模拟？</h3>
+<p>情景分析和决策树处理<strong>离散风险</strong>。但大多数真实风险是<strong>连续的</strong>——可能产生数百甚至数千种结果。</p>
+<p>模拟的核心思想： 1. 为每个输入变量定义<strong>概率分布</strong>（而非点估计） 2. 从每个分布中<strong>随机抽样</strong>，得到一组输入 3. 用这组输入计算价值 4. 重复<strong>数千次</strong> 5. 得到价值的<strong>完整分布</strong></p>
+</section>
+<section id="模拟的四个步骤" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="模拟的四个步骤"><span class="header-section-number">4.2</span> 模拟的四个步骤</h3>
+<p><strong>步骤1：确定概率变量</strong></p>
+<p>理论上可以为每个输入定义分布。但实际上应该聚焦于<strong>对价值影响最大的几个变量</strong>。</p>
+<p><strong>步骤2：定义概率分布</strong></p>
+<p>这是最困难也最关键的一步。有三种方法：</p>
+<p><strong>方法1：历史数据</strong></p>
+<p>如果变量有长期可靠的历史数据，可以直接用历史分布：</p>
+<pre><code>例：美国10年期国债利率的年度变化（1928-2023）
+- 可以用历史频率作为未来变化的概率分布
+- 隐含假设：没有结构性变化使历史数据失效</code></pre>
+<p><strong>方法2：横截面数据</strong></p>
+<p>如果缺乏历史数据，可以用同类公司的当前差异：</p>
+<pre><code>例：估值一家服装公司的营业利润率
+- 可以用所有服装公司当前利润率的分布
+- 隐含假设：你的公司和行业中其他公司有相同的利润率分布</code></pre>
+<p><strong>方法3：统计分布+参数</strong></p>
+<p>如果历史和横截面数据都不足，需要选择分布类型并估计参数：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>分布类型</th>
+<th>特征</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>正态分布</strong></td>
+<td>对称、钟形</td>
+<td>收入增长率（但不能 &lt; -100%）</td>
+</tr>
+<tr class="even">
+<td><strong>均匀分布</strong></td>
+<td>区间内等概率</td>
+<td>利润率（已知上下限）</td>
+</tr>
+<tr class="odd">
+<td><strong>对数正态</strong></td>
+<td>右偏、非负</td>
+<td>资产价格、倍数</td>
+</tr>
+<tr class="even">
+<td><strong>三角分布</strong></td>
+<td>有最小、最可能、最大值</td>
+<td>专家估计</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>常见问题
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>分布不匹配</strong>：真实数据很少完美符合理论分布。选择”足够接近”的分布</li>
+<li><strong>参数估计</strong>：即使选对了分布，仍需估计参数（均值、标准差等）</li>
+</ol>
+</div>
+</div>
+<p><strong>步骤3：检查变量间的相关性</strong></p>
+<p>变量之间可能存在相关性：</p>
+<ul>
+<li>利率↑ 通常伴随 通胀↑</li>
+<li>收入↑ 可能伴随 利润率↓（需要降价促销）</li>
+</ul>
+<p>处理方法： 1. <strong>创建复合变量</strong>：如用”实际利率”（名义利率 - 通胀）代替两个变量 2. <strong>显式建模相关性</strong>：在模拟软件中指定相关系数</p>
+<p><strong>步骤4：运行模拟</strong></p>
+<p>模拟次数取决于： - 概率变量数量越多 → 需要越多模拟 - 分布越多样 → 需要越多模拟 - 结果范围越广 → 需要越多模拟</p>
+<p>现代软件可以轻松运行数万次模拟，<strong>宁多勿少</strong>。</p>
+<hr>
+</section>
+<section id="illustration-33.4exxon-mobil-蒙特卡洛模拟" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="illustration-33.4exxon-mobil-蒙特卡洛模拟"><span class="header-section-number">4.3</span> Illustration 33.4：Exxon Mobil 蒙特卡洛模拟</h3>
+<p>让我们用模拟来估值 Exxon Mobil（2009年3月）。</p>
+<p><strong>第22章的 DCF 估值回顾</strong>：</p>
+<p>我们发现 Exxon 的营业收入与油价高度相关：</p>
+<p><span class="math display">\[
+\text{营业收入} = -6,395 + 911.32 \times \text{平均油价} \quad (R^2 = 90.2\%)
+\]</span></p>
+<p>油价每上涨 $10，Exxon 营业收入增加约 $91 亿！</p>
+<p><strong>基准估值假设</strong>（油价 $45/桶）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>正常化营业收入</td>
+<td>$346.14 亿</td>
+</tr>
+<tr class="even">
+<td>资本成本</td>
+<td>8.18%</td>
+</tr>
+<tr class="odd">
+<td>永续增长率</td>
+<td>2%</td>
+</tr>
+<tr class="even">
+<td>资本回报率</td>
+<td>21%</td>
+</tr>
+<tr class="odd">
+<td>股权价值/股</td>
+<td>$69.43（市价 $64.83）</td>
+</tr>
+</tbody>
+</table>
+<p>问题是：<strong>油价 $45 是”正常”水平吗？</strong></p>
+<p><strong>模拟设置</strong>：</p>
+<p><strong>步骤1：油价概率分布</strong></p>
+<p>使用30年历史油价（通胀调整后）构建分布：</p>
+<ul>
+<li>分布类型：对数正态</li>
+<li>范围：$8 - $120+/桶</li>
+<li>均值：$45（当前价格）</li>
+</ul>
+<p><strong>步骤2：链接营业收入与油价</strong></p>
+<p><span class="math display">\[
+\text{营业收入} = -6,395 + 911.32 \times \text{油价}
+\]</span></p>
+<p><strong>步骤3：计算价值</strong></p>
+<p>营业收入变化通过两个渠道影响价值： 1. <strong>直接效应</strong>：现金流变化 2. <strong>间接效应</strong>：资本回报率变化 → 再投资率变化</p>
+<p><strong>步骤4：运行10,000次模拟</strong></p>
+<pre><code>模拟结果：
+- 期望值/股：$69.59
+- 最小值：$2.25
+- 最大值：$324.42
+- 标准差：$32.17
+- 低于市价 $64.83 的概率：&gt;50%</code></pre>
+<p><strong>关键洞察</strong>：</p>
+<p>期望值（$69.59）略高于市价（$64.83），但<strong>有超过50%的概率价值低于市价</strong>。</p>
+<p>这提供了比点估计更丰富的信息： - 如果你相信油价会上涨 → 股票被低估 - 如果你相信油价会下跌 → 股票可能被高估 - <strong>不确定性本身</strong>就是重要信息</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>安全边际与模拟
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>价值投资者常用<strong>安全边际（Margin of Safety）</strong>：只有当市价低于估值的X%（如20%）时才买入。</p>
+<p>模拟可以帮助设定安全边际。如果期望值是 $69.59，20%的安全边际意味着只有当股价低于 $55.67 时才买入。</p>
+<p>更进一步：可以根据模拟分布的<strong>百分位数</strong>来设定安全边际——例如，只有当市价低于第30百分位价值时才买入。</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="带约束的模拟" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="带约束的模拟"><span class="header-section-number">4.4</span> 带约束的模拟</h3>
+<p>模拟的第二个用途是当存在<strong>约束条件</strong>，违反约束会带来巨大成本：</p>
+<p><strong>监管资本约束</strong>（银行、保险公司）：</p>
+<ul>
+<li>监管要求账面股权/资产 ≥ 最低比率</li>
+<li>违反约束 → 可能被接管</li>
+<li>模拟可以评估违反约束的概率及其后果</li>
+</ul>
+<p><strong>负账面股权</strong>：</p>
+<ul>
+<li>美国：负账面股权公司可能面临贷款违约条款触发</li>
+<li>欧洲部分国家：负账面股权公司必须增发股权</li>
+<li>亚洲部分国家：负账面股权公司禁止分红</li>
+</ul>
+<p><strong>债务约束</strong>：</p>
+<ul>
+<li>DCF 假设公司持续经营</li>
+<li>但如果无法偿还债务，间接破产成本可能很大：
+<ul>
+<li>客户流失</li>
+<li>供应商收紧信用</li>
+<li>员工流失</li>
+</ul></li>
+<li>模拟可以显式建模困境对现金流和折现率的影响</li>
+</ul>
+<hr>
+</section>
+<section id="模拟的价值与局限" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="模拟的价值与局限"><span class="header-section-number">4.5</span> 模拟的价值与局限</h3>
+<p><strong>价值</strong>：</p>
+<ol type="1">
+<li><strong>更好的输入估计</strong>：迫使你认真思考每个变量的分布，而非随意给出点估计</li>
+<li><strong>提供分布而非点估计</strong>：期望值 + 标准差 + 分位数 = 对不确定性的完整理解</li>
+<li><strong>风险可视化</strong>：分布图直观展示了价值的不确定性</li>
+</ol>
+<p><strong>注意</strong>：我们<strong>不</strong>声称： - 模拟比传统方法给出更好的期望值（应该接近） - 模拟一定导致更好的决策（取决于如何使用）</p>
+<p><strong>局限</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>问题</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>垃圾进，垃圾出</strong></td>
+<td>分布必须基于分析和数据，而非猜测</td>
+</tr>
+<tr class="even">
+<td><strong>真实数据不符合分布</strong></td>
+<td>很少有输入完美符合理论分布</td>
+</tr>
+<tr class="odd">
+<td><strong>分布不稳定</strong></td>
+<td>均值、方差、甚至分布形状可能随时间变化</td>
+</tr>
+<tr class="even">
+<td><strong>相关性变化</strong></td>
+<td>变量间的相关性可能不稳定</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="模拟与风险调整价值" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="模拟与风险调整价值"><span class="header-section-number">4.6</span> 模拟与风险调整价值</h3>
+<p>再次强调：<strong>模拟不是风险调整！</strong></p>
+<p>模拟产生的是期望现金流，不是风险调整现金流。除非风险完全是资产特定的、可分散的，否则应该用风险调整利率折现。</p>
+<p><strong>避免双重计数</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>资产</th>
+<th>风险调整折现率</th>
+<th>模拟期望值</th>
+<th>模拟标准差</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>12%</td>
+<td>$100</td>
+<td>15%</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>15%</td>
+<td>$100</td>
+<td>21%</td>
+</tr>
+</tbody>
+</table>
+<p>B 的折现率更高是因为它更风险。如果再因为模拟标准差高而拒绝 B，就是<strong>双重计数风险</strong>。</p>
+<p>正确做法： - 要么用风险调整折现率 + 不考虑模拟波动性 - 要么用无风险利率 + 用模拟波动性作为风险度量</p>
+<p>但后者有一个问题：它假设<strong>所有风险</strong>都重要，而非只有<strong>不可分散风险</strong>。对于分散化的投资者，高模拟波动性可能无关紧要。</p>
+<hr>
+</section>
+</section>
+<section id="三种方法的比较与选择" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="三种方法的比较与选择"><span class="header-section-number">5</span> 三种方法的比较与选择</h2>
+<section id="方法选择矩阵" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="方法选择矩阵"><span class="header-section-number">5.1</span> 方法选择矩阵</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>风险特征</th>
+<th>离散/连续</th>
+<th>相关/独立</th>
+<th>顺序/同时</th>
+<th>推荐方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FDA 审批</td>
+<td>离散</td>
+<td>独立</td>
+<td>顺序</td>
+<td><strong>决策树</strong></td>
+</tr>
+<tr class="even">
+<td>监管变化 + 经济周期</td>
+<td>离散</td>
+<td>相关</td>
+<td>同时</td>
+<td><strong>情景分析</strong></td>
+</tr>
+<tr class="odd">
+<td>油价、利率</td>
+<td>连续</td>
+<td>可能相关</td>
+<td>都可以</td>
+<td><strong>模拟</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>数据质量也很重要</strong>：</p>
+<ul>
+<li><strong>模拟</strong>：需要大量历史/横截面数据来估计分布</li>
+<li><strong>决策树</strong>：需要能估计各阶段概率（可以用历史频率或专家判断）</li>
+<li><strong>情景分析</strong>：数据最少的情况下仍可使用（但更主观）</li>
+</ul>
+</section>
+<section id="补充-vs-替代风险调整估值" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="补充-vs-替代风险调整估值"><span class="header-section-number">5.2</span> 补充 vs 替代风险调整估值</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>补充</th>
+<th>替代</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>情景分析</strong></td>
+<td>✓ 总是补充（不覆盖全部可能性）</td>
+<td>✗ 不能替代</td>
+</tr>
+<tr class="even">
+<td><strong>决策树</strong></td>
+<td>✓ 可以补充</td>
+<td>✓ 可以替代（用无风险利率 + 波动性度量）</td>
+</tr>
+<tr class="odd">
+<td><strong>模拟</strong></td>
+<td>✓ 可以补充</td>
+<td>✓ 可以替代（用无风险利率 + 波动性度量）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>作为补充使用时的注意事项</strong>：</p>
+<ol type="1">
+<li>使用<strong>风险调整折现率</strong></li>
+<li>不同结果可以用<strong>不同折现率</strong>（更好的结果可能风险更低）</li>
+<li><strong>不要双重计数</strong>：不能因为波动性高而拒绝已经用高折现率折现的投资</li>
+</ol>
+<p><strong>作为替代使用时的注意事项</strong>：</p>
+<ol type="1">
+<li>使用<strong>无风险利率</strong>折现</li>
+<li>用波动性（标准差、价值范围）作为风险度量</li>
+<li>隐含假设：<strong>所有风险都重要</strong>（忽略可分散/不可分散的区分）</li>
+</ol>
+<p>这种做法对于<strong>单一资产投资者</strong>合理，但对于<strong>分散化投资组合</strong>可能误导——高波动性资产可能与组合其他资产不相关，因此边际风险很低。</p>
+<hr>
+</section>
+</section>
+<section id="实践中的概率方法" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="实践中的概率方法"><span class="header-section-number">6</span> 实践中的概率方法</h2>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>Damodaran 的实践建议</strong>：</p>
+<ol type="1">
+<li><strong>不要因为输出好看就相信模拟</strong>——分布的质量取决于输入的质量</li>
+<li><strong>概率方法不是魔法</strong>——它们不能消除不确定性，只能帮助你<strong>理解</strong>不确定性</li>
+<li><strong>最大的价值是迫使你思考</strong>——思考哪些因素重要、它们如何相互影响、你在不同情景下会怎么做</li>
+<li><strong>注意双重计数</strong>——这是最常见的错误</li>
+</ol>
+<p><code>─────────────────────────────────────────────────</code></p>
+<p>随着数据可用性和计算能力的提升，概率方法变得越来越常见。现在经常可以看到资本预算分析附带20-30个情景，或者股票估值附带蒙特卡洛模拟。</p>
+<p>但这种普及也带来了风险：<strong>复杂的输出可能掩盖简单的错误</strong>。</p>
+<p>一个基于随机假设的模拟可以产生漂亮的图表和精确到小数点的”期望值”——但那只是<strong>精确的垃圾</strong>。</p>
+<hr>
+</section>
+<section id="总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结"><span class="header-section-number">7</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>情景分析</strong>：在几个关键情景下估值，揭示价值范围和敏感性。最适合离散、相关、同时发生的风险。</p></li>
+<li><p><strong>决策树</strong>：将风险分解为阶段，追踪最优决策路径。最适合离散、独立、顺序发生的风险。输出包括期望值和最优决策规则。</p></li>
+<li><p><strong>蒙特卡洛模拟</strong>：为输入定义概率分布，运行数千次估值。最适合连续风险。输出包括期望值和价值分布。</p></li>
+<li><p><strong>风险双重计数</strong>是最大陷阱：</p>
+<ul>
+<li>不要用风险调整折现率 + 又因为波动性高而惩罚投资</li>
+<li>不要在折现率中已经内嵌了失败概率 + 又在决策树中显式计入失败</li>
+</ul></li>
+<li><p><strong>概率方法是补充而非替代</strong>：它们帮助你理解风险的本质和价值的分布，但不能消除不确定性本身。</p></li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>适用风险</th>
+<th>关键输出</th>
+<th>数据要求</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>情景分析</td>
+<td>离散、相关、同时</td>
+<td>情景价值、范围</td>
+<td>最低</td>
+</tr>
+<tr class="even">
+<td>决策树</td>
+<td>离散、独立、顺序</td>
+<td>期望值、最优决策</td>
+<td>中等</td>
+</tr>
+<tr class="odd">
+<td>模拟</td>
+<td>连续</td>
+<td>期望值、完整分布</td>
+<td>最高</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>本章我们回答了开头的问题：<strong>如何在点估计之外理解价值的不确定性？</strong></p>
+<p>三种概率方法提供了不同的视角： - 情景分析告诉你”如果发生X，价值会是多少” - 决策树告诉你”每个阶段应该怎么做，最终期望值是多少” - 模拟告诉你”价值的完整分布是什么样的”</p>
+<p>但记住：<strong>方法的复杂性不能替代输入的质量</strong>。一个简单但基于深思熟虑假设的 DCF，往往比一个复杂但基于随意假设的模拟更有价值。</p>
+<hr>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>情景分析的局限</strong>：为什么最佳/最差情景分析通常”信息量有限”？在什么情况下它仍然有用？</p></li>
+<li><p><strong>决策树中的沉没成本</strong>：在药品开发决策树中，为什么即使 II 型糖尿病药物的整体 NPV 为负，公司仍应在 Phase 3 成功后继续开发？这与沉没成本谬误有什么关系？</p></li>
+<li><p><strong>风险双重计数</strong>：一位分析师用10%的折现率对某股票进行蒙特卡洛模拟，得到期望值 $50（市价 $45）和标准差 $15。他拒绝推荐该股票，理由是”波动性太高”。这个推理有什么问题？</p></li>
+<li><p><strong>模拟的分布选择</strong>：你需要模拟一家零售公司的收入增长率。历史数据显示增长率在 -15% 到 +25% 之间，均值 5%，略有右偏。你会选择什么分布？为什么？</p></li>
+<li><p><strong>方法选择</strong>：假设你要估值一家新兴市场的矿业公司，面临以下风险：(a) 大宗商品价格波动（连续），(b) 政府可能征收暴利税（离散，取决于价格），(c) 环境法规变化（离散，与税收相关）。你会用什么方法？如何构建分析？</p></li>
+<li><p><strong>跨章节联系</strong>：本章的概率方法与第28-30章的实物期权方法有什么关系？决策树中的”决策节点”与实物期权中的”灵活性价值”有什么联系？</p></li>
+</ol>
+<hr>
+<p><em>本章基于 Damodaran《Investment Valuation》第33章”Probabilistic Approaches in Valuation: Scenario Analysis, Decision Trees, and Simulations”撰写。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

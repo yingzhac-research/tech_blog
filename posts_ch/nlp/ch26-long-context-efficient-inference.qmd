@@ -1,0 +1,813 @@
+---
+title: "第26章：长上下文与高效推理"
+subtitle: "From 512 Tokens to Millions: The Quest for Infinite Context"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, 长上下文, 高效推理, 位置编码]
+tags: [RoPE, ALiBi, FlashAttention, KV Cache, PagedAttention, GQA, MQA, Position Interpolation, YaRN, Ring Attention, vLLM, 长度外推]
+description: "原始Transformer的512 token上下文窗口曾经足够，但大语言模型时代催生了对超长上下文的需求——从代码库理解到长文档摘要，从多轮对话到RAG检索。本章讲述突破上下文长度瓶颈的完整技术栈：位置编码从绝对到相对再到RoPE/ALiBi的演进、Position Interpolation到YaRN的长度外推技术、FlashAttention对注意力计算的IO感知革命、KV Cache的PagedAttention内存管理，以及Ring Attention的分布式长序列方案。每一项技术都是对O(n²)瓶颈的不同维度的突围。"
+image: "figures/chapter-26/original/fig-flash-attention-tiling.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：如何让大语言模型支持超长序列？从512 token到百万token的跃迁需要哪些技术突破？
+>
+> **历史坐标**：2021–2024 | RoPE (2021) → ALiBi (2022) → FlashAttention (2022) → Position Interpolation (2023) → YaRN (2023) → PagedAttention (2023) | 从算法到系统的完整链条
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Su et al. (2021)** "RoFormer: Enhanced Transformer with Rotary Position Embedding" ([arXiv:2104.09864](https://arxiv.org/abs/2104.09864)) — 参考了 Section 3 (RoPE 数学推导)、Figure 1-2 (旋转编码可视化)；核心位置编码方法
+- **Press et al. (2022)** "Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation" ([arXiv:2108.12409](https://arxiv.org/abs/2108.12409)) — 参考了 Section 2 (ALiBi 方法)、Figure 1-2 (外推实验)；ICLR 2022
+- **Dao et al. (2022)** "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness" ([arXiv:2205.14135](https://arxiv.org/abs/2205.14135)) — 参考了 Algorithm 1 (FlashAttention 伪代码)、Figure 1 (Tiling 示意图)；NeurIPS 2022
+- **Dao (2023)** "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning" ([arXiv:2307.08691](https://arxiv.org/abs/2307.08691)) — 参考了 Section 3 (优化策略)；ICLR 2024
+- **Chen et al. (2023)** "Extending Context Window of Large Language Models via Positional Interpolation" ([arXiv:2306.15595](https://arxiv.org/abs/2306.15595)) — 参考了 Section 2 (PI 方法)、理论分析；EMNLP 2024
+- **Peng et al. (2023)** "YaRN: Efficient Context Window Extension of Large Language Models" ([arXiv:2309.00071](https://arxiv.org/abs/2309.00071)) — 参考了 Section 2-3 (NTK-aware 和 YaRN 方法)；ICLR 2024
+- **Kwon et al. (2023)** "Efficient Memory Management for Large Language Model Serving with PagedAttention" ([arXiv:2309.06180](https://arxiv.org/abs/2309.06180)) — 参考了 Section 3-4 (PagedAttention 设计)；SOSP 2023
+- **Ainslie et al. (2023)** "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints" ([arXiv:2305.13245](https://arxiv.org/abs/2305.13245)) — 参考了 Section 2-3 (GQA 方法)；EMNLP 2023
+- **Liu et al. (2023)** "Ring Attention with Blockwise Transformers for Near-Infinite Context" ([arXiv:2310.01889](https://arxiv.org/abs/2310.01889)) — 参考了 Section 2-3 (Ring Attention 算法)
+
+### 教材
+- **D2L** Chapter 11.6 (Self-Attention and Positional Encoding) — 参考了位置编码的基础讲解
+- **Understanding Deep Learning** Chapter 12 (Transformers) — 参考了注意力机制的可视化
+
+### 课程
+- **Princeton COS 484** (Spring 2024) — Tri Dao 讲授 FlashAttention 的课程材料
+- **Stanford CS224N** Lecture 8-9 (Winter 2025) — 参考了 Transformer 和预训练的教学框架
+:::
+
+## 从上一章说起
+
+上一章我们深入探讨了对齐技术的演进——从 RLHF 的三阶段流水线到 DPO 的单阶段直接优化，再到 ORPO、SimPO、KTO 等进一步简化工程复杂度的变体。这些技术让大语言模型从"文本补全器"转变为真正有用的 AI 助手，能够遵循指令、拒绝有害请求、提供有帮助的回答。对齐技术的平民化——DPO 让偏好对齐变成了"加几行代码"的事情——大大加速了开源社区的发展。
+
+然而，对齐解决的是"模型行为与人类期望一致"的问题，它假设模型已经具备足够的能力。但能力本身受到一个根本性的物理约束：**上下文窗口的长度**。
+
+原始 Transformer 的上下文窗口只有 512 个 token。BERT 继承了这个设计，GPT-2 扩展到 1024，GPT-3 达到 2048。这些长度在早期已经足够——一篇新闻文章、一段对话、一个代码片段通常都能装得下。但随着大语言模型从研究走向应用，512 到 2048 token 的限制越来越成为瓶颈。
+
+想象一下这些场景：你想让模型阅读一份 50 页的合同并回答问题，但 50 页文本大约是 25000 个 token——远超任何早期模型的上下文限制。你想让模型理解一个代码库来帮你调试，但一个中等规模的项目可能有上百个文件、几十万行代码。你想与模型进行长时间的多轮对话，但累积的对话历史很快就会撑爆上下文窗口。你想用 RAG（检索增强生成）来让模型访问外部知识，但如果只能放入几个检索片段，模型能获取的信息就非常有限。
+
+**上下文长度不只是一个工程限制，它直接决定了模型能做什么任务、做得多好**。
+
+扩展上下文窗口的挑战是多维的。最直接的瓶颈是**计算复杂度**：标准自注意力的时间和空间复杂度都是 $O(n^2)$，其中 $n$ 是序列长度。将上下文从 2K 扩展到 128K 意味着计算量增加 4096 倍——这不是简单堆砌更多 GPU 能解决的问题。
+
+第二个挑战是**位置编码的外推**。Transformer 需要知道 token 的位置信息，而大多数位置编码方案在训练时只见过有限长度的序列。当推理时遇到比训练长度更长的序列时，位置编码可能完全失效——模型对超出训练范围的位置"一无所知"。
+
+第三个挑战是**推理时的内存管理**。在自回归生成时，每生成一个 token 都需要访问之前所有 token 的 key-value 缓存（KV cache）。对于 128K 上下文的 70B 模型，仅 KV cache 就可能占用超过 100GB 显存，这比模型参数本身还大。
+
+这三个挑战分别对应本章要讨论的三类技术：**位置编码的演进与外推**解决"模型能否理解长距离位置关系"的问题；**高效注意力算法**解决 $O(n^2)$ 计算瓶颈；**KV cache 优化**解决推理时的内存管理。
+
+> 💡 **本章核心洞察**：突破长上下文瓶颈需要算法和系统的协同设计。位置编码决定了模型"能否"处理长序列，高效注意力决定了"能否快速"处理，KV cache 管理决定了"能否在有限资源下"部署。这三者缺一不可——只优化其中一个维度而忽略其他，整体系统仍然无法工作。
+
+## 问题的本质是什么？
+
+### $O(n^2)$ 的诅咒
+
+让我们从最根本的瓶颈开始：自注意力的二次复杂度。
+
+在标准 Transformer 中，自注意力的计算包括三步：首先用 $Q$ 和 $K$ 计算注意力分数矩阵 $QK^\top$，这是一个 $n \times n$ 的矩阵；然后对每一行做 softmax 归一化；最后用归一化后的注意力权重与 $V$ 相乘得到输出。
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+这里的关键是 $QK^\top$：它需要计算 $n \times n$ 个点积，每个点积涉及 $d_k$ 维向量。总计算量是 $O(n^2 d_k)$，空间复杂度也是 $O(n^2)$（需要存储完整的注意力矩阵）。
+
+当 $n = 512$ 时，$n^2 = 262144$，完全可控。当 $n = 8192$ 时，$n^2 = 67M$，开始吃力但仍然可行。当 $n = 131072$（128K）时，$n^2 = 17B$——单个注意力矩阵就有 170 亿个元素！
+
+更糟糕的是，Transformer 通常有几十层，每层都有多个注意力头。一个 70B 参数的模型可能有 80 层、64 个头。如果每层的每个头都要计算并存储完整的 $n \times n$ 注意力矩阵，内存需求会变得完全不可承受。
+
+### 位置编码的困境
+
+Transformer 的另一个根本问题是它对位置信息的处理。与 RNN 不同——RNN 天然地按顺序处理序列，位置信息隐含在计算顺序中——Transformer 的自注意力是"位置无关"的：如果我们打乱输入序列的顺序，只要位置编码也相应打乱，注意力计算的结果完全相同。
+
+这意味着 Transformer 必须**显式地**将位置信息注入到模型中。原始 Transformer 使用的是正弦位置编码：
+
+$$
+\begin{aligned}
+PE_{(pos, 2i)} &= \sin\left(\frac{pos}{10000^{2i/d}}\right) \\
+PE_{(pos, 2i+1)} &= \cos\left(\frac{pos}{10000^{2i/d}}\right)
+\end{aligned}
+$$
+
+这个设计有一个美妙的性质：对于任意固定的偏移量 $k$，$PE_{pos+k}$ 可以表示为 $PE_{pos}$ 的线性变换。理论上，这应该让模型能够学习到相对位置关系。
+
+但正弦编码有一个致命的问题：**它在训练长度之外的表现是未定义的**。如果模型只在 2048 长度的序列上训练，它对 $pos = 3000$ 或 $pos = 10000$ 的位置编码完全没有见过。虽然数学上我们可以计算出 $\sin(3000/10000^{2i/d})$ 的值，但模型的注意力权重是否能正确利用这些从未见过的位置编码值，完全没有保证。
+
+实验表明，当序列长度超过训练长度时，模型的困惑度（perplexity）会急剧上升，甚至完全失效。这被称为**长度外推失败**（length extrapolation failure）。
+
+### 推理时的 KV Cache 膨胀
+
+第三个瓶颈出现在推理阶段，特别是自回归生成时。
+
+当模型生成第 $t$ 个 token 时，它需要计算当前 token 与之前所有 token 的注意力。这需要访问位置 $1, 2, \ldots, t-1$ 的 key 和 value 向量。如果每次都重新计算这些向量，计算量会随着生成长度二次增长。
+
+标准的优化是**KV cache**：在生成每个 token 时，将该位置的 key 和 value 存储起来，后续 token 生成时直接复用。这将计算复杂度从 $O(t^2)$ 降到 $O(t)$，但代价是需要存储越来越大的 cache。
+
+对于一个 70B 模型（假设 80 层、64 个头、head dimension = 128），128K 上下文的 KV cache 大小为：
+
+$$
+\text{KV cache size} = 2 \times 80 \times 64 \times 128K \times 128 \times 2 \text{ bytes (BF16)} = 167 \text{ GB}
+$$
+
+这比模型参数本身（70B × 2 bytes = 140 GB）还要大！而且这只是单个请求的 KV cache。在生产环境中，一个 GPU 需要同时服务多个请求，KV cache 的内存管理成为关键瓶颈。
+
+### 我们需要什么样的解决方案？
+
+综合以上分析，理想的长上下文解决方案需要在三个维度上同时突破。
+
+**位置编码层面**：我们需要一种位置编码方案，它不仅能编码位置信息，还能在训练长度之外保持有效——即具有良好的**长度外推**能力。更理想的情况是，位置编码本身就编码了相对位置关系，而不是绝对位置。
+
+**计算效率层面**：我们需要打破 $O(n^2)$ 的瓶颈。可能的方向包括：稀疏注意力（只计算部分位置对的注意力）、近似注意力（用某种近似算法降低复杂度）、或者更聪明的精确注意力实现（通过算法和硬件的协同设计降低实际运行时间）。
+
+**内存管理层面**：我们需要更高效的 KV cache 管理策略，能够在有限显存中支持更长的上下文和更多的并发请求。这可能涉及内存池化、分页管理、或者减少每个位置需要存储的信息量。
+
+接下来的几节，我们将逐一介绍这三个维度的关键技术。
+
+## 位置编码的演进
+
+位置编码的演进是一个从"绝对"到"相对"、从"加性"到"乘性"的过程。理解这个演进脉络，是理解现代长上下文模型的基础。
+
+### 绝对位置编码的局限
+
+原始 Transformer 的正弦位置编码是**绝对位置编码**的代表——每个位置有一个固定的编码向量，直接加到 token embedding 上：
+
+$$
+\mathbf{x}_i' = \mathbf{x}_i + \mathbf{PE}_i
+$$
+
+这种设计的问题在于，模型需要**隐式地**从绝对位置中学习相对位置关系。当位置 3 需要关注位置 1 时，模型需要从 $\mathbf{PE}_3$ 和 $\mathbf{PE}_1$ 的某种组合中推断出"距离为 2"的信息。这个推断在训练范围内可能有效，但在训练范围外就完全失效了。
+
+另一种绝对位置编码是**可学习位置编码**（learnable positional embeddings），这是 BERT 和 GPT 系列采用的方法。它为每个位置分配一个可学习的向量 $\mathbf{E}_i$。这种方法更灵活——模型可以学到任意的位置模式——但问题更严重：如果训练长度是 512，位置 513 的编码根本不存在。
+
+### 相对位置编码的尝试
+
+相对位置编码的核心思想是：**位置信息应该编码位置之间的相对距离，而不是绝对位置**。
+
+Shaw et al. (2018) 提出的一种方案是在计算注意力时，为每个位置对 $(i, j)$ 添加一个依赖于相对距离 $i - j$ 的偏置项：
+
+$$
+a_{ij} = \frac{(\mathbf{q}_i)^\top \mathbf{k}_j + \mathbf{q}_i^\top \mathbf{r}_{i-j}}{\sqrt{d_k}}
+$$
+
+其中 $\mathbf{r}_{i-j}$ 是相对位置 $i-j$ 对应的可学习向量。这种设计更直接地编码了相对位置信息，但引入了额外的参数和计算。
+
+Transformer-XL 进一步发展了这个想法，提出了一种可以处理超长序列的相对位置编码方案。但这些早期的相对位置编码方案都有各自的问题：要么计算开销大，要么实现复杂，要么外推能力有限。
+
+### RoPE：旋转位置编码
+
+2021 年，Su 等人提出的 **RoPE（Rotary Position Embedding）** 成为了位置编码的一个重要突破。RoPE 的核心洞察是：**可以用旋转矩阵来编码位置信息，使得两个位置的内积自然地包含它们的相对位置**。
+
+![RoPE 的核心思想：将位置编码为旋转角度。不同维度使用不同的旋转频率（图中颜色深浅表示频率），低维度高频（捕捉短程关系），高维度低频（捕捉长程关系）。](figures/chapter-26/original/fig-rope-visualization.png){#fig-rope-visualization width=90%}
+
+::: {.figure-caption}
+*Source: Su et al. (2021) "RoFormer: Enhanced Transformer with Rotary Position Embedding", Figure 1-2. [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)*
+:::
+
+让我们从一个简单的二维情况开始建立直觉。假设 query 向量 $\mathbf{q}$ 和 key 向量 $\mathbf{k}$ 都是二维的。RoPE 的做法是将它们各自旋转一个与位置相关的角度：
+
+$$
+\mathbf{q}_m' = \begin{pmatrix} \cos m\theta & -\sin m\theta \\ \sin m\theta & \cos m\theta \end{pmatrix} \mathbf{q}_m, \quad
+\mathbf{k}_n' = \begin{pmatrix} \cos n\theta & -\sin n\theta \\ \sin n\theta & \cos n\theta \end{pmatrix} \mathbf{k}_n
+$$
+
+其中 $m$ 和 $n$ 是 query 和 key 的位置，$\theta$ 是一个预设的基础角频率。
+
+现在，当我们计算旋转后的内积时：
+
+$$
+\mathbf{q}_m'^{\top} \mathbf{k}_n' = \mathbf{q}_m^\top R(\theta)^{m \top} R(\theta)^n \mathbf{k}_n = \mathbf{q}_m^\top R(\theta)^{n-m} \mathbf{k}_n
+$$
+
+这里 $R(\theta)$ 是旋转矩阵，$R(\theta)^\top = R(-\theta)$。关键的观察是：**内积只依赖于相对位置 $n - m$**！位置 $m$ 和 $n$ 的绝对值消失了，只剩下它们的差。
+
+这个性质让 RoPE 自然地具有了相对位置编码的特性，同时没有引入额外的参数或复杂的计算。
+
+对于高维情况（比如 $d = 128$），RoPE 将维度两两分组，每组使用不同的基础频率 $\theta_i$：
+
+$$
+\theta_i = 10000^{-2i/d}, \quad i = 0, 1, \ldots, d/2 - 1
+$$
+
+低维度使用高频率（变化快），高维度使用低频率（变化慢）。这种多频率设计让模型能够同时捕捉短程和长程的位置关系。
+
+::: {.callout-note}
+## Algorithm 1: RoPE 应用于 Query/Key 向量 (Su et al., 2021)
+
+```python
+def apply_rotary_pos_emb(q, k, cos, sin, position_ids):
+    """
+    对 query 和 key 应用旋转位置编码
+
+    Args:
+        q, k: [batch, seq_len, num_heads, head_dim] - query 和 key 向量
+        cos, sin: [max_seq_len, head_dim] - 预计算的 cos/sin 值
+        position_ids: [batch, seq_len] - 每个 token 的位置
+
+    Returns:
+        q_embed, k_embed: 应用 RoPE 后的 query 和 key
+    """
+    # 根据 position_ids 获取对应的 cos/sin 值
+    cos = cos[position_ids]  # [batch, seq_len, head_dim]
+    sin = sin[position_ids]  # [batch, seq_len, head_dim]
+
+    # 将 head_dim 分成两半
+    q1, q2 = q[..., :head_dim//2], q[..., head_dim//2:]
+    k1, k2 = k[..., :head_dim//2], k[..., head_dim//2:]
+
+    # 应用旋转变换: (x1, x2) -> (x1*cos - x2*sin, x1*sin + x2*cos)
+    q_embed = torch.cat([q1*cos - q2*sin, q1*sin + q2*cos], dim=-1)
+    k_embed = torch.cat([k1*cos - k2*sin, k1*sin + k2*cos], dim=-1)
+
+    return q_embed, k_embed
+```
+
+*Source: Su et al. (2021) "RoFormer: Enhanced Transformer with Rotary Position Embedding", Section 3.4. [arXiv:2104.09864](https://arxiv.org/abs/2104.09864)*
+:::
+
+#### 完整数值示例：RoPE 的旋转计算
+
+让我们用一个具体的数值例子来验证 RoPE 的核心性质：**内积只依赖相对位置**。
+
+**设定**：为了简化，我们使用 4 维向量（2 组，每组 2 维），基础频率 $\theta_0 = 1.0$，$\theta_1 = 0.01$。
+
+假设：
+- Query 向量 $\mathbf{q} = [1.0, 0.0, 1.0, 0.0]$，位于位置 $m = 3$
+- Key 向量 $\mathbf{k} = [0.5, 0.5, 0.5, 0.5]$，位于位置 $n = 5$
+
+**Step 1: 计算旋转角度**
+
+对于位置 $m = 3$：
+
+$$
+\begin{aligned}
+\text{角度}_0 &= m \cdot \theta_0 = 3 \times 1.0 = 3.0 \text{ rad} \\
+\text{角度}_1 &= m \cdot \theta_1 = 3 \times 0.01 = 0.03 \text{ rad}
+\end{aligned}
+$$
+
+对于位置 $n = 5$：
+
+$$
+\begin{aligned}
+\text{角度}_0 &= n \cdot \theta_0 = 5 \times 1.0 = 5.0 \text{ rad} \\
+\text{角度}_1 &= n \cdot \theta_1 = 5 \times 0.01 = 0.05 \text{ rad}
+\end{aligned}
+$$
+
+**Step 2: 计算 cos 和 sin 值**
+
+位置 $m = 3$：
+
+$$
+\begin{aligned}
+\cos(3.0) &\approx -0.990, \quad \sin(3.0) \approx 0.141 \\
+\cos(0.03) &\approx 1.000, \quad \sin(0.03) \approx 0.030
+\end{aligned}
+$$
+
+位置 $n = 5$：
+
+$$
+\begin{aligned}
+\cos(5.0) &\approx 0.284, \quad \sin(5.0) \approx -0.959 \\
+\cos(0.05) &\approx 0.999, \quad \sin(0.05) \approx 0.050
+\end{aligned}
+$$
+
+**Step 3: 应用旋转变换**
+
+对 query（位置 3），将维度分成两组 $[q_0, q_1]$ 和 $[q_2, q_3]$：
+
+$$
+\begin{aligned}
+q'_0 &= q_0 \cos(3.0) - q_1 \sin(3.0) = 1.0 \times (-0.990) - 0.0 \times 0.141 = -0.990 \\
+q'_1 &= q_0 \sin(3.0) + q_1 \cos(3.0) = 1.0 \times 0.141 + 0.0 \times (-0.990) = 0.141 \\
+q'_2 &= q_2 \cos(0.03) - q_3 \sin(0.03) = 1.0 \times 1.000 - 0.0 \times 0.030 = 1.000 \\
+q'_3 &= q_2 \sin(0.03) + q_3 \cos(0.03) = 1.0 \times 0.030 + 0.0 \times 1.000 = 0.030
+\end{aligned}
+$$
+
+$$
+\mathbf{q}'_3 = [-0.990, 0.141, 1.000, 0.030]
+$$
+
+类似地，对 key（位置 5）：
+
+$$
+\begin{aligned}
+k'_0 &= 0.5 \times 0.284 - 0.5 \times (-0.959) = 0.142 + 0.480 = 0.622 \\
+k'_1 &= 0.5 \times (-0.959) + 0.5 \times 0.284 = -0.480 + 0.142 = -0.338 \\
+k'_2 &= 0.5 \times 0.999 - 0.5 \times 0.050 = 0.500 - 0.025 = 0.475 \\
+k'_3 &= 0.5 \times 0.050 + 0.5 \times 0.999 = 0.025 + 0.500 = 0.525
+\end{aligned}
+$$
+
+$$
+\mathbf{k}'_5 = [0.622, -0.338, 0.475, 0.525]
+$$
+
+**Step 4: 计算旋转后的内积**
+
+$$
+\mathbf{q}'_3 \cdot \mathbf{k}'_5 = (-0.990)(0.622) + (0.141)(-0.338) + (1.000)(0.475) + (0.030)(0.525)
+$$
+
+$$
+= -0.616 - 0.048 + 0.475 + 0.016 = -0.173
+$$
+
+**Step 5: 验证——相对位置不变性**
+
+现在让我们验证核心性质：**如果保持相对位置 $n - m = 2$ 不变，内积也不变**。
+
+取位置 $m' = 10$，$n' = 12$（同样相差 2），用相同的 $\mathbf{q}$ 和 $\mathbf{k}$：
+
+经过类似计算（过程略），可以验证：
+
+$$
+\mathbf{q}'_{10} \cdot \mathbf{k}'_{12} \approx -0.173
+$$
+
+**结论**：内积的值只依赖相对位置 $(n - m) = 2$，而与绝对位置 $m$ 和 $n$ 无关。这正是 RoPE 的核心数学性质！
+
+> **直觉解释**：RoPE 将位置编码为旋转角度。位置 3 的 query 旋转了 $3\theta$，位置 5 的 key 旋转了 $5\theta$。内积中，这两个旋转的效果相当于用 $(5-3)\theta = 2\theta$ 旋转——只取决于相对位置差。
+
+RoPE 的成功使它被广泛采用：LLaMA、Mistral、Qwen 等主流开源模型都使用 RoPE 作为位置编码。它的优势在于：
+
+1. **无额外参数**：RoPE 不引入可学习参数，只是对 query/key 的一个固定变换
+2. **相对位置天然编码**：内积只依赖相对位置，符合语言的局部性假设
+3. **实现简单**：只需要逐元素乘法，可以高效地在 GPU 上实现
+4. **有一定的外推潜力**：虽然不完美，但比绝对位置编码好得多
+
+### ALiBi：更简单的替代方案
+
+同年（2021），Press 等人提出了一个更简单的方案：**ALiBi（Attention with Linear Biases）**。
+
+ALiBi 的设计哲学是"极简主义"：它完全不在 embedding 层添加任何位置信息，而是在计算注意力分数时**直接添加一个线性偏置**：
+
+$$
+a_{ij} = \frac{\mathbf{q}_i^\top \mathbf{k}_j}{\sqrt{d_k}} - m \cdot |i - j|
+$$
+
+其中 $m$ 是一个与注意力头相关的"斜率"参数（不同头使用不同的 $m$），$|i - j|$ 是两个位置之间的距离。这个负偏置的作用是**惩罚远距离的注意力**——距离越远，偏置越负，softmax 后的注意力权重越小。
+
+ALiBi 的关键洞察是：**语言有很强的局部性**。在大多数情况下，一个词与它附近的词的关系比与远处的词更重要。ALiBi 的线性偏置将这种归纳偏置（inductive bias）直接编码进了模型架构。
+
+不同的注意力头使用不同的斜率 $m$，形成一个几何序列。有些头的 $m$ 很小，几乎不惩罚远距离（可以捕捉长程依赖）；有些头的 $m$ 很大，强烈偏好局部信息。这种多尺度设计让模型能够同时处理不同范围的依赖关系。
+
+ALiBi 的最大优势是**外推能力**。由于它只使用相对距离 $|i - j|$，而且偏置的形式（线性惩罚）对任意距离都有定义，ALiBi 可以在远超训练长度的序列上保持合理的性能。Press 等人展示，用 1024 长度训练的 ALiBi 模型可以在 10,000 长度的序列上保持较低的困惑度——而使用正弦位置编码的模型在超过训练长度后就完全失效了。
+
+### RoPE vs ALiBi：两种哲学
+
+RoPE 和 ALiBi 代表了两种不同的设计哲学：
+
+**RoPE** 的哲学是"编码位置信息，让模型自己学习如何利用"。它通过旋转变换将位置信息注入 query 和 key，然后让标准的注意力机制处理剩下的事情。这种设计更"中性"——它不强加任何关于位置重要性的假设。
+
+**ALiBi** 的哲学是"直接编码我们对语言的先验知识"。它通过线性偏置显式地告诉模型"近处比远处重要"。这种设计更"有主张"——它假设语言的局部性是普遍的。
+
+在实践中，两者都被广泛使用。LLaMA、Mistral、Qwen 等使用 RoPE；BLOOM、MPT 等使用 ALiBi。经验上，两者在正常训练长度内表现相当，但在长度外推时 ALiBi 通常更稳定。不过，RoPE 结合后面要讨论的外推技术（如 Position Interpolation），可以达到更长的上下文。
+
+## 长度外推技术
+
+即使使用了 RoPE 这样具有相对位置编码特性的方案，直接在超出训练长度的序列上推理仍然会出问题。原因是：虽然 RoPE 的数学形式对任意位置都有定义，但模型的注意力权重是在特定的位置范围内训练的。当遇到从未见过的位置值时，模型的行为是未定义的。
+
+这催生了一系列**长度外推**（length extrapolation）或**上下文窗口扩展**（context window extension）技术。这些技术的目标是：**给定一个在短上下文（如 4K）上训练好的模型，通过某种修改，使其能够处理长得多的上下文（如 128K）**。
+
+### Position Interpolation：线性缩放
+
+2023 年，Meta 的 Chen 等人提出了一个惊人简单的方法：**Position Interpolation（PI，位置插值）**。
+
+PI 的核心思想是：与其让模型**外推**到未见过的位置（extrapolation），不如将长序列的位置**插值**到训练范围内（interpolation）。
+
+具体来说，如果模型在长度 $L$ 的序列上训练，现在想处理长度 $L'$ 的序列（$L' > L$），PI 将位置索引线性缩放：
+
+$$
+\text{position}_\text{new} = \text{position}_\text{old} \times \frac{L}{L'}
+$$
+
+例如，如果模型在 4K 上训练，现在想处理 32K 的序列，位置 32000 会被映射到 $32000 \times \frac{4096}{32768} = 4000$——仍然在训练范围内。
+
+这个方法看似简单，但效果惊人。Chen 等人的理论分析表明，插值的上界比外推小约 600 倍，这解释了为什么插值比外推稳定得多。
+
+在实践中，PI 需要少量的微调（通常几百到几千步）来让模型适应新的位置缩放。但与从头训练一个长上下文模型相比，这个代价微乎其微——只需原始预训练计算量的约 0.1%。
+
+Chen 等人成功地将 LLaMA 7B-65B 的上下文窗口从 2K 扩展到 32K，同时保持了在原始上下文范围内的性能。
+
+### NTK-aware Scaling：保护高频信息
+
+PI 虽然有效，但有一个微妙的问题：它均匀地缩放所有维度的频率。回想 RoPE 中，不同维度使用不同的基础频率：
+
+$$
+\theta_i = 10000^{-2i/d}
+$$
+
+低维度（小的 $i$）使用高频率，编码短程位置关系；高维度（大的 $i$）使用低频率，编码长程位置关系。
+
+当 PI 将所有频率除以相同的因子 $s = L'/L$ 时，高频维度受到的影响最大。原本用来区分相邻位置的高频信息被"压缩"了，模型可能丢失对局部位置关系的精确感知。
+
+**NTK-aware interpolation** 试图解决这个问题。它的灵感来自神经正切核（Neural Tangent Kernel）理论：深度网络很难学习高频信息，除非输入 embedding 本身包含高频成分。
+
+NTK-aware 的方法是修改 RoPE 的基础频率：
+
+$$
+\theta_i' = 10000^{-2i/d} \times s^{2i/(d-2)}
+$$
+
+这个设计让低频维度（大的 $i$）承担更多的缩放，而高频维度（小的 $i$）几乎不缩放。直觉上，这保护了模型对短程位置关系的编码能力。
+
+### YaRN：统一框架
+
+2023 年，Peng 等人提出的 **YaRN（Yet another RoPE extensioN）** 是目前最先进的 RoPE 外推方法之一。它综合了多种技术，形成了一个统一的框架。
+
+YaRN 的核心组件包括：
+
+**1. NTK-by-parts interpolation**：将 RoPE 的维度分成三组：
+- 低维度（高频）：不做任何插值（$\lambda = 1$），完全保留
+- 中维度：渐进式插值
+- 高维度（低频）：完全使用 PI 插值（$\lambda = s$）
+
+这种设计既保护了高频信息，又让低频维度能够编码更长的相对位置。
+
+**2. 注意力缩放**：直接将注意力 logits 除以一个与上下文扩展比例相关的因子。这补偿了位置编码缩放后 softmax 分布可能变得过于"尖锐"的问题。
+
+**3. 极短微调**：YaRN 只需要约 400 步微调（原始预训练的 ~0.1%），就能将上下文窗口扩展 8–16 倍。
+
+YaRN 在多个基准测试上显著优于 PI 和 NTK-aware 方法。更重要的是，它展示了**外推**能力：在 64K 上微调的 YaRN 模型，可以在 128K 上保持递减的困惑度——这意味着它真正学会了处理更长的上下文，而不仅仅是"不崩溃"。
+
+### 外推技术对比
+
+| 方法 | 核心思想 | 需要微调？ | 外推能力 | 计算开销 |
+|------|---------|-----------|---------|---------|
+| 原始 RoPE | 旋转编码 | 否 | 差 | 无 |
+| Position Interpolation | 线性缩放位置 | 是（~1K 步） | 中 | 无 |
+| NTK-aware | 保护高频维度 | 可选 | 中 | 无 |
+| YaRN | NTK-by-parts + 注意力缩放 | 是（~400 步） | 好 | 无 |
+
+## Flash Attention：IO 感知的算法革命
+
+前面讨论的位置编码技术解决了"模型能否理解长距离位置关系"的问题，但没有触及 $O(n^2)$ 计算复杂度这个根本瓶颈。接下来我们讨论一个从完全不同角度突破这个瓶颈的技术：**FlashAttention**。
+
+### GPU 内存层次结构
+
+要理解 FlashAttention 的精妙之处，首先需要理解现代 GPU 的内存层次结构。
+
+GPU 有两种主要的存储：**HBM（High Bandwidth Memory）** 和 **SRAM（Static RAM）**。HBM 是 GPU 的主内存，容量大（如 A100 的 80GB），但带宽相对较低（约 2TB/s）。SRAM 是片上缓存，容量很小（A100 约 20MB），但带宽极高（约 19TB/s）。
+
+关键的洞察是：**GPU 计算单元的速度远超 HBM 的带宽**。A100 的 tensor core 理论浮点运算峰值是 312 TFLOPS（FP16），而从 HBM 读取数据的带宽只有 2TB/s。这意味着如果每次计算都需要从 HBM 读数据，计算单元会大量闲置，等待数据到来。
+
+标准注意力实现的问题正是如此：它需要将完整的 $n \times n$ 注意力矩阵写入 HBM（用于 softmax），然后再读出来（用于乘以 $V$）。对于长序列，这个矩阵巨大无比，HBM 的读写成为严重的瓶颈。
+
+### FlashAttention 的 Tiling 策略
+
+![FlashAttention 的核心创新：通过分块（tiling）计算，让数据留在快速的 SRAM 中，避免将完整的 $n \times n$ 注意力矩阵写入慢速的 HBM。左图展示了 GPU 内存层次结构，右图展示了分块计算的流程。](figures/chapter-26/original/fig-flash-attention-tiling.png){#fig-flash-attention-tiling width=95%}
+
+::: {.figure-caption}
+*Source: Dao et al. (2022) "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness", Figure 1. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)*
+:::
+
+FlashAttention 的核心思想是：**通过分块（tiling）计算，让数据尽可能留在快速的 SRAM 中，避免频繁地访问 HBM**。
+
+具体来说，FlashAttention 将 $Q$、$K$、$V$ 矩阵分成小块，每次只将一小块加载到 SRAM 中进行计算。关键的技巧是：softmax 可以通过"在线"算法增量计算，而不需要一次性看到整行的所有元素。
+
+::: {.callout-note}
+## Algorithm 2: FlashAttention 核心算法 (Dao et al., 2022)
+
+```python
+def flash_attention(Q, K, V, block_size=64):
+    """
+    IO-aware 的精确注意力计算
+
+    核心思想：
+    1. 将 Q, K, V 分成小块
+    2. 在 SRAM 中计算每个块对的注意力
+    3. 使用在线 softmax 算法，增量更新输出
+    """
+    seq_len, d = Q.shape
+    O = torch.zeros_like(Q)  # 输出
+    l = torch.zeros(seq_len)  # softmax 归一化因子
+    m = torch.full((seq_len,), -float('inf'))  # 行最大值（用于数值稳定）
+
+    # 外层循环：遍历 K, V 的块
+    for j in range(0, seq_len, block_size):
+        K_j = K[j:j+block_size]  # 从 HBM 加载到 SRAM
+        V_j = V[j:j+block_size]
+
+        # 内层循环：遍历 Q 的块
+        for i in range(0, seq_len, block_size):
+            Q_i = Q[i:i+block_size]  # 从 HBM 加载到 SRAM
+
+            # 在 SRAM 中计算局部注意力分数
+            S_ij = Q_i @ K_j.T / sqrt(d)  # [block_size, block_size]
+
+            # 在线 softmax 更新
+            m_new = torch.max(m[i:i+block_size], S_ij.max(dim=1))
+
+            # 更新归一化因子和输出（数学细节见论文）
+            # ... (涉及 exp 缩放和累加)
+
+    return O  # 直接写回 HBM，无需存储完整注意力矩阵
+```
+
+*Source: Dao et al. (2022) "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness", Algorithm 1. [arXiv:2205.14135](https://arxiv.org/abs/2205.14135)*
+:::
+
+FlashAttention 的关键特性：
+
+1. **精确计算**：与标准注意力的结果完全相同，没有任何近似
+2. **内存高效**：不需要存储 $O(n^2)$ 的注意力矩阵，内存复杂度降为 $O(n)$
+3. **速度快**：尽管理论 FLOP 数可能更多（因为需要重复计算一些值），但由于减少了 HBM 访问，实际运行时间反而更短
+
+Dao 等人的实验表明，FlashAttention 在 A100 GPU 上比 PyTorch 标准实现快 2–4 倍，同时内存使用减少到原来的 1/10 到 1/20。
+
+### FlashAttention-2：更好的并行
+
+FlashAttention-2 (Dao, 2023) 进一步优化了并行策略和工作分配。
+
+FlashAttention 原版的一个问题是：它在 GPU 的不同线程块（thread blocks）和 warps 之间的工作分配不够均衡。FlashAttention-2 通过以下改进解决这个问题：
+
+1. **减少非 matmul 操作**：将更多计算转换为矩阵乘法，以充分利用 tensor core
+2. **增加 occupancy**：即使对于单个注意力头，也能在多个 thread blocks 之间并行
+3. **优化 warp 间通信**：减少通过 shared memory 的数据交换
+
+这些优化让 FlashAttention-2 比 FlashAttention 又快了约 2 倍，达到 A100 理论峰值性能的 50–73%——这已经非常接近矩阵乘法的效率了。
+
+### Flash Attention 的影响
+
+FlashAttention 的影响是深远的。它证明了：**算法和硬件的协同设计可以带来巨大的性能提升，即使在理论复杂度没有改变的情况下**。
+
+在 FlashAttention 出现之前，大家普遍认为要突破 $O(n^2)$ 瓶颈，必须使用稀疏注意力或近似注意力。FlashAttention 展示了另一条路：通过让计算更"IO-aware"，精确注意力也可以高效地处理长序列。
+
+如今，FlashAttention 已经成为几乎所有主流 LLM 框架的默认注意力实现。它让 128K 甚至更长的上下文成为可能——不是通过近似，而是通过更聪明的精确计算。
+
+## KV Cache 优化
+
+解决了训练时的计算效率问题后，还有一个推理时的关键瓶颈：**KV cache 的内存管理**。
+
+### KV Cache 的必要性
+
+在自回归生成时，模型每次只生成一个新 token，但需要计算这个 token 与之前所有 token 的注意力。如果每次都重新计算所有 token 的 key 和 value，计算量会随生成长度二次增长。
+
+KV cache 是一个简单但关键的优化：在生成第 $t$ 个 token 时，将该位置的 key 和 value 存储起来。生成第 $t+1$ 个 token 时，只需要计算新 token 的 query，然后与缓存的所有 key 计算注意力分数，最后用注意力权重加权缓存的所有 value。
+
+这将每个 token 的计算复杂度从 $O(t \cdot d)$ 降到 $O(d)$（不考虑注意力计算本身），是自回归推理能够实用的关键。
+
+### KV Cache 的内存挑战
+
+但 KV cache 带来了严重的内存压力。对于一个 70B 模型，假设：
+- 80 层
+- 64 个注意力头
+- head dimension = 128
+- BF16 精度（2 bytes）
+
+每个 token 的 KV cache 大小是：
+
+$$
+2 \times 80 \times 64 \times 128 \times 2 = 2.6 \text{ MB/token}
+$$
+
+对于 128K 上下文，KV cache 总大小是 $128000 \times 2.6 \text{ MB} = 333 \text{ GB}$——远超任何单张 GPU 的显存。
+
+即使是更短的上下文和更小的模型，当需要同时服务多个请求时，KV cache 仍然是主要的内存瓶颈。而且，不同请求的上下文长度不同，导致 KV cache 的大小高度动态——这使得简单的静态内存分配非常低效。
+
+### Multi-Query Attention (MQA) 和 Grouped-Query Attention (GQA)
+
+一个减少 KV cache 大小的方法是减少需要缓存的 key/value 头的数量。
+
+**Multi-Query Attention (MQA)** 是 Shazeer (2019) 提出的一种激进方案：所有 query 头共享同一套 key 和 value。这将 KV cache 大小降低为原来的 $1/h$（$h$ 是头数）。
+
+MQA 的问题是可能损失模型质量——不同 query 头共享 key/value，表达能力下降。
+
+**Grouped-Query Attention (GQA)** 是 Ainslie 等人 (2023) 提出的折中方案：将 query 头分成若干组，每组共享一套 key/value。例如，如果有 64 个 query 头，分成 8 组，则只需要 8 套 key/value，KV cache 降为原来的 1/8。
+
+GQA 在 KV cache 节省和模型质量之间取得了很好的平衡。LLaMA 2 70B 和 LLaMA 3 系列都采用了 GQA。实验表明，GQA 模型的质量非常接近标准 MHA，而 KV cache 大小大幅减少。
+
+### PagedAttention：虚拟内存思想的应用
+
+2023 年，Kwon 等人提出的 **PagedAttention** 将操作系统的虚拟内存和分页技术引入 KV cache 管理，彻底改变了 LLM 推理的内存效率。
+
+![KV Cache 内存浪费问题的可视化：传统方法需要预分配最大可能长度的内存，导致大量浪费（reserved 部分）和碎片化（fragmentation）。实际使用中，大多数请求远未达到最大长度。](figures/chapter-26/original/fig-pagedattention-memory.png){#fig-pagedattention-memory width=95%}
+
+::: {.figure-caption}
+*Source: Kwon et al. (2023) "Efficient Memory Management for Large Language Model Serving with PagedAttention", Figure 1-2. [arXiv:2309.06180](https://arxiv.org/abs/2309.06180)*
+:::
+
+传统的 KV cache 管理面临两个问题：
+
+1. **碎片化**：不同请求的 KV cache 大小不同，动态分配会产生大量内存碎片
+2. **预分配浪费**：为了避免碎片化，很多系统预分配最大可能长度的内存，但大多数请求实际上不会用到这么多
+
+PagedAttention 的解决方案是将 KV cache 分成固定大小的"页"（blocks），就像操作系统管理内存一样。每个请求的 KV cache 由一系列非连续的页组成，通过一个页表（block table）来跟踪逻辑位置到物理位置的映射。
+
+这种设计带来了三个关键优势：
+
+1. **零碎片**：所有页大小相同，分配和回收不会产生碎片
+2. **按需分配**：只在实际需要时才分配新页，不预分配
+3. **高效共享**：如果多个请求有相同的前缀（如相同的 system prompt），可以共享同一套 KV cache 页
+
+![PagedAttention 的核心设计：将 KV Cache 分成固定大小的页（blocks），通过 block table 管理逻辑-物理映射。每个请求的 KV Cache 由非连续的页组成，支持动态扩展和内存共享。](figures/chapter-26/original/fig-pagedattention-design.png){#fig-pagedattention-design width=95%}
+
+::: {.figure-caption}
+*Source: Kwon et al. (2023) "Efficient Memory Management for Large Language Model Serving with PagedAttention", Figure 3. [arXiv:2309.06180](https://arxiv.org/abs/2309.06180)*
+:::
+
+基于 PagedAttention，Kwon 等人构建了 **vLLM** 推理引擎。实验表明，vLLM 的吞吐量比 HuggingFace Transformers 高 2–4 倍，比当时最先进的 FasterTransformer 也快 2 倍以上。
+
+::: {.callout-note}
+## PagedAttention 的核心设计 (Kwon et al., 2023)
+
+```python
+# PagedAttention 的关键数据结构
+class BlockTable:
+    """
+    逻辑 block index -> 物理 block index 的映射
+    类似于操作系统的页表
+    """
+    def __init__(self, max_seq_len, block_size=16):
+        self.block_size = block_size
+        self.max_blocks = (max_seq_len + block_size - 1) // block_size
+        self.mapping = [-1] * self.max_blocks  # -1 表示未分配
+
+    def allocate_block(self, logical_idx, physical_idx):
+        self.mapping[logical_idx] = physical_idx
+
+    def get_physical_idx(self, logical_idx):
+        return self.mapping[logical_idx]
+
+class KVCachePool:
+    """
+    全局 KV cache 内存池
+    所有请求共享，按页分配
+    """
+    def __init__(self, num_blocks, block_size, num_layers, num_heads, head_dim):
+        self.free_blocks = list(range(num_blocks))
+        # 预分配所有物理块的内存
+        self.k_cache = torch.zeros(num_blocks, num_layers, num_heads, block_size, head_dim)
+        self.v_cache = torch.zeros(num_blocks, num_layers, num_heads, block_size, head_dim)
+
+    def alloc(self):
+        return self.free_blocks.pop()
+
+    def free(self, block_idx):
+        self.free_blocks.append(block_idx)
+```
+
+*Source: Kwon et al. (2023) "Efficient Memory Management for Large Language Model Serving with PagedAttention", Section 4. [arXiv:2309.06180](https://arxiv.org/abs/2309.06180)*
+:::
+
+## Ring Attention：分布式长序列
+
+当上下文长度达到数十万甚至数百万 token 时，单个 GPU 的内存不再足够。即使使用了所有上述优化，128K 上下文的 70B 模型的 KV cache 仍然需要几十 GB。这时需要**分布式**解决方案。
+
+**Ring Attention** (Liu et al., 2023) 是一种在多 GPU 之间分布式计算超长序列注意力的方法。它的核心思想是：
+
+1. 将长序列分割到多个 GPU 上，每个 GPU 持有序列的一部分
+2. GPU 之间形成一个逻辑上的"环"
+3. 每个 GPU 用 FlashAttention 计算本地的注意力，同时将 key/value 块发送给环中的下一个 GPU
+4. 通过重叠计算和通信，消除通信开销
+
+关键的洞察是：FlashAttention 的分块计算天然适合这种分布式设计。每个 GPU 在等待下一块 key/value 到来时，可以先处理已有的块。只要计算时间大于通信时间（这在现代高速互联的 GPU 集群上通常成立），Ring Attention 就能实现几乎线性的扩展。
+
+Liu 等人展示，Ring Attention 可以处理**数百万 token** 的上下文——这是单卡方案无法想象的长度。
+
+## 深入理解
+
+> **研究者必读**：这一节探讨长上下文技术的理论基础、边界条件和开放问题
+
+### 为什么 RoPE 有外推潜力？
+
+RoPE 相比绝对位置编码有更好的外推能力，这不是偶然的。让我们从数学上分析其原因。
+
+在 RoPE 中，位置 $m$ 和 $n$ 的注意力分数只依赖于它们的差 $n - m$：
+
+$$
+\mathbf{q}_m'^{\top} \mathbf{k}_n' = f(\mathbf{q}_m, \mathbf{k}_n, n-m)
+$$
+
+这意味着模型学习的是"相对距离 $d$ 意味着什么"，而不是"绝对位置 $p$ 意味着什么"。只要相对距离 $d$ 在训练时见过（比如 $d \in [-4096, 4096]$），模型就应该能正确处理。
+
+但问题在于：RoPE 的高频维度变化很快，对于非常长的序列，这些维度的值可能进入"从未见过"的区间。Position Interpolation 通过缩放频率来解决这个问题；YaRN 通过选择性地缩放不同维度来更精细地平衡。
+
+一个有趣的理论问题是：**RoPE 外推的理论极限是什么？** 目前没有确切的答案，但实验表明，通过 YaRN 等方法，可以稳定地扩展到训练长度的 16–32 倍。
+
+### FlashAttention 的复杂度分析
+
+FlashAttention 的 FLOP 数实际上比标准注意力**更多**，因为它需要在分块计算时重复一些操作。但它的内存访问量大幅减少。
+
+设 $n$ 为序列长度，$d$ 为 head dimension，$M$ 为 SRAM 大小（假设 $M > d$）。标准注意力的 HBM 访问量是 $O(nd + n^2)$（需要读写完整的注意力矩阵）。FlashAttention 的 HBM 访问量是 $O(n^2 d^2 / M)$。
+
+当 $M > nd$（即 SRAM 足够大，可以容纳一块 $Q$ 或 $K$ 或 $V$）时，FlashAttention 的 HBM 访问量是 $O(nd)$——与序列长度**线性**而非二次！
+
+这解释了为什么 FlashAttention 尽管 FLOP 更多，实际运行却更快：在现代 GPU 上，**内存带宽是瓶颈，而非计算能力**。
+
+### 长上下文的失效模式
+
+长上下文技术并非万能的。以下是一些已知的失效模式：
+
+**"Lost in the Middle" 现象**：Liu et al. (2023) 发现，当相关信息位于长上下文的中间位置时，模型的检索能力显著下降。模型倾向于关注上下文的开头和结尾，而忽视中间部分。这可能与注意力的分布特性有关。
+
+**困惑度不等于下游性能**：一个模型可能在长序列上有很低的困惑度（作为语言模型表现良好），但在实际任务（如长文档 QA）上表现不佳。困惑度只衡量了模型预测下一个 token 的能力，不等于模型能有效**利用**长上下文的信息。
+
+**训练-推理不匹配**：使用外推技术扩展的模型，在推理长度远超训练长度时，行为可能变得不可预测。YaRN 等方法缓解了这个问题，但没有完全解决。
+
+### 开放研究问题
+
+**无限上下文可能吗？** 当前最长的上下文达到数百万 token（如 Gemini 1.5 的 1M token 窗口），但这仍然是有限的。是否有可能设计一种架构，能够处理任意长度的序列？这可能需要根本性的架构创新，而不仅仅是优化现有的 Transformer。
+
+**长上下文的高效训练**：目前的长上下文模型大多是先在短上下文上预训练，再通过外推技术扩展。是否有更高效的方法来直接在长上下文上训练？
+
+**压缩与检索的权衡**：另一种处理长上下文的思路是不把所有信息都放进上下文，而是用压缩（如将历史对话总结成摘要）或检索（如 RAG）来提供相关信息。这种方法与长上下文有什么本质区别？在什么场景下哪种方法更优？
+
+## 局限性与未解决的问题
+
+### 当前技术的局限
+
+**计算成本仍然高昂**：尽管 FlashAttention 大幅提升了效率，长上下文推理的成本仍然远高于短上下文。128K 上下文的推理成本大约是 4K 上下文的 30 倍（考虑 $O(n^2)$ 的注意力和 $O(n)$ 的 KV cache）。
+
+**质量随长度下降**：即使困惑度保持稳定，模型在实际任务上的质量通常随上下文长度下降。这可能是因为模型的注意力机制在长序列上变得更加分散。
+
+**工程复杂度**：部署长上下文模型需要大量的系统优化——FlashAttention、PagedAttention、分布式推理等。这增加了工程复杂度和维护成本。
+
+### 这些局限导向了什么？
+
+长上下文技术的发展揭示了一个深层的权衡：**上下文长度 vs 效率 vs 质量**。扩展上下文长度通常意味着更高的计算和内存成本，而且不一定带来相应的质量提升。
+
+这引出了下一章要讨论的问题：**是否有更根本的方法来突破 dense Transformer 的效率瓶颈？** Mixture of Experts (MoE) 提供了一种不同的思路：通过稀疏激活，让每个 token 只使用模型参数的一部分，从而在保持模型容量的同时降低计算成本。
+
+## 本章小结
+
+### 核心要点回顾
+
+1. **问题**：大语言模型的上下文长度受限于 $O(n^2)$ 的注意力复杂度、位置编码的外推能力、以及推理时的 KV cache 内存
+
+2. **位置编码演进**：从绝对编码（正弦、可学习）到相对编码（RoPE、ALiBi）。RoPE 通过旋转矩阵自然地编码相对位置；ALiBi 通过线性偏置实现更好的外推
+
+3. **长度外推技术**：Position Interpolation 将长序列位置缩放到训练范围内；YaRN 结合 NTK-aware scaling 和注意力缩放，实现 10× 以上的上下文扩展
+
+4. **FlashAttention**：通过 IO-aware 的分块计算，避免存储完整注意力矩阵，同时保持精确计算。内存从 $O(n^2)$ 降到 $O(n)$，速度提升 2–4×
+
+5. **KV Cache 优化**：GQA 通过共享 key/value 头减少缓存大小；PagedAttention 用虚拟内存思想实现高效的动态内存管理
+
+### 关键公式速查
+
+- **RoPE**：$\mathbf{q}_m'^{\top} \mathbf{k}_n' = f(\mathbf{q}_m, \mathbf{k}_n, n-m)$（只依赖相对位置）
+- **ALiBi**：$a_{ij} = \mathbf{q}_i^\top \mathbf{k}_j / \sqrt{d_k} - m \cdot |i-j|$
+- **Position Interpolation**：$\text{pos}_\text{new} = \text{pos}_\text{old} \times \frac{L_\text{train}}{L_\text{target}}$
+- **KV cache 大小**：$2 \times \text{layers} \times \text{heads} \times \text{seq\_len} \times \text{head\_dim} \times \text{bytes}$
+
+### 思考题
+
+1. **[概念理解]** 解释 RoPE 和 ALiBi 的设计哲学有何不同？在什么场景下你会选择哪一种？
+
+2. **[数学推导]** 证明 RoPE 中两个位置的内积只依赖于它们的相对位置。提示：利用旋转矩阵的性质 $R(\theta)^\top R(\phi) = R(\phi - \theta)$。
+
+3. **[工程实践]** 使用 vLLM 部署一个支持 32K 上下文的 LLaMA 模型，测量不同上下文长度下的吞吐量和延迟。观察 PagedAttention 的内存使用效率。
+
+4. **[开放思考]** 长上下文和 RAG 都是让模型访问更多信息的方法。讨论它们的权衡：什么时候应该扩展上下文窗口？什么时候应该使用检索？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+- **RoPE (Su et al., 2021)**：旋转位置编码的原始论文
+  - 重点读：Section 3（数学推导）
+- **FlashAttention (Dao et al., 2022)**：IO-aware 注意力的开创性工作
+  - 重点读：Section 3（算法）、Section 4（复杂度分析）
+- **PagedAttention (Kwon et al., 2023)**：KV cache 管理的革命
+  - 重点读：Section 3-4（设计）、Section 6（实验）
+
+### 外推技术
+- **Position Interpolation (Chen et al., 2023)**：简单有效的外推方法
+- **YaRN (Peng et al., 2023)**：最先进的 RoPE 外推框架
+
+### 综述与教程
+- **Extending the RoPE** (EleutherAI Blog)：RoPE 外推技术的深度教程
+- **vLLM Documentation**：PagedAttention 的官方实现文档
+
+### 代码资源
+- FlashAttention：[github.com/Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)
+- vLLM：[github.com/vllm-project/vllm](https://github.com/vllm-project/vllm)
+- YaRN：[github.com/jquesnelle/yarn](https://github.com/jquesnelle/yarn)
+
+---
+
+## 历史注脚
+
+长上下文的故事是工程与理论共同进步的典范。
+
+FlashAttention 的出现是一个转折点。在此之前，大家普遍认为要处理长序列，必须使用稀疏注意力或近似方法——精确注意力的 $O(n^2)$ 复杂度似乎是不可逾越的障碍。Tri Dao 的洞察——问题不在于 FLOP 数，而在于内存带宽——打开了一扇新的大门。这提醒我们，在优化算法时，不仅要看理论复杂度，还要考虑实际硬件的特性。
+
+PagedAttention 的故事同样有趣。它的灵感来自操作系统中几十年前就成熟的虚拟内存技术。这提醒我们，有时候解决新问题的方法，可能早就存在于其他领域——关键是能够识别问题的本质，并找到合适的类比。
+
+从更宏观的视角看，长上下文技术的进步展示了 AI 系统工程的重要性。模型架构固然重要，但如果没有 FlashAttention、PagedAttention、Ring Attention 这些系统层面的优化，即使是最先进的模型架构也无法在实际中部署。**算法创新和系统优化必须齐头并进，这是大模型时代的关键认识**。
+
+当前的长上下文技术已经让 128K 甚至 1M token 的上下文成为可能。但这是终点吗？随着应用场景的扩展（代码库理解、长视频分析、终身对话记忆），对上下文长度的需求可能会继续增长。下一个数量级的突破——千万 token、亿 token 的上下文——可能需要更根本的架构创新。这也是第 28 章将讨论的状态空间模型（SSM/Mamba）试图解决的问题：是否存在一种架构，能够以 $O(n)$ 的复杂度处理任意长度的序列？

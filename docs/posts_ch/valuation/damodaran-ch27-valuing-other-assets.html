@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="从纽约出租车牌照到星球大战特许权，从梵高画作到比特币，从体育球队到 NFT——探索传统 DCF 框架之外的估值边界。">
+
+<title>【第27章】其他资产估值：当现金流消失时，我们还能估值吗？ – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#投资的分类价值与价格的本质区别" id="toc-投资的分类价值与价格的本质区别" class="nav-link" data-scroll-target="#投资的分类价值与价格的本质区别"><span class="header-section-number">2</span> 投资的分类：价值与价格的本质区别</a>
+  <ul class="collapse">
+  <li><a href="#四类投资" id="toc-四类投资" class="nav-link" data-scroll-target="#四类投资"><span class="header-section-number">2.1</span> 四类投资</a></li>
+  <li><a href="#一个光谱而非二元分类" id="toc-一个光谱而非二元分类" class="nav-link" data-scroll-target="#一个光谱而非二元分类"><span class="header-section-number">2.2</span> 一个光谱，而非二元分类</a></li>
+  </ul></li>
+  <li><a href="#能产生现金流的资产" id="toc-能产生现金流的资产" class="nav-link" data-scroll-target="#能产生现金流的资产"><span class="header-section-number">3</span> 能产生现金流的资产</a>
+  <ul class="collapse">
+  <li><a href="#特许经营权franchises" id="toc-特许经营权franchises" class="nav-link" data-scroll-target="#特许经营权franchises"><span class="header-section-number">3.1</span> 特许经营权（Franchises）</a></li>
+  <li><a href="#有个人因素的企业" id="toc-有个人因素的企业" class="nav-link" data-scroll-target="#有个人因素的企业"><span class="header-section-number">3.2</span> 有个人因素的企业</a></li>
+  <li><a href="#版权与商标" id="toc-版权与商标" class="nav-link" data-scroll-target="#版权与商标"><span class="header-section-number">3.3</span> 版权与商标</a></li>
+  </ul></li>
+  <li><a href="#收藏品当现金流消失" id="toc-收藏品当现金流消失" class="nav-link" data-scroll-target="#收藏品当现金流消失"><span class="header-section-number">4</span> 收藏品：当现金流消失</a>
+  <ul class="collapse">
+  <li><a href="#艺术品" id="toc-艺术品" class="nav-link" data-scroll-target="#艺术品"><span class="header-section-number">4.1</span> 艺术品</a></li>
+  <li><a href="#黄金三重身份" id="toc-黄金三重身份" class="nav-link" data-scroll-target="#黄金三重身份"><span class="header-section-number">4.2</span> 黄金：三重身份</a></li>
+  <li><a href="#比特币货币还是收藏品" id="toc-比特币货币还是收藏品" class="nav-link" data-scroll-target="#比特币货币还是收藏品"><span class="header-section-number">4.3</span> 比特币：货币还是收藏品？</a></li>
+  <li><a href="#nft收藏品的数字化" id="toc-nft收藏品的数字化" class="nav-link" data-scroll-target="#nft收藏品的数字化"><span class="header-section-number">4.4</span> NFT：收藏品的数字化</a></li>
+  </ul></li>
+  <li><a href="#奖杯资产trophy-assets" id="toc-奖杯资产trophy-assets" class="nav-link" data-scroll-target="#奖杯资产trophy-assets"><span class="header-section-number">5</span> 奖杯资产（Trophy Assets）</a>
+  <ul class="collapse">
+  <li><a href="#体育球队当亿万富翁竞价" id="toc-体育球队当亿万富翁竞价" class="nav-link" data-scroll-target="#体育球队当亿万富翁竞价"><span class="header-section-number">5.1</span> 体育球队：当亿万富翁竞价</a></li>
+  <li><a href="#nba-球队所有者分析" id="toc-nba-球队所有者分析" class="nav-link" data-scroll-target="#nba-球队所有者分析"><span class="header-section-number">5.2</span> NBA 球队所有者分析</a></li>
+  </ul></li>
+  <li><a href="#中国视角另类资产估值的本土案例" id="toc-中国视角另类资产估值的本土案例" class="nav-link" data-scroll-target="#中国视角另类资产估值的本土案例"><span class="header-section-number">6</span> 中国视角：另类资产估值的本土案例</a>
+  <ul class="collapse">
+  <li><a href="#茅台酒消费品还是收藏品" id="toc-茅台酒消费品还是收藏品" class="nav-link" data-scroll-target="#茅台酒消费品还是收藏品"><span class="header-section-number">6.1</span> 茅台酒：消费品还是收藏品？</a></li>
+  <li><a href="#车牌号码中国式特许权" id="toc-车牌号码中国式特许权" class="nav-link" data-scroll-target="#车牌号码中国式特许权"><span class="header-section-number">6.2</span> 车牌号码：中国式特许权</a></li>
+  <li><a href="#对中国投资者的建议" id="toc-对中国投资者的建议" class="nav-link" data-scroll-target="#对中国投资者的建议"><span class="header-section-number">6.3</span> 对中国投资者的建议</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">7</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第27章】其他资产估值：当现金流消失时，我们还能估值吗？</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    从纽约出租车牌照到星球大战特许权，从梵高画作到比特币，从体育球队到 NFT——探索传统 DCF 框架之外的估值边界。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月27日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>2014 年，史蒂夫·鲍尔默（Steve Ballmer）以 20 亿美元收购了洛杉矶快船队。当时，这支球队的账面收入约 1.28 亿美元，税前利润约 1500 万美元。按照传统估值方法，即便假设极高的增长率，这个价格也很难用现金流来解释。</p>
+<p>这是鲍尔默疯了吗？还是说，有些资产的”价值”根本就不是现金流能衡量的？</p>
+<p>这就是本章要探讨的核心问题：<strong>当我们无法用现金流来估值时，我们还能做什么？</strong></p>
+<p>在前面 26 章中，我们建立了一套完整的估值体系：无论是股票、债券还是房地产，核心逻辑都是——估计未来现金流，选择合适的折现率，计算现值。但现实世界中，有大量”资产”挑战这个框架：</p>
+<ul>
+<li>一幅毕加索的画作值多少钱？</li>
+<li>一枚比特币的”内在价值”是什么？</li>
+<li>一个 NFT 应该如何定价？</li>
+<li>一支 NBA 球队的价格为什么总是高得离谱？</li>
+</ul>
+<p>本章将带你走出现金流的舒适区，探索估值的边界。</p>
+</section>
+<section id="投资的分类价值与价格的本质区别" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="投资的分类价值与价格的本质区别"><span class="header-section-number">2</span> 投资的分类：价值与价格的本质区别</h2>
+<p>在开始具体讨论之前，我们需要建立一个关键的概念框架：<strong>不是所有可交易的东西都能被”估值”</strong>。</p>
+<section id="四类投资" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="四类投资"><span class="header-section-number">2.1</span> 四类投资</h3>
+<p>让我们把投资世界分成四个象限：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>类别</th>
+<th>定义</th>
+<th>现金流？</th>
+<th>能估值？</th>
+<th>典型例子</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>资产（Assets）</strong></td>
+<td>产生现金流，有限寿命或无限寿命</td>
+<td>✓</td>
+<td>✓</td>
+<td>股票、债券、房地产</td>
+</tr>
+<tr class="even">
+<td><strong>商品（Commodities）</strong></td>
+<td>有实际用途，价值来自供需</td>
+<td>✗</td>
+<td>部分</td>
+<td>石油、铜、小麦</td>
+</tr>
+<tr class="odd">
+<td><strong>货币（Currencies）</strong></td>
+<td>交换媒介</td>
+<td>✗</td>
+<td>✗</td>
+<td>美元、欧元、日元</td>
+</tr>
+<tr class="even">
+<td><strong>收藏品（Collectibles）</strong></td>
+<td>价值来自稀缺性和美学/情感</td>
+<td>✗</td>
+<td>✗</td>
+<td>艺术品、古董、NFT</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>价值 vs 价格：一个根本性的区分
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>价值（Value）</strong>：可以通过分析基本面来估计，存在”正确”与”错误”之分</li>
+<li><strong>价格（Price）</strong>：纯粹由供需决定，是市场博弈的结果</li>
+</ul>
+<p><strong>关键洞察</strong>：只有产生现金流的资产才能被”估值”；收藏品只能被”定价”。</p>
+</div>
+</div>
+<p>这个区分至关重要。当有人问”这幅画值多少钱”时，严格来说，问题本身就有问题——画作没有内在价值，只有市场价格。</p>
+</section>
+<section id="一个光谱而非二元分类" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="一个光谱而非二元分类"><span class="header-section-number">2.2</span> 一个光谱，而非二元分类</h3>
+<p>当然，现实并非非黑即白。很多投资位于光谱的中间地带：</p>
+<ul>
+<li><strong>黄金</strong>：既是商品（工业用途），又常被当作准货币和收藏品</li>
+<li><strong>比特币</strong>：声称是货币，但更像收藏品</li>
+<li><strong>体育球队</strong>：产生现金流，但买家往往不在乎现金流</li>
+</ul>
+<p>理解一项投资位于光谱的什么位置，决定了你应该用什么方法来分析它。</p>
+</section>
+</section>
+<section id="能产生现金流的资产" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="能产生现金流的资产"><span class="header-section-number">3</span> 能产生现金流的资产</h2>
+<p>让我们从好消息开始：有些”非传统资产”实际上是可以用 DCF 估值的。</p>
+<section id="特许经营权franchises" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="特许经营权franchises"><span class="header-section-number">3.1</span> 特许经营权（Franchises）</h3>
+<p>特许经营权是一种特殊的资产：政府或公司授予你在特定区域、特定时间内从事特定业务的排他性权利。</p>
+<section id="纽约出租车牌照一个消亡的特权" class="level4" data-number="3.1.1">
+<h4 data-number="3.1.1" class="anchored" data-anchor-id="纽约出租车牌照一个消亡的特权"><span class="header-section-number">3.1.1</span> 纽约出租车牌照：一个消亡的特权</h4>
+<p>2013 年，一张纽约市出租车牌照（Medallion）的价格达到了 130 万美元的巅峰。这不是疯狂——在 Uber 出现之前，这确实是一项有价值的资产。</p>
+<p>让我们来估值一张牌照：</p>
+<p><strong>基本假设</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>年净收入</td>
+<td>$75,000</td>
+<td>扣除运营成本后</td>
+</tr>
+<tr class="even">
+<td>无风险利率</td>
+<td>2%</td>
+<td>2013 年 10 年期国债</td>
+</tr>
+<tr class="odd">
+<td>股权风险溢价</td>
+<td>5.5%</td>
+<td>成熟市场</td>
+</tr>
+<tr class="even">
+<td>牌照 Beta</td>
+<td>0.80</td>
+<td>低于市场（需求稳定）</td>
+</tr>
+<tr class="odd">
+<td>权益成本</td>
+<td>6.4%</td>
+<td><span class="math inline">\(r = 2\% + 0.8 \times 5.5\%\)</span></td>
+</tr>
+<tr class="even">
+<td>增长率</td>
+<td>2%</td>
+<td>与通胀持平</td>
+</tr>
+</tbody>
+</table>
+<p><strong>永续增长模型</strong>：</p>
+<p><span class="math display">\[
+\text{牌照价值} = \frac{\$75,000}{6.4\% - 2\%} = \frac{\$75,000}{4.4\%} = \$1,704,545
+\]</span></p>
+<p>这个估值（约 170 万美元）略高于当时的市场价（130 万美元），但量级是对的。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>Uber 效应
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>2014 年后，随着 Uber 和 Lyft 的崛起，牌照价格暴跌。到 2017 年，价格已跌至 20 万美元以下。</p>
+<p>这不是市场非理性——而是<strong>未来现金流预期</strong>发生了根本性变化。当垄断地位被打破，现金流预期大幅下调，价值自然跟着下跌。</p>
+</div>
+</div>
+<p><strong>教训</strong>：特许经营权的价值完全取决于特权的持久性。当护城河消失，价值也随之消失。</p>
+</section>
+<section id="星球大战特许权娱乐帝国的估值" class="level4" data-number="3.1.2">
+<h4 data-number="3.1.2" class="anchored" data-anchor-id="星球大战特许权娱乐帝国的估值"><span class="header-section-number">3.1.2</span> 星球大战特许权：娱乐帝国的估值</h4>
+<p>2012 年，迪士尼以 40.5 亿美元收购卢卡斯影业，获得了星球大战特许权。这是疯狂的粉丝溢价，还是理性的商业决策？</p>
+<p>让我们尝试估值：</p>
+<p><strong>收入来源分解</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>类别</th>
+<th>年收入估计</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>电影票房</td>
+<td>$2.5 亿</td>
+<td>约 3 年一部大片</td>
+</tr>
+<tr class="even">
+<td>衍生品授权</td>
+<td>$15 亿</td>
+<td>玩具、服装等</td>
+</tr>
+<tr class="odd">
+<td>主题公园</td>
+<td>$3 亿</td>
+<td>迪士尼乐园星战区</td>
+</tr>
+<tr class="even">
+<td>电视/流媒体</td>
+<td>$2 亿</td>
+<td>动画、真人剧</td>
+</tr>
+<tr class="odd">
+<td>视频游戏</td>
+<td>$2 亿</td>
+<td>授权费</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td><strong>$24.5 亿</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键假设</strong>：</p>
+<ul>
+<li>税前利润率：20%（保守估计）</li>
+<li>税后利润：$24.5 亿 × 20% × (1 - 25%) = $3.68 亿</li>
+<li>资本成本：8%（娱乐业平均）</li>
+<li>增长率：3%（长期）</li>
+<li>特许权期限：无限（版权持续受保护）</li>
+</ul>
+<p><span class="math display">\[
+\text{特许权价值} = \frac{\$3.68 \text{亿}}{8\% - 3\%} = \$73.6 \text{亿}
+\]</span></p>
+<p>按这个估值，迪士尼的 40.5 亿美元收购价实际上是<strong>低估</strong>了！</p>
+<p>当然，这个估值对假设非常敏感。如果增长率降到 2%，利润率降到 15%：</p>
+<p><span class="math display">\[
+\text{价值} = \frac{\$24.5 \times 15\% \times 75\%}{8\% - 2\%} = \$45.9 \text{亿}
+\]</span></p>
+<p>仍然接近收购价。从这个角度看，迪士尼的收购是理性的。</p>
+</section>
+</section>
+<section id="有个人因素的企业" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="有个人因素的企业"><span class="header-section-number">3.2</span> 有个人因素的企业</h3>
+<p>有些小型企业虽然产生现金流，但这些现金流与某个特定个人高度绑定。</p>
+<section id="牙医诊所技能溢价的估值" class="level4" data-number="3.2.1">
+<h4 data-number="3.2.1" class="anchored" data-anchor-id="牙医诊所技能溢价的估值"><span class="header-section-number">3.2.1</span> 牙医诊所：技能溢价的估值</h4>
+<p>假设一位牙医想卖掉自己的诊所：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>年收入</td>
+<td>$400,000</td>
+</tr>
+<tr class="even">
+<td>材料和人工成本</td>
+<td>$100,000</td>
+</tr>
+<tr class="odd">
+<td>税前利润</td>
+<td>$300,000</td>
+</tr>
+<tr class="even">
+<td>牙医市场工资</td>
+<td>$175,000</td>
+</tr>
+<tr class="odd">
+<td><strong>超额利润</strong></td>
+<td><strong>$125,000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这里的关键洞察是：$300,000 的利润中，有 $175,000 是牙医自己提供劳动服务应得的报酬（机会成本），只有 $125,000 是真正的”业务价值”。</p>
+<p><strong>估值</strong>：</p>
+<p>如果买家是另一位牙医： <span class="math display">\[
+\text{企业价值} = \frac{\$125,000 \times (1 - 40\%)}{10\% - 3\%} = \$1,071,429
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>关键人物风险
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>当企业的成功高度依赖特定个人时，在估值中必须考虑<strong>关键人物风险（Key Person Risk）</strong>：</p>
+<ol type="1">
+<li>原所有者离开后，客户可能流失</li>
+<li>技术/服务质量可能下降</li>
+<li>品牌价值可能贬值</li>
+</ol>
+<p>这就是为什么”名医诊所”通常只能卖给其他医生，而不是财务投资者。</p>
+</div>
+</div>
+</section>
+<section id="lutèce-餐厅当灵魂人物离开" class="level4" data-number="3.2.2">
+<h4 data-number="3.2.2" class="anchored" data-anchor-id="lutèce-餐厅当灵魂人物离开"><span class="header-section-number">3.2.2</span> Lutèce 餐厅：当灵魂人物离开</h4>
+<p>纽约著名法餐厅 Lutèce 的案例更加极端：</p>
+<ul>
+<li>主厨 André Soltner 是餐厅的灵魂人物</li>
+<li>1994 年，餐厅卖给 Ark Restaurants</li>
+<li>Soltner 离开后，餐厅失去米其林星级</li>
+<li>2004 年，餐厅关闭</li>
+</ul>
+<p><strong>估值启示</strong>：</p>
+<p>对于这类企业，必须分两种情况估值：</p>
+<ol type="1">
+<li><strong>创始人留任</strong>：按正常 DCF 估值</li>
+<li><strong>创始人离开</strong>：大幅下调收入预期，增加折现率</li>
+</ol>
+<p>假设数据：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>年利润</th>
+<th>折现率</th>
+<th>增长率</th>
+<th>估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>创始人留任</td>
+<td>$500,000</td>
+<td>12%</td>
+<td>3%</td>
+<td>$5.56M</td>
+</tr>
+<tr class="even">
+<td>创始人离开</td>
+<td>$200,000</td>
+<td>15%</td>
+<td>0%</td>
+<td>$1.33M</td>
+</tr>
+</tbody>
+</table>
+<p>差异高达 4 倍！这就是”个人因素”的量化影响。</p>
+</section>
+</section>
+<section id="版权与商标" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="版权与商标"><span class="header-section-number">3.3</span> 版权与商标</h3>
+<p>版权和商标是另一类可估值的无形资产。</p>
+<section id="估值框架" class="level4" data-number="3.3.1">
+<h4 data-number="3.3.1" class="anchored" data-anchor-id="估值框架"><span class="header-section-number">3.3.1</span> 估值框架</h4>
+<p>版权的估值与其他有限寿命资产类似：</p>
+<p><span class="math display">\[
+\text{版权价值} = \sum_{t=1}^{n} \frac{CF_t \times (1 - t_c)}{(1 + r)^t}
+\]</span></p>
+<p><strong>关键输入</strong>：</p>
+<ul>
+<li>剩余保护期限（美国：作者去世后 70 年）</li>
+<li>年版税收入</li>
+<li>收入衰减模式</li>
+<li>适用税率</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>版权的独特特征
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>有限寿命</strong>：与永续经营的公司不同，版权有明确的到期日</li>
+<li><strong>收入递减</strong>：大多数版权的收入随时间递减（新书 vs 旧书）</li>
+<li><strong>续期可能</strong>：部分版权可以延期（如迪士尼对米老鼠的游说）</li>
+</ol>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="收藏品当现金流消失" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="收藏品当现金流消失"><span class="header-section-number">4</span> 收藏品：当现金流消失</h2>
+<p>现在我们进入更具挑战性的领域：收藏品没有现金流，无法用 DCF 估值。但这不意味着我们无法分析它们。</p>
+<section id="艺术品" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="艺术品"><span class="header-section-number">4.1</span> 艺术品</h3>
+<section id="收益与风险" class="level4" data-number="4.1.1">
+<h4 data-number="4.1.1" class="anchored" data-anchor-id="收益与风险"><span class="header-section-number">4.1.1</span> 收益与风险</h4>
+<p>艺术品作为投资，表现如何？</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>研究</th>
+<th>时间段</th>
+<th>年化收益率</th>
+<th>波动率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mei-Moses</td>
+<td>1875-2008</td>
+<td>4.03%</td>
+<td>较高</td>
+</tr>
+<tr class="even">
+<td>S&amp;P 500</td>
+<td>同期</td>
+<td>~9%</td>
+<td>20%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：长期看，艺术品的收益率远低于股票，且流动性差、交易成本高。</p>
+</section>
+<section id="艺术品的估值" class="level4" data-number="4.1.2">
+<h4 data-number="4.1.2" class="anchored" data-anchor-id="艺术品的估值"><span class="header-section-number">4.1.2</span> 艺术品的”估值”</h4>
+<p>虽然无法 DCF 估值，但艺术品价格受以下因素影响：</p>
+<ol type="1">
+<li><strong>艺术家声誉</strong>：毕加索 vs 无名画家</li>
+<li><strong>作品时期</strong>：艺术家巅峰期 vs 早期/晚期</li>
+<li><strong>稀缺性</strong>：存世作品数量</li>
+<li><strong>出处（Provenance）</strong>：历史收藏记录</li>
+<li><strong>市场情绪</strong>：财富效应、时尚趋势</li>
+</ol>
+<p>这些因素可以用<strong>回归模型</strong>分析，但本质上仍是”定价”而非”估值”。</p>
+</section>
+</section>
+<section id="黄金三重身份" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="黄金三重身份"><span class="header-section-number">4.2</span> 黄金：三重身份</h3>
+<p>黄金是最复杂的投资品之一，它同时具有：</p>
+<ol type="1">
+<li><strong>商品属性</strong>：工业和珠宝用途</li>
+<li><strong>货币属性</strong>：历史上的交换媒介</li>
+<li><strong>收藏品属性</strong>：价值储存和情感价值</li>
+</ol>
+<section id="黄金定价的驱动因素" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="黄金定价的驱动因素"><span class="header-section-number">4.2.1</span> 黄金定价的驱动因素</h4>
+<p>通过回归分析，我们可以识别黄金价格的主要驱动因素：</p>
+<p><span class="math display">\[
+\Delta \text{Gold Price} = f(\text{通胀}, \text{恐惧指数}, \text{实际利率})
+\]</span></p>
+<p><strong>经验发现</strong>（1975-2023 数据）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>因素</th>
+<th>系数符号</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>预期通胀</td>
+<td>+</td>
+<td>通胀上升 → 黄金上涨</td>
+</tr>
+<tr class="even">
+<td>股权风险溢价</td>
+<td>+</td>
+<td>恐惧上升 → 黄金上涨</td>
+</tr>
+<tr class="odd">
+<td>实际利率</td>
+<td>−</td>
+<td>利率上升 → 黄金下跌</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>黄金的三个角色
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>通胀对冲</strong>：当通胀预期上升，黄金上涨</li>
+<li><strong>危机避险</strong>：当市场恐惧（ERP 上升），黄金上涨</li>
+<li><strong>机会成本</strong>：当实际利率上升，持有黄金的机会成本增加，价格下跌</li>
+</ol>
+</div>
+</div>
+<p><strong>回归模型示例</strong>：</p>
+<p><span class="math display">\[
+\ln(\text{Gold Price}_{t}) = \alpha + \beta_1 \cdot \text{CPI}_{t} + \beta_2 \cdot \text{ERP}_{t} + \beta_3 \cdot \text{Real Rate}_{t} + \epsilon
+\]</span></p>
+<p>这不是”估值”，但可以帮助我们理解价格变动的驱动因素，以及预测价格可能的走向。</p>
+</section>
+</section>
+<section id="比特币货币还是收藏品" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="比特币货币还是收藏品"><span class="header-section-number">4.3</span> 比特币：货币还是收藏品？</h3>
+<p>比特币自称是”数字黄金”和”去中心化货币”。让我们客观分析它的本质。</p>
+<section id="作为货币的检验" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="作为货币的检验"><span class="header-section-number">4.3.1</span> 作为货币的检验</h4>
+<p>一种货币需要满足三个功能：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>功能</th>
+<th>比特币表现</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>交换媒介</strong></td>
+<td>接受度有限，交易速度慢</td>
+<td>★★☆</td>
+</tr>
+<tr class="even">
+<td><strong>价值储存</strong></td>
+<td>波动率极高（年化 80%+）</td>
+<td>★☆☆</td>
+</tr>
+<tr class="odd">
+<td><strong>计价单位</strong></td>
+<td>几乎没有商品以 BTC 定价</td>
+<td>★☆☆</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：按传统货币标准，比特币更接近<strong>投机性收藏品</strong>而非货币。</p>
+</section>
+<section id="比特币的价值来源" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="比特币的价值来源"><span class="header-section-number">4.3.2</span> 比特币的”价值”来源</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>观点</th>
+<th>支持者论点</th>
+<th>批评者反驳</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>稀缺性</td>
+<td>总量上限 2100 万枚</td>
+<td>其他加密货币无限供给</td>
+</tr>
+<tr class="even">
+<td>去中心化</td>
+<td>无政府干预</td>
+<td>交易所高度集中</td>
+</tr>
+<tr class="odd">
+<td>技术创新</td>
+<td>区块链革命</td>
+<td>已被其他区块链超越</td>
+</tr>
+<tr class="even">
+<td>网络效应</td>
+<td>先发优势</td>
+<td>可能被替代</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>诚实的评估
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>比特币可能继续涨到 10 万美元，也可能跌到 1000 美元。这不是估值问题，而是<strong>信念</strong>问题。</p>
+<p>作为投资者，如果你决定持有比特币，你应该：</p>
+<ol type="1">
+<li>将其视为高风险投机，而非”价值投资”</li>
+<li>只投入你能承受完全损失的金额</li>
+<li>不要试图”估值”——它没有内在价值可言</li>
+</ol>
+</div>
+</div>
+</section>
+</section>
+<section id="nft收藏品的数字化" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="nft收藏品的数字化"><span class="header-section-number">4.4</span> NFT：收藏品的数字化</h3>
+<p>NFT（Non-Fungible Token）本质上是<strong>区块链上的收藏品凭证</strong>。</p>
+<section id="nft-的价值来源" class="level4" data-number="4.4.1">
+<h4 data-number="4.4.1" class="anchored" data-anchor-id="nft-的价值来源"><span class="header-section-number">4.4.1</span> NFT 的价值来源</h4>
+<ol type="1">
+<li><strong>稀缺性证明</strong>：区块链验证的唯一性</li>
+<li><strong>艺术/情感价值</strong>：数字艺术、音乐、虚拟物品</li>
+<li><strong>社交信号</strong>：炫耀性消费</li>
+</ol>
+</section>
+<section id="nft-估值的困境" class="level4" data-number="4.4.2">
+<h4 data-number="4.4.2" class="anchored" data-anchor-id="nft-估值的困境"><span class="header-section-number">4.4.2</span> NFT 估值的困境</h4>
+<p>与传统收藏品相比，NFT 面临更大的挑战：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>传统收藏品</th>
+<th>NFT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>物理稀缺</td>
+<td>数字复制容易</td>
+</tr>
+<tr class="even">
+<td>历史积淀</td>
+<td>刚刚兴起</td>
+</tr>
+<tr class="odd">
+<td>流动市场</td>
+<td>流动性极差</td>
+</tr>
+<tr class="even">
+<td>鉴定体系成熟</td>
+<td>鉴定困难</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：NFT 的估值更像是社会学实验而非金融分析。</p>
+</section>
+</section>
+</section>
+<section id="奖杯资产trophy-assets" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="奖杯资产trophy-assets"><span class="header-section-number">5</span> 奖杯资产（Trophy Assets）</h2>
+<p>现在我们来到最有趣的类别：那些产生现金流，但买家似乎完全不在乎现金流的资产。</p>
+<section id="体育球队当亿万富翁竞价" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="体育球队当亿万富翁竞价"><span class="header-section-number">5.1</span> 体育球队：当亿万富翁竞价</h3>
+<section id="一个令人困惑的现象" class="level4" data-number="5.1.1">
+<h4 data-number="5.1.1" class="anchored" data-anchor-id="一个令人困惑的现象"><span class="header-section-number">5.1.1</span> 一个令人困惑的现象</h4>
+<p>体育球队的交易价格持续超出传统估值能解释的范围：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>球队</th>
+<th>收购年份</th>
+<th>价格</th>
+<th>收入</th>
+<th>P/Rev 倍数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>洛杉矶快船</td>
+<td>2014</td>
+<td>$20 亿</td>
+<td>$1.28 亿</td>
+<td>15.6x</td>
+</tr>
+<tr class="even">
+<td>布鲁克林篮网</td>
+<td>2019</td>
+<td>$23.5 亿</td>
+<td>$2.5 亿</td>
+<td>9.4x</td>
+</tr>
+<tr class="odd">
+<td>切尔西足球俱乐部</td>
+<td>2022</td>
+<td>$52.5 亿</td>
+<td>$5.2 亿</td>
+<td>10.1x</td>
+</tr>
+</tbody>
+</table>
+<p>相比之下，普通企业的 P/Rev 通常在 1-3x。</p>
+</section>
+<section id="洛杉矶快船估值案例" class="level4" data-number="5.1.2">
+<h4 data-number="5.1.2" class="anchored" data-anchor-id="洛杉矶快船估值案例"><span class="header-section-number">5.1.2</span> 洛杉矶快船估值案例</h4>
+<p>让我们用传统方法估值快船队（2014 年数据）：</p>
+<p><strong>财务数据</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>项目</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>总收入</td>
+<td>$128M</td>
+</tr>
+<tr class="even">
+<td>运营利润</td>
+<td>$15M</td>
+</tr>
+<tr class="odd">
+<td>税后利润</td>
+<td>$10M</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DCF 估值</strong>：</p>
+<p>假设： - 折现率：10% - 永续增长率：3%</p>
+<p><span class="math display">\[
+\text{价值} = \frac{\$10M}{10\% - 3\%} = \$143M
+\]</span></p>
+<p>这只有鲍尔默支付的 20 亿美元的 <strong>7%</strong>！</p>
+</section>
+<section id="为什么会这样" class="level4" data-number="5.1.3">
+<h4 data-number="5.1.3" class="anchored" data-anchor-id="为什么会这样"><span class="header-section-number">5.1.3</span> 为什么会这样？</h4>
+<p>鲍尔默支付 20 亿美元，不是因为他不会做 DCF，而是因为：</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>奖杯资产的四重价值
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>炫耀性消费</strong>：拥有 NBA 球队的社会地位</li>
+<li><strong>消费效用</strong>：看自己的球队比赛的快乐</li>
+<li><strong>稀缺性溢价</strong>：全世界只有 30 支 NBA 球队</li>
+<li><strong>富豪博弈</strong>：当只有少数人有能力竞标时，价格脱离基本面</li>
+</ol>
+</div>
+</div>
+<p>从<strong>价格形成机制</strong>的角度分析：</p>
+<p><span class="math display">\[
+\text{市场价格} = \text{DCF 价值} + \text{情感价值} + \text{稀缺性溢价} + \text{竞标溢价}
+\]</span></p>
+<p>对于快船：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>组成部分</th>
+<th>估计金额</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DCF 价值</td>
+<td>~$150M</td>
+<td>7.5%</td>
+</tr>
+<tr class="even">
+<td>其他价值</td>
+<td>~$1,850M</td>
+<td>92.5%</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="对普通投资者的启示" class="level4" data-number="5.1.4">
+<h4 data-number="5.1.4" class="anchored" data-anchor-id="对普通投资者的启示"><span class="header-section-number">5.1.4</span> 对普通投资者的启示</h4>
+<ol type="1">
+<li><strong>不要模仿</strong>：亿万富翁支付的溢价，普通投资者无法承担</li>
+<li><strong>理解买家</strong>：了解谁在另一边竞标，决定了价格形成机制</li>
+<li><strong>区分价值与价格</strong>：体育球队的”公允价值”远低于交易价格</li>
+</ol>
+</section>
+</section>
+<section id="nba-球队所有者分析" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="nba-球队所有者分析"><span class="header-section-number">5.2</span> NBA 球队所有者分析</h3>
+<p>有趣的是，几乎所有 NBA 球队所有者都是在其他领域赚到财富后才买球队的：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>所有者</th>
+<th>球队</th>
+<th>财富来源</th>
+<th>净资产</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>史蒂夫·鲍尔默</td>
+<td>快船</td>
+<td>微软</td>
+<td>$1000 亿+</td>
+</tr>
+<tr class="even">
+<td>约瑟夫·蔡</td>
+<td>篮网</td>
+<td>阿里巴巴</td>
+<td>$100 亿+</td>
+</tr>
+<tr class="odd">
+<td>丹·吉尔伯特</td>
+<td>骑士</td>
+<td>Quicken Loans</td>
+<td>$50 亿+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>规律</strong>：体育球队是财富的<strong>终点</strong>，而非起点。</p>
+</section>
+</section>
+<section id="中国视角另类资产估值的本土案例" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="中国视角另类资产估值的本土案例"><span class="header-section-number">6</span> 中国视角：另类资产估值的本土案例</h2>
+<section id="茅台酒消费品还是收藏品" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="茅台酒消费品还是收藏品"><span class="header-section-number">6.1</span> 茅台酒：消费品还是收藏品？</h3>
+<p>茅台酒在中国市场是一个有趣的案例：</p>
+<ul>
+<li><strong>消费品功能</strong>：宴请、送礼</li>
+<li><strong>投资功能</strong>：年份酒升值</li>
+<li><strong>社交功能</strong>：身份象征</li>
+</ul>
+<p>一瓶 1986 年茅台的”价值”从何而来？</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>价值来源</th>
+<th>占比（估计）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>饮用价值</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>稀缺性</td>
+<td>40%</td>
+</tr>
+<tr class="odd">
+<td>社交价值</td>
+<td>30%</td>
+</tr>
+<tr class="even">
+<td>投资预期</td>
+<td>25%</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="车牌号码中国式特许权" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="车牌号码中国式特许权"><span class="header-section-number">6.2</span> 车牌号码：中国式特许权</h3>
+<p>在一些限牌城市（如北京、上海），车牌已成为一种”特许权”：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>城市</th>
+<th>获取方式</th>
+<th>价值（2024）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>北京</td>
+<td>摇号</td>
+<td>无法直接定价</td>
+</tr>
+<tr class="even">
+<td>上海</td>
+<td>拍卖</td>
+<td>￥10万+</td>
+</tr>
+<tr class="odd">
+<td>深圳</td>
+<td>混合制</td>
+<td>￥5-8万</td>
+</tr>
+</tbody>
+</table>
+<p>从估值角度看，这些车牌的价值取决于：</p>
+<ol type="1">
+<li>限牌政策的持续性</li>
+<li>新能源车政策的影响</li>
+<li>公共交通发展速度</li>
+</ol>
+</section>
+<section id="对中国投资者的建议" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="对中国投资者的建议"><span class="header-section-number">6.3</span> 对中国投资者的建议</h3>
+<ol type="1">
+<li><strong>识别真正的价值来源</strong>：区分稀缺性溢价和真正的现金流价值</li>
+<li><strong>警惕政策风险</strong>：中国特许权常受政策影响（参考教培行业）</li>
+<li><strong>理性看待收藏品热</strong>：艺术品、白酒、茶叶都有投机成分</li>
+</ol>
+</section>
+</section>
+<section id="总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结"><span class="header-section-number">7</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p><strong>价值 vs 价格</strong>：只有产生现金流的资产才能被”估值”；收藏品只能被”定价”</p></li>
+<li><p><strong>特许经营权</strong>：可以用 DCF 估值，但要特别关注”护城河”的持久性（纽约出租车牌照的教训）</p></li>
+<li><p><strong>有个人因素的企业</strong>：必须区分”劳动报酬”和”业务价值”，创始人离开往往导致价值大幅缩水</p></li>
+<li><p><strong>收藏品（黄金、比特币、艺术品）</strong>：无法估值，只能分析定价驱动因素；作为投资应严格控制仓位</p></li>
+<li><p><strong>奖杯资产</strong>：交易价格远超 DCF 价值，因为买家追求的是情感价值和社会地位，普通投资者应避免模仿</p></li>
+</ol>
+</div>
+</div>
+<p>本章回答了开头的问题：当现金流消失时，我们确实无法”估值”，但我们仍然可以：</p>
+<ul>
+<li>分析<strong>定价驱动因素</strong></li>
+<li>理解<strong>买家动机</strong></li>
+<li>评估<strong>相对吸引力</strong></li>
+<li>控制<strong>仓位风险</strong></li>
+</ul>
+<p>关键的 takeaway 是：<strong>知道什么能估值、什么不能估值，本身就是估值素养的重要组成部分</strong>。试图对无法估值的资产进行 DCF 分析，只会给自己一种虚假的精确感。</p>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>概念检验</strong>：如果你拥有一项专利，剩余保护期 10 年，每年产生 100 万美元的版税收入。假设折现率为 8%，且收入每年下降 5%，这项专利值多少钱？</p></li>
+<li><p><strong>应用分析</strong>：假设你要为一家高端寿司店估值，主厨是这家店的核心竞争力。你会如何构建估值框架？需要考虑哪些风险因素？</p></li>
+<li><p><strong>批判性思考</strong>：有人说”比特币的内在价值为零”，也有人说”比特币是数字黄金”。请从货币的三个功能出发，评估这两种观点的合理性。</p></li>
+<li><p><strong>中国应用</strong>：如果要估值一个抖音网红的商业价值，你会采用什么方法？这与估值传统企业有什么不同？</p></li>
+<li><p><strong>延伸思考</strong>：为什么亿万富翁愿意为体育球队支付巨额溢价？这对”市场有效性”假说有什么挑战？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

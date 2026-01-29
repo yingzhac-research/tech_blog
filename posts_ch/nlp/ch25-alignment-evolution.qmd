@@ -1,0 +1,694 @@
+---
+title: "第25章：对齐技术的演进"
+subtitle: "The Evolution of Alignment: From RLHF to Direct Preference Optimization"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, Alignment, DPO]
+tags: [DPO, ORPO, SimPO, KTO, Constitutional AI, Preference Optimization, RLHF, Direct Alignment, Superalignment]
+description: "RLHF 的三阶段流水线让 ChatGPT 成为可能，但它的工程复杂度也让许多研究者望而却步。本章讲述对齐技术的演进：从 DPO 发现 RLHF 可以被等价地简化为一个分类损失，到 ORPO/SimPO/KTO 等变体进一步消除参考模型依赖，再到 Constitutional AI 用 AI 自己来提供反馈。我们将追问对齐的本质——什么是'对齐'？对齐到谁的价值观？——并展望可扩展监督和超级对齐的前沿问题。"
+image: "figures/chapter-25/original/fig1-dpo-vs-rlhf.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：能否绕过强化学习的复杂性，直接用偏好数据优化语言模型？对齐的本质是什么？
+>
+> **历史坐标**：2023–2024 | DPO → ORPO/SimPO/KTO → Constitutional AI | 从 RL-based 到 RL-free alignment
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Rafailov et al. (2023)** "Direct Preference Optimization: Your Language Model is Secretly a Reward Model" ([arXiv:2305.18290](https://arxiv.org/abs/2305.18290)) — 参考了 Section 4（DPO 推导）、Section 5（理论分析）；核心推导改编为算法框
+- **Hong et al. (2024)** "ORPO: Monolithic Preference Optimization without Reference Model" ([arXiv:2403.07691](https://arxiv.org/abs/2403.07691)) — 参考了 Section 3（Odds Ratio 推导）
+- **Meng et al. (2024)** "SimPO: Simple Preference Optimization with a Reference-Free Reward" ([arXiv:2405.14734](https://arxiv.org/abs/2405.14734)) — 参考了 Section 3（长度归一化奖励）
+- **Ethayarajh et al. (2024)** "KTO: Model Alignment as Prospect Theoretic Optimization" ([arXiv:2402.01306](https://arxiv.org/abs/2402.01306)) — 参考了 Section 3（Kahneman-Tversky 效用模型）
+- **Bai et al. (2022)** "Constitutional AI: Harmlessness from AI Feedback" ([arXiv:2212.08073](https://arxiv.org/abs/2212.08073)) — 参考了 Section 3（RLAIF 流程）
+- **Burns et al. (2023)** "Weak-to-strong generalization" ([OpenAI](https://openai.com/index/weak-to-strong-generalization/)) — 参考了超级对齐与可扩展监督的讨论
+
+### 教材
+- SLP3 Chapter 9: "Post-training: Instruction Tuning, Alignment, and Test-Time Compute" — 参考了 DPO 与 RLHF 的对比讲解
+
+### 课程
+- Stanford CS224N Lecture 10 (Winter 2025): "Instruction Finetuning, and RLHF" — 参考了 DPO 简化 RLHF 的教学思路
+- University of Toronto MScAC (2024): "Direct Preference Optimization" — 参考了 DPO 推导的课程讲义
+:::
+
+## 从上一章说起
+
+上一章我们深入探讨了 RLHF 的三阶段流水线——SFT 建立指令遵循基线，奖励模型学习人类偏好，PPO 优化策略以最大化奖励。这个框架造就了 InstructGPT 和 ChatGPT，将大语言模型从"文本补全器"转变为真正有用的 AI 助手。1.3B 参数的 InstructGPT 击败了 175B 的 GPT-3，有力地证明了"对齐"与"规模"同样重要。
+
+然而，RLHF 的成功背后隐藏着巨大的工程复杂度。三阶段流水线意味着三次独立的训练过程，每个阶段都有自己的超参数、数据需求和失效模式。PPO 阶段需要同时在 GPU 上维护四个大模型——策略模型、参考模型、奖励模型、价值模型——对于一个 7B 模型，这意味着至少需要 2-4 张 A100 (80GB) 才能勉强跑起来。更令人头疼的是调试：如果最终模型表现不好，问题可能出在 SFT 数据质量、偏好标注一致性、奖励模型泛化能力、PPO 超参数中的任何一个环节。
+
+这种复杂度让 RLHF 在很长一段时间内只是大公司的专属技术。学术界和开源社区虽然对对齐技术充满兴趣，但面对 RLHF 的工程门槛往往望而却步。一个自然的问题浮现出来：**RLHF 的三阶段流水线是必要的吗？能否绕过强化学习，直接用偏好数据优化语言模型？**
+
+2023 年，Stanford 的 Rafailov 等人给出了一个令人惊喜的回答：可以。他们发现 RLHF 的目标函数可以被等价地转化为一个简单的分类损失——不需要单独训练奖励模型，不需要 PPO 的复杂训练循环。这个方法被命名为 **DPO（Direct Preference Optimization）**，它将三阶段流水线简化为一阶段的直接优化，大大降低了对齐技术的门槛。
+
+> 💡 **本章核心洞察**：通过将 RLHF 的最优策略解析解代入 Bradley-Terry 偏好模型，可以将奖励模型"消元"掉，得到一个直接关于策略模型的损失函数。这意味着偏好对齐不需要强化学习——它本质上可以是一个分类问题。
+
+![DPO 与 RLHF 的核心区别：RLHF 需要先训练奖励模型，再用 RL 优化策略；DPO 直接在偏好数据上用最大似然优化策略。](figures/chapter-25/original/fig1-dpo-vs-rlhf.png){#fig-dpo-vs-rlhf width=95%}
+
+::: {.figure-caption}
+*Source: Rafailov et al. (2023) "Direct Preference Optimization: Your Language Model is Secretly a Reward Model", Figure 1*
+:::
+
+## 问题的本质是什么？
+
+### RLHF 的核心瓶颈
+
+让我们从更本质的角度重新审视 RLHF 的设计。在 RLHF 中，奖励模型扮演着"人类偏好代理"的角色——它将人类的成对比较判断转化为一个标量奖励信号，供 PPO 使用。这个设计的初衷是合理的：人类不可能评审模型的每一个输出，所以需要一个自动化的代理。
+
+但仔细想想，奖励模型真的是必要的中间环节吗？我们有偏好数据（"A 比 B 好"），我们想要优化策略模型。奖励模型只是偏好数据和策略优化之间的一个桥梁——一个**间接**的桥梁。能否建立一条从偏好数据到策略优化的**直接**通路？
+
+这个问题的答案隐藏在上一章推导的 RLHF 最优策略解中。回忆一下，RLHF 的目标是最大化期望奖励同时约束 KL 散度：
+
+$$
+\max_{\pi} \; \mathbb{E}_{x, y \sim \pi} [r(x, y)] - \beta \, D_{\text{KL}}[\pi \| \pi_{\text{ref}}]
+$$
+
+这个约束优化问题的闭式最优解是：
+
+$$
+\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\!\left(\frac{r(x,y)}{\beta}\right)
+$$
+
+其中 $Z(x)$ 是归一化常数。这个公式告诉我们：**最优策略与奖励函数之间存在一个解析的映射关系**。如果我们将这个关系反过来，可以用最优策略来表达奖励函数——而一旦奖励函数可以用策略来表达，奖励模型作为独立组件就变得多余了。
+
+### 变换视角：从奖励到策略
+
+让我们把上面的最优策略公式重新排列。对 $\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{r(x,y)}{\beta}\right)$ 两边取对数：
+
+$$
+\log \pi^*(y|x) = \log \pi_{\text{ref}}(y|x) + \frac{r(x,y)}{\beta} - \log Z(x)
+$$
+
+整理得到奖励函数的表达式：
+
+$$
+r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)
+$$
+
+这个公式的意义极为深远：**奖励函数可以完全用策略的对数概率比来表达**（加上一个只依赖于 $x$ 的常数项 $\beta \log Z(x)$）。换句话说，如果我们知道最优策略 $\pi^*$，我们就隐含地知道了奖励函数——不需要单独训练一个奖励模型。
+
+更妙的是，当我们将这个"隐式奖励"代入 Bradley-Terry 偏好模型时，由于偏好概率只取决于两个回答的奖励**差值**，$\beta \log Z(x)$ 项会被抵消掉！
+
+### 我们需要什么样的解决方案？
+
+综合以上分析，理想的"直接对齐"方法应该满足三个条件。第一，它应该**直接从偏好数据到策略优化**，跳过奖励模型这个中间环节。第二，它应该**只需要监督学习**，不需要 PPO 那样的强化学习训练循环。第三，它的优化目标应该与 RLHF **理论上等价**——不是近似，不是启发式，而是在适当假设下数学上等价。
+
+DPO 正是这样的解决方案。它利用了"奖励可以用策略表达"这一洞察，将 RLHF 的三阶段流水线压缩为一个简洁的分类损失。
+
+## 核心思想与直觉
+
+### 关键洞察：语言模型就是奖励模型
+
+DPO 的核心洞察可以用论文标题来概括："Your Language Model is Secretly a Reward Model"（你的语言模型偷偷就是一个奖励模型）。
+
+这句话的意思是：一旦语言模型被优化为 RLHF 目标的最优解，它的对数概率本身就编码了奖励信息。具体来说，给定最优策略 $\pi^*$，我们可以定义一个"隐式奖励"：
+
+$$
+r_{\text{implicit}}(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)}
+$$
+
+这个隐式奖励与 RLHF 中训练出的显式奖励在数学上是等价的（差一个只依赖于 $x$ 的常数）。所以，**训练一个对齐良好的策略模型，等价于训练一个奖励模型**——我们不需要两个独立的模型。
+
+### 从偏好到损失函数
+
+有了隐式奖励的概念，我们可以把它代入 Bradley-Terry 偏好模型。回忆 Bradley-Terry 模型假设人类偏好 $y_w$ 胜过 $y_l$ 的概率是：
+
+$$
+P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))
+$$
+
+将隐式奖励代入：
+
+$$
+\begin{aligned}
+P(y_w \succ y_l | x) &= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \\
+&= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} \cdot \frac{\pi_{\text{ref}}(y_l|x)}{\pi^*(y_l|x)}\right)
+\end{aligned}
+$$
+
+注意 $Z(x)$ 项确实被抵消了！现在偏好概率完全用策略模型的概率比来表达，不再需要单独的奖励模型。
+
+当然，我们不知道真正的最优策略 $\pi^*$ 是什么——那正是我们想要学习的。但我们可以把 $\pi^*$ 替换为我们正在训练的策略 $\pi_\theta$，然后通过最大化偏好数据的似然来优化 $\pi_\theta$：
+
+$$
+\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma\!\left(\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \right]
+$$
+
+这就是 **DPO 损失函数**——一个惊人简洁的公式。它说的是：调整策略 $\pi_\theta$，使得偏好回答 $y_w$ 相对于参考模型的"提升幅度"大于不偏好回答 $y_l$ 的提升幅度。
+
+### DPO vs RLHF：直观对比
+
+让我用一个类比来解释 DPO 和 RLHF 的区别。
+
+想象你是一位烹饪学校的校长，想教学生做出美味的菜品。
+
+**RLHF 的做法**（三阶段）：
+1. 先让资深厨师示范一些标准菜谱（SFT）
+2. 找一批美食评论家，让他们品尝学生做的菜并打分，然后训练一个"AI 评分系统"来模仿评论家的判断（RM）
+3. 让学生不断做菜，AI 评分系统给反馈，学生根据反馈调整烹饪技巧（PPO）
+
+**DPO 的做法**（一阶段）：
+1. 收集美食评论家的成对评判：这道菜 A 比菜 B 更好吃
+2. 直接告诉学生：调整你的烹饪方式，使得做出 A 这类菜品的概率提高、做出 B 这类菜品的概率降低
+
+DPO 跳过了训练"AI 评分系统"这一步——它直接把评论家的成对判断转化为烹饪指导。这之所以可行，是因为 Rafailov 等人证明了这两种方法在数学上是等价的。
+
+## 技术细节
+
+### DPO 的完整推导
+
+让我们完整地走一遍 DPO 的数学推导，这是理解其精妙之处的关键。
+
+**Step 1: RLHF 目标函数**
+
+RLHF 的目标是最大化期望奖励同时约束 KL 散度：
+
+$$
+\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D}} \left[ \mathbb{E}_{y \sim \pi(\cdot|x)} [r(x, y)] - \beta \, D_{\text{KL}}[\pi(\cdot|x) \| \pi_{\text{ref}}(\cdot|x)] \right]
+$$
+
+**Step 2: 推导最优策略**
+
+这是一个带 KL 约束的期望最大化问题，可以用变分推断或 Lagrange 乘子法求解。结果是：
+
+$$
+\pi^*(y|x) = \frac{\pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)}{Z(x)}
+$$
+
+其中归一化常数 $Z(x) = \sum_y \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)$。
+
+**Step 3: 反解奖励函数**
+
+对上式取对数并整理：
+
+$$
+r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)
+$$
+
+**Step 4: 代入 Bradley-Terry 模型**
+
+将隐式奖励代入偏好概率公式：
+
+$$
+\begin{aligned}
+P(y_w \succ y_l | x) &= \sigma(r(x, y_w) - r(x, y_l)) \\
+&= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} + \cancel{\beta \log Z(x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \cancel{\beta \log Z(x)}\right)
+\end{aligned}
+$$
+
+$Z(x)$ 项抵消！
+
+**Step 5: 定义 DPO 损失**
+
+既然 $\pi^*$ 是我们想要找到的目标，我们用可学习的 $\pi_\theta$ 来近似它，并最大化偏好数据的似然：
+
+$$
+\boxed{\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l)} \left[ \log \sigma\!\left(\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right) \right]}
+$$
+
+::: {.callout-note}
+## Algorithm 1: Direct Preference Optimization (DPO)
+
+```python
+# DPO Training Algorithm
+# Rafailov et al. (2023), Section 4
+
+Input: Reference policy π_ref, preference dataset D = {(x, y_w, y_l)}
+Output: Aligned policy π_θ
+Hyperparameter: β (temperature, typically 0.1-0.5)
+
+1. Initialize π_θ from π_ref (or from SFT model)
+
+2. For each batch of (x, y_w, y_l) in D:
+
+   # Compute log probabilities
+   log_π_θ_w = log π_θ(y_w | x)    # policy on preferred
+   log_π_θ_l = log π_θ(y_l | x)    # policy on dispreferred
+   log_π_ref_w = log π_ref(y_w | x)  # reference on preferred
+   log_π_ref_l = log π_ref(y_l | x)  # reference on dispreferred
+
+   # Compute log ratios
+   log_ratio_w = log_π_θ_w - log_π_ref_w
+   log_ratio_l = log_π_θ_l - log_π_ref_l
+
+   # DPO loss (negative log-likelihood of preference)
+   loss = -log σ(β · (log_ratio_w - log_ratio_l))
+
+   # Update θ using gradient descent
+   θ ← θ - α · ∇_θ loss
+
+3. Return π_θ
+```
+
+*Source: Rafailov et al. (2023) "Direct Preference Optimization", Algorithm 1. [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)*
+:::
+
+### 完整数值示例：从偏好数据到梯度更新
+
+让我们用一个具体的数值示例来走一遍 DPO 的计算流程。
+
+**设定**：假设有 prompt $x$ = "写一个关于春天的短诗"，模型生成了两个回答：
+
+- $y_w$（偏好）："春风拂面暖，花开满园香。燕子归来日，万物竞生长。"
+- $y_l$（不偏好）："春天来了，天气变暖。"
+
+假设 $\beta = 0.5$，我们来计算 DPO 损失和梯度方向。
+
+**Step 1: 计算对数概率**
+
+假设当前策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 给出的对数概率为：
+
+$$
+\begin{aligned}
+\log \pi_\theta(y_w|x) &= -15.2 \\
+\log \pi_\theta(y_l|x) &= -8.3 \\
+\log \pi_{\text{ref}}(y_w|x) &= -18.0 \\
+\log \pi_{\text{ref}}(y_l|x) &= -7.5
+\end{aligned}
+$$
+
+注意：$y_w$ 更长更复杂，所以绝对概率更低（对数概率更负）。
+
+**Step 2: 计算对数比值**
+
+$$
+\begin{aligned}
+\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} &= -15.2 - (-18.0) = 2.8 \\
+\log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} &= -8.3 - (-7.5) = -0.8
+\end{aligned}
+$$
+
+**解读**：当前策略相比参考策略，将 $y_w$ 的概率提升了（对数比值为正），将 $y_l$ 的概率降低了（对数比值为负）。这是我们希望的方向！
+
+**Step 3: 计算隐式奖励差**
+
+$$
+\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) = 0.5 \times (2.8 - (-0.8)) = 0.5 \times 3.6 = 1.8
+$$
+
+**Step 4: 计算偏好概率和损失**
+
+$$
+P(y_w \succ y_l | x) = \sigma(1.8) = \frac{e^{1.8}}{e^{1.8} + 1} = \frac{6.05}{7.05} \approx 0.858
+$$
+
+$$
+\mathcal{L}_{\text{DPO}} = -\log(0.858) \approx 0.153
+$$
+
+**Step 5: 梯度方向分析**
+
+DPO 损失对策略参数 $\theta$ 的梯度是：
+
+$$
+\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta (1 - \sigma(\cdot)) \left[ \nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x) \right]
+$$
+
+其中 $1 - \sigma(1.8) \approx 0.142$ 是误差信号。梯度更新会：
+- 增加 $\log \pi_\theta(y_w|x)$（提高偏好回答的概率）
+- 减少 $\log \pi_\theta(y_l|x)$（降低不偏好回答的概率）
+
+当 $\sigma(\cdot) \to 1$ 时，误差信号趋近于 0，说明模型已经正确区分了偏好顺序。
+
+### DPO 与 RLHF 的理论等价性
+
+Rafailov et al. (2023) 证明了在两个条件下，DPO 和 RLHF 的全局最优解是相同的：
+
+1. **Bradley-Terry 模型完美拟合偏好数据**：即真实的人类偏好确实可以用某个奖励函数通过 $P(y_w \succ y_l) = \sigma(r(y_w) - r(y_l))$ 来表达。
+2. **RLHF 学到了最优奖励函数**：即奖励模型训练没有欠拟合或过拟合。
+
+在这两个假设下，DPO 的全局最优解 $\pi^*_{\text{DPO}}$ 与 RLHF 的全局最优解 $\pi^*_{\text{RLHF}}$ 完全一致。
+
+然而，这只是理论结果。在实践中，由于优化的路径不同（DPO 是离线的、RLHF 是在线的），两者可能收敛到不同的局部最优。这个问题我们会在"深入理解"部分讨论。
+
+### DPO 的梯度解析：隐式奖励的视角
+
+DPO 损失的梯度有一个非常直观的解释。经过推导，可以写成：
+
+$$
+\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta \, \mathbb{E} \left[ \underbrace{\sigma\!\left(\hat{r}_\theta(x, y_l) - \hat{r}_\theta(x, y_w)\right)}_{\text{权重：当前排序有多"错"}} \cdot \left[\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)\right] \right]
+$$
+
+其中 $\hat{r}_\theta(x, y) = \beta \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)}$ 是隐式奖励。
+
+这个梯度公式有两个部分：
+
+1. **权重项** $\sigma(\hat{r}_\theta(y_l) - \hat{r}_\theta(y_w))$：衡量当前模型对这对样本的排序有多"错"。如果模型已经正确地给 $y_w$ 更高的隐式奖励，这个权重接近 0，几乎不更新；如果模型错误地给 $y_l$ 更高的奖励，这个权重接近 1，强力更新。这是一种**自适应加权**——困难样本（排序错误的）获得更大的梯度。
+
+2. **方向项** $\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)$：增加偏好回答的概率，减少不偏好回答的概率。
+
+### 关键设计决策
+
+#### 决策1：$\beta$ 的选择
+
+**决策**：DPO 引入了温度参数 $\beta$，它直接继承自 RLHF 目标中的 KL 系数。
+
+**原因**：$\beta$ 控制了偏好信号的"尖锐程度"。$\beta$ 越大，对偏好差异越敏感，模型会更激进地调整概率分布；$\beta$ 越小，模型更保守地偏离参考模型。
+
+**实践经验**：
+- 太大（如 $\beta > 1$）：模型可能过度拟合偏好数据中的噪声
+- 太小（如 $\beta < 0.05$）：偏好信号太弱，模型几乎不改变行为
+- 推荐范围：$\beta \in [0.1, 0.5]$，通常从 0.1 开始调
+
+**替代方案**：一些后续工作（如 IPO）探索了不同的 $\beta$ 调度策略，如从小到大逐渐增加。
+
+#### 决策2：参考模型的角色
+
+**决策**：DPO 需要一个固定的参考模型 $\pi_{\text{ref}}$，通常就是 SFT 模型。
+
+**原因**：参考模型提供了"锚点"——隐式奖励是策略相对于参考模型的提升幅度。没有参考模型，DPO 会退化为直接最大化偏好回答的似然、最小化不偏好回答的似然，这容易导致模型分布崩溃。
+
+**工程注意**：参考模型在训练过程中必须保持固定（不更新梯度）。这意味着需要同时加载两个模型（策略模型和参考模型），显存开销是 SFT 的两倍。
+
+#### 决策3：离线 vs 在线
+
+**决策**：原始 DPO 是**离线**算法——在固定的偏好数据集上训练，训练过程中不生成新的回答。
+
+**原因**：离线训练大大简化了实现——不需要采样、不需要实时评估、一次前向传播就能计算损失。这是 DPO 比 RLHF 简单的主要原因之一。
+
+**代价**：离线训练意味着策略模型只能从固定数据中学习。如果策略模型的分布与生成偏好数据时的模型分布差距太大（distribution shift），DPO 的效果可能下降。后续的 Online DPO / Iterative DPO 试图解决这个问题。
+
+### DPO 的实验效果
+
+Rafailov et al. (2023) 在多个任务上验证了 DPO 的效果。
+
+**对话任务**（Anthropic HH）：DPO 与 RLHF (PPO) 达到了相似的人类偏好胜率，同时训练更加稳定、超参数更少。
+
+**摘要任务**（TL;DR）：DPO 在 GPT-4 评估和人类评估中都达到了与 PPO 相当的性能。
+
+**情感控制**（IMDb）：DPO 在控制生成文本情感方面略优于 PPO。
+
+最重要的是，DPO 的训练过程**更加稳定**。PPO 经常出现的奖励崩溃（reward collapse）、KL 散度失控等问题在 DPO 中很少发生，因为 DPO 本质上是监督学习。
+
+## 工程实践
+
+### 用 TRL 库实现 DPO
+
+Hugging Face 的 TRL 库提供了 DPO 的开箱即用实现：
+
+```python
+from trl import DPOTrainer, DPOConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
+
+# 1. 加载模型（既作为策略模型也作为参考模型）
+model = AutoModelForCausalLM.from_pretrained("your-sft-model")
+ref_model = AutoModelForCausalLM.from_pretrained("your-sft-model")
+tokenizer = AutoTokenizer.from_pretrained("your-sft-model")
+
+# 2. 准备偏好数据
+# 格式：每条数据包含 (prompt, chosen, rejected)
+dataset = load_dataset("Anthropic/hh-rlhf")
+
+# 3. 配置 DPO
+config = DPOConfig(
+    output_dir="dpo-model",
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=4,
+    learning_rate=5e-7,        # DPO 通常用较小的学习率
+    beta=0.1,                   # KL 系数 β
+    max_length=512,
+    max_prompt_length=256,
+    num_train_epochs=1,
+    bf16=True,
+    logging_steps=10,
+    save_strategy="epoch",
+)
+
+# 4. 创建 DPO Trainer
+trainer = DPOTrainer(
+    model=model,
+    ref_model=ref_model,       # 参考模型（训练时冻结）
+    args=config,
+    train_dataset=dataset["train"],
+    tokenizer=tokenizer,
+)
+
+# 5. 训练！
+trainer.train()
+```
+
+与 RLHF 相比，DPO 的实现要简洁得多——没有奖励模型、没有 PPO 循环、没有 GAE 计算。一次 `trainer.train()` 就完成了整个对齐过程。
+
+### DPO vs RLHF：工程对比
+
+| 维度 | RLHF (PPO) | DPO |
+|------|-----------|-----|
+| **训练阶段** | 3 阶段（SFT → RM → PPO） | 1 阶段（直接优化） |
+| **GPU 模型数** | 4 个（策略、参考、奖励、价值） | 2 个（策略、参考） |
+| **超参数** | 多（KL 系数、裁剪范围、GAE 参数...） | 少（主要就是 $\beta$） |
+| **训练稳定性** | 较差（奖励崩溃、KL 失控常见） | 较好（本质是监督学习） |
+| **采样需求** | 需要（PPO 需要在线生成） | 不需要（离线数据集即可） |
+| **实现复杂度** | 高 | 低 |
+
+## DPO 的变体与发展
+
+DPO 的成功激发了大量后续工作，每个都试图解决 DPO 的某个局限性或进一步简化算法。
+
+### ORPO：去掉参考模型
+
+**核心思想**：DPO 需要同时加载策略模型和参考模型，这在大模型上是显著的显存开销。Hong et al. (2024) 提出的 ORPO（Odds Ratio Preference Optimization）直接将 SFT 和偏好对齐合并为一步，不再需要单独的参考模型。
+
+**数学形式**：ORPO 在标准语言建模损失的基础上，添加一个 Odds Ratio 惩罚项：
+
+$$
+\mathcal{L}_{\text{ORPO}} = \mathbb{E} \left[ -\log P(y_w|x) - \lambda \cdot \log \sigma\!\left(\log \frac{\text{odds}(y_w|x)}{\text{odds}(y_l|x)}\right) \right]
+$$
+
+其中 $\text{odds}(y|x) = \frac{P(y|x)}{1 - P(y|x)}$。
+
+**优势**：
+- 只需要一个模型，显存减半
+- 将 SFT 和对齐一步完成
+
+**实验结果**：ORPO 在 Mistral-7B 上达到了 AlpacaEval 2.0 的 12.20%，超过了许多更大的模型。
+
+### SimPO：长度归一化奖励
+
+**核心思想**：DPO 的一个问题是它隐式地偏好更短的回答（短回答的对数概率绝对值更小，更容易被"提升"）。Meng et al. (2024) 提出的 SimPO 用**长度归一化的对数概率**作为隐式奖励，解决了长度偏见问题。
+
+**数学形式**：
+
+$$
+r_{\text{SimPO}}(x, y) = \frac{1}{|y|} \sum_{t=1}^{|y|} \log \pi_\theta(y_t | x, y_{<t})
+$$
+
+用平均对数概率代替总对数概率，消除了对回答长度的敏感性。
+
+**额外改进**：SimPO 还引入了一个"目标奖励边界"（target reward margin）$\gamma$，确保偏好和不偏好回答的奖励差距足够大：
+
+$$
+\mathcal{L}_{\text{SimPO}} = -\log \sigma\!\left(\frac{\beta}{|y_w|} \log \pi_\theta(y_w|x) - \frac{\beta}{|y_l|} \log \pi_\theta(y_l|x) - \gamma\right)
+$$
+
+**优势**：
+- 不需要参考模型（像 ORPO）
+- 解决长度偏见
+- 在 AlpacaEval 2 和 Arena-Hard 上显著优于 DPO
+
+### KTO：从配对偏好到二元信号
+
+**核心思想**：DPO、ORPO、SimPO 都需要**成对偏好数据**（"A 比 B 好"）。但这样的数据收集成本较高。Ethayarajh et al. (2024) 提出的 KTO 只需要**二元信号**——这个回答是"好"还是"不好"——就能进行对齐。
+
+**理论基础**：KTO 的名字来自 Kahneman-Tversky 的前景理论（Prospect Theory）。他们发现 DPO 隐式地编码了人类的许多认知偏见（如损失厌恶），并设计了一个直接最大化 Kahneman-Tversky 效用函数的目标。
+
+**优势**：
+- 数据收集更简单（只需要"好/不好"标签，不需要成对比较）
+- 在 1B-30B 规模上与基于配对偏好的方法效果相当
+
+### Constitutional AI：AI 自己当评委
+
+**核心思想**：前面所有方法都依赖人类提供偏好信号。Bai et al. (2022) 的 Constitutional AI 提出了一个激进的想法：**让 AI 自己来评判**。
+
+![Constitutional AI 的两阶段流程：监督学习阶段（SL）通过自我批评和修正生成训练数据；强化学习阶段（RL）用 AI 生成的偏好替代人类偏好来训练奖励模型。](figures/chapter-25/original/fig3-constitutional-ai-pipeline.png){#fig-cai-pipeline width=90%}
+
+::: {.figure-caption}
+*Source: Bai et al. (2022) "Constitutional AI: Harmlessness from AI Feedback", Figure 1*
+:::
+
+**方法**：
+1. 给模型一套"宪法原则"（如"回答应该无害"、"回答应该诚实"）
+2. 让模型自我批评和修正：生成一个回答 → 根据宪法评价该回答 → 生成修正版本
+3. 用 AI 生成的偏好（而非人类偏好）来训练奖励模型
+
+这个框架被称为 **RLAIF**（RL from AI Feedback）。
+
+**优势**：
+- 可扩展——不需要大量人类标注
+- 更加精确——可以指定非常详细的"宪法原则"
+
+**风险**：
+- 模型的自我评价可能有系统性偏差
+- 可能放大模型已有的偏见
+
+### 变体对比总结
+
+| 方法 | 核心改进 | 需要参考模型？ | 数据要求 | 发表 |
+|------|---------|---------------|---------|------|
+| DPO | RLHF → 分类损失 | 是 | 成对偏好 | NeurIPS 2023 |
+| ORPO | 去掉参考模型 | 否 | 成对偏好 | EMNLP 2024 |
+| SimPO | 长度归一化 + 无参考模型 | 否 | 成对偏好 | NeurIPS 2024 |
+| KTO | 二元信号代替配对 | 是 | 二元（好/不好） | ICML 2024 |
+| CAI/RLAIF | AI 自生成偏好 | 是 | AI 生成的偏好 | 2022 |
+
+## 深入理解
+
+> **研究者必读**：这一节探讨对齐技术的理论基础、边界条件和对齐的本质问题
+
+### 离线 vs 在线：DPO 的根本局限
+
+DPO 是一个**离线**算法——它在一个固定的偏好数据集上训练，不生成新样本。这与 RLHF (PPO) 的**在线**特性形成对比。
+
+这个区别有深刻的影响。在线学习允许模型探索新的输出空间，并获得对这些新输出的反馈。离线学习只能从已有数据中提取信息。当策略模型的分布偏离数据收集时的分布时（这在训练过程中不可避免），离线算法的效果可能下降——这就是**分布偏移**（distribution shift）问题。
+
+具体来说，假设偏好数据是用 $\pi_{\text{old}}$ 生成的，但我们正在训练 $\pi_\theta$。当 $\pi_\theta$ 与 $\pi_{\text{old}}$ 差距变大时，偏好数据中的"偏好回答"对 $\pi_\theta$ 来说可能不再是最优的——也许 $\pi_\theta$ 能生成更好的回答，但这些更好的回答不在训练数据中。
+
+**缓解方法**：
+- **Online DPO / Iterative DPO**：每隔一定步数，用当前策略重新生成回答并收集偏好，更新训练数据
+- **更大的初始数据集**：覆盖更广泛的输出分布
+- **正则化**：防止策略偏离参考模型太远
+
+### DPO 与 RLHF 在实践中的差异
+
+虽然 DPO 和 RLHF 理论上等价，但在实践中它们有微妙的差异。
+
+**优化路径不同**：RLHF 是在线优化，策略逐步改善并获得对改善后策略的反馈。DPO 是离线优化，一步到位地拟合偏好数据。这可能导致收敛到不同的局部最优。
+
+**对数据质量的敏感度**：DPO 对偏好数据的质量更敏感。在 RLHF 中，奖励模型可以一定程度上"平滑"掉数据中的噪声；而 DPO 直接拟合偏好数据，噪声会直接影响策略。
+
+**实验观察**：多项研究发现，在大规模、高质量偏好数据上，DPO 与 RLHF 效果接近甚至略优；但在小规模、嘈杂数据上，RLHF 有时更鲁棒。
+
+### 对齐的本质是什么？
+
+让我们退一步，思考一个更根本的问题：**什么是"对齐"？我们到底在优化什么？**
+
+目前主流的对齐方法（无论 RLHF 还是 DPO）都隐含地假设存在一个"真实的人类偏好函数"，而我们的目标是学习并优化这个函数。Bradley-Terry 模型甚至给出了这个函数的数学形式：$P(A \succ B) = \sigma(r(A) - r(B))$。
+
+但这个假设有多合理？
+
+**多元偏好**：不同人有不同的偏好。有人喜欢详细的回答，有人喜欢简洁的；有人欣赏幽默，有人偏好严肃。用一个单一的标量奖励函数来表达所有人的偏好，必然是一种压缩和妥协。
+
+**偏好的不一致性**：即使同一个人，在不同情境下偏好也可能不一致。Bradley-Terry 模型假设偏好是传递的（如果 A > B 且 B > C，则 A > C），但人类的真实偏好经常违反传递性。
+
+**代理问题**：我们收集的是标注员的偏好，但我们真正想对齐的是最终用户的偏好——甚至是某种"全人类的价值观"。标注员是全人类的有效代理吗？InstructGPT 的 40 人标注团队能代表世界上几十亿用户吗？
+
+这些问题没有简单的答案，但它们提醒我们：当前的对齐方法是**工具**，而非**解决方案**。它们在当前阶段是有用的，但我们不应该把它们神化为"让 AI 与人类价值观对齐"的最终答案。
+
+### DPO 风险卡片
+
+#### DPO 风险卡片
+
+| 维度 | 内容 |
+|------|------|
+| **主要修复** | 简化 RLHF 流程，无需单独训练奖励模型，无需 RL 训练循环 |
+| **典型副作用** | 对数据质量更敏感、可能过度优化配对偏好、长度偏见（原始 DPO） |
+| **工程防护** | 高质量偏好数据、适当的 $\beta$ 值、early stopping、数据多样性 |
+| **开放问题** | 离线 vs 在线优化的根本差异、分布偏移的处理、与 RLHF 在何种条件下等价 |
+
+### 开放研究问题
+
+**可扩展监督（Scalable Oversight）**：当模型能力超过人类评审能力时，如何获得可靠的对齐信号？OpenAI 的"弱到强泛化"（Weak-to-Strong Generalization）研究表明，用弱模型监督强模型是可能的，但性能有明显损失。如何缩小这个差距是超级对齐的核心挑战。
+
+**超级对齐（Superalignment）**：如何对齐比人类更聪明的 AI 系统？这个问题在当前看来还很遥远，但它迫使我们思考对齐方法的可扩展性边界。RLHF/DPO 假设人类能够可靠地判断输出质量——这个假设在超人类 AI 面前将不再成立。
+
+**对齐的形式化**：目前没有一个被广泛接受的"对齐"的形式化定义。我们优化的是偏好数据的似然，但这与"真正的对齐"（如果存在的话）有什么关系？能否建立理论框架来分析对齐方法的保证和局限？
+
+## 局限性与未解决的问题
+
+### DPO 家族的共同局限
+
+**依赖偏好数据质量**：所有直接对齐方法都假设偏好数据是"正确的"——偏好回答确实更好。但偏好数据可能有噪声（标注员之间不一致）、有偏见（标注员的系统性偏好）、有盲区（某些维度根本没有被评估）。
+
+**静态 vs 动态价值观**：人类的价值观会随时间演变。一个在 2023 年被认为"有帮助"的回答，在 2025 年可能被认为"过时"或"不够谨慎"。当前的对齐方法都是用历史偏好数据训练，如何适应价值观的演变？
+
+**评估困难**：如何衡量对齐的质量？人类评估昂贵且难以复现；自动评估（如用 GPT-4 当评委）有系统性偏差。没有可靠的评估，就很难比较不同对齐方法的优劣。
+
+### 这些局限导向了什么？
+
+对齐技术的演进揭示了一个深层模式：**我们在不断简化工程复杂度的同时，也在不断逼近更根本的问题**。
+
+从 RLHF 到 DPO，我们消除了奖励模型和 RL 训练的复杂性。从 DPO 到 ORPO/SimPO，我们消除了参考模型的依赖。从人类偏好到 RLAIF，我们探索了 AI 自我监督的可能性。
+
+但无论技术如何简化，核心问题始终存在：**对齐到什么？谁来定义"对齐"？如何验证"已对齐"？**
+
+这些问题不仅是技术问题，也是哲学问题和社会问题。它们可能无法被任何单一的算法所"解决"，但需要在技术发展的同时被持续思考和讨论。
+
+## 本章小结
+
+### 核心要点回顾
+
+1. **问题**：RLHF 的三阶段流水线工程复杂度高，能否绕过强化学习直接优化偏好？
+
+2. **洞察**：将 RLHF 的最优策略解析解代入 Bradley-Terry 模型，奖励函数可以被"消元"，得到只关于策略的损失函数——语言模型本身就是隐式的奖励模型
+
+3. **方法**：DPO 将 RLHF 简化为一个分类损失 $-\log \sigma(\beta(\log \frac{\pi_\theta(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\theta(y_l)}{\pi_{\text{ref}}(y_l)}))$；后续工作（ORPO、SimPO、KTO）进一步消除参考模型依赖或放松数据要求
+
+4. **意义**：对齐技术的平民化——DPO 让偏好对齐变成了"加几行代码"的事情，大大降低了对齐技术的门槛
+
+### 关键公式速查
+
+- **RLHF 最优策略**：$\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)$
+- **隐式奖励**：$r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)$
+- **DPO 损失**：$\mathcal{L}_{\text{DPO}} = -\mathbb{E}[\log \sigma(\beta(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}))]$
+- **SimPO 奖励**：$r(x,y) = \frac{\beta}{|y|} \log \pi_\theta(y|x)$（长度归一化）
+
+### 思考题
+
+1. **[概念理解]** DPO 损失函数中，为什么需要参考模型 $\pi_{\text{ref}}$？如果去掉参考模型（即设 $\pi_{\text{ref}}$ 为均匀分布），DPO 会退化为什么？这种退化有什么问题？
+
+2. **[数学推导]** 从 DPO 损失函数出发，推导其对策略参数 $\theta$ 的梯度。解释梯度中的"自适应权重"项 $\sigma(\hat{r}(y_l) - \hat{r}(y_w))$ 为什么能让算法更多关注"困难样本"。
+
+3. **[工程实践]** 使用 TRL 库在 Anthropic HH-RLHF 数据集上分别实现 DPO 和 SimPO。比较两者的训练稳定性、最终效果和生成文本的长度分布。$\beta$ 值如何影响结果？
+
+4. **[开放思考]** Constitutional AI 用 AI 自己来生成偏好信号（RLAIF）。这种方法的哲学困境是什么？如果 AI 评估 AI，我们实际上是在对齐到什么？这与"超级对齐"问题有什么关系？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+- **Direct Preference Optimization (Rafailov et al., 2023)**：DPO 原始论文
+  - 重点读：Section 4（推导）、Section 5（理论分析）
+  - 可跳过：Appendix 的数学证明细节
+- **KTO: Model Alignment as Prospect Theoretic Optimization (Ethayarajh et al., 2024)**：从行为经济学视角重新理解对齐
+  - 重点读：Section 3（Kahneman-Tversky 效用模型）
+
+### 重要变体
+- **ORPO (Hong et al., 2024)**：无参考模型的一步对齐
+- **SimPO (Meng et al., 2024)**：长度归一化 + 无参考模型
+
+### 对齐理论
+- **Constitutional AI (Bai et al., 2022)**：RLAIF 框架的开创
+- **Weak-to-strong generalization (OpenAI, 2024)**：超级对齐的实验基础
+
+### 综述与教程
+- **SLP3 Chapter 9**：Jurafsky & Martin 对 RLHF/DPO 的教材级对比
+- **A General Theoretical Paradigm to Understand Learning from Human Preferences (Azar et al., 2024)**：偏好学习的统一理论框架
+- **Direct Alignment Algorithms (RLHF Book)**：Nathan Lambert 的深度教程
+
+### 代码资源
+- Hugging Face TRL 库：[github.com/huggingface/trl](https://github.com/huggingface/trl)
+- Princeton SimPO：[github.com/princeton-nlp/SimPO](https://github.com/princeton-nlp/SimPO)
+- Stanford DPO 参考实现：[github.com/eric-mitchell/direct-preference-optimization](https://github.com/eric-mitchell/direct-preference-optimization)
+
+---
+
+## 历史注脚
+
+DPO 的故事是一个"理论之美"的典范。Rafailov 等人并没有引入新的模型架构或训练技巧——他们只是仔细分析了 RLHF 的数学结构，发现了一个被忽视的简化路径。这种"从已有组件中发现更简洁形式"的工作，在深度学习时代尤为珍贵。
+
+有趣的是，DPO 论文的标题——"Your Language Model is Secretly a Reward Model"——并不是一个营销口号，而是论文的核心技术洞察。这种"用标题概括核心贡献"的风格，值得所有研究者学习。
+
+DPO 的成功也反映了 ML 研究的一个规律：**复杂的系统往往可以被更简单的替代方案所取代，只要我们足够深入地理解原系统在做什么**。RLHF 的三阶段流水线看起来不可简化，但 DPO 证明了核心的数学结构可以被压缩为一个损失函数。这提醒我们，面对复杂系统时，不要被表面的工程复杂度所吓倒——本质可能比看起来简单得多。
+
+从更宏观的视角看，从 RLHF 到 DPO 到 ORPO/SimPO 的演进，展示了对齐技术正在经历"平民化"的过程。三年前，偏好对齐是 OpenAI/Anthropic 级别公司的专属技术；今天，一个研究生用一张消费级 GPU 就能在几小时内完成。这种技术的民主化既是机遇（更多人可以参与对齐研究），也是风险（对齐技术可能被滥用）。如何在开放与安全之间取得平衡，是 AI 社区面临的持续挑战。

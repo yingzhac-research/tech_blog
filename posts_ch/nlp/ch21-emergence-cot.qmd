@@ -1,0 +1,928 @@
+---
+title: "第21章：涌现能力与思维链推理"
+subtitle: "Emergence, Chain-of-Thought, and the Boundaries of LLM Reasoning"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, Chain-of-Thought, Emergence, Reasoning]
+tags: [Chain-of-Thought, CoT, Zero-shot CoT, Self-Consistency, Tree of Thoughts, 涌现能力, 推理, Prompt Engineering, Wei, Kojima, Wang, Yao]
+description: "上一章我们见证了GPT-3的In-Context Learning——不需要梯度更新，仅凭输入中的几个示例就能完成新任务。但ICL有一个致命弱点：它在需要多步推理的任务上几乎完全失败。2022年，Wei等人发现了一个出奇简单的解决方案：在few-shot示例中不仅给出答案，还给出完整的推理过程——Chain-of-Thought prompting。这个看似微小的改动带来了数学和逻辑推理上的飞跃式提升，更引发了关于LLM'涌现能力'的激烈争论：这些能力是真实的相变，还是度量方式制造的假象？本章系统讲述CoT及其变体，探讨涌现现象的本质，并追问一个根本问题：LLM真的在'推理'吗？"
+image: "figures/chapter-21/original/fig1-cot-example.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：大语言模型能否进行多步推理？如何通过提示策略释放这种潜力？随规模增长而"涌现"的能力是真实的相变，还是度量方式制造的假象？
+>
+> **历史坐标**：2022 | Wei et al. "Chain-of-Thought Prompting" & "Emergent Abilities of Large Language Models" | 从模式匹配到（疑似）推理
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Wei et al. (2022a)** "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (arXiv:2201.11903) — 参考了 Section 2-3（CoT方法定义与实验）、Figure 1（CoT示例对比图）、Figure 2（模型规模与CoT效果的关系）、Table 1-5（GSM8K等benchmark结果）；提取了 Figure 1 作为论文原图
+- **Kojima et al. (2022)** "Large Language Models are Zero-Shot Reasoners" (arXiv:2205.11916) — 参考了 Section 3（Zero-shot CoT方法）、Figure 1（Zero-shot CoT流程图）、Table 1-2（MultiArith/GSM8K等实验结果）
+- **Wang et al. (2022)** "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (arXiv:2203.11171) — 参考了 Section 2（Self-Consistency方法定义）、Figure 1（方法示意图）、Table 1-3（数学推理benchmark结果）；提取了 Figure 1 作为论文原图
+- **Yao et al. (2023)** "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (arXiv:2305.10601) — 参考了 Section 2-3（ToT框架定义）、Figure 1（四种prompting方法对比图）、Table 1（24点游戏实验结果）；提取了 Figure 1 作为论文原图
+- **Wei et al. (2022b)** "Emergent Abilities of Large Language Models" (arXiv:2206.07682) — 参考了 Section 2（涌现定义）、Figure 1-2（涌现能力的经典"相变"图）、Table 1（涌现能力列表）；提取了 Figure 2 作为论文原图
+- **Schaeffer et al. (2023)** "Are Emergent Abilities of Large Language Models a Mirage?" (arXiv:2304.15004, NeurIPS 2023 Best Paper) — 参考了 Section 2-3（度量选择对涌现的影响）、Figure 1（相同数据不同度量的对比）
+- **Zhou et al. (2022)** "Least-to-Most Prompting Enables Complex Reasoning in Large Language Models" (arXiv:2205.10625) — 参考了分解策略
+- **Suzgun et al. (2022)** "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them" (arXiv:2210.09261, BIG-Bench Hard) — 参考了 CoT 在困难任务上的系统评估
+
+### 教材
+- SLP3 Chapter 12 (Prompting, In-Context Learning, and Instruct Tuning) — 参考了 CoT prompting 的教学组织
+- D2L Chapter 11 — 参考了注意力机制在推理中的作用讨论
+
+### 课程
+- Stanford CS224N Lecture 11-12 (Winter 2025) — 参考了 Prompting 和 Reasoning 的教学框架
+- CMU 11-711 ANLP (Fall 2024) "Prompting & In-context Learning" — 参考了 CoT 及其变体的系统化讲解
+- Princeton COS 597R (Fall 2024) "Deep Dive into LLMs" — 参考了涌现能力的讨论
+:::
+
+---
+
+## 从上一章说起
+
+上一章我们详细讲述了GPT-3和In-Context Learning的故事。175B参数的GPT-3展示了一种令人震惊的能力：不需要任何梯度更新，仅通过在输入中提供几个示例，模型就能"学会"翻译、分类、问答等各种任务。这种能力随规模增长而增强——大模型不仅绝对性能更高，还更擅长利用上下文示例——这暗示着规模本身可能是通向通用智能的关键。
+
+然而，上一章结尾也揭示了ICL的一个致命弱点：**它在需要多步推理的任务上几乎完全失败**。
+
+考虑这样一个小学数学题："Roger有5个网球。他又买了2罐网球。每罐有3个网球。他现在一共有多少个网球？"一个人类学生会这样思考：Roger原来有5个，买了2罐×3个=6个，所以一共有5+6=11个。但当你把这个问题直接扔给GPT-3——即使给了几个类似问题的输入-输出示例——模型经常直接输出一个错误的数字，跳过所有中间推理步骤。
+
+这不是因为GPT-3"不知道"加法或乘法。它在预训练中见过海量的数学文本，对基本运算有相当的"知识"。问题在于：**标准的ICL只展示了最终答案，没有展示到达答案的思考过程**。模型被训练去模仿"问题→答案"的直接映射，而不是"问题→推理步骤→答案"的逐步求解。
+
+2022年初，Google Brain的Jason Wei等人发现了一个出奇简单的解决方案——简单到让整个社区都感到不可思议。
+
+> 💡 **本章核心洞察**：Chain-of-Thought（思维链）prompting的核心思想是：在few-shot示例中不仅给出最终答案，还给出完整的中间推理过程。这个看似微小的改动——相当于在数学考试中要求学生"展示你的解题过程"——让大语言模型在数学推理、逻辑推理和常识推理上获得了飞跃式提升。更令人惊讶的是，这种推理能力呈现出"涌现"特征：小模型几乎不受益于CoT，但当模型规模超过某个阈值时，CoT的效果突然爆发。
+
+---
+
+## 问题的本质是什么？
+
+### 为什么直接回答会失败？
+
+让我们用一个更具体的例子来剖析ICL在推理任务上失败的根本原因。考虑GSM8K数据集（Grade School Math 8K）中的一道典型题：
+
+> *咖啡店周一卖了37杯拿铁和13杯卡布奇诺。周二拿铁卖了周一的两倍，但卡布奇诺只卖了周一的一半（四舍五入取整）。两天一共卖了多少杯咖啡？*
+
+要正确回答这个问题，需要四步推理：
+
+1. 周二拿铁：37 × 2 = 74杯
+2. 周二卡布奇诺：13 ÷ 2 ≈ 7杯（四舍五入）
+3. 周一总计：37 + 13 = 50杯
+4. 两天总计：50 + 74 + 7 = 131杯
+
+标准的few-shot ICL如何处理这类问题？在传统范式下，few-shot示例只包含"问题→答案"的映射：
+
+```
+Q: 农场有23只鸡和7只鸭。农场一共有多少只家禽？
+A: 30
+
+Q: 咖啡店周一卖了37杯拿铁和13杯卡布奇诺...
+A:
+```
+
+模型看到的模式是：给定一个数学问题，直接输出一个数字。但从"问题文本"到"最终数字"之间有一条复杂的推理链，这条链在示例中是**完全不可见的**。模型被要求做的不是逐步计算，而是"一步到位"地猜出答案——本质上是在做一个困难的端到端映射。
+
+这里有一个关键的认知错位：人类在看到"答案是30"时，脑中自动补全了"23+7=30"的推理过程。但对语言模型而言，它只看到了一个从长文本到单个数字的黑箱映射。
+
+### 人类解题的启示
+
+反观人类如何解决数学问题。没有哪个数学老师会告诉学生："看完题目后直接写出答案。"相反，从小学开始，数学教育就强调**"展示你的解题过程"**（show your work）。这不仅是为了方便老师打分——更重要的是，解题过程本身就是思考的载体。
+
+写下中间步骤至少有三个好处：
+
+第一，**分解复杂性**。一个需要四步推理的问题，如果必须一步到位地得出答案，相当于要求大脑同时处理四个运算并正确组合结果。而如果把它分解成四个独立的步骤，每一步只需要做一个简单的运算。
+
+第二，**提供工作记忆**。人类的工作记忆容量有限（著名的"7±2"规则），写下中间结果相当于用纸笔扩展了工作记忆。类似地，语言模型的"工作记忆"就是它能生成和回读的文本——如果中间步骤被写在输出中，模型就可以在后续步骤中引用这些中间结果。
+
+第三，**使错误可检测**。如果只看到最终答案是错的，你无从知道哪里出了问题。但如果有完整的推理链，就能精确定位错误发生在哪一步。
+
+这个来自人类教育的朴素洞察，正是Chain-of-Thought prompting的核心灵感。
+
+### 我们需要什么样的解决方案？
+
+基于上述分析，理想的解决方案应该具备几个特性。首先，它应该能让模型生成中间推理步骤，而不是直接跳到最终答案。其次，它不应该需要修改模型架构或重新训练——GPT-3这样的大模型训练一次就要数百万美元，我们希望在推理阶段（inference time）就能提升性能。第三，它应该是通用的，适用于各种需要推理的任务，而不仅限于数学。
+
+Chain-of-Thought prompting恰好满足了这三个要求：它通过改变prompt的构造方式——在示例中加入推理过程——引导模型也生成类似的中间步骤，而完全不需要修改模型本身。
+
+---
+
+## 核心思想与直觉
+
+### 关键洞察："展示你的工作过程"
+
+Chain-of-Thought prompting的核心思想可以用一句话概括：**在few-shot示例中展示推理过程，模型就会学着也展示推理过程**。
+
+![Chain-of-Thought prompting与标准prompting的对比。左侧：标准few-shot只给出最终答案，模型直接输出（通常错误的）数字。右侧：CoT在示例中展示完整的推理过程，引导模型也生成中间步骤，最终得到正确答案。](figures/chapter-21/original/fig1-cot-example.png){#fig-cot-example width=90%}
+
+::: {.figure-caption}
+*Source: Wei et al. (2022) "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models", Figure 1*
+:::
+
+对比标准few-shot和CoT：
+
+**标准 few-shot**（只给答案）：
+```
+Q: Roger有5个网球。他又买了2罐网球。每罐有3个网球。
+   他现在一共有多少个网球？
+A: 答案是11。
+```
+
+**Chain-of-Thought**（给出推理过程）：
+```
+Q: Roger有5个网球。他又买了2罐网球。每罐有3个网球。
+   他现在一共有多少个网球？
+A: Roger一开始有5个网球。2罐网球一共有2×3=6个网球。
+   5+6=11。答案是11。
+```
+
+区别仅仅在于：答案前面多了几句解释——"Roger一开始有5个网球。2罐网球一共有2×3=6个网球。5+6=11。"这就是全部的技巧。
+
+为什么这么简单的改动会有如此大的效果？回到In-Context Learning的本质：模型从示例中学习的不仅是"任务内容"，更重要的是**输出格式和模式**。当示例中的答案只有一个数字时，模型学到的模式是"问题→数字"；当示例中的答案包含推理链条时，模型学到的模式变成了"问题→推理步骤→数字"。后者给了模型一个"思考的空间"——通过生成中间文本，模型可以一步一步地分解问题，每一步只需要做一个相对简单的操作。
+
+### 一个类比：开卷考试 vs 闭卷考试
+
+标准ICL就像一场**闭卷考试**：学生（模型）看完题目后必须直接在答题卡上填写最终答案，不允许在草稿纸上写任何计算过程。对于简单的事实性问题（"法国的首都是哪里？"），这没有问题。但对于需要多步推理的数学题，这就像要求学生在脑中完成所有计算，不犯一个错误。
+
+CoT则像是给了学生一张**草稿纸**：你可以在上面写下中间步骤、画出辅助线、记录临时结果，最后再把答案写到答题卡上。这不是在"降低考试难度"——题目没有变，需要的知识也没有变——你只是给了解题过程一个被记录和引用的空间。
+
+对语言模型来说，这张"草稿纸"就是模型生成的文本本身。自回归模型在生成每个token时，可以"看到"它之前生成的所有token。如果模型先生成了"2×3=6"，那么在生成下一步时，"6"这个中间结果就出现在了模型的上下文中，可以被直接引用来计算"5+6=11"。本质上，CoT将模型的输出空间从"答案空间"扩展到了"推理链+答案空间"，让模型可以利用自己的生成结果作为"工作记忆"。
+
+### 为什么只有大模型受益？
+
+CoT最令人困惑的特征之一是它的**规模依赖性**：只有足够大的模型（通常≥100B参数）才能从CoT中显著受益，小模型即使给了CoT示例也无法生成连贯的推理链条。
+
+一个直觉性的解释是：生成正确的CoT需要模型同时具备多种能力——理解数学关系、执行算术运算、保持逻辑连贯、遵循示例格式——这些能力可能各自需要一定的模型容量才能涌现。小模型在每一项上都只有勉强及格的水平，组合起来就完全不够用了。而大模型在各项上都有充足的"余量"，让它们可以流畅地生成多步推理链。
+
+这与人类认知发展有一个有趣的平行：皮亚杰的认知发展理论指出，儿童在某个年龄阶段之前无法执行"形式运算"（如假设推理），不是因为他们不知道某个具体知识，而是因为他们的认知系统还没有复杂到足以支持这种运算模式。类似地，小语言模型可能"知道"2×3=6和5+6=11，但无法将这些知识组织成一个连贯的多步推理链。
+
+---
+
+## 技术细节
+
+### Chain-of-Thought Prompting (Wei et al., 2022)
+
+#### 方法定义
+
+Chain-of-Thought prompting的方法极其简单，不涉及任何算法创新或模型修改。它唯一的改变是**few-shot示例的构造方式**：在每个示例的答案中加入中间推理步骤（reasoning chain），形成"问题→推理链→答案"的格式。
+
+形式化地，设 $x$ 为输入问题，$y$ 为最终答案。标准few-shot的示例格式为 $(x, y)$，而CoT的示例格式为 $(x, c, y)$，其中 $c = (c_1, c_2, \ldots, c_m)$ 是一系列中间推理步骤。在推理时，给定新问题 $x_{\text{query}}$，模型被引导先生成推理链 $\hat{c}$，再基于推理链生成最终答案 $\hat{y}$。
+
+::: {.callout-note}
+## CoT Prompting（Wei et al., 2022）方法概要
+
+```
+输入：语言模型 LM，K 个带推理链的示例 {(x₁, c₁, y₁), ..., (xₖ, cₖ, yₖ)}，
+      查询问题 x_query
+输出：推理链 ĉ 和最终答案 ŷ
+
+1. 构造 prompt：
+     prompt ← ""
+     for k = 1 to K:
+         prompt ← prompt + "Q: " + xₖ + "\n"
+         prompt ← prompt + "A: " + cₖ + " 答案是 " + yₖ + "\n\n"
+     prompt ← prompt + "Q: " + x_query + "\n"
+     prompt ← prompt + "A: "
+
+2. 前向推理（无梯度更新）：
+     output ← LM.generate(prompt)
+
+3. 从 output 中提取推理链 ĉ 和最终答案 ŷ
+
+4. return (ĉ, ŷ)
+```
+
+*改编自 Wei et al. (2022) "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models", Section 2. [arXiv:2201.11903](https://arxiv.org/abs/2201.11903)*
+:::
+
+值得注意的是，这个方法**没有任何可训练的参数**。推理链是手工编写的、放在few-shot示例中的自然语言文本。模型不是被"训练"去推理，而是被"引导"去模仿示例中的推理格式。
+
+#### 完整数值示例：CoT如何解决数学题
+
+**设定**：使用PaLM 540B模型，在GSM8K数据集上进行few-shot CoT推理。
+
+**Step 1: 构造CoT示例**
+
+我们手工编写8个数学题的推理链作为few-shot示例。以下展示其中一个：
+
+```
+Q: Shawn有5个玩具。圣诞节他从妈妈和爸爸那里各收到了2个玩具。
+   他现在一共有多少个玩具？
+A: Shawn一开始有5个玩具。他从妈妈那里收到2个，从爸爸那里也
+   收到2个，所以他一共收到了2+2=4个新玩具。现在他一共有
+   5+4=9个玩具。答案是9。
+```
+
+**Step 2: 加入查询问题**
+
+将上述8个CoT示例拼接成prompt，然后附上新问题：
+
+```
+Q: 咖啡店周一卖了37杯拿铁和13杯卡布奇诺。周二拿铁卖了
+   周一的两倍，但卡布奇诺只卖了周一的一半（四舍五入取整）。
+   两天一共卖了多少杯咖啡？
+A:
+```
+
+**Step 3: 模型生成推理链**
+
+PaLM 540B生成如下输出：
+
+```
+周一卖了37杯拿铁和13杯卡布奇诺，周一总共卖了37+13=50杯。
+周二拿铁卖了37×2=74杯。周二卡布奇诺卖了13÷2=6.5，
+四舍五入得7杯。周二总共卖了74+7=81杯。
+两天总共卖了50+81=131杯。答案是131。
+```
+
+**Step 4: 提取答案**
+
+从生成文本中提取"答案是131"，得到最终答案131。✓
+
+**解读**：注意模型的推理链几乎完美地复现了人类的解题过程——分步计算周一总量、周二各品类数量、周二总量，最后求和。每一步都是一个简单的算术运算，模型可以可靠地执行。如果没有CoT，模型需要一步从题目文本直接映射到"131"，这对模型来说是一个极难的黑箱映射。
+
+#### 关键实验结果
+
+Wei et al. (2022) 在三类推理benchmark上评估了CoT的效果：
+
+**数学推理**（GSM8K — 小学数学）：
+
+| 模型 | 标准few-shot | CoT few-shot | 提升 |
+|------|-------------|-------------|------|
+| GPT-3 175B | 18.0% | 49.6% | +31.6 |
+| PaLM 540B | 17.9% | **56.9%** | +39.0 |
+| 微调SOTA（当时） | — | 55.0% | — |
+
+PaLM 540B + CoT不仅远超标准few-shot（56.9% vs 17.9%），还**超过了当时的微调SOTA**（55.0%）。这个结果意味着：一个足够大的通用语言模型，配合简单的CoT提示，可以在不经过任何任务特定训练的情况下，超越精心微调的专用模型。
+
+**符号推理**（如字母串拼接）：
+
+| 任务 | PaLM 540B标准 | PaLM 540B CoT |
+|------|-------------|-------------|
+| 字母串拼接 (in-domain) | 88.0% | **99.6%** |
+| 字母串拼接 (OOD, 更长) | 34.0% | **98.8%** |
+
+CoT在域外（Out-of-Distribution）泛化上的提升尤为惊人：从34%跳到98.8%。这暗示CoT不仅帮助模型"做对已知模式的题"，还帮助它"学会了推理规则本身"——至少在某种程度上。
+
+**常识推理**（StrategyQA — 需要隐式推理的是/否问题）：
+
+| 模型 | 标准few-shot | CoT few-shot |
+|------|-------------|-------------|
+| PaLM 540B | 73.9% | **77.8%** |
+
+在常识推理上，CoT的提升相对温和（+3.9个百分点），这可能是因为常识推理不像数学那样容易分解成明确的逻辑步骤。
+
+#### 规模效应：CoT的"涌现"特征
+
+CoT最引人注目的实验发现是它与模型规模之间的非线性关系。Wei et al. 在不同规模的模型上测试了标准few-shot和CoT的效果：
+
+| 模型规模 | 标准few-shot (GSM8K) | CoT (GSM8K) | CoT增益 |
+|---------|---------------------|-------------|---------|
+| ~8B | ~5% | ~5% | ≈0 |
+| ~62B | ~12% | ~18% | +6 |
+| ~540B | ~18% | ~57% | **+39** |
+
+![CoT效果与模型规模的关系。在数学推理任务上，小模型（~8B）几乎不受益于CoT，而大模型（~540B）获得巨大提升。CoT的效果呈现出类似"涌现"的非线性跳跃。](figures/chapter-21/original/fig2-cot-scaling.png){#fig-cot-scaling width=85%}
+
+::: {.figure-caption}
+*Source: Wei et al. (2022) "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models", Figure 2*
+:::
+
+规律极其清晰：**小模型几乎不受益于CoT，中等模型有一些受益，大模型获得巨大提升**。更精确地说，CoT的效果不是线性增长的，而是呈现出类似"相变"（phase transition）的急剧跳跃。在约100B参数处，CoT的效果似乎突然"爆发"了。
+
+这个发现引出了一个更大的话题——涌现能力——我们将在本章后半部分详细讨论。
+
+### Zero-shot CoT (Kojima et al., 2022)
+
+Wei et al.的CoT方法需要手工编写推理链示例，这虽然简单但仍需要一定的人工成本。2022年5月，Kojima et al. 发现了一个令人震惊的结果：只需要在prompt末尾加上一句**"Let's think step by step"**（让我们一步一步想），模型就能自动生成推理链——完全不需要任何few-shot示例。
+
+这就是**Zero-shot CoT**：一种不需要任何示例的思维链推理方法。
+
+::: {.callout-note}
+## Zero-shot CoT 两阶段推理流程（Kojima et al., 2022）
+
+```
+输入：语言模型 LM，查询问题 x_query
+输出：最终答案 ŷ
+
+阶段1 — 推理提取（Reasoning Extraction）：
+  prompt₁ ← x_query + "\nLet's think step by step."
+  reasoning ← LM.generate(prompt₁)
+
+阶段2 — 答案提取（Answer Extraction）：
+  prompt₂ ← prompt₁ + reasoning +
+             "\nTherefore, the answer (arabic numerals) is"
+  ŷ ← LM.generate(prompt₂)
+
+return ŷ
+```
+
+*Source: Kojima et al. (2022) "Large Language Models are Zero-Shot Reasoners", Section 3. [arXiv:2205.11916](https://arxiv.org/abs/2205.11916)*
+:::
+
+注意这个方法分两个阶段：第一阶段让模型自由生成推理过程，第二阶段将推理过程作为上下文，引导模型给出最终答案。分两阶段的原因是：如果只用一个prompt，模型可能在生成推理链后"忘记"给出一个清晰的最终答案，或者答案被淹没在冗长的推理文本中。
+
+#### 为什么这六个词如此有效？
+
+"Let's think step by step"为什么能work？这个问题至今没有完全令人满意的答案，但有几个可能的解释。
+
+第一个解释与**预训练数据**有关。GPT-3等模型在预训练阶段看过了海量的教学文本、论坛答案、教程等。在这些文本中，"let's think step by step"经常出现在详细的解题过程之前。当模型看到这个短语时，它被"激活"了一种特定的生成模式——生成逐步推理的文本。
+
+第二个解释与**生成分布的偏移**有关。标准zero-shot prompt（如"Q: ... A:"）暗示模型应该直接输出答案。而"Let's think step by step"将期望输出从"简短答案"转移到了"详细解释"，这改变了模型生成的整个token分布。
+
+Kojima et al. 还测试了其他"触发短语"（trigger phrases）的效果：
+
+| 触发短语 | MultiArith准确率 |
+|---------|----------------|
+| *（无触发）* | 17.7% |
+| "Let's think step by step" | **78.7%** |
+| "Let's think about this logically" | 72.6% |
+| "Let's solve this problem by splitting it into steps" | 74.5% |
+| "First," | 77.3% |
+| "The answer is" | 0.0% |
+
+"Let's think step by step"是效果最好的触发短语，但其他鼓励逐步思考的短语也有类似效果。而"The answer is"反而导致了0%的准确率——因为它引导模型直接输出答案，跳过了推理过程。
+
+#### 实验结果
+
+在MultiArith（多步算术推理）数据集上：
+
+| 方法 | GPT-3 175B准确率 |
+|------|----------------|
+| Zero-shot（直接问） | 17.7% |
+| Zero-shot CoT（+"Let's think step by step"） | **78.7%** |
+| Few-shot（8个示例，无推理链） | 33.7% |
+| Few-shot CoT（8个示例+推理链） | **93.0%** |
+
+Zero-shot CoT（78.7%）不仅远超标准zero-shot（17.7%），甚至超过了标准few-shot（33.7%）。这意味着**"一句话的魔力"超过了"8个精心选择的示例"**。当然，few-shot CoT（93.0%）仍然是最好的——但Zero-shot CoT的简便性使它在实践中极具吸引力。
+
+### Self-Consistency (Wang et al., 2022)
+
+CoT的一个局限是它使用贪心解码（greedy decoding）：模型只生成一条推理路径，然后基于这条路径给出答案。但任何一条推理路径都可能包含错误——也许第二步的计算出了问题，也许推理方向完全错了。有没有办法提高CoT的可靠性？
+
+Wang et al. (2022) 提出了一个直觉上非常自然的改进：**Self-Consistency**（自一致性）。核心思想是：对同一个问题，采样多条不同的推理路径，然后对最终答案进行**多数投票**（majority voting）。如果多条独立的推理路径都指向同一个答案，那这个答案大概率是对的。
+
+![Self-Consistency方法示意图。对同一个问题采样多条不同的推理路径（通过非零温度），然后对最终答案进行多数投票，选择出现次数最多的答案。](figures/chapter-21/original/fig4-self-consistency.png){#fig-self-consistency width=80%}
+
+::: {.figure-caption}
+*Source: Wang et al. (2022) "Self-Consistency Improves Chain of Thought Reasoning in Language Models", Figure 1*
+:::
+
+这个思想来自一个简单的观察：**正确答案通常可以通过多种不同的路径到达，而错误答案则各有各的错法**。考虑一个数学题，正确答案是42。三条推理路径可能分别通过"先算A再算B"、"先算B再算A"、"用代数方法"得到42，而一条错误路径可能因为算错了一步得到38。多数投票自然会选出42。
+
+::: {.callout-note}
+## Algorithm: Self-Consistency（Wang et al., 2022）
+
+```
+输入：语言模型 LM，CoT prompt P，查询问题 x_query，
+      采样次数 N，采样温度 T
+输出：最终答案 ŷ
+
+1. 构造完整 prompt：
+     full_prompt ← P + x_query
+
+2. 采样多条推理路径：
+     for i = 1 to N:
+         (cᵢ, yᵢ) ← LM.sample(full_prompt, temperature=T)
+         # cᵢ 是推理链，yᵢ 是从推理链中提取的答案
+
+3. 多数投票：
+     ŷ ← mode({y₁, y₂, ..., yₙ})  # 选择出现次数最多的答案
+
+4. return ŷ
+```
+
+*Source: Wang et al. (2022) "Self-Consistency Improves Chain of Thought Reasoning in Language Models", Section 2. [arXiv:2203.11171](https://arxiv.org/abs/2203.11171)*
+:::
+
+#### 完整数值示例：Self-Consistency如何工作
+
+**设定**：使用CoT prompt对同一道数学题采样5条推理路径。
+
+**问题**："一家书店有120本书。第一周卖了总量的1/3，第二周卖了剩余的1/4。还剩多少本？"
+
+**正确推理**：第一周卖 120×(1/3)=40本，剩80本。第二周卖 80×(1/4)=20本，剩60本。
+
+**采样5条路径**（temperature=0.7）：
+
+| 路径 | 推理过程 | 最终答案 |
+|------|---------|---------|
+| 路径1 | 第一周：120/3=40，剩80；第二周：80/4=20，剩60 | **60** ✓ |
+| 路径2 | 先算两周共卖：120/3+120/4=40+30=70，剩120-70=50 | 50 ✗ |
+| 路径3 | 第一周卖40本剩80，第二周卖80÷4=20，80-20=60 | **60** ✓ |
+| 路径4 | 120×(1/3)=40剩80，80×(1/4)=20，剩下80-20=60 | **60** ✓ |
+| 路径5 | 第一周：120/3=40；第二周：120/4=30，120-40-30=50 | 50 ✗ |
+
+**多数投票**：答案60出现3次，答案50出现2次。选择60。✓
+
+**解读**：路径2和路径5犯了同样的错误——它们把"剩余的1/4"错误理解为"总量的1/4"。但另外三条路径正确理解了"剩余"的含义，各自独立地得到了60。多数投票成功过滤了错误。
+
+#### 实验结果
+
+Self-Consistency在各个推理benchmark上持续改善CoT的效果：
+
+| Benchmark | CoT (贪心) | Self-Consistency (40路径) | 提升 |
+|-----------|-----------|-------------------------|------|
+| GSM8K (PaLM 540B) | 56.9% | **74.4%** | +17.5 |
+| SVAMP (PaLM 540B) | 79.0% | **86.6%** | +7.6 |
+| AQuA (PaLM 540B) | 35.8% | **48.0%** | +12.2 |
+
+在GSM8K上，Self-Consistency将PaLM 540B的CoT准确率从56.9%提升到74.4%——提升了17.5个百分点，相当于在CoT基础上又减少了约40%的错误。
+
+### Tree of Thoughts (Yao et al., 2023)
+
+CoT和Self-Consistency都假设推理是一个**线性**过程：从问题出发，一步一步走到答案。Self-Consistency虽然采样了多条路径，但每条路径内部仍然是线性的，而且不同路径之间互不交流。
+
+但有些问题的求解过程更像是**探索一棵搜索树**：你在某一步做出选择，如果发现走不通就需要回溯（backtrack），尝试另一个分支。这正是经典人工智能中搜索算法（BFS、DFS）擅长的事情。
+
+Yao et al. (2023) 提出的 **Tree of Thoughts (ToT)** 将CoT从线性推理扩展到了树状搜索。核心思想是：
+
+1. 将推理过程分解为多个"思维步骤"（thought steps）
+2. 在每一步，生成多个候选思维
+3. 用LLM自身来评估每个候选思维的"前景"（是否有希望到达正确答案）
+4. 使用BFS或DFS来系统地探索思维树
+
+::: {.callout-note}
+## Tree of Thoughts 框架（Yao et al., 2023）
+
+```
+输入：语言模型 LM，问题 x，思维生成器 G，
+      状态评估器 V，搜索算法 (BFS 或 DFS)
+输出：最终解 ŷ
+
+定义：
+  s = [x] 为初始状态（只包含问题描述）
+  T 为思维步骤的最大深度
+
+BFS 搜索过程：
+  S₀ ← {s}  # 初始候选集
+  for t = 1 to T:
+      # 1. 生成候选思维
+      candidates ← {}
+      for s in Sₜ₋₁:
+          thoughts ← G(LM, s, k)  # 生成 k 个候选思维
+          candidates ← candidates ∪ {[s, z] : z ∈ thoughts}
+
+      # 2. 评估候选状态
+      for s' in candidates:
+          V(s') ← LM.evaluate(s')  # 用 LM 评估前景
+
+      # 3. 选择最优的 b 个状态（beam width = b）
+      Sₜ ← top_b(candidates, key=V)
+
+  return best solution from Sₜ
+```
+
+*Source: Yao et al. (2023) "Tree of Thoughts: Deliberate Problem Solving with Large Language Models", Section 2-3. [arXiv:2305.10601](https://arxiv.org/abs/2305.10601)*
+:::
+
+#### 四种方法的对比
+
+![四种prompting方法的推理结构对比。从左到右：标准IO（一步到位）、CoT（线性链）、CoT-SC（多条线性链+投票）、ToT（树状搜索+评估+回溯）。](figures/chapter-21/original/fig5-tree-of-thoughts.png){#fig-tot-comparison width=90%}
+
+::: {.figure-caption}
+*Source: Yao et al. (2023) "Tree of Thoughts: Deliberate Problem Solving with Large Language Models", Figure 1*
+:::
+
+从标准ICL到Tree of Thoughts，推理结构经历了一个清晰的演进：
+
+| 方法 | 推理结构 | 路径数 | 是否有评估 | 是否回溯 |
+|------|---------|--------|-----------|---------|
+| **标准ICL (IO)** | 无推理 | 1 | ✗ | ✗ |
+| **CoT** | 线性链 | 1 | ✗ | ✗ |
+| **CoT + Self-Consistency** | 多条线性链 | N | ✗（仅投票） | ✗ |
+| **Tree of Thoughts** | 树状搜索 | 动态 | ✓（LLM评估） | ✓ |
+
+标准ICL是"一步到位"，CoT是"一条直线"，Self-Consistency是"多条直线取众数"，ToT是"一棵搜索树"。
+
+#### ToT的标志性实验：24点游戏
+
+Yao et al. 选择了一个巧妙的评测任务来展示ToT的优势：**24点游戏**。给定4个数字（1-13），使用加减乘除（每个数字恰好用一次），使结果等于24。例如，给定 {1, 2, 3, 4}，一个解是 $1 \times 2 \times 3 \times 4 = 24$。
+
+这个任务非常适合树搜索，因为：(a) 它需要探索不同的运算组合；(b) 某些中间结果一看就走不通（比如中间算出了一个很大的数）；(c) 有明确的成功标准（等于24）。
+
+| 方法 | 24点成功率 |
+|------|-----------|
+| 标准ICL (IO) | 7.3% |
+| CoT | 4.0% |
+| CoT + Self-Consistency (100路径) | 9.0% |
+| **ToT (BFS, b=5)** | **74.0%** |
+
+结果令人震惊：ToT（74%）比其他所有方法高出一个数量级。有趣的是，CoT（4%）甚至比标准ICL（7.3%）更差——这是因为CoT生成的线性推理链容易在早期犯错并将错误传递到后续步骤，而标准ICL至少还有"蒙对"的可能。ToT通过评估和回溯避免了这个问题。
+
+然而，需要注意的是，ToT的计算成本远高于CoT——每个问题需要多次LLM调用（生成候选+评估），在24点游戏中大约需要数十次API调用。这使得它在大规模应用中成本高昂。
+
+---
+
+## 工程实践
+
+### 实现CoT推理
+
+```python
+import openai
+
+def cot_solve(question: str, cot_examples: list[dict], model: str = "gpt-4"):
+    """
+    使用 Chain-of-Thought 解决推理问题。
+
+    Args:
+        question: 待解决的问题
+        cot_examples: CoT示例列表，每个元素包含 'question', 'reasoning', 'answer'
+        model: 模型名称
+
+    Returns:
+        (reasoning, answer) 元组
+    """
+    # 构造 CoT prompt
+    prompt = "请一步一步地解决以下数学问题。\n\n"
+
+    for ex in cot_examples:
+        prompt += f"Q: {ex['question']}\n"
+        prompt += f"A: {ex['reasoning']} 答案是{ex['answer']}。\n\n"
+
+    prompt += f"Q: {question}\n"
+    prompt += "A: "
+
+    # 调用模型（贪心解码）
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,   # 贪心解码
+        max_tokens=512,
+    )
+
+    output = response.choices[0].message.content
+
+    # 提取答案（假设格式为"答案是X"）
+    answer = None
+    if "答案是" in output:
+        answer = output.split("答案是")[-1].strip().rstrip("。")
+
+    return output, answer
+
+
+# 使用示例
+cot_examples = [
+    {
+        "question": "Shawn有5个玩具。圣诞节从妈妈和爸爸各收到2个。现在有几个？",
+        "reasoning": "Shawn原有5个。妈妈给了2个，爸爸给了2个，共收到2+2=4个。"
+                     "5+4=9。",
+        "answer": "9"
+    },
+    {
+        "question": "花园有36朵玫瑰。园丁又种了18朵，然后摘了9朵送人。现在有多少？",
+        "reasoning": "原来36朵，种了18朵变成36+18=54朵。摘了9朵后剩54-9=45朵。",
+        "answer": "45"
+    },
+]
+
+reasoning, answer = cot_solve(
+    "一家书店有120本书。第一周卖了总量的1/3，第二周卖了剩余的1/4。还剩多少？",
+    cot_examples
+)
+print(f"推理过程: {reasoning}")
+print(f"最终答案: {answer}")
+```
+
+### 实现Self-Consistency
+
+```python
+from collections import Counter
+
+def self_consistency_solve(
+    question: str,
+    cot_examples: list[dict],
+    n_samples: int = 10,
+    temperature: float = 0.7,
+    model: str = "gpt-4"
+):
+    """
+    使用 Self-Consistency 提升 CoT 推理的可靠性。
+
+    核心思想：采样多条推理路径，对最终答案进行多数投票。
+    """
+    # 构造 CoT prompt（与上面相同）
+    prompt = "请一步一步地解决以下数学问题。\n\n"
+    for ex in cot_examples:
+        prompt += f"Q: {ex['question']}\n"
+        prompt += f"A: {ex['reasoning']} 答案是{ex['answer']}。\n\n"
+    prompt += f"Q: {question}\nA: "
+
+    # 采样多条推理路径
+    answers = []
+    reasonings = []
+
+    for _ in range(n_samples):
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,  # 非零温度以获得多样性
+            max_tokens=512,
+        )
+        output = response.choices[0].message.content
+        reasonings.append(output)
+
+        # 提取答案
+        if "答案是" in output:
+            ans = output.split("答案是")[-1].strip().rstrip("。")
+            answers.append(ans)
+
+    # 多数投票
+    if not answers:
+        return None, None, []
+
+    vote_counts = Counter(answers)
+    final_answer = vote_counts.most_common(1)[0][0]
+    confidence = vote_counts[final_answer] / len(answers)
+
+    return final_answer, confidence, list(zip(reasonings, answers))
+
+
+# 使用示例
+answer, confidence, paths = self_consistency_solve(
+    "一家书店有120本书。第一周卖了总量的1/3，第二周卖了剩余的1/4。还剩多少？",
+    cot_examples,
+    n_samples=10,
+    temperature=0.7
+)
+print(f"最终答案: {answer} (置信度: {confidence:.0%})")
+print(f"各路径答案分布: {Counter([a for _, a in paths])}")
+```
+
+### 实现Zero-shot CoT
+
+```python
+def zero_shot_cot_solve(question: str, model: str = "gpt-4"):
+    """
+    Zero-shot CoT：只需要一句"Let's think step by step"。
+    分两阶段：先提取推理，再提取答案。
+    """
+    # 阶段1：推理提取
+    prompt_stage1 = f"Q: {question}\nA: Let's think step by step."
+
+    response1 = openai.ChatCompletion.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt_stage1}],
+        temperature=0,
+        max_tokens=512,
+    )
+    reasoning = response1.choices[0].message.content
+
+    # 阶段2：答案提取
+    prompt_stage2 = (
+        f"Q: {question}\n"
+        f"A: Let's think step by step. {reasoning}\n"
+        f"Therefore, the answer (arabic numerals) is"
+    )
+
+    response2 = openai.ChatCompletion.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt_stage2}],
+        temperature=0,
+        max_tokens=20,
+    )
+    answer = response2.choices[0].message.content.strip()
+
+    return reasoning, answer
+```
+
+### 工程注意事项
+
+**温度设置的策略**：CoT推理有两种使用场景，它们需要不同的温度设置。当使用贪心CoT（单路径）时，应设置 $\text{temperature} = 0$ 以获得最确定性的推理链。当使用Self-Consistency（多路径投票）时，需要设置 $\text{temperature} \in [0.5, 1.0]$ 以获得推理路径的多样性——如果温度为0，所有路径都会相同，多数投票就失去了意义。
+
+**答案提取的鲁棒性**：从模型输出中提取最终答案是CoT工程中最容易出问题的环节。模型可能以各种格式输出答案："答案是42"、"所以结果为42"、"42。"、"$42$"。建议使用正则表达式或二次LLM调用来鲁棒地提取答案。
+
+**成本考量**：Self-Consistency需要多次模型调用，成本正比于采样次数。Wang et al. 的实验显示，大约10-40条路径就能获得接近最优的效果——更多路径的边际收益递减。在实践中，10条路径（10倍成本）通常是性价比最高的选择。
+
+---
+
+## 深入理解
+
+> **研究者必读**：这一节探讨涌现能力的本质、CoT的机制解释、以及LLM推理能力的根本争论。
+
+### 涌现能力：规模带来相变？ (Wei et al., 2022b)
+
+Chain-of-Thought的规模依赖性只是一个更大现象的缩影。2022年6月，Jason Wei等人发表了一篇影响深远的论文——"Emergent Abilities of Large Language Models"——系统性地研究了一类特殊现象：某些能力在小模型中完全不存在，但当模型规模超过某个临界点时突然出现。
+
+他们将**涌现能力**（emergent ability）定义为："一种在小模型中不存在、但在大模型中出现的能力。"更精确地说，如果我们画出能力（如某benchmark的准确率）随模型规模变化的曲线，涌现能力呈现出一种**不可预测的跳跃**：在某个规模之前，性能接近随机猜测或零；在某个规模之后，性能突然跃升到远高于随机的水平。这与物理学中的相变（phase transition）——如水在0°C突然从液态变为固态——有惊人的相似性。
+
+![涌现能力的经典图示。横轴是模型规模（FLOPs或参数量），纵轴是任务准确率。在某个规模阈值之前，性能接近随机水平；超过阈值后，性能急剧跃升——呈现出类似物理学中"相变"的特征。](figures/chapter-21/original/fig3-emergent-abilities.png){#fig-emergent-abilities width=85%}
+
+::: {.figure-caption}
+*Source: Wei et al. (2022) "Emergent Abilities of Large Language Models", Figure 2*
+:::
+
+Wei et al. (2022b) 从两个角度收集了涌现能力的证据。
+
+**BIG-Bench**上的涌现：BIG-Bench是一个包含200+语言任务的大型评测集。在许多任务上，小模型的表现接近随机，但当模型规模增加到某个阈值后，准确率突然飙升。例如，在三步算术推理任务上，模型从10B到100B几乎没有进展（约等于随机水平），但从100B到540B时准确率从近0%跳到超过40%。
+
+**多模型系列的涌现**：Wei et al. 还跨越多个模型系列（GPT-3、LaMDA、PaLM、Chinchilla）展示了涌现现象。在不同的任务上，涌现发生的规模阈值不同，但模式一致：先是一段长长的"沉默期"（接近随机性能），然后是一个急剧的跳跃。
+
+这个发现的影响是深远的。如果涌现是真实的，它意味着**我们无法通过研究小模型来预测大模型的能力**——因为质变不是量变的简单延伸。这对整个AI安全和对齐领域都有重大影响：如果我们不知道更大的模型会涌现出什么能力（包括可能有害的能力），那么"先训练再评估"的策略就存在根本性的风险。
+
+### 涌现是真实的还是"海市蜃楼"？ (Schaeffer et al., 2023)
+
+涌现能力的叙事在2023年受到了一次强有力的挑战。Schaeffer et al. 在NeurIPS 2023最佳论文"Are Emergent Abilities of Large Language Models a Mirage?"中论证：**涌现可能不是模型行为的内在属性，而是我们选择的度量方式（metric）制造的假象**。
+
+他们的核心论点可以用一个精彩的实验来说明。考虑一个分类任务，模型的"真实"准确率随规模平滑增长：
+
+$$
+\text{真实准确率}(N) = 0.1 + 0.5 \times \log_{10}(N / 10^8)
+$$
+
+其中 $N$ 是参数量。当 $N$ 从 $10^8$ 增长到 $10^{12}$ 时，真实准确率从0.1平滑增长到0.9——没有任何相变。
+
+但是，如果我们用**精确匹配**（Exact Match, EM）作为度量指标，情况就完全不同了。EM是一个非线性度量：如果模型的输出与标准答案完全一致就得1分，否则0分。对于需要多步输出的任务，即使模型的"接近正确"的能力在平滑增长，只要它还不够"完全正确"，EM就会给出0。这意味着用EM衡量时，性能曲线可能呈现出阶跃状的"涌现"——但这只是EM度量的非线性造成的，不是模型能力的真实突变。
+
+![涌现的"海市蜃楼"。同一组模型在同一任务上的表现，使用非线性度量（如精确匹配，左图）时呈现出"涌现"的阶跃，但使用连续度量（如token级准确率，右图）时变为平滑增长——暗示涌现可能是度量方式的产物。](figures/chapter-21/original/fig6-emergence-mirage.png){#fig-emergence-mirage width=85%}
+
+::: {.figure-caption}
+*Source: Schaeffer et al. (2023) "Are Emergent Abilities of Large Language Models a Mirage?", Figure 1. NeurIPS 2023 Best Paper*
+:::
+
+Schaeffer et al. 提供了以下关键证据：
+
+**证据1：更换度量，涌现消失**。在多个被Wei et al. 标记为"涌现"的任务上，如果将度量从EM换成连续度量（如token级准确率、Brier Score、log-likelihood），相变就消失了——取而代之的是平滑、可预测的性能曲线。
+
+**证据2：InverseBench实验**。他们构造了一个人工任务，让模型输出一个数字序列。用EM衡量，小模型的EM接近0（因为没有完全匹配），大模型的EM突然跳到高值——看起来像涌现。但用部分匹配度量，性能增长是完全平滑的。
+
+**证据3：统计理论分析**。他们从理论上证明：对于非线性度量函数 $f$（如EM的阶跃函数），即使底层的概率 $p(N)$ 是 $N$ 的连续函数，$f(p(N))$ 也可能呈现出阶跃状行为。涌现本质上可能是度量函数的非线性与有限样本效应的共同作用。
+
+### 围绕涌现的持续争论
+
+Schaeffer et al. 的工作并没有完全终结涌现争论。支持涌现真实性的研究者提出了几个反驳。
+
+第一，**并非所有涌现都可以通过更换度量来消除**。在某些任务上（如BIG-Bench中的部分推理任务），即使用连续度量，性能曲线仍然呈现出非线性的加速增长，虽然不是完美的阶跃，但也远非线性增长。
+
+第二，**度量的选择本身是有意义的**。在实际应用中，我们关心的往往就是"模型能否给出完全正确的答案"，而不是"模型有多接近正确答案"。如果一个数学模型的每一步都有99%的概率正确，但一个10步问题的端到端正确率只有 $0.99^{10} \approx 90\%$，而一个20步问题只有 $0.99^{20} \approx 82\%$——从用户视角看，模型的"可靠性"确实呈现出非线性的下降。在这个意义上，涌现可能不是"假象"，而是"复合效应"的合理体现。
+
+第三，**CoT的规模依赖性不容易用度量论解释**。CoT的涌现不仅是"从不正确到正确"，而是"从无法生成连贯推理链到能够生成连贯推理链"——这是一种质的变化，不只是精度的量变。小模型生成的"推理链"通常是语无伦次的，而大模型生成的推理链在逻辑上是连贯的，即使最终答案偶尔出错。
+
+**目前的共识**（如果有的话）大致是：涌现能力的观测是真实的（在特定度量下，性能确实呈现出非线性跳跃），但其底层机制可能是平滑的（模型的"原始能力"在连续增长），非线性主要来自度量选择和任务的组合性。这并不意味着涌现"不重要"——它仍然意味着我们很难从小模型的表现外推大模型的行为，这对AI安全和能力预测都有重大意义。
+
+### LLM真的在"推理"吗？
+
+CoT的成功引发了一个更根本的哲学和科学问题：当大语言模型生成了一个看起来合理的推理链并得出正确答案时，它真的在"推理"吗？
+
+**支持"推理"的证据**：
+
+首先，CoT生成的推理链在很多情况下是**正确且有逻辑的**——不仅最终答案对了，中间步骤也是对的。如果模型只是在做"高级模式匹配"，为什么它能在从未见过的新问题上产生正确的多步推理？
+
+其次，CoT的**泛化能力**表明模型学到了某种"规则"而非仅仅记忆。Wei et al. 在OOD（out-of-distribution）设置中——测试问题比训练示例更长——发现CoT仍然有效。如果模型只是在复制训练分布中的模式，OOD性能应该大幅下降。
+
+第三，Self-Consistency的有效性（不同推理路径指向同一答案）暗示模型能够从多个角度"验证"一个结论，这是推理的一个重要特征。
+
+**反对"推理"的证据**：
+
+然而，也有大量证据表明LLM的"推理"与人类推理有本质区别。
+
+最关键的反面证据是**CoT的不忠实性**（unfaithfulness）。多项研究（如Turpin et al., 2024; Lanham et al., 2023）发现，模型生成的推理链可能**不是它真正使用的推理过程**。在某些实验中，如果在prompt中加入一个错误的"提示"（如"Professor Smith说答案是X"），模型会改变自己的推理过程来"论证"X是对的——推理链变成了事后合理化（post-hoc rationalization），而非真正的逐步推导。
+
+另一个关键发现是：LLM在推理中对**问题的表述方式**极度敏感。同一个逻辑问题，如果用不同的词语描述，或者改变无关的上下文信息，模型的答案可能截然不同。人类的逻辑推理通常对问题的表面描述是鲁棒的（至少在受过训练后），但LLM的"推理"似乎更多地依赖于文本的表面模式而非深层逻辑结构。
+
+此外，LLM在需要**系统性规则遵循**的任务上（如棋盘游戏、精确计算大数、逻辑谜题的所有推理步骤都必须正确）表现仍然不可靠，这暗示它们缺乏人类式的"规则应用"机制。
+
+**一个可能的折衷立场**是：LLM所做的既不是人类意义上的"推理"，也不是纯粹的"模式匹配"，而是一种介于两者之间的新型信息处理。它能够利用预训练中学到的统计规律来近似推理步骤，在很多情况下这种近似足够准确，但它缺乏人类推理的系统性和可靠性。
+
+### 开放研究问题
+
+如果你要在这个方向写一篇论文，以下几个问题仍然值得深入探索。
+
+第一个方向是**推理的忠实性**。如何确保模型生成的推理链确实是它得出答案的原因，而非事后合理化？如何设计实验来区分"真正的推理"和"可信的推理模拟"？这对AI可信度和安全性有直接影响。
+
+第二个方向是**推理能力的可扩展性**。CoT在小学数学上效果很好，但在更复杂的推理任务（竞赛数学、定理证明、多步策略规划）上表现有限。推理能力是否有理论上限？通过增加模型规模或改进推理策略，能否不断提升？
+
+第三个方向是**涌现的预测**。如果涌现是真实的（或至少在某种度量下是真实的），我们能否预测下一代模型会涌现出什么新能力？这对AI安全和政策制定至关重要——如果我们训练了一个10倍于GPT-4的模型，它会突然获得什么我们没预料到的能力？
+
+第四个方向是**推理时间计算**（test-time compute）。CoT、Self-Consistency、ToT都是在推理阶段投入更多计算来提升性能的策略。推理时间计算与训练时间计算之间是否存在可预测的换算关系？能否为推理时间计算建立类似Scaling Laws的定量理论？
+
+---
+
+## 局限性与未解决的问题
+
+### 本方法的局限
+
+Chain-of-Thought及其变体虽然在推理任务上取得了突破性进展，但它们面临着几个根本性的局限。
+
+第一个局限是**小模型无法受益**。CoT只在≥100B参数的模型上才显著有效。对于资源受限的场景（如在手机上运行的模型），CoT带来的提升非常有限。虽然后续的工作（如知识蒸馏、CoT微调）试图将大模型的推理能力迁移到小模型，但效果仍有差距。
+
+第二个局限是**推理链的不忠实性**。如前所述，模型生成的推理链可能不是它真正的"思考过程"。这意味着我们不能简单地通过检查推理链来验证模型的推理是否正确——一个看起来完美的推理链可能对应一个错误的内部过程。
+
+第三个局限是**计算成本**。CoT增加了输出长度（从几个token到几百个token），Self-Consistency将成本乘以采样次数（通常10-40倍），ToT更是需要数十次LLM调用。在大规模应用中，这些成本可能是不可接受的。
+
+第四个局限是**对prompt的敏感性**。CoT示例的质量、数量、措辞都显著影响最终效果。手工编写高质量的CoT示例需要领域知识，而自动生成的推理链质量参差不齐。
+
+### 这些局限导向了什么？
+
+CoT和涌现能力的讨论自然引出了一个更宏观的问题：**我们如何可靠地评估和衡量大语言模型的能力？**
+
+Schaeffer et al. 的工作已经表明，度量的选择可以根本性地改变我们对模型能力的判断。如果连"涌现"这个核心概念的真实性都取决于度量方式，那么我们对LLM能力的所有评估都需要更加审慎。
+
+这正是下一章——**评测方法论**——将要系统讨论的问题。如何设计不被"刷分"的benchmark？如何区分"真正的能力提升"和"度量假象"？如何在模型能力快速迭代的时代建立可靠的评测体系？这些看似"元问题"（关于方法的方法、关于评估的评估），实际上是确保AI研究科学性的基石。
+
+> 下一章预告：第22章将聚焦**评测方法论**。从GLUE到SuperGLUE到MMLU到LLM-as-Judge，评测基准经历了怎样的演进？静态benchmark的数据泄漏问题如何解决？LLM-as-Judge这种"用模型评模型"的方法有什么偏差？如何在"涌现"和"假象"之间建立可靠的科学判断？
+
+---
+
+## 本章小结
+
+### 核心要点回顾
+
+本章围绕两个相互交织的主题——**思维链推理**和**涌现能力**——讲述了大语言模型在推理能力上的突破与争论。
+
+**Chain-of-Thought Prompting**（Wei et al., 2022）通过一个极其简单的改动——在few-shot示例中展示推理过程——让大语言模型在数学推理上获得了飞跃式提升（GSM8K：17.9% → 56.9%）。CoT的核心洞察是：通过引导模型生成中间推理步骤，将一个困难的端到端映射分解成多个简单的步骤，同时利用模型自己的生成文本作为"工作记忆"。
+
+**Zero-shot CoT**（Kojima et al., 2022）发现仅在prompt末尾添加"Let's think step by step"就能触发推理模式，在MultiArith上将准确率从17.7%提升到78.7%，证明了推理能力已经"内嵌"在大模型中，只需要正确的触发方式。
+
+**Self-Consistency**（Wang et al., 2022）通过采样多条推理路径并进行多数投票，进一步将CoT的GSM8K准确率从56.9%提升到74.4%，利用了"正确答案可以通过多种路径到达"的统计规律。
+
+**Tree of Thoughts**（Yao et al., 2023）将推理从线性链扩展到树状搜索，在24点游戏等需要探索和回溯的任务上，从7.3%（标准ICL）提升到74.0%，展示了结构化推理策略的潜力。
+
+**涌现能力**（Wei et al., 2022b）描述了一种令人不安的现象：某些能力在小模型中完全不存在，但在模型规模超过阈值后突然出现。Schaeffer et al.（2023）的反驳表明，涌现可能部分是度量方式制造的假象——在非线性度量（如精确匹配）下呈现的"阶跃"，在连续度量下可能是平滑增长。这场争论尚未完全解决，但它深刻地提醒我们：**评估方式本身可能扭曲我们对模型能力的认知**。
+
+### 关键对比速查
+
+| 方法 | 推理结构 | 关键改进 | GSM8K (PaLM 540B) |
+|------|---------|---------|-------------------|
+| 标准 ICL | 无中间步骤 | — | ~18% |
+| CoT (few-shot) | 线性链 × 1 | 展示推理过程 | 56.9% |
+| Zero-shot CoT | 线性链 × 1 | "Let's think step by step" | ~47%* |
+| Self-Consistency | 线性链 × N | 多数投票 | 74.4% |
+| Tree of Thoughts | 树状搜索 | LLM评估 + 回溯 | N/A（不同任务） |
+
+*Zero-shot CoT在GSM8K上的具体数字因模型版本而异，此处为近似值。
+
+### 思考题
+
+1. **[概念理解]** 为什么Chain-of-Thought只在大模型（≥100B参数）上有效，而小模型几乎不受益？试从"模型需要同时具备多种子能力"的角度给出解释，并讨论这是否与Schaeffer et al.关于涌现是"度量假象"的论点矛盾。
+
+2. **[数学推导]** Self-Consistency使用多数投票来选择最终答案。假设模型对每条推理路径独立地以概率 $p$ 给出正确答案（$p > 0.5$），共采样 $N$ 条路径。(a) 推导多数投票给出正确答案的概率表达式（提示：二项分布）。(b) 当 $p = 0.6$，$N = 10$ 时，多数投票的正确率是多少？与单条路径（$p = 0.6$）相比提升了多少？(c) 当 $p < 0.5$ 时会发生什么？
+
+3. **[工程实践]** 使用任一LLM API，在以下三种设置下解决10道数学推理题（可使用GSM8K样本）：(a) 标准few-shot（只给答案），(b) CoT few-shot（给推理过程），(c) Self-Consistency（CoT + 10次采样 + 多数投票）。比较三种方法的准确率和API成本。
+
+4. **[研究思考]** Schaeffer et al. (2023) 论证涌现可能是度量方式的假象。但考虑Chain-of-Thought的规模依赖性：小模型生成的"推理链"通常是语无伦次的，而大模型生成的推理链是连贯的。这种**质的变化**能否被"度量假象"论完全解释？设计一个实验来检验你的假设。
+
+5. **[开放思考]** 如果LLM的"推理"确实只是"高级模式匹配"（而非人类意义上的逻辑推理），这对AI的实际应用意味着什么？在哪些应用场景中"可靠的模式匹配"就够了？在哪些场景中我们需要"真正的推理"？如何判断一个任务属于哪类？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+**Wei, J. et al. (2022). "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"**。CoT的原始论文，本章最核心的参考。重点阅读：Section 2（方法定义，只有半页但定义了一个时代）、Section 3（实验结果）。可快速浏览：Appendix中的完整推理链示例。[arXiv:2201.11903](https://arxiv.org/abs/2201.11903)
+
+**Wei, J. et al. (2022). "Emergent Abilities of Large Language Models"**。涌现能力的系统性研究，引发了整个领域关于"规模vs能力"的讨论。重点阅读：Section 2（涌现的定义）、Figure 1-2（经典的涌现曲线）。[arXiv:2206.07682](https://arxiv.org/abs/2206.07682)
+
+**Schaeffer, R. et al. (2023). "Are Emergent Abilities of Large Language Models a Mirage?"**。NeurIPS 2023最佳论文，对涌现叙事的强有力挑战。重点阅读：Section 2-3（度量论证）。这是一篇"改变你思考方式"的论文。[arXiv:2304.15004](https://arxiv.org/abs/2304.15004)
+
+### 方法改进
+
+**Kojima, S. et al. (2022). "Large Language Models are Zero-Shot Reasoners"**。发现"Let's think step by step"的神奇效果。重点阅读：Section 3（方法）、Table 4（不同触发短语的对比）。[arXiv:2205.11916](https://arxiv.org/abs/2205.11916)
+
+**Wang, X. et al. (2022). "Self-Consistency Improves Chain of Thought Reasoning"**。Self-Consistency方法。重点阅读：Section 2（方法，优雅简洁）。[arXiv:2203.11171](https://arxiv.org/abs/2203.11171)
+
+**Yao, S. et al. (2023). "Tree of Thoughts"**。将推理从线性扩展到树状搜索。重点阅读：Section 2（框架定义）、Section 4（24点游戏实验）。[arXiv:2305.10601](https://arxiv.org/abs/2305.10601)
+
+**Zhou, D. et al. (2022). "Least-to-Most Prompting Enables Complex Reasoning"**。一种将复杂问题分解为子问题、从简单到复杂逐步求解的策略。重点阅读：Section 2-3。[arXiv:2205.10625](https://arxiv.org/abs/2205.10625)
+
+### 理论与分析
+
+**Turpin, M. et al. (2024). "Language Models Don't Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting"**。揭示CoT推理链可能不忠实于模型的真实"推理过程"。[arXiv:2305.04388](https://arxiv.org/abs/2305.04388)
+
+**Suzgun, M. et al. (2022). "Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them"**。BIG-Bench Hard（BBH）：精选的23个CoT对其有显著帮助的困难任务。[arXiv:2210.09261](https://arxiv.org/abs/2210.09261)
+
+### 综述与教程
+
+**Qiao, S. et al. (2023). "Reasoning with Language Model Prompting: A Survey"**。推理提示方法的全面综述。[arXiv:2212.09597](https://arxiv.org/abs/2212.09597)
+
+**Huang, J. & Chang, K. (2023). "Towards Reasoning in Large Language Models: A Survey"**。LLM推理能力的全面综述。[arXiv:2212.10403](https://arxiv.org/abs/2212.10403)
+
+### 代码资源
+
+- **LangChain**：[langchain.com](https://www.langchain.com/)（内置CoT和推理链工具）
+- **Tree of Thoughts实现**：[github.com/princeton-nlp/tree-of-thought-llm](https://github.com/princeton-nlp/tree-of-thought-llm)
+- **GSM8K数据集**：[github.com/openai/grade-school-math](https://github.com/openai/grade-school-math)
+
+---
+
+## 历史注脚
+
+Chain-of-Thought prompting的故事充满了戏剧性的巧合和意外发现。
+
+2021年底，Google Brain的Jason Wei在研究PaLM模型的few-shot能力时，偶然发现了一个有趣的现象：如果在few-shot示例中加入简单的解题步骤，模型的数学推理能力会大幅提升。这个发现最初并没有被当作一个重要的研究贡献——毕竟，它的方法实在太简单了，简单到让人怀疑"这能发论文吗？"Wei后来在采访中回忆，论文提交过程中遇到了不少质疑："你就是换了个prompt格式，这算什么贡献？"
+
+但Wei坚持认为这个发现的意义不在于方法的复杂度，而在于它揭示的现象：大语言模型具有通过中间步骤进行推理的潜力，只是需要正确的"激活方式"。事后看来，这篇论文确实改变了整个领域对LLM推理能力的认知，被引用超过5000次。
+
+Kojima et al. 的Zero-shot CoT故事同样引人入胜。"Let's think step by step"这六个英文单词成为了AI历史上最著名的"咒语"之一。Kojima等人测试了超过50个不同的触发短语，发现这句话的效果最好——但他们自己也无法完全解释为什么。这六个词的发现几乎可以说是"实验驱动"而非"理论驱动"的——先发现了现象，然后才开始思考解释。
+
+涌现能力的讨论则触及了AI研究中一个更深层的张力：乐观主义与怀疑主义。Wei et al.的涌现论文被乐观主义者视为"规模就是通往AGI的道路"的证据，被怀疑主义者视为"没有控制好度量的可疑发现"。Schaeffer et al.的反驳论文在NeurIPS 2023获得最佳论文奖，这本身就是一个信号：学术界认为对热门叙事的严谨质疑同样值得褒奖。
+
+一个历史的讽刺是：2022年是CoT和涌现论文发表的年份，也是ChatGPT发布的年份（2022年11月30日）。ChatGPT的成功很大程度上依赖于指令微调和RLHF，而不是CoT——但正是CoT等研究揭示的LLM推理潜力，为ChatGPT的应用场景（编程、分析、解题）提供了信心基础。从某种意义上说，CoT为LLM从"有趣的研究工具"变成"改变世界的产品"铺平了认知上的道路。

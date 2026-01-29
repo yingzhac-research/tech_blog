@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>nlp-textbook-chapter-template – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#nlp教材章节写作模板" id="toc-nlp教材章节写作模板" class="nav-link active" data-scroll-target="#nlp教材章节写作模板"><span class="header-section-number">1</span> NLP教材章节写作模板</a>
+  <ul class="collapse">
+  <li><a href="#模板正文" id="toc-模板正文" class="nav-link" data-scroll-target="#模板正文"><span class="header-section-number">1.1</span> 模板正文</a>
+  <ul class="collapse">
+  <li><a href="#使用现有框架" id="toc-使用现有框架" class="nav-link" data-scroll-target="#使用现有框架"><span class="header-section-number">1.1.1</span> 4.2 使用现有框架</a></li>
+  <li><a href="#复现论文的关键细节" id="toc-复现论文的关键细节" class="nav-link" data-scroll-target="#复现论文的关键细节"><span class="header-section-number">1.1.2</span> 4.3 复现论文的关键细节</a></li>
+  <li><a href="#实验验证" id="toc-实验验证" class="nav-link" data-scroll-target="#实验验证"><span class="header-section-number">1.1.3</span> 4.4 实验验证</a></li>
+  </ul></li>
+  <li><a href="#深入理解" id="toc-深入理解" class="nav-link" data-scroll-target="#深入理解"><span class="header-section-number">1.2</span> 5. 深入理解</a>
+  <ul class="collapse">
+  <li><a href="#为什么有效理论视角" id="toc-为什么有效理论视角" class="nav-link" data-scroll-target="#为什么有效理论视角"><span class="header-section-number">1.2.1</span> 5.1 为什么有效？——理论视角</a></li>
+  <li><a href="#为什么有效实证视角" id="toc-为什么有效实证视角" class="nav-link" data-scroll-target="#为什么有效实证视角"><span class="header-section-number">1.2.2</span> 5.2 为什么有效？——实证视角</a></li>
+  <li><a href="#方法的边界条件" id="toc-方法的边界条件" class="nav-link" data-scroll-target="#方法的边界条件"><span class="header-section-number">1.2.3</span> 5.3 方法的边界条件</a></li>
+  <li><a href="#变体与扩展" id="toc-变体与扩展" class="nav-link" data-scroll-target="#变体与扩展"><span class="header-section-number">1.2.4</span> 5.4 变体与扩展</a></li>
+  <li><a href="#开放研究问题" id="toc-开放研究问题" class="nav-link" data-scroll-target="#开放研究问题"><span class="header-section-number">1.2.5</span> 5.5 开放研究问题</a></li>
+  </ul></li>
+  <li><a href="#局限性与未解决的问题" id="toc-局限性与未解决的问题" class="nav-link" data-scroll-target="#局限性与未解决的问题"><span class="header-section-number">1.3</span> 6. 局限性与未解决的问题</a>
+  <ul class="collapse">
+  <li><a href="#本方法的局限" id="toc-本方法的局限" class="nav-link" data-scroll-target="#本方法的局限"><span class="header-section-number">1.3.1</span> 6.1 本方法的局限</a></li>
+  <li><a href="#这些局限导向了什么" id="toc-这些局限导向了什么" class="nav-link" data-scroll-target="#这些局限导向了什么"><span class="header-section-number">1.3.2</span> 6.2 这些局限导向了什么？</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结"><span class="header-section-number">1.4</span> 7. 本章小结</a>
+  <ul class="collapse">
+  <li><a href="#核心要点回顾" id="toc-核心要点回顾" class="nav-link" data-scroll-target="#核心要点回顾"><span class="header-section-number">1.4.1</span> 核心要点回顾</a></li>
+  <li><a href="#关键公式速查" id="toc-关键公式速查" class="nav-link" data-scroll-target="#关键公式速查"><span class="header-section-number">1.4.2</span> 关键公式速查</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">1.4.3</span> 思考题</a></li>
+  </ul></li>
+  <li><a href="#延伸阅读" id="toc-延伸阅读" class="nav-link" data-scroll-target="#延伸阅读"><span class="header-section-number">1.5</span> 延伸阅读</a>
+  <ul class="collapse">
+  <li><a href="#核心论文必读" id="toc-核心论文必读" class="nav-link" data-scroll-target="#核心论文必读"><span class="header-section-number">1.5.1</span> 核心论文（必读）</a></li>
+  <li><a href="#理论基础" id="toc-理论基础" class="nav-link" data-scroll-target="#理论基础"><span class="header-section-number">1.5.2</span> 理论基础</a></li>
+  <li><a href="#后续发展" id="toc-后续发展" class="nav-link" data-scroll-target="#后续发展"><span class="header-section-number">1.5.3</span> 后续发展</a></li>
+  <li><a href="#综述与教程" id="toc-综述与教程" class="nav-link" data-scroll-target="#综述与教程"><span class="header-section-number">1.5.4</span> 综述与教程</a></li>
+  <li><a href="#代码资源" id="toc-代码资源" class="nav-link" data-scroll-target="#代码资源"><span class="header-section-number">1.5.5</span> 代码资源</a></li>
+  </ul></li>
+  <li><a href="#历史注脚可选" id="toc-历史注脚可选" class="nav-link" data-scroll-target="#历史注脚可选"><span class="header-section-number">1.6</span> 历史注脚（可选）</a></li>
+  <li><a href="#模板使用指南" id="toc-模板使用指南" class="nav-link" data-scroll-target="#模板使用指南"><span class="header-section-number">1.7</span> 模板使用指南</a>
+  <ul class="collapse">
+  <li><a href="#一必选部分" id="toc-一必选部分" class="nav-link" data-scroll-target="#一必选部分"><span class="header-section-number">1.7.1</span> 一、必选部分</a></li>
+  <li><a href="#二可选部分" id="toc-二可选部分" class="nav-link" data-scroll-target="#二可选部分"><span class="header-section-number">1.7.2</span> 二、可选部分</a></li>
+  <li><a href="#三灵活调整原则" id="toc-三灵活调整原则" class="nav-link" data-scroll-target="#三灵活调整原则"><span class="header-section-number">1.7.3</span> 三、灵活调整原则</a></li>
+  </ul></li>
+  <li><a href="#写作检查清单" id="toc-写作检查清单" class="nav-link" data-scroll-target="#写作检查清单"><span class="header-section-number">1.8</span> 写作检查清单</a>
+  <ul class="collapse">
+  <li><a href="#开篇检查" id="toc-开篇检查" class="nav-link" data-scroll-target="#开篇检查"><span class="header-section-number">1.8.1</span> 开篇检查</a></li>
+  <li><a href="#内容检查" id="toc-内容检查" class="nav-link" data-scroll-target="#内容检查"><span class="header-section-number">1.8.2</span> 内容检查</a></li>
+  <li><a href="#研究深度检查研究者定位" id="toc-研究深度检查研究者定位" class="nav-link" data-scroll-target="#研究深度检查研究者定位"><span class="header-section-number">1.8.3</span> 研究深度检查（研究者定位）</a></li>
+  <li><a href="#结尾检查" id="toc-结尾检查" class="nav-link" data-scroll-target="#结尾检查"><span class="header-section-number">1.8.4</span> 结尾检查</a></li>
+  <li><a href="#叙事连贯性检查" id="toc-叙事连贯性检查" class="nav-link" data-scroll-target="#叙事连贯性检查"><span class="header-section-number">1.8.5</span> 叙事连贯性检查</a></li>
+  </ul></li>
+  <li><a href="#示例section-0-的写作范例" id="toc-示例section-0-的写作范例" class="nav-link" data-scroll-target="#示例section-0-的写作范例"><span class="header-section-number">1.9</span> 示例：Section 0 的写作范例</a></li>
+  <li><a href="#示例section-3.3-关键设计决策的写作范例" id="toc-示例section-3.3-关键设计决策的写作范例" class="nav-link" data-scroll-target="#示例section-3.3-关键设计决策的写作范例"><span class="header-section-number">1.10</span> 示例：Section 3.3 关键设计决策的写作范例</a></li>
+  <li><a href="#示例section-5-深入理解的写作范例" id="toc-示例section-5-深入理解的写作范例" class="nav-link" data-scroll-target="#示例section-5-深入理解的写作范例"><span class="header-section-number">1.11</span> 示例：Section 5 深入理解的写作范例</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="nlp教材章节写作模板" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> NLP教材章节写作模板</h1>
+<blockquote class="blockquote">
+<p><strong>设计理念</strong>：痛点驱动、直觉先于公式、理论与工程并重</p>
+<p><strong>读者定位</strong>：研究生/PhD，偏向研究——强调”为什么work”、“边界条件”、“开放问题”</p>
+</blockquote>
+<hr>
+<section id="模板正文" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="模板正文"><span class="header-section-number">1.1</span> 模板正文</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># 第N章：[章节标题]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **核心问题**：一句话概括本章要解决的问题</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **历史坐标**：</span><span class="co">[</span><span class="ot">年份</span><span class="co">]</span><span class="at"> </span><span class="pp">|</span><span class="at"> </span><span class="co">[</span><span class="ot">关键论文/人物</span><span class="co">]</span><span class="at"> </span><span class="pp">|</span><span class="at"> </span><span class="co">[</span><span class="ot">技术背景</span><span class="co">]</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## 0. 从上一章说起（承上启下）</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>回顾上一代技术的成就，然后自然过渡到它的局限性。</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>**上一代做到了什么**：</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>成就1</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>成就2</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>**但是...**（痛点引出）：</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>具体的失败案例或困境</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>用数据/实验/直觉说明问题的严重性</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 💡 **本章核心洞察预告**：一句话预告本章的关键突破</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. 问题的本质是什么？</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>在介绍解决方案之前，先深入剖析问题本身。</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.1 问题的精确定义</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>形式化地描述问题</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>为什么这个问题重要？</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.2 之前的尝试为何失败？</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>方法A的问题</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>方法B的问题</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>问题的根源在哪里？</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.3 我们需要什么样的解决方案？</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>理想方案应该具备哪些特性？</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>这为后面的设计提供了指导原则</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. 核心思想与直觉</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>在进入数学之前，先用直觉和类比建立理解。</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.1 关键洞察</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 用一两句话概括核心insight，这往往是最有价值的部分</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.2 直觉解释</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>用类比、比喻帮助理解</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>可视化图示</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>"如果把X想象成Y，那么..."</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.3 设计动机</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>为什么选择这种方式而不是其他方式？</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>设计过程中的权衡（trade-offs）</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. 技术细节</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1 数学形式化</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>符号定义</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>核心公式推导</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>每一步的直觉解释（不只是推导，更要解释"为什么"）</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2 算法流程</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">伪代码或流程图</span><span class="co">]</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.3 关键设计决策</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>对于每个重要的设计选择：</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**决策**：做了什么选择？</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**原因**：为什么这样选？</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**替代方案**：还有什么其他选择？为什么没选？</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**影响**：这个选择带来了什么后果？</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.4 复杂度分析</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>时间复杂度</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>空间复杂度</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>样本复杂度（如适用）</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.5 与其他方法的对比</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 维度 <span class="pp">|</span> 本章方法 <span class="pp">|</span> 方法A <span class="pp">|</span> 方法B <span class="pp">|</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|----------|-------|-------|</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ... <span class="pp">|</span> ... <span class="pp">|</span> ... <span class="pp">|</span> ... <span class="pp">|</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. 工程实践</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a><span class="fu">### 4.1 从零实现</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a><span class="co"># 核心代码实现</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="co"># 带有详细注释，解释每一步</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="co"># 目标：帮助理解算法原理，而非生产优化</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="使用现有框架" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="使用现有框架"><span class="header-section-number">1.1.1</span> 4.2 使用现有框架</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用PyTorch/Hugging Face等的标准用法</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="复现论文的关键细节" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="复现论文的关键细节"><span class="header-section-number">1.1.2</span> 4.3 复现论文的关键细节</h3>
+<ul>
+<li>论文中没写清楚但复现时必须知道的细节</li>
+<li>超参数的敏感性</li>
+<li>常见复现失败的原因</li>
+</ul>
+</section>
+<section id="实验验证" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="实验验证"><span class="header-section-number">1.1.3</span> 4.4 实验验证</h3>
+<ul>
+<li>在什么数据集上验证？</li>
+<li>预期结果是什么？</li>
+<li>如何判断实现正确？</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="深入理解" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="深入理解"><span class="header-section-number">1.2</span> 5. 深入理解</h2>
+<blockquote class="blockquote">
+<p><strong>研究者必读</strong>：这一节探讨方法的理论基础、边界条件和开放问题</p>
+</blockquote>
+<section id="为什么有效理论视角" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="为什么有效理论视角"><span class="header-section-number">1.2.1</span> 5.1 为什么有效？——理论视角</h3>
+<ul>
+<li>形式化分析：在什么假设下这个方法有理论保证？</li>
+<li>与已知理论的联系（PAC学习、信息论、优化理论等）</li>
+<li>收敛性/一致性分析（如适用）</li>
+</ul>
+</section>
+<section id="为什么有效实证视角" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="为什么有效实证视角"><span class="header-section-number">1.2.2</span> 5.2 为什么有效？——实证视角</h3>
+<ul>
+<li>消融实验告诉我们什么？</li>
+<li>哪些组件是真正必要的？哪些是可选的？</li>
+<li>不同数据集/规模上的表现差异</li>
+</ul>
+</section>
+<section id="方法的边界条件" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="方法的边界条件"><span class="header-section-number">1.2.3</span> 5.3 方法的边界条件</h3>
+<ul>
+<li><strong>隐含假设</strong>：这个方法假设了什么？</li>
+<li><strong>失效条件</strong>：什么情况下这个方法会失败？</li>
+<li><strong>已知的failure modes</strong>：文献中报告的失败案例</li>
+</ul>
+</section>
+<section id="变体与扩展" class="level3" data-number="1.2.4">
+<h3 data-number="1.2.4" class="anchored" data-anchor-id="变体与扩展"><span class="header-section-number">1.2.4</span> 5.4 变体与扩展</h3>
+<ul>
+<li>变体1及其动机</li>
+<li>变体2及其动机</li>
+<li>与其他领域的联系</li>
+</ul>
+</section>
+<section id="开放研究问题" class="level3" data-number="1.2.5">
+<h3 data-number="1.2.5" class="anchored" data-anchor-id="开放研究问题"><span class="header-section-number">1.2.5</span> 5.5 开放研究问题</h3>
+<blockquote class="blockquote">
+<p>如果你要在这个方向写一篇论文，可以从哪里切入？</p>
+</blockquote>
+<ul>
+<li>未解决的理论问题</li>
+<li>未解决的实证问题</li>
+<li>当前的研究热点</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="局限性与未解决的问题" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="局限性与未解决的问题"><span class="header-section-number">1.3</span> 6. 局限性与未解决的问题</h2>
+<section id="本方法的局限" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="本方法的局限"><span class="header-section-number">1.3.1</span> 6.1 本方法的局限</h3>
+<ul>
+<li>局限1：具体描述 + 为什么存在 + 是否有理论解释</li>
+<li>局限2：具体描述 + 为什么存在 + 是否有理论解释</li>
+</ul>
+</section>
+<section id="这些局限导向了什么" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="这些局限导向了什么"><span class="header-section-number">1.3.2</span> 6.2 这些局限导向了什么？</h3>
+<blockquote class="blockquote">
+<p>为下一章埋伏笔：这些问题促使人们思考…</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">1.4</span> 7. 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">1.4.1</span> 核心要点回顾</h3>
+<ol type="1">
+<li><strong>问题</strong>：我们要解决什么问题？</li>
+<li><strong>洞察</strong>：核心的突破性想法是什么？</li>
+<li><strong>方法</strong>：具体怎么做的？</li>
+<li><strong>意义</strong>：这个进步为什么重要？</li>
+</ol>
+</section>
+<section id="关键公式速查" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="关键公式速查"><span class="header-section-number">1.4.2</span> 关键公式速查</h3>
+<ul>
+<li>公式1：<span class="math inline">\(...\)</span></li>
+<li>公式2：<span class="math inline">\(...\)</span></li>
+</ul>
+</section>
+<section id="思考题" class="level3" data-number="1.4.3">
+<h3 data-number="1.4.3" class="anchored" data-anchor-id="思考题"><span class="header-section-number">1.4.3</span> 思考题</h3>
+<ol type="1">
+<li>[概念理解] …</li>
+<li>[数学推导] …</li>
+<li>[工程实践] …</li>
+<li>[开放思考/研究问题] …</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">1.5</span> 延伸阅读</h2>
+<section id="核心论文必读" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="核心论文必读"><span class="header-section-number">1.5.1</span> 核心论文（必读）</h3>
+<ul>
+<li><strong>[论文1]</strong>：原始论文
+<ul>
+<li>重点读：Section X（核心方法）、Section Y（关键实验）</li>
+<li>可跳过：Section Z（工程细节）</li>
+</ul></li>
+</ul>
+</section>
+<section id="理论基础" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="理论基础"><span class="header-section-number">1.5.2</span> 理论基础</h3>
+<ul>
+<li><strong>[论文A]</strong>：本章方法的理论基础来自这里</li>
+</ul>
+</section>
+<section id="后续发展" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="后续发展"><span class="header-section-number">1.5.3</span> 后续发展</h3>
+<ul>
+<li><strong>[论文B]</strong>：在此基础上的重要改进</li>
+<li><strong>[论文C]</strong>：挑战/质疑这篇工作的论文</li>
+</ul>
+</section>
+<section id="综述与教程" class="level3" data-number="1.5.4">
+<h3 data-number="1.5.4" class="anchored" data-anchor-id="综述与教程"><span class="header-section-number">1.5.4</span> 综述与教程</h3>
+<ul>
+<li><strong>[综述X]</strong>：如果想快速了解这个领域的全貌</li>
+</ul>
+</section>
+<section id="代码资源" class="level3" data-number="1.5.5">
+<h3 data-number="1.5.5" class="anchored" data-anchor-id="代码资源"><span class="header-section-number">1.5.5</span> 代码资源</h3>
+<ul>
+<li>官方实现</li>
+<li>高质量第三方实现（用于学习/复现）</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="历史注脚可选" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="历史注脚可选"><span class="header-section-number">1.6</span> 历史注脚（可选）</h2>
+<blockquote class="blockquote">
+<p>记录一些有趣的历史细节、轶事、争议，增加可读性</p>
+<p>例如：这篇论文最初被拒稿了… 例如：这个名字的由来是… 例如：作者后来反思说…</p>
+</blockquote>
+<pre><code>
+---
+
+## 特殊格式：风险卡片
+
+&gt; 用于对齐、训练稳定性等需要讨论"失败模式"的章节
+
+```markdown
+#### [方法名] 风险卡片
+
+| 维度 | 内容 |
+|------|------|
+| **主要修复** | 这个方法主要解决什么问题？ |
+| **典型副作用** | 使用这个方法常见的负面效果是什么？ |
+| **工程防护** | 如何缓解这些副作用？ |
+| **开放问题** | 还有什么理论或实证上未解决的问题？ |</code></pre>
+<p><strong>示例：RLHF 风险卡片</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>主要修复</strong></td>
+<td>让模型输出更符合人类偏好（更有帮助、更少有害）</td>
+</tr>
+<tr class="even">
+<td><strong>典型副作用</strong></td>
+<td>奖励黑客（学会讨好而非真正有用）、过度拒答、风格漂移向”AI味”、sycophancy</td>
+</tr>
+<tr class="odd">
+<td><strong>工程防护</strong></td>
+<td>KL约束（限制偏离预训练太远）、回归集（防止旧能力退化）、红队测试</td>
+</tr>
+<tr class="even">
+<td><strong>开放问题</strong></td>
+<td>人类标注者的偏好真的代表”正确”吗？如何做scalable oversight？</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="模板使用指南" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="模板使用指南"><span class="header-section-number">1.7</span> 模板使用指南</h2>
+<section id="一必选部分" class="level3" data-number="1.7.1">
+<h3 data-number="1.7.1" class="anchored" data-anchor-id="一必选部分"><span class="header-section-number">1.7.1</span> 一、必选部分</h3>
+<p>每章都必须包含以下部分：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>部分</th>
+<th>作用</th>
+<th>写作要点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>0. 承上启下</strong></td>
+<td>建立连贯的历史叙事</td>
+<td>必须明确指出上一章的痛点</td>
+</tr>
+<tr class="even">
+<td><strong>1. 问题本质</strong></td>
+<td>讲清楚”为什么”</td>
+<td>先分析问题，再给解决方案</td>
+</tr>
+<tr class="odd">
+<td><strong>2. 核心思想</strong></td>
+<td>建立直觉理解</td>
+<td>类比、可视化、通俗语言</td>
+</tr>
+<tr class="even">
+<td><strong>3. 技术细节</strong></td>
+<td>讲清楚”是什么”和”怎么做”</td>
+<td>公式+直觉解释并重，包含复杂度分析</td>
+</tr>
+<tr class="odd">
+<td><strong>4. 工程实践</strong></td>
+<td>理论落地</td>
+<td>聚焦复现论文，而非生产部署</td>
+</tr>
+<tr class="even">
+<td><strong>5. 深入理解</strong></td>
+<td>理论基础与研究前沿</td>
+<td>边界条件、开放问题——<strong>研究者必读</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>6. 局限性</strong></td>
+<td>为下一章铺垫</td>
+<td>明确说明还有什么问题没解决</td>
+</tr>
+<tr class="even">
+<td><strong>7. 小结</strong></td>
+<td>强化记忆</td>
+<td>提炼核心要点，思考题含研究问题</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="二可选部分" class="level3" data-number="1.7.2">
+<h3 data-number="1.7.2" class="anchored" data-anchor-id="二可选部分"><span class="header-section-number">1.7.2</span> 二、可选部分</h3>
+<p>视章节内容特点选用：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 37%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>部分</th>
+<th>何时使用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>风险卡片</strong></td>
+<td>对齐章节、训练稳定性章节、任何需要讨论”失败模式”的技术</td>
+</tr>
+<tr class="even">
+<td><strong>历史注脚</strong></td>
+<td>有有趣的历史故事、争议或轶事时</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="三灵活调整原则" class="level3" data-number="1.7.3">
+<h3 data-number="1.7.3" class="anchored" data-anchor-id="三灵活调整原则"><span class="header-section-number">1.7.3</span> 三、灵活调整原则</h3>
+<p>不同类型的章节可以调整各部分的比重：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节类型</th>
+<th>调整策略</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>理论核心章节</strong></td>
+<td>扩展 Section 3（完整推导）和 Section 5（理论分析）</td>
+</tr>
+<tr class="even">
+<td><strong>工程导向章节</strong></td>
+<td>扩展 Section 4，但仍保持 Section 5 的理论讨论</td>
+</tr>
+<tr class="odd">
+<td><strong>综述性章节</strong></td>
+<td>弱化单一技术细节，强调对比、演进脉络和开放问题</td>
+</tr>
+<tr class="even">
+<td><strong>过渡性章节</strong></td>
+<td>强调 Section 0 和 6，建立前后连接</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="写作检查清单" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="写作检查清单"><span class="header-section-number">1.8</span> 写作检查清单</h2>
+<section id="开篇检查" class="level3" data-number="1.8.1">
+<h3 data-number="1.8.1" class="anchored" data-anchor-id="开篇检查"><span class="header-section-number">1.8.1</span> 开篇检查</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">是否明确回顾了上一章的痛点？</label></li>
+<li><label><input type="checkbox">是否用一句话预告了本章的核心洞察？</label></li>
+<li><label><input type="checkbox">读者能否理解”为什么需要本章的技术”？</label></li>
+</ul>
+</section>
+<section id="内容检查" class="level3" data-number="1.8.2">
+<h3 data-number="1.8.2" class="anchored" data-anchor-id="内容检查"><span class="header-section-number">1.8.2</span> 内容检查</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">直觉解释是否在数学推导之前？</label></li>
+<li><label><input type="checkbox">每个公式是否都有直觉解释，而不只是推导？</label></li>
+<li><label><input type="checkbox">关键设计决策是否解释了”为什么这样选”？</label></li>
+<li><label><input type="checkbox">是否有复杂度分析（时间/空间/样本）？</label></li>
+<li><label><input type="checkbox">是否有可运行的代码示例？</label></li>
+</ul>
+</section>
+<section id="研究深度检查研究者定位" class="level3" data-number="1.8.3">
+<h3 data-number="1.8.3" class="anchored" data-anchor-id="研究深度检查研究者定位"><span class="header-section-number">1.8.3</span> 研究深度检查（研究者定位）</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">是否讨论了方法的隐含假设？</label></li>
+<li><label><input type="checkbox">是否讨论了方法的失效条件/边界条件？</label></li>
+<li><label><input type="checkbox">是否指出了开放的研究问题？</label></li>
+<li><label><input type="checkbox">延伸阅读是否以论文为核心，并标注”重点读哪部分”？</label></li>
+</ul>
+</section>
+<section id="结尾检查" class="level3" data-number="1.8.4">
+<h3 data-number="1.8.4" class="anchored" data-anchor-id="结尾检查"><span class="header-section-number">1.8.4</span> 结尾检查</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">是否明确指出了本方法的局限性？</label></li>
+<li><label><input type="checkbox">这些局限性是否为下一章埋下了伏笔？</label></li>
+<li><label><input type="checkbox">思考题是否覆盖了不同层次（概念/推导/实践/研究）？</label></li>
+</ul>
+</section>
+<section id="叙事连贯性检查" class="level3" data-number="1.8.5">
+<h3 data-number="1.8.5" class="anchored" data-anchor-id="叙事连贯性检查"><span class="header-section-number">1.8.5</span> 叙事连贯性检查</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">本章开头是否承接上一章结尾的问题？</label></li>
+<li><label><input type="checkbox">本章结尾的局限性是否会在后续章节中被解决？</label></li>
+<li><label><input type="checkbox">整体是否形成”问题→尝试→新问题→新尝试”的演进脉络？</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="示例section-0-的写作范例" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="示例section-0-的写作范例"><span class="header-section-number">1.9</span> 示例：Section 0 的写作范例</h2>
+<p>以「第8章：Transformer」为例：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## 0. 从上一章说起</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>在上一章中，我们见证了 Self-Attention 的诞生——序列内部的元素终于可以</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>直接相互"关注"，而不必通过循环结构逐步传递信息。</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>**Self-Attention 做到了什么**：</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>任意两个位置之间的直接连接（O(1) 路径长度）</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>可并行计算每个位置的表示</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>**但是...**</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>Self-Attention 仍然只是 RNN 的"配件"。当时的主流架构仍然是：</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>RNN + Attention。这带来了一个根本性的问题：</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 既然 Self-Attention 已经能捕获全局依赖，我们还需要 RNN 吗？</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; RNN 的顺序计算成为了训练效率的瓶颈。</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>2017年，Google 的研究团队问了一个大胆的问题：</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>**如果我们完全抛弃循环和卷积，只用 Attention，会怎样？**</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 💡 **本章核心洞察**：Attention Is All You Need——注意力机制不是辅助，</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 而是可以独立支撑整个序列建模任务的核心架构。</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="示例section-3.3-关键设计决策的写作范例" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="示例section-3.3-关键设计决策的写作范例"><span class="header-section-number">1.10</span> 示例：Section 3.3 关键设计决策的写作范例</h2>
+<p>以「Scaled Dot-Product Attention」为例：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.3 关键设计决策</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 决策1：为什么要除以 √d_k？</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>**决策**：在计算 attention score 时，将点积结果除以 √d_k</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>**原因**：</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>当 d_k 较大时，点积的方差会随之增大。假设 q 和 k 的每个分量都是独立的、</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>均值为0、方差为1的随机变量，则 q·k 的方差为 d_k。</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>大方差意味着 softmax 的输入会有极端值，导致梯度消失：</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>softmax(<span class="co">[</span><span class="ot">10, 1, 1</span><span class="co">]</span>) ≈ <span class="co">[</span><span class="ot">0.9999, 0.0001, 0.0001</span><span class="co">]</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>梯度几乎为零，无法有效学习</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>**替代方案**：</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>不做缩放：在 d_k 较小时可行，但无法扩展到大维度</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>除以 d_k：过度缩放，可能损失表达能力</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>可学习的缩放因子：增加参数，但实验表明 √d_k 已足够好</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>**影响**：</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>这个简单的缩放使得 Transformer 可以使用较大的 d_k（如64或128），</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>从而获得更强的表达能力，同时保持训练稳定性。</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="示例section-5-深入理解的写作范例" class="level2" data-number="1.11">
+<h2 data-number="1.11" class="anchored" data-anchor-id="示例section-5-深入理解的写作范例"><span class="header-section-number">1.11</span> 示例：Section 5 深入理解的写作范例</h2>
+<p>以「Transformer」为例：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## 5. 深入理解</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.1 为什么有效？——理论视角</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>**表达能力**：Transformer是通用近似器吗？</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Yun et al. (2020) 证明：Transformer可以以任意精度近似任意连续序列到序列函数</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>关键条件：需要足够的深度和宽度</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>**与图神经网络的联系**：</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Self-attention可以看作在完全图上的消息传递</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>每个位置是一个节点，attention权重是边权重</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.2 为什么有效？——实证视角</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>**消融实验的关键发现**：</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>去掉Multi-Head：性能显著下降，说明多头是必要的</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>去掉FFN：性能下降，FFN负责位置级的非线性变换</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>去掉残差连接：训练不稳定，深层网络无法收敛</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>**规模效应**：</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>更深 vs 更宽：在相同参数量下，更深通常更好</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Head数量的影响：存在最优点，不是越多越好</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.3 方法的边界条件</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>**隐含假设**：</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>假设序列长度可控（O(n²) 复杂度）</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>假设位置信息可以通过编码注入（而非结构归纳）</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>**失效条件**：</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>超长序列：当 n &gt; 10000 时，标准Transformer变得不可行</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>需要强局部性的任务：Transformer的全局注意力可能是overkill</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>**已知的failure modes**：</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>位置泛化失败：训练长度外的位置编码不可靠</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Length generalization：在短序列上训练的模型难以泛化到长序列</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.5 开放研究问题</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**位置编码的最优设计是什么？**</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>正弦、可学习、旋转（RoPE）各有优劣，有没有统一的最优方案？</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**能否设计O(n)复杂度且无性能损失的attention？**</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Linear attention存在性能损失，Flash Attention只是常数优化</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Transformer为什么能泛化？**</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>过参数化的Transformer理论上应该过拟合，但实际泛化很好，为什么？</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+<p><em>模板版本：v2.0</em> <em>创建时间：2026-01-21</em> <em>更新说明：增加研究者定位、Section 5必选、风险卡片格式、复杂度分析、开放问题</em></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

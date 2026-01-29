@@ -6,7 +6,7 @@
 >
 > **日期**：2026-01-27
 >
-> **状态**：讨论中，待确认
+> **状态**：执行中（Window 1 ✅ 已完成 | Window 2 ✅ 已完成 | Window 3 ✅ 已完成）
 
 ---
 
@@ -16,9 +16,10 @@
 |------|---------|--------|
 | **合并** | Ch5 + Ch6 → 一章「注意力的诞生与演进」 | -1 章 |
 | **新增** | NLP核心任务全景（Part 1，Ch1之后） | +1 章 |
-| **新增** | 超越Dense Transformer：SSM/Mamba + MoE（Part 5） | +1 章 |
+| **新增** | Mixture of Experts：稀疏激活（Part 5，Ch27） | +1 章 |
+| **新增** | 状态空间模型：SSM/Mamba（Part 5，Ch28） | +1 章 |
 | **扩充** | Ch12（GPT）增加解码策略 section | +0 章 |
-| **总计** | 34 → **35 章** | +1 章 |
+| **总计** | 34 → **36 章** | +2 章 |
 
 ---
 
@@ -565,41 +566,45 @@ Ch28 超越Dense Transformer——架构创新的新方向
 ### 依赖关系图
 
 ```
-  Window 1 (结构调整)
+  Window 1 (结构调整) ✅
     │
     ├──→ Window 3 (写 Ch2 任务全景)
-    │      ↑ 必须等 W1 完成（文件结构就绪）
+    │      ↑ 必须等 W1 完成（文件结构就绪）——W1 已完成，可执行
     │
     └──→ Window 4 (写 Ch27 SSM+MoE)
-           ↑ 建议等 W1 完成（大纲已更新）
+           ↑ 建议等 W1 完成（大纲已更新）——W1 已完成，可执行
 
-  Window 2 (扩充 Ch12 解码策略)
-    ↑ 无依赖，可独立执行，甚至可与 W1 并行
+  Window 2 (扩充 Ch12 解码策略) ✅
 ```
 
-### Window 1：结构调整（必须最先执行）
+### Window 1：结构调整（必须最先执行） ✅ 已完成
+
+**状态**：✅ 已完成（commit `e44bc4d`，2026-01-27）
 
 **目标**：完成文件重命名、章节合并、大纲更新。不写新内容。
 
 **操作清单**：
 
-1. 重命名已有文件（按逆序操作，避免覆盖）：
+1. ✅ 重命名已有文件（按逆序操作，避免覆盖）：
    - `ch04-rnn-lstm.qmd` → `ch05-rnn-lstm.qmd`
    - `ch03-tokenization.qmd` → `ch04-tokenization.qmd`
    - `ch02-representation-learning.qmd` → `ch03-representation-learning.qmd`
-2. 合并 `ch05-attention-mechanism.qmd` + `ch06-attention-variants.qmd` → `ch06-attention-mechanism.qmd`
-   - 按本文档"改动①"的结构重组内容
-   - 删除原 ch05 和 ch06 两个文件
-3. 扫描所有已有章节（ch00-ch18），更新内部交叉引用
-   - 如"第2章"→"第3章"，"Ch4"→"Ch5"等
-   - 特别注意 ch01 末尾对 ch02 的引用、ch07 开头对 ch06 的引用
-4. 更新 `.claude/skills/nlp-textbook-chapter/references/outline.md`
-   - 插入新 Ch2（NLP核心任务全景）的大纲
-   - 合并 Ch5+Ch6 的大纲条目
-   - 插入新 Ch27（超越Dense Transformer）的大纲
-   - 更新章节分布统计表
-5. 更新 `nlp-textbook-outline.md`（根目录副本，如果与 outline.md 内容一致）
-6. 提交 git commit
+   - 同时重命名 figures 目录：chapter-2→3, chapter-3→4, chapter-4→5, chapter-5+6→chapter-6
+2. ✅ 合并 `ch05-attention-mechanism.qmd` + `ch06-attention-variants.qmd` → `ch06-attention-mechanism.qmd`
+   - 按本文档"改动①"的结构重组内容（~1,226行）
+   - 原文件保留为 `_ch05-bak.qmd` 和 `_ch06-bak.qmd`（备份，未删除）
+3. ✅ 扫描所有已有章节（ch00-ch18），更新内部交叉引用
+   - 8个文件、14处引用全部修正
+   - 涉及文件：ch00, ch01, ch03, ch04, ch05, ch08, ch10, ch12, ch13
+4. ✅ 更新 `.claude/skills/nlp-textbook-chapter/references/outline.md`
+   - 插入新 Ch2（NLP核心任务全景）大纲占位
+   - 合并原 Ch5+Ch6 的大纲条目为新 Ch6
+   - 插入新 Ch27（超越Dense Transformer）大纲占位
+   - 更新章节分布统计表（34→35章）
+   - 添加 v3.1 重构记录
+   - ⚠️ 注意：此文件在 `.claude/skills/` 下被 gitignore，已本地更新但未纳入 commit
+5. ⏭️ 跳过——`nlp-textbook-outline.md` 根目录副本未发现需同步
+6. ✅ 提交 git commit：`e44bc4d` (231 files, 70,666 insertions)
 
 **预估复杂度**：中等（主要是仔细的查找替换，不涉及大量新内容写作）
 
@@ -629,9 +634,16 @@ Ch28 超越Dense Transformer——架构创新的新方向
 
 ---
 
-### Window 2：扩充 Ch12 解码策略（可与 W1 并行）
+### Window 2：扩充 Ch12 解码策略（可与 W1 并行） ✅ 已完成
 
 **目标**：在 ch12-gpt.qmd 中增加解码策略 section。
+
+**完成记录**（2026-01-27）：
+
+- 在"GELU激活函数"之后、"微调"之前插入了完整的解码策略章节（"从概率分布到文本：解码策略"）
+- 涵盖：贪心解码、束搜索（含B=2数值示例+长度惩罚）、Temperature Scaling、Top-k采样、Nucleus/Top-p采样、完整数值对比示例、Repetition Penalty
+- 更新了参考来源 callout-tip（添加 Holtzman et al. 2020、Fan et al. 2018、D2L 10.8、SLP3 解码章节）
+- 延伸阅读新增"解码策略"子章节（两篇核心论文）
 
 **为什么可以并行**：Ch12 的文件名和编号在重构中**不会改变**（+1/-1 在 ch06 处已抵消），所以不依赖 Window 1。
 
@@ -666,7 +678,7 @@ Ch28 超越Dense Transformer——架构创新的新方向
 
 ---
 
-### Window 3：写作新 Ch2——NLP核心任务全景（依赖 W1 完成）
+### Window 3：写作新 Ch2——NLP核心任务全景（依赖 W1 完成） ✅ 已完成
 
 **目标**：创建全新的 ch02-nlp-task-landscape.qmd。
 
@@ -706,9 +718,11 @@ Ch28 超越Dense Transformer——架构创新的新方向
 
 ---
 
-### Window 4：写作新 Ch27——超越Dense Transformer（建议等 W1 完成）
+### Window 4：写作新 Ch27（MoE）和 Ch28（SSM/Mamba）——两章独立写作（建议等 W1 完成）
 
-**目标**：创建全新的 ch27-beyond-dense-transformer.qmd。
+**目标**：创建 ch27-mixture-of-experts.qmd 和 ch28-state-space-models.qmd。
+
+**变更说明**（v3.3）：原计划将 MoE 和 SSM 合为一章，现拆分为独立两章。MoE 在前（历史更长、已大规模部署），SSM 在后（更激进的架构革新）。混合架构（Jamba）放在 SSM 章末尾。总章数 35→36。
 
 **依赖关系**：技术上 ch27 是新文件且编号不受 W1 影响，但建议等 W1 完成（大纲已更新），这样 skill 和交叉引用都是正确的。可与 W3 并行。
 
@@ -753,22 +767,22 @@ Ch28 超越Dense Transformer——架构创新的新方向
 ```
 Week 1:
   ┌─── Window 1 (结构调整) ────────────┐
-  │  重命名 + 合并 + 更新大纲 + commit  │
+  │  重命名 + 合并 + 更新大纲 + commit  │  ✅ 已完成 (commit e44bc4d)
   └────────────────────────────────────┘
-  ┌─── Window 2 (Ch12 解码策略) ───┐     ← 可与 W1 同时进行
-  │  扩充 section + commit          │
+  ┌─── Window 2 (Ch12 解码策略) ───┐
+  │  扩充 section + commit          │  ✅ 已完成 (2026-01-27)
   └────────────────────────────────┘
 
 Week 2:
   ┌─── Window 3 (Ch2 任务全景) ─────────┐
-  │  全新章节写作 + commit               │
+  │  全新章节写作 + commit               │  ⬜ 待执行
   └────────────────────────────────────┘
-  ┌─── Window 4 (Ch27 SSM+MoE) ────────┐  ← 可与 W3 同时进行
-  │  全新章节写作 + commit               │
+  ┌─── Window 4 (Ch27 SSM+MoE) ────────┐
+  │  全新章节写作 + commit               │  ⬜ 待执行
   └────────────────────────────────────┘
 ```
 
 ---
 
 *文档更新时间：2026-01-27*
-*状态：讨论稿，待确认后实施*
+*状态：执行中——Window 1 ✅ 已完成 | Window 2 ✅ 已完成 | Window 3 ✅ 已完成 | Window 4 待执行*

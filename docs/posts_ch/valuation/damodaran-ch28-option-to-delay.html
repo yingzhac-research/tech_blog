@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="为什么 NPV 为负的项目可能仍然有价值？本章将金融期权的框架映射到实物资产，系统解析延迟期权的估值方法，涵盖专利估值（Avonex/Biogen）、自然资源储量（Gulf Oil）、空置土地等核心应用。">
+
+<title>【第28章】延迟期权：当「等一等」比「现在做」更值钱 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个问题开始" id="toc-从一个问题开始" class="nav-link active" data-scroll-target="#从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</a></li>
+  <li><a href="#实物期权魅力与陷阱" id="toc-实物期权魅力与陷阱" class="nav-link" data-scroll-target="#实物期权魅力与陷阱"><span class="header-section-number">2</span> 实物期权：魅力与陷阱</a>
+  <ul class="collapse">
+  <li><a href="#期权的魅力为什么不确定性变成了朋友" id="toc-期权的魅力为什么不确定性变成了朋友" class="nav-link" data-scroll-target="#期权的魅力为什么不确定性变成了朋友"><span class="header-section-number">2.1</span> 期权的魅力：为什么不确定性变成了朋友？</a></li>
+  <li><a href="#识别期权性什么才是真正的期权" id="toc-识别期权性什么才是真正的期权" class="nav-link" data-scroll-target="#识别期权性什么才是真正的期权"><span class="header-section-number">2.2</span> 识别期权性：什么才是真正的期权？</a></li>
+  <li><a href="#期权定价模型能用吗" id="toc-期权定价模型能用吗" class="nav-link" data-scroll-target="#期权定价模型能用吗"><span class="header-section-number">2.3</span> 期权定价模型能用吗？</a></li>
+  </ul></li>
+  <li><a href="#延迟期权的估值框架" id="toc-延迟期权的估值框架" class="nav-link" data-scroll-target="#延迟期权的估值框架"><span class="header-section-number">3</span> 延迟期权的估值框架</a>
+  <ul class="collapse">
+  <li><a href="#将项目视为看涨期权" id="toc-将项目视为看涨期权" class="nav-link" data-scroll-target="#将项目视为看涨期权"><span class="header-section-number">3.1</span> 将项目视为看涨期权</a></li>
+  <li><a href="#延迟期权的输入参数" id="toc-延迟期权的输入参数" class="nav-link" data-scroll-target="#延迟期权的输入参数"><span class="header-section-number">3.2</span> 延迟期权的输入参数</a></li>
+  <li><a href="#illustration-28.1延迟期权估值案例" id="toc-illustration-28.1延迟期权估值案例" class="nav-link" data-scroll-target="#illustration-28.1延迟期权估值案例"><span class="header-section-number">3.3</span> Illustration 28.1：延迟期权估值案例</a></li>
+  <li><a href="#从-black-scholes-到二叉树" id="toc-从-black-scholes-到二叉树" class="nav-link" data-scroll-target="#从-black-scholes-到二叉树"><span class="header-section-number">3.4</span> 从 Black-Scholes 到二叉树</a></li>
+  <li><a href="#延迟期权估值的局限性" id="toc-延迟期权估值的局限性" class="nav-link" data-scroll-target="#延迟期权估值的局限性"><span class="header-section-number">3.5</span> 延迟期权估值的局限性</a></li>
+  </ul></li>
+  <li><a href="#专利估值将药物视为期权" id="toc-专利估值将药物视为期权" class="nav-link" data-scroll-target="#专利估值将药物视为期权"><span class="header-section-number">4</span> 专利估值：将药物视为期权</a>
+  <ul class="collapse">
+  <li><a href="#专利的期权性质" id="toc-专利的期权性质" class="nav-link" data-scroll-target="#专利的期权性质"><span class="header-section-number">4.1</span> 专利的期权性质</a></li>
+  <li><a href="#illustration-28.2avonex-专利估值1997" id="toc-illustration-28.2avonex-专利估值1997" class="nav-link" data-scroll-target="#illustration-28.2avonex-专利估值1997"><span class="header-section-number">4.2</span> Illustration 28.2：Avonex 专利估值（1997）</a></li>
+  <li><a href="#竞争压力与期权价值" id="toc-竞争压力与期权价值" class="nav-link" data-scroll-target="#竞争压力与期权价值"><span class="header-section-number">4.3</span> 竞争压力与期权价值</a></li>
+  <li><a href="#illustration-28.3biogen-公司估值1997" id="toc-illustration-28.3biogen-公司估值1997" class="nav-link" data-scroll-target="#illustration-28.3biogen-公司估值1997"><span class="header-section-number">4.4</span> Illustration 28.3：Biogen 公司估值（1997）</a></li>
+  <li><a href="#专利到期后还有价值吗" id="toc-专利到期后还有价值吗" class="nav-link" data-scroll-target="#专利到期后还有价值吗"><span class="header-section-number">4.5</span> 专利到期后还有价值吗？</a></li>
+  </ul></li>
+  <li><a href="#自然资源期权石油储量估值" id="toc-自然资源期权石油储量估值" class="nav-link" data-scroll-target="#自然资源期权石油储量估值"><span class="header-section-number">5</span> 自然资源期权：石油储量估值</a>
+  <ul class="collapse">
+  <li><a href="#储量的期权性质" id="toc-储量的期权性质" class="nav-link" data-scroll-target="#储量的期权性质"><span class="header-section-number">5.1</span> 储量的期权性质</a></li>
+  <li><a href="#输入参数详解" id="toc-输入参数详解" class="nav-link" data-scroll-target="#输入参数详解"><span class="header-section-number">5.2</span> 输入参数详解</a></li>
+  <li><a href="#illustration-28.4石油储量估值" id="toc-illustration-28.4石油储量估值" class="nav-link" data-scroll-target="#illustration-28.4石油储量估值"><span class="header-section-number">5.3</span> Illustration 28.4：石油储量估值</a></li>
+  <li><a href="#illustration-28.5gulf-oil-公司估值1984" id="toc-illustration-28.5gulf-oil-公司估值1984" class="nav-link" data-scroll-target="#illustration-28.5gulf-oil-公司估值1984"><span class="header-section-number">5.4</span> Illustration 28.5：Gulf Oil 公司估值（1984）</a></li>
+  </ul></li>
+  <li><a href="#其他应用" id="toc-其他应用" class="nav-link" data-scroll-target="#其他应用"><span class="header-section-number">6</span> 其他应用</a>
+  <ul class="collapse">
+  <li><a href="#空置土地" id="toc-空置土地" class="nav-link" data-scroll-target="#空置土地"><span class="header-section-number">6.1</span> 空置土地</a></li>
+  <li><a href="#版权和许可证" id="toc-版权和许可证" class="nav-link" data-scroll-target="#版权和许可证"><span class="header-section-number">6.2</span> 版权和许可证</a></li>
+  </ul></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">7</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第28章】延迟期权：当「等一等」比「现在做」更值钱</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    为什么 NPV 为负的项目可能仍然有价值？本章将金融期权的框架映射到实物资产，系统解析延迟期权的估值方法，涵盖专利估值（Avonex/Biogen）、自然资源储量（Gulf Oil）、空置土地等核心应用。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月28日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个问题开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个问题开始"><span class="header-section-number">1</span> 从一个问题开始</h2>
+<p>假设你面前有一个投资项目：</p>
+<ul>
+<li>初始投资：5000 万美元</li>
+<li>预期年税后现金流：1000 万美元</li>
+<li>项目寿命：5 年</li>
+<li>折现率：15%</li>
+</ul>
+<p>让我们快速算一下 NPV：</p>
+<p><span class="math display">\[
+\text{NPV} = -5000 + 1000 \times \frac{1 - 1.15^{-5}}{0.15} = -5000 + 3350 = -1650 \text{ 万美元}
+\]</span></p>
+<p>NPV 为负，传统投资分析的建议很明确：<strong>不要投资</strong>。</p>
+<p>但现在问你一个问题：<strong>如果你能获得这个项目未来 5 年的独家投资权，你愿意为这个权利支付多少钱？</strong></p>
+<p>传统分析会说：零。NPV 为负的项目毫无价值。</p>
+<p>但 Damodaran 告诉我们：<strong>这个权利可能值 100 万美元，甚至更多</strong>。</p>
+<p>为什么？因为项目的现金流是<strong>不确定的</strong>。如果市场条件改善，那个今天 NPV 为负的项目，可能在两年后变成 NPV 为正。而你持有的「独家投资权」，让你可以<strong>等待</strong>——等到项目变得有利可图时再投资。</p>
+<p>这就是<strong>延迟期权</strong>（Option to Delay）的核心思想：<strong>等待的权利本身就有价值</strong>。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>本章的核心信息
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>传统 NPV 分析假设「现在或永不」——要么今天投资，要么永远放弃。但现实中，很多项目允许你<strong>等待和观察</strong>。这种灵活性具有价值，而期权定价模型能帮我们量化这种价值。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>传统 NPV 分析</th>
+<th>实物期权分析</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>静态决策：现在投 or 不投</td>
+<td>动态决策：何时投最优</td>
+</tr>
+<tr class="even">
+<td>不确定性 = 风险 = 坏事</td>
+<td>不确定性 = 期权价值 = 可能是好事</td>
+</tr>
+<tr class="odd">
+<td>NPV &lt; 0 → 项目无价值</td>
+<td>NPV &lt; 0 → 项目权利可能有价值</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>本章将深入探讨：</p>
+<ul>
+<li>实物期权的<strong>魅力与陷阱</strong>——为什么不是所有「机会」都是期权</li>
+<li><strong>延迟期权</strong>的估值框架——如何将 Black-Scholes 映射到实物项目</li>
+<li><strong>专利估值</strong>——Avonex 药物专利和 Biogen 公司案例</li>
+<li><strong>自然资源期权</strong>——石油储量和 Gulf Oil 收购案</li>
+<li><strong>其他应用</strong>——空置土地、版权和许可证</li>
+</ul>
+</section>
+<section id="实物期权魅力与陷阱" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="实物期权魅力与陷阱"><span class="header-section-number">2</span> 实物期权：魅力与陷阱</h2>
+<section id="期权的魅力为什么不确定性变成了朋友" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="期权的魅力为什么不确定性变成了朋友"><span class="header-section-number">2.1</span> 期权的魅力：为什么不确定性变成了朋友？</h3>
+<p>在第 5 章，我们学习了期权定价的基础知识。回顾一下期权的独特收益结构：</p>
+<p><strong>看涨期权的收益图</strong>：</p>
+<pre><code>收益
+  ^
+  |          /
+  |         /
+  |        /
+  |-------*---------&gt; 标的资产价格
+  |       K（执行价）
+  | 有限损失</code></pre>
+<p>期权的魔力在于<strong>非对称的收益结构</strong>： - 下行风险有限（最多损失期权费） - 上行收益无限</p>
+<p>这意味着一个反直觉的结论：<strong>不确定性越大，期权越值钱</strong>。</p>
+<p>为什么？让我们用一个简单的决策树来说明。</p>
+<p><strong>情景 A：简单决策（无分阶段）</strong></p>
+<pre><code>         现在
+          |
+     /         \
+概率 1/2      概率 1/2
+   |             |
++1亿美元      -1.2亿美元</code></pre>
+<p>期望值 = 0.5 × 1 + 0.5 × (-1.2) = <strong>-0.1 亿美元</strong></p>
+<p>你不会接受这个投资。</p>
+<p><strong>情景 B：两阶段决策（可以观察和调整）</strong></p>
+<pre><code>              现在
+               |
+          /         \
+     概率 3/4      概率 1/4
+        |             |
+    +0.2亿         -0.2亿 → 停止
+        |
+   /         \
+概率 2/3      概率 1/3
+   |             |
++0.8亿        -1亿</code></pre>
+<p>注意关键区别：如果第一阶段结果不好（概率 1/4），你可以<strong>停止</strong>，只损失 0.2 亿，而不是继续投入面对 -1.2 亿的可能。</p>
+<p>期望值 = 0.25 × (-0.2) + 0.75 × [0.2 + (2/3) × 0.8 + (1/3) × (-1)] = -0.05 + 0.75 × [0.2 + 0.533 - 0.333] = -0.05 + 0.75 × 0.4 = <strong>+0.25 亿美元</strong></p>
+<p>同样的总体上行和下行幅度，但分阶段决策将期望值从 -0.1 亿变成了 +0.25 亿！</p>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>实物期权的价值来源</strong>：</p>
+<ol type="1">
+<li><strong>观察和学习</strong>：你可以等待，看市场如何演变</li>
+<li><strong>适应性行为</strong>：根据新信息调整决策（继续 or 放弃）</li>
+<li><strong>损失截断</strong>：在坏结果发生时，及时止损</li>
+</ol>
+<p>这就是为什么石油公司会持有未开发的油田——当油价高时开发，油价低时等待。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="识别期权性什么才是真正的期权" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="识别期权性什么才是真正的期权"><span class="header-section-number">2.2</span> 识别期权性：什么才是真正的期权？</h3>
+<p>大多数资产都有某种程度的「期权性」，但大多数期权几乎没有价值。要让期权真正有价值，你需要<strong>排他性</strong>（Exclusivity）。</p>
+<p><strong>机会 ≠ 期权</strong></p>
+<p>很多实物期权的拥护者会用「期权」来为进入大市场支付溢价辩护——比如 2000 年代初进入中国市场，或 2024 年进入 AI 领域。</p>
+<p>但问题是：<strong>进入大市场的机会，对所有人都开放</strong>。如果你没有排他性，你就没有期权——你只有一个机会，而这个机会的价值应该用传统 DCF 来评估。</p>
+<p><strong>真正的期权需要排他性</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>排他性来源</th>
+<th>例子</th>
+<th>期权价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>法律保护</strong></td>
+<td>专利、版权、许可证</td>
+<td>高</td>
+</tr>
+<tr class="even">
+<td><strong>自然稀缺</strong></td>
+<td>石油/矿产储量</td>
+<td>高</td>
+</tr>
+<tr class="odd">
+<td><strong>先发优势</strong></td>
+<td>品牌、客户锁定</td>
+<td>中等</td>
+</tr>
+<tr class="even">
+<td><strong>无排他性</strong></td>
+<td>「进入 AI 行业」</td>
+<td>几乎为零</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>常见误区：把「机会」当「期权」
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>2024 年，很多公司以「AI 期权」为由，为高估值辩护。但问问自己：</p>
+<ul>
+<li>这家公司有什么<strong>独家</strong>的东西？专利？独家数据？独家合作？</li>
+<li>如果没有，竞争对手也可以做同样的事</li>
+</ul>
+<p>没有排他性，就没有期权价值。不要为「进入大市场」支付期权溢价。</p>
+</div>
+</div>
+</section>
+<section id="期权定价模型能用吗" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="期权定价模型能用吗"><span class="header-section-number">2.3</span> 期权定价模型能用吗？</h3>
+<p>在第 5 章，我们介绍了 Black-Scholes 和二叉树模型。这些模型建立在两个支柱上：</p>
+<ol type="1">
+<li><strong>复制</strong>：用标的资产和无风险借贷构建一个与期权收益相同的组合</li>
+<li><strong>套利</strong>：如果期权价格偏离复制组合价格，套利者会消除差异</li>
+</ol>
+<p>对于上市股票期权，这两个支柱都很稳固。但对于实物期权，情况就复杂了：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>问题</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产不可交易</td>
+<td>无法实际构建复制组合</td>
+</tr>
+<tr class="even">
+<td>期权本身不可交易</td>
+<td>无法通过套利纠正定价偏差</td>
+</tr>
+<tr class="odd">
+<td>波动率难以估计</td>
+<td>期权价格的关键输入存在很大误差</td>
+</tr>
+</tbody>
+</table>
+<p><strong>那还能用期权模型吗？</strong></p>
+<p>Damodaran 的观点是：<strong>可以用，但要理解局限性</strong>。</p>
+<ul>
+<li>即使无法实际交易复制组合，你仍然可以在纸上构建它，并据此定价</li>
+<li>Black-Scholes 通常给出<strong>保守估计</strong>（因为它不考虑提前行权）</li>
+<li>你可以通过<strong>提高折现率</strong>或<strong>应用流动性折扣</strong>来反映实物期权的限制</li>
+</ul>
+<p>本章后面的案例中，我们会同时展示 Black-Scholes 和二叉树的结果，让你看到差异（或者说，差异的缺乏）。</p>
+</section>
+</section>
+<section id="延迟期权的估值框架" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="延迟期权的估值框架"><span class="header-section-number">3</span> 延迟期权的估值框架</h2>
+<section id="将项目视为看涨期权" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="将项目视为看涨期权"><span class="header-section-number">3.1</span> 将项目视为看涨期权</h3>
+<p>假设一个项目需要初始投资 <span class="math inline">\(X\)</span>，如果今天投资，预期现金流的现值为 <span class="math inline">\(V\)</span>。</p>
+<p>传统 NPV 分析：</p>
+<p><span class="math display">\[
+\text{NPV} = V - X
+\]</span></p>
+<p>如果 NPV &lt; 0，不投资。故事结束。</p>
+<p>但如果公司拥有这个项目未来 <span class="math inline">\(n\)</span> 年的<strong>独家投资权</strong>呢？</p>
+<p>在这 <span class="math inline">\(n\)</span> 年里： - 如果 <span class="math inline">\(V\)</span> 上升到超过 <span class="math inline">\(X\)</span>，投资变得有利可图 - 如果 <span class="math inline">\(V\)</span> 始终低于 <span class="math inline">\(X\)</span>，可以选择不投资</p>
+<p>这个决策规则可以写成：</p>
+<p><span class="math display">\[
+\text{项目收益} = \max(V - X, 0)
+\]</span></p>
+<p><strong>等等，这不就是看涨期权的收益结构吗？</strong></p>
+<pre><code>项目收益
+   ^
+   |          /
+   |         /
+   |        /
+   |-------*---------&gt; V（项目现值）
+   |       X（投资成本）
+   | 如果V&lt;X，不投资，损失=0</code></pre>
+<p>没错！<strong>延迟期权本质上就是一个看涨期权</strong>，其中：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>看涨期权术语</th>
+<th>延迟期权对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产价格 S</td>
+<td>项目现金流现值 V</td>
+</tr>
+<tr class="even">
+<td>执行价格 K</td>
+<td>初始投资成本 X</td>
+</tr>
+<tr class="odd">
+<td>到期时间 T</td>
+<td>独家投资权的期限</td>
+</tr>
+<tr class="even">
+<td>波动率 σ</td>
+<td>项目现值的波动率</td>
+</tr>
+<tr class="odd">
+<td>股息率 y</td>
+<td>延迟成本（放弃的现金流）</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="延迟期权的输入参数" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="延迟期权的输入参数"><span class="header-section-number">3.2</span> 延迟期权的输入参数</h3>
+<section id="标的资产价值项目现金流现值" class="level4" data-number="3.2.1">
+<h4 data-number="3.2.1" class="anchored" data-anchor-id="标的资产价值项目现金流现值"><span class="header-section-number">3.2.1</span> 标的资产价值：项目现金流现值</h4>
+<p>这是「如果今天投资，预期现金流的现值」——<strong>不包括</strong>初始投资。</p>
+<p>你可以用标准的 DCF 方法计算：预测现金流，用风险调整后的折现率折现。</p>
+<p><strong>关键点</strong>：估计中可能存在很大误差，特别是对于新业务或新技术。但不要把这看成问题——正是这种<strong>不确定性</strong>赋予了期权价值。如果现金流完全确定，就没有必要等待和观察。</p>
+</section>
+<section id="波动率项目价值的方差" class="level4" data-number="3.2.2">
+<h4 data-number="3.2.2" class="anchored" data-anchor-id="波动率项目价值的方差"><span class="header-section-number">3.2.2</span> 波动率：项目价值的方差</h4>
+<p>如何估计一个不可交易项目的价值波动率？三种方法：</p>
+<ol type="1">
+<li><strong>历史类比法</strong>：如果公司以前投资过类似项目，可以用那些项目现金流的历史方差
+<ul>
+<li>例如：宝洁推出新剃须刀，可以参考以前剃须刀产品的表现方差</li>
+</ul></li>
+<li><strong>情景模拟法</strong>：为关键输入（市场规模、市场份额、利润率）设定概率分布，模拟得出现值的方差
+<ul>
+<li>适合只有一两个主要不确定性来源的项目</li>
+</ul></li>
+<li><strong>可比公司法</strong>：用同行业上市公司股价的波动率作为项目价值波动率的估计
+<ul>
+<li>例如：软件项目可以用软件行业公司的价值波动率</li>
+</ul></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>波动率与期权价值
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>期权价值很大程度上来自波动率。<strong>波动率越高，期权越值钱</strong>。</p>
+<p>这意味着： - 稳定行业的项目延迟期权价值较低 - 技术、竞争、市场都在快速变化的行业，延迟期权价值较高</p>
+<p>这也解释了为什么科技公司和生物技术公司经常被认为有「期权价值」——它们的不确定性很高。</p>
+</div>
+</div>
+</section>
+<section id="执行价格初始投资成本" class="level4" data-number="3.2.3">
+<h4 data-number="3.2.3" class="anchored" data-anchor-id="执行价格初始投资成本"><span class="header-section-number">3.2.3</span> 执行价格：初始投资成本</h4>
+<p>当公司决定投资时，需要支付的初始成本。这就是期权的执行价格。</p>
+<p>我们通常假设这个成本（以现值美元计）保持不变，任何不确定性都反映在项目现金流的现值中。这是一个简化假设，但它使估值更容易。</p>
+</section>
+<section id="到期时间和无风险利率" class="level4" data-number="3.2.4">
+<h4 data-number="3.2.4" class="anchored" data-anchor-id="到期时间和无风险利率"><span class="header-section-number">3.2.4</span> 到期时间和无风险利率</h4>
+<p><strong>到期时间</strong>：独家投资权持续多长时间。</p>
+<ul>
+<li>如果有明确的法律期限（如专利期、租约期），这很容易确定</li>
+<li>如果是「竞争优势」这种模糊的排他性，需要估计优势能持续多久</li>
+</ul>
+<p><strong>无风险利率</strong>：使用与到期时间匹配的国债收益率。</p>
+</section>
+<section id="延迟成本期权中的股息率" class="level4" data-number="3.2.5">
+<h4 data-number="3.2.5" class="anchored" data-anchor-id="延迟成本期权中的股息率"><span class="header-section-number">3.2.5</span> 延迟成本：期权中的「股息率」</h4>
+<p>在第 5 章，我们学过：对于付息股票，股息会降低看涨期权的价值，因为期权持有者不能获得股息。</p>
+<p>延迟期权也有类似的「延迟成本」：<strong>如果项目 NPV 已经为正，每等待一年，你就放弃了一年的正现金流</strong>。</p>
+<p>两种估计方法：</p>
+<p><strong>方法一：基于项目寿命</strong></p>
+<p>如果独家投资权期限为 <span class="math inline">\(n\)</span> 年，且现金流均匀分布：</p>
+<p><span class="math display">\[
+\text{年延迟成本} = \frac{1}{n}
+\]</span></p>
+<p>例如：20 年的独家投资权，第一年的延迟成本 = 1/20 = 5%。</p>
+<p>注意：延迟成本会随时间<strong>递增</strong>。第二年是 1/19，第三年是 1/18…</p>
+<p><strong>方法二：基于现金流</strong></p>
+<p><span class="math display">\[
+\text{延迟成本} = \frac{\text{下一期预期现金流}}{\text{当前项目现值}}
+\]</span></p>
+<p>这种方法更通用，适用于现金流不均匀的情况。</p>
+</section>
+</section>
+<section id="illustration-28.1延迟期权估值案例" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="illustration-28.1延迟期权估值案例"><span class="header-section-number">3.3</span> Illustration 28.1：延迟期权估值案例</h3>
+<p>让我们回到开头的例子，但用期权框架重新分析。</p>
+<p><strong>情景设定</strong>：</p>
+<p>你有机会获得一项新产品的独家营销权，该产品可以让商务旅客更方便地远程访问工作电脑上的文件。</p>
+<ul>
+<li>初始基础设施投资：5000 万美元</li>
+<li>预期年税后现金流：1000 万美元</li>
+<li>预期无重大竞争期：5 年</li>
+<li>项目折现率：15%（基于项目风险）</li>
+</ul>
+<p><strong>传统 NPV 分析</strong>：</p>
+<p><span class="math display">\[
+\text{NPV} = -5000 + 1000 \times \frac{1 - 1.15^{-5}}{0.15} = -5000 + 3350 = -1650 \text{ 万美元}
+\]</span></p>
+<p>项目 NPV 为负。传统分析说：不投资。</p>
+<p><strong>但这里有个关键信息</strong>：最大的不确定性来自<strong>潜在用户数量</strong>。市场测试表明，初期用户可能很少，但也可能市场比预期大得多。</p>
+<p>模拟分析显示：现金流现值的标准差为 <strong>42%</strong>。</p>
+<p><strong>期权定价输入参数</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>符号</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产价值（如果今天投资的现金流现值）</td>
+<td>S</td>
+<td>3350 万美元</td>
+</tr>
+<tr class="even">
+<td>执行价格（初始投资）</td>
+<td>K</td>
+<td>5000 万美元</td>
+</tr>
+<tr class="odd">
+<td>波动率</td>
+<td>σ</td>
+<td>42%</td>
+</tr>
+<tr class="even">
+<td>到期时间（独家投资权期限）</td>
+<td>T</td>
+<td>5 年</td>
+</tr>
+<tr class="odd">
+<td>延迟成本</td>
+<td>y</td>
+<td>1/5 = 20%</td>
+</tr>
+<tr class="even">
+<td>无风险利率（5年期）</td>
+<td>r</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Black-Scholes 计算</strong>：</p>
+<p>首先计算 <span class="math inline">\(d_1\)</span> 和 <span class="math inline">\(d_2\)</span>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(S/K) + (r - y + \sigma^2/2) \times T}{\sigma \sqrt{T}} = \frac{\ln(3350/5000) + (0.05 - 0.20 + 0.42^2/2) \times 5}{0.42 \times \sqrt{5}}
+\]</span></p>
+<p><span class="math display">\[
+d_1 = \frac{-0.4005 + (-0.0618) \times 5}{0.9391} = \frac{-0.4005 - 0.309}{0.9391} \approx -0.755
+\]</span></p>
+<p><span class="math display">\[
+d_2 = d_1 - \sigma\sqrt{T} = -0.755 - 0.9391 \approx -1.694
+\]</span></p>
+<p><span class="math display">\[
+N(d_1) \approx 0.2250, \quad N(d_2) \approx 0.0451
+\]</span></p>
+<p>期权价值：</p>
+<p><span class="math display">\[
+C = S \cdot e^{-yT} \cdot N(d_1) - K \cdot e^{-rT} \cdot N(d_2)
+\]</span></p>
+<p><span class="math display">\[
+C = 3350 \times e^{-0.20 \times 5} \times 0.2250 - 5000 \times e^{-0.05 \times 5} \times 0.0451
+\]</span></p>
+<p><span class="math display">\[
+C = 3350 \times 0.3679 \times 0.2250 - 5000 \times 0.7788 \times 0.0451
+\]</span></p>
+<p><span class="math display">\[
+C = 277.3 - 175.5 = 101.9 \text{ 万美元}
+\]</span></p>
+<p><strong>结论</strong>：</p>
+<ul>
+<li>传统 NPV：-1650 万美元（项目「无价值」）</li>
+<li>期权价值：<strong>101.9 万美元</strong></li>
+</ul>
+<p>这个 NPV 为负的项目的独家投资权，价值约 <strong>102 万美元</strong>！</p>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>为什么 NPV 为负但期权有价值？</strong></p>
+<ol type="1">
+<li><strong>不确定性的价值</strong>：42% 的波动率意味着项目现值可能大幅上升</li>
+<li><strong>有限下行</strong>：如果市场不好，你可以选择不投资，损失为零</li>
+<li><strong>时间的价值</strong>：你有 5 年时间等待和观察</li>
+</ol>
+<p><strong>但也要注意</strong>：N(d2) = 0.0451 非常低，说明项目在到期前变得可行的<strong>概率很低</strong>（约 4.5%）。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="从-black-scholes-到二叉树" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="从-black-scholes-到二叉树"><span class="header-section-number">3.4</span> 从 Black-Scholes 到二叉树</h3>
+<p>在实践中，很多人更喜欢用二叉树模型来估值实物期权，原因是：</p>
+<ol type="1">
+<li><strong>实物期权通常会提前行权</strong>——不像上市期权，实物期权往往在价内时就应该行权</li>
+<li><strong>二叉树允许更灵活的价格过程</strong>——不限于 Black-Scholes 假设的对数正态分布</li>
+</ol>
+<p><strong>如何从 Black-Scholes 参数转换到二叉树？</strong></p>
+<p>假设年波动率为 σ，无风险利率为 r，延迟成本（股息率）为 y：</p>
+<p><span class="math display">\[
+u = e^{\sigma\sqrt{\Delta t} + (r - y - \sigma^2/2) \Delta t}
+\]</span></p>
+<p><span class="math display">\[
+d = e^{-\sigma\sqrt{\Delta t} + (r - y - \sigma^2/2) \Delta t}
+\]</span></p>
+<p>其中 <span class="math inline">\(\Delta t\)</span> = 1/（每年期数）。如果每年是一个期间，<span class="math inline">\(\Delta t = 1\)</span>。</p>
+<p>对于 Illustration 28.1 的参数（σ = 42%, r = 5%, y = 20%）：</p>
+<p><span class="math display">\[
+u = e^{0.42\sqrt{1} + (0.05 - 0.20 - 0.42^2/2) \times 1} = e^{0.42 - 0.2382} = e^{0.1818} = 1.1994
+\]</span></p>
+<p><span class="math display">\[
+d = e^{-0.42 + (0.05 - 0.20 - 0.42^2/2)} = e^{-0.42 - 0.2382} = e^{-0.6582} = 0.5178
+\]</span></p>
+<p>从初始值 3350 万美元出发：</p>
+<ul>
+<li>上涨后：3350 × 1.1994 = <strong>4018 万美元</strong></li>
+<li>下跌后：3350 × 0.5178 = <strong>1735 万美元</strong></li>
+</ul>
+<p>五期二叉树的终端节点值从 1.25 万美元到 83.14 万美元不等（见下图）。</p>
+<pre><code>                                               83.14
+                                         69.32 /
+                                   57.80 /     \ 35.89
+                             48.19 /     \ 29.93
+                       40.18 /     \ 24.95      \ 15.50
+                 33.5 /     \ 20.80      \ 12.92
+                     \ 17.35      \ 10.77      \ 6.69
+                            \ 8.98       \ 5.58
+                                   \ 4.65      \ 2.89
+                                         \ 2.41
+                                               \ 1.25</code></pre>
+<p>用二叉树模型计算的期权价值为 <strong>102 万美元</strong>，与 Black-Scholes 的 101.9 万美元几乎相同。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>Black-Scholes vs 二叉树
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在这个案例中，两种模型给出几乎相同的结果。差异会在以下情况下变大：</p>
+<ul>
+<li>期权深度价内（更可能提前行权）</li>
+<li>价格过程偏离对数正态假设</li>
+</ul>
+<p>对于大多数实物期权估值，Black-Scholes 提供了一个<strong>保守的下界</strong>。如果需要更精确的估值，可以用二叉树。</p>
+</div>
+</div>
+</section>
+<section id="延迟期权估值的局限性" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="延迟期权估值的局限性"><span class="header-section-number">3.5</span> 延迟期权估值的局限性</h3>
+<p>虽然期权框架提供了有价值的视角，但也存在一些实践问题：</p>
+<p><strong>问题一：标的资产不可交易</strong></p>
+<p>期权定价依赖于复制和套利。但项目本身不能交易，你无法实际构建复制组合。</p>
+<p><strong>应对策略</strong>： - 用更高的折现率计算项目现值（作为 S），降低标的资产价值 - 对计算出的期权价值应用流动性折扣</p>
+<p><strong>问题二：价格过程假设</strong></p>
+<p>Black-Scholes 假设价格遵循扩散过程，波动率不变。但项目价值可能因技术变革、政策变化等发生<strong>跳跃式变化</strong>。</p>
+<p><strong>问题三：独家投资权期限模糊</strong></p>
+<p>专利有明确的期限，但「竞争优势」可能随时被侵蚀。</p>
+<p><strong>问题四：延迟成本难以估计</strong></p>
+<p>如果不投资，竞争对手可能抢先。这种「机会成本」很难量化。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>套利不可能时怎么办？
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>有人认为套利不可能使期权模型不适用于实物期权。Damodaran 不同意：</p>
+<ol type="1">
+<li>虽然无法实际套利，你仍然可以<strong>在纸上</strong>构建复制组合并据此定价</li>
+<li>套利困难可能导致价格偏离理论值，但不能说理论值没有意义</li>
+<li>用更高利率「调整」风险是<strong>错误的</strong>——这只会使看涨期权<strong>更值钱</strong>，不是更便宜</li>
+</ol>
+<p>正确的保守做法是：降低 S（用更高折现率）或对期权价值打流动性折扣。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="专利估值将药物视为期权" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="专利估值将药物视为期权"><span class="header-section-number">4</span> 专利估值：将药物视为期权</h2>
+<p>专利是延迟期权最清晰的应用之一。专利赋予公司在一定期限内<strong>独家</strong>开发和销售产品的权利——这正是期权所需要的排他性。</p>
+<section id="专利的期权性质" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="专利的期权性质"><span class="header-section-number">4.1</span> 专利的期权性质</h3>
+<p>专利持有者面临这样的决策：</p>
+<ul>
+<li>如果开发成本低于预期收益（V &gt; I），开发专利</li>
+<li>如果开发成本高于预期收益（V ≤ I），不开发</li>
+</ul>
+<p>收益结构：</p>
+<p><span class="math display">\[
+\text{专利收益} = \max(V - I, 0)
+\]</span></p>
+<p>这就是一个看涨期权，其中：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>期权术语</th>
+<th>专利对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产 S</td>
+<td>开发后产品现金流的现值</td>
+</tr>
+<tr class="even">
+<td>执行价格 K</td>
+<td>开发产品的成本</td>
+</tr>
+<tr class="odd">
+<td>到期时间 T</td>
+<td>专利剩余期限</td>
+</tr>
+<tr class="even">
+<td>波动率 σ</td>
+<td>产品现金流现值的波动率</td>
+</tr>
+<tr class="odd">
+<td>股息率 y</td>
+<td>延迟成本（1/专利剩余年限）</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="illustration-28.2avonex-专利估值1997" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="illustration-28.2avonex-专利估值1997"><span class="header-section-number">4.2</span> Illustration 28.2：Avonex 专利估值（1997）</h3>
+<p>Biogen 是一家生物技术公司，拥有 Avonex 的专利——一种获得 FDA 批准用于治疗多发性硬化症（MS）的药物。</p>
+<p><strong>输入参数</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>产品现金流现值 S</td>
+<td>34.22 亿美元</td>
+<td>基于潜在市场和预期价格</td>
+</tr>
+<tr class="even">
+<td>开发成本 K</td>
+<td>28.75 亿美元</td>
+<td>商业化所需的基础设施投资</td>
+</tr>
+<tr class="odd">
+<td>专利剩余期限 T</td>
+<td>17 年</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>无风险利率 r</td>
+<td>6.7%</td>
+<td>17 年期国债收益率</td>
+</tr>
+<tr class="odd">
+<td>波动率 σ²</td>
+<td>0.224</td>
+<td>上市生物技术公司的平均公司价值方差</td>
+</tr>
+<tr class="even">
+<td>延迟成本 y</td>
+<td>1/17 = 5.89%</td>
+<td>专利保护期内的超额回报</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么延迟成本 = 1/17？</strong></p>
+<p>专利提供 17 年的超额回报保护。专利到期后，竞争将消除超额回报。每延迟一年，就少了一年的受保护现金流。</p>
+<p><strong>计算</strong>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(34.22/28.75) + (0.067 - 0.0589 + 0.224/2) \times 17}{\sqrt{0.224 \times 17}} = 1.1362
+\]</span></p>
+<p><span class="math display">\[
+d_2 = d_1 - \sqrt{0.224 \times 17} = -0.8512
+\]</span></p>
+<p><span class="math display">\[
+N(d_1) = 0.8720, \quad N(d_2) = 0.2076
+\]</span></p>
+<p><span class="math display">\[
+\text{专利价值} = 34.22 \times e^{-0.0589 \times 17} \times 0.8720 - 28.75 \times e^{-0.067 \times 17} \times 0.2076
+\]</span></p>
+<p><span class="math display">\[
+= 34.22 \times 0.3686 \times 0.8720 - 28.75 \times 0.3206 \times 0.2076
+\]</span></p>
+<p><span class="math display">\[
+= 11.00 - 1.91 = \textbf{9.07 亿美元}
+\]</span></p>
+<p><strong>对比传统 NPV</strong>：</p>
+<p><span class="math display">\[
+\text{NPV} = 34.22 - 28.75 = 5.47 \text{ 亿美元}
+\]</span></p>
+<p>期权价值（9.07 亿）比传统 NPV（5.47 亿）<strong>高出 3.6 亿美元</strong>！这个「时间溢价」说明：<strong>即使今天 NPV 为正，也可能值得等待</strong>。</p>
+<p><strong>最优开发时机</strong></p>
+<p>随着时间推移，延迟成本会上升（从 1/17 到 1/16、1/15…），而专利期限缩短会降低期权的时间价值。当期权价值降到 NPV 以下时，就应该开发产品。</p>
+<p>根据计算，如果其他因素不变，当专利剩余期限少于约 <strong>12 年</strong>时，Avonex 作为商业产品的价值将超过作为期权的价值——那时就应该开发。</p>
+</section>
+<section id="竞争压力与期权价值" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="竞争压力与期权价值"><span class="header-section-number">4.3</span> 竞争压力与期权价值</h3>
+<p>前面的分析假设 Biogen 在专利期内不受竞争。但这只是对<strong>该专利产品</strong>的保护，其他公司可能开发出治疗 MS 的<strong>替代药物</strong>。</p>
+<p><strong>竞争对期权的影响</strong>：</p>
+<p>如果 Biogen 知道竞争对手正在研发类似药物： - 期权的<strong>有效期限</strong>不再是专利期，而是<strong>领先时间</strong> - 领先时间越短，期权价值越低，越应该尽早开发</p>
+<p>这解释了为什么有些药物开发很快，有些很慢： - 管线中竞争产品多 → 尽早开发 - 独家性强 → 可以等待更长时间</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>关键洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>专利价值 ≤ 期权模型估值</strong>，当且仅当竞争真的被隔离。</p>
+<p>如果竞争产品在研发中，你需要缩短期权期限来反映这一点。竞争压力越大，期权估值与 DCF 估值的差异就越小。</p>
+</div>
+</div>
+</section>
+<section id="illustration-28.3biogen-公司估值1997" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="illustration-28.3biogen-公司估值1997"><span class="header-section-number">4.4</span> Illustration 28.3：Biogen 公司估值（1997）</h3>
+<p>如何用期权框架估值整个 Biogen 公司？</p>
+<p>公司价值 = 现有商业产品 + 现有专利（期权） + 未来研发价值</p>
+<p><strong>组成部分一：现有商业产品</strong></p>
+<p>Biogen 当时有两个商业产品（乙肝药物和癌症药物 Intron），已授权给其他制药公司。授权费预期每年产生 5000 万美元税后现金流，持续 12 年。</p>
+<p>用授权公司的债务成本（7%，主要风险是违约风险）折现：</p>
+<p><span class="math display">\[
+\text{授权费现值} = 5000 \times \frac{1 - 1.07^{-12}}{0.07} = 3.97 \text{ 亿美元}
+\]</span></p>
+<p><strong>组成部分二：Avonex 专利（期权）</strong></p>
+<p>如前计算：<strong>9.07 亿美元</strong></p>
+<p><strong>组成部分三：未来研发价值</strong></p>
+<p>Biogen 每年投入约 1 亿美元研发，预期增长 20%/年持续 10 年，之后 5%/年。</p>
+<p>关键假设：基于 Biogen 的研发历史，假设每 1 美元研发投入在前 10 年创造 1.25 美元的专利价值（用期权模型估值），之后收支平衡。</p>
+<p>用 15% 的资本成本（反映研发的高风险）折现：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年</th>
+<th>专利价值</th>
+<th>研发成本</th>
+<th>超额价值</th>
+<th>15%现值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1.50</td>
+<td>1.20</td>
+<td>0.30</td>
+<td>0.26</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1.80</td>
+<td>1.44</td>
+<td>0.36</td>
+<td>0.27</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>2.16</td>
+<td>1.73</td>
+<td>0.43</td>
+<td>0.28</td>
+</tr>
+<tr class="even">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>7.74</td>
+<td>6.19</td>
+<td>1.55</td>
+<td>0.38</td>
+</tr>
+<tr class="even">
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>3.18</strong></td>
+</tr>
+</tbody>
+</table>
+<p>未来研发价值：<strong>3.18 亿美元</strong></p>
+<p><strong>Biogen 总价值</strong>：</p>
+<p><span class="math display">\[
+\text{公司价值} = 3.97 + 9.07 + 3.18 = 16.22 \text{ 亿美元}
+\]</span></p>
+<p>Biogen 当时无债务，流通股 3550 万股：</p>
+<p><span class="math display">\[
+\text{每股价值} = \frac{16.22}{0.355} = 45.70 \text{ 美元/股}
+\]</span></p>
+</section>
+<section id="专利到期后还有价值吗" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="专利到期后还有价值吗"><span class="header-section-number">4.5</span> 专利到期后还有价值吗？</h3>
+<p>前面的分析假设专利到期后超额回报消失。但在制药行业，这不完全正确：</p>
+<ol type="1">
+<li><strong>品牌效应</strong>：很多消费者继续购买原研药，即使仿制药更便宜</li>
+<li><strong>专利延期</strong>：公司可能通过游说或法律手段延长专利期</li>
+<li><strong>改良专利</strong>：新配方、新适应症可能获得新专利</li>
+</ol>
+<p>如果考虑这些因素： - 增加产品现金流现值（S） - 降低延迟成本（y） - 净效应：公司更可能<strong>延迟</strong>开发，等待收集更多市场信息</p>
+</section>
+</section>
+<section id="自然资源期权石油储量估值" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="自然资源期权石油储量估值"><span class="header-section-number">5</span> 自然资源期权：石油储量估值</h2>
+<p>自然资源公司（石油、矿业）拥有两类资产： - <strong>已开发储量</strong>：正在生产现金流 - <strong>未开发储量</strong>：可以选择开发的期权</p>
+<p>未开发储量是延迟期权的另一个理想应用：公司可以选择何时开发，通常会在资源价格高时开发，价格低时等待。</p>
+<section id="储量的期权性质" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="储量的期权性质"><span class="header-section-number">5.1</span> 储量的期权性质</h3>
+<p>未开发储量的收益结构：</p>
+<p><span class="math display">\[
+\text{开发收益} = \max(\text{储量价值} - \text{开发成本}, 0)
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>期权术语</th>
+<th>自然资源对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产 S</td>
+<td>储量的估计价值 = 数量 × (价格 - 边际成本)</td>
+</tr>
+<tr class="even">
+<td>执行价格 K</td>
+<td>开发储量的固定成本</td>
+</tr>
+<tr class="odd">
+<td>到期时间 T</td>
+<td>开采权期限 or 耗尽时间</td>
+</tr>
+<tr class="even">
+<td>波动率 σ</td>
+<td>资源价格的波动率</td>
+</tr>
+<tr class="odd">
+<td>股息率 y</td>
+<td>净生产收入/储量价值</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="输入参数详解" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="输入参数详解"><span class="header-section-number">5.2</span> 输入参数详解</h3>
+<p><strong>可用储量和当前价值</strong></p>
+<p>储量数量需要估计（地质勘探），价值 = 储量 × (当前价格 - 边际开采成本)。</p>
+<p><strong>开发成本</strong></p>
+<p>安装开采设施的固定成本。石油公司和矿业公司有丰富的历史数据。</p>
+<p><strong>到期时间</strong></p>
+<p>两种确定方式： 1. <strong>租约期限</strong>：海上石油租约通常有固定期限 2. <strong>耗尽时间</strong>：储量 ÷ 年产能 = 耗尽年数</p>
+<p>例如：300 万盎司黄金储量，年产能 15 万盎司，耗尽时间 = 20 年。</p>
+<p><strong>波动率</strong></p>
+<p>如果储量数量已知，波动率完全来自<strong>资源价格的波动率</strong>。这可以从历史价格数据或期货市场获得。</p>
+<p><strong>延迟成本（净生产收入/储量价值）</strong></p>
+<p>一旦开发，储量每年产生的现金流占储量价值的百分比。如果储量价内（价值 &gt; 开发成本），不开发就损失了这些现金流。</p>
+<p><strong>开发滞后调整</strong></p>
+<p>石油或矿产不能瞬间开发。如果开发需要 2 年，需要调整标的资产价值：</p>
+<p><span class="math display">\[
+S_{\text{调整后}} = \frac{S_{\text{原始}}}{(1 + y)^{\text{开发年数}}}
+\]</span></p>
+<p>这相当于在开发期内放弃了现金流。</p>
+</section>
+<section id="illustration-28.4石油储量估值" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="illustration-28.4石油储量估值"><span class="header-section-number">5.3</span> Illustration 28.4：石油储量估值</h3>
+<p><strong>情景设定</strong>：</p>
+<p>一块海上石油资产： - 估计储量：5000 万桶 - 开发成本：6 亿美元 - 开发滞后：2 年 - 开采权期限：20 年 - 当前边际价值（价格 - 边际成本）：12 美元/桶 - 开发后年净生产收入：储量价值的 5% - 无风险利率：8% - 油价波动率：σ² = 0.03</p>
+<p><strong>计算标的资产价值</strong>：</p>
+<p>首先计算开发后储量价值，然后调整开发滞后：</p>
+<p><span class="math display">\[
+S = \frac{5000 \times 12}{1.05^2} = \frac{6 \text{亿}}{1.1025} = 5.44 \text{ 亿美元}
+\]</span></p>
+<p><strong>期权输入参数</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S（调整后储量价值）</td>
+<td>5.44 亿美元</td>
+</tr>
+<tr class="even">
+<td>K（开发成本）</td>
+<td>6.00 亿美元</td>
+</tr>
+<tr class="odd">
+<td>T（期限）</td>
+<td>20 年</td>
+</tr>
+<tr class="even">
+<td>σ²</td>
+<td>0.03</td>
+</tr>
+<tr class="odd">
+<td>r</td>
+<td>8%</td>
+</tr>
+<tr class="even">
+<td>y</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>计算</strong>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(5.44/6.00) + (0.08 - 0.05 + 0.03/2) \times 20}{\sqrt{0.03 \times 20}} = 1.0359
+\]</span></p>
+<p><span class="math display">\[
+d_2 = 1.0359 - \sqrt{0.03 \times 20} = 0.2613
+\]</span></p>
+<p><span class="math display">\[
+N(d_1) = 0.8498, \quad N(d_2) = 0.6030
+\]</span></p>
+<p><span class="math display">\[
+\text{期权价值} = 5.44 \times e^{-0.05 \times 20} \times 0.8498 - 6.00 \times e^{-0.08 \times 20} \times 0.6030
+\]</span></p>
+<p><span class="math display">\[
+= 5.44 \times 0.3679 \times 0.8498 - 6.00 \times 0.2019 \times 0.6030
+\]</span></p>
+<p><span class="math display">\[
+= 1.70 - 0.73 = \textbf{0.97 亿美元}
+\]</span></p>
+<p><strong>结论</strong>：</p>
+<ul>
+<li>传统 NPV = 5.44 - 6.00 = <strong>-0.56 亿美元</strong>（负值，不应开发）</li>
+<li>期权价值 = <strong>0.97 亿美元</strong></li>
+</ul>
+<p>这块当前不经济的油田，其开采权价值约 <strong>1 亿美元</strong>！因为如果油价上涨，它可能变得有利可图。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>多重不确定性来源
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>前面假设储量数量已知。如果储量也有不确定性，有两种处理方式：</p>
+<ol type="1">
+<li><strong>合并方差</strong>：将储量不确定性和价格不确定性合并成一个综合方差</li>
+<li><strong>彩虹期权</strong>：保持两个方差独立，用更复杂的模型估值</li>
+</ol>
+<p>如果两种不确定性随时间演变不同（如油价波动可能上升，但储量估计随勘探而更准确），应该用彩虹期权。</p>
+</div>
+</div>
+</section>
+<section id="illustration-28.5gulf-oil-公司估值1984" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="illustration-28.5gulf-oil-公司估值1984"><span class="header-section-number">5.4</span> Illustration 28.5：Gulf Oil 公司估值（1984）</h3>
+<p>1984 年初，Gulf Oil 成为收购目标，报价 70 美元/股。让我们用期权框架评估这个报价是否合理。</p>
+<p><strong>公司数据</strong>：</p>
+<ul>
+<li>流通股：1.653 亿股</li>
+<li>总债务：99 亿美元</li>
+<li>估计储量：30.38 亿桶</li>
+<li>开发成本：303.8 亿美元</li>
+<li>开发滞后：2 年</li>
+<li>平均开采权期限：12 年</li>
+<li>油价：22.38 美元/桶</li>
+<li>生产成本、税、特许权费：7 美元/桶</li>
+<li>边际价值：15.38 美元/桶</li>
+<li>开发后年净生产收入：储量价值的 5%</li>
+<li>无风险利率：9%</li>
+<li>油价波动率：σ² = 0.03</li>
+</ul>
+<p><strong>未开发储量估值</strong>：</p>
+<p>调整后储量价值：</p>
+<p><span class="math display">\[
+S = \frac{30.38 \times (22.38 - 7)}{1.05^2} = \frac{467.2}{1.1025} = 423.8 \text{ 亿美元}
+\]</span></p>
+<p>期权输入： - S = 423.8 亿美元 - K = 303.8 亿美元 - T = 12 年 - σ² = 0.03 - r = 9% - y = 5%</p>
+<p><span class="math display">\[
+d_1 = 1.6548, \quad N(d_1) = 0.9510
+\]</span> <span class="math display">\[
+d_2 = 1.0548, \quad N(d_2) = 0.8542
+\]</span></p>
+<p><span class="math display">\[
+\text{期权价值} = 423.8 \times e^{-0.05 \times 12} \times 0.9510 - 303.8 \times e^{-0.09 \times 12} \times 0.8542
+\]</span></p>
+<p><span class="math display">\[
+= 423.8 \times 0.5488 \times 0.9510 - 303.8 \times 0.3396 \times 0.8542
+\]</span></p>
+<p><span class="math display">\[
+= 221.1 - 88.1 = \textbf{133.1 亿美元}
+\]</span></p>
+<p><strong>对比传统 DCF</strong>：423.8 - 303.8 = 120 亿美元。期权方法给出更高的价值（133.1 亿），反映了等待油价变动的灵活性价值。</p>
+<p><strong>已开发储量估值</strong>：</p>
+<p>Gulf Oil 已开发储量每年产生 9.15 亿美元自由现金流，预计持续 10 年。用 12.5% 的 WACC 折现：</p>
+<p><span class="math display">\[
+\text{已开发储量价值} = 9.15 \times \frac{1 - 1.125^{-10}}{0.125} = 50.66 \text{ 亿美元}
+\]</span></p>
+<p><strong>Gulf Oil 总价值</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>组成部分</th>
+<th>价值（亿美元）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>未开发储量（期权）</td>
+<td>133.06</td>
+</tr>
+<tr class="even">
+<td>已开发储量（DCF）</td>
+<td>50.66</td>
+</tr>
+<tr class="odd">
+<td><strong>公司总价值</strong></td>
+<td><strong>183.72</strong></td>
+</tr>
+<tr class="even">
+<td>减：债务</td>
+<td>(99.00)</td>
+</tr>
+<tr class="odd">
+<td><strong>股权价值</strong></td>
+<td><strong>84.72</strong></td>
+</tr>
+<tr class="even">
+<td>股数（亿股）</td>
+<td>1.653</td>
+</tr>
+<tr class="odd">
+<td><strong>每股价值</strong></td>
+<td><strong>51.25 美元</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：</p>
+<p>基于期权分析，Gulf Oil 每股价值约 51 美元，但收购报价是 70 美元。这说明收购方<strong>出价过高</strong>。</p>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>油价波动率与公司估值</strong></p>
+<p>一个有趣的含义：自然资源公司的价值不仅取决于资源价格，还取决于价格的<strong>波动率</strong>。</p>
+<ul>
+<li>如果油价从 25 美元涨到 40 美元，石油公司价值上升</li>
+<li>如果油价又跌回 25 美元，价值可能<strong>不会</strong>完全回落——因为市场可能认为波动率上升了</li>
+</ul>
+<p>波动率上升 → 未开发储量（期权）价值上升 → 公司价值上升</p>
+<p>拥有更多未开发储量的公司，对波动率变化更敏感。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+</section>
+<section id="其他应用" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="其他应用"><span class="header-section-number">6</span> 其他应用</h2>
+<p>虽然专利和自然资源储量是延迟期权最经典的应用，但同样的框架也适用于其他资产。</p>
+<section id="空置土地" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="空置土地"><span class="header-section-number">6.1</span> 空置土地</h3>
+<p>在第 26 章讨论房地产估值时，我们提到空置土地可以视为商业开发的期权。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>空置土地对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S</td>
+<td>今天商业开发后现金流的现值</td>
+</tr>
+<tr class="even">
+<td>K</td>
+<td>商业开发的成本</td>
+</tr>
+<tr class="odd">
+<td>T</td>
+<td>土地租约期限，或贷款到期时间</td>
+</tr>
+<tr class="even">
+<td>σ</td>
+<td>该地区商业地产价值的波动率</td>
+</tr>
+<tr class="odd">
+<td>y</td>
+<td>持有土地的成本（物业税等）占土地价值的百分比</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="版权和许可证" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="版权和许可证"><span class="header-section-number">6.2</span> 版权和许可证</h3>
+<p>在第 27 章讨论其他资产估值时，我们提到版权和许可证可以视为期权，即使它们目前没有商业价值。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>版权/许可证对应</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>S</td>
+<td>今天商业利用后现金流的现值</td>
+</tr>
+<tr class="even">
+<td>K</td>
+<td>商业化的前期成本</td>
+</tr>
+<tr class="odd">
+<td>T</td>
+<td>版权/许可证的剩余期限</td>
+</tr>
+<tr class="even">
+<td>σ</td>
+<td>商业利用现值的波动率（模拟得出）</td>
+</tr>
+<tr class="odd">
+<td>y</td>
+<td>下一年现金流/当前现值</td>
+</tr>
+</tbody>
+</table>
+<p>与专利和自然资源一样，这些期权的价值来自<strong>排他性</strong>——版权和许可证的排他性来自法律保护。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>延迟期权应用总结
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>应用领域</th>
+<th>排他性来源</th>
+<th>期权类型</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>专利</td>
+<td>法律保护（专利法）</td>
+<td>产品开发的看涨期权</td>
+</tr>
+<tr class="even">
+<td>自然资源储量</td>
+<td>自然稀缺 + 开采权</td>
+<td>资源开发的看涨期权</td>
+</tr>
+<tr class="odd">
+<td>空置土地</td>
+<td>所有权 + 稀缺性</td>
+<td>商业开发的看涨期权</td>
+</tr>
+<tr class="even">
+<td>版权/许可证</td>
+<td>法律保护</td>
+<td>商业利用的看涨期权</td>
+</tr>
+</tbody>
+</table>
+<p>共同特征： 1. 持有者有<strong>选择权</strong>（开发或不开发） 2. 存在某种形式的<strong>排他性</strong> 3. 标的资产价值<strong>不确定</strong> 4. 有明确或隐含的<strong>时间限制</strong></p>
+</div>
+</div>
+</section>
+</section>
+<section id="总结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="总结"><span class="header-section-number">7</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>NPV 为负 ≠ 项目无价值</strong>：如果你有独家投资权，等待和观察的权利本身就有价值</li>
+<li><strong>不确定性 = 期权价值</strong>：在期权框架下，波动率是你的朋友，不是敌人</li>
+<li><strong>排他性是关键</strong>：没有排他性，就没有期权。「机会」不等于「期权」</li>
+<li><strong>延迟有成本</strong>：每等待一期，就放弃一期的现金流。这个成本会随时间上升</li>
+<li><strong>Black-Scholes vs 二叉树</strong>：对于实物期权，Black-Scholes 通常给出保守估计，二叉树更灵活</li>
+</ul>
+<p><strong>何时使用延迟期权估值？</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>适用</th>
+<th>不适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>专利（法律保护的排他性）</td>
+<td>没有排他性的「市场机会」</td>
+</tr>
+<tr class="even">
+<td>自然资源储量（自然稀缺）</td>
+<td>竞争激烈、无进入壁垒的项目</td>
+</tr>
+<tr class="odd">
+<td>空置土地（所有权排他性）</td>
+<td>技术成熟、现金流确定的项目</td>
+</tr>
+<tr class="even">
+<td>版权/许可证</td>
+<td>必须立即决策、无法等待的项目</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>Damodaran 的核心洞察</strong>：</p>
+<p>传统 DCF 分析将项目视为「全有或全无」的决策——要么今天投资，要么永远放弃。但现实中，很多投资决策是<strong>阶段性</strong>的，投资者可以观察、等待、然后决定。</p>
+<p>期权框架捕捉了这种灵活性的价值。但要记住： 1. 期权价值需要<strong>排他性</strong> 2. 等待有<strong>成本</strong>（延迟成本） 3. 输入参数（特别是波动率）存在<strong>很大不确定性</strong></p>
+<p>用期权框架分析，不是为了得到一个精确的数字，而是为了<strong>理解</strong>为什么某些看似「负 NPV」的资产仍然有价值，以及这种价值从何而来。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="思考题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>排他性的来源</strong>：一家科技公司声称其「AI 平台」具有期权价值。你会问什么问题来评估这个说法？</p></li>
+<li><p><strong>波动率的双刃剑</strong>：为什么说「波动率是期权的朋友」？在什么情况下，高波动率对期权持有者也可能是坏消息？</p></li>
+<li><p><strong>专利策略</strong>：Biogen 的 Avonex 专利还有 17 年期限，但期权分析显示应该在剩余 12 年时开发。如果竞争对手宣布正在研发类似药物，这个最优开发时机会如何变化？</p></li>
+<li><p><strong>石油公司估值</strong>：两家石油公司拥有相同价值的石油储量，但公司 A 的储量大部分已开发，公司 B 的储量大部分未开发。如果油价波动率上升，哪家公司的价值变化更大？为什么？</p></li>
+<li><p><strong>延迟成本的权衡</strong>：一个项目的 NPV 为正，但期权分析显示最优策略是等待。在什么情况下，公司应该忽略期权分析的建议，立即投资？</p></li>
+</ol>
+<hr>
+<p><em>本章内容基于 Aswath Damodaran《Investment Valuation》第 28 章</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

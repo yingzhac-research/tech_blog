@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying Zhang">
+<meta name="dcterms.date" content="2026-01-29">
+<meta name="description" content="当前最活跃的研究方向、核心问题、研究品味的培养，以及给PhD新生的建议">
+
+<title>第35章：研究前沿地图 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从上一章说起" id="toc-从上一章说起" class="nav-link active" data-scroll-target="#从上一章说起"><span class="header-section-number">1</span> 从上一章说起</a></li>
+  <li><a href="#当前最活跃的研究方向" id="toc-当前最活跃的研究方向" class="nav-link" data-scroll-target="#当前最活跃的研究方向"><span class="header-section-number">2</span> 当前最活跃的研究方向</a>
+  <ul class="collapse">
+  <li><a href="#reasoning与system-2思维" id="toc-reasoning与system-2思维" class="nav-link" data-scroll-target="#reasoning与system-2思维"><span class="header-section-number">2.1</span> Reasoning与System 2思维</a></li>
+  <li><a href="#长上下文与无限记忆" id="toc-长上下文与无限记忆" class="nav-link" data-scroll-target="#长上下文与无限记忆"><span class="header-section-number">2.2</span> 长上下文与无限记忆</a></li>
+  <li><a href="#多模态统一架构" id="toc-多模态统一架构" class="nav-link" data-scroll-target="#多模态统一架构"><span class="header-section-number">2.3</span> 多模态统一架构</a></li>
+  <li><a href="#高效训练与推理" id="toc-高效训练与推理" class="nav-link" data-scroll-target="#高效训练与推理"><span class="header-section-number">2.4</span> 高效训练与推理</a></li>
+  <li><a href="#对齐与安全" id="toc-对齐与安全" class="nav-link" data-scroll-target="#对齐与安全"><span class="header-section-number">2.5</span> 对齐与安全</a></li>
+  <li><a href="#world-models与具身智能" id="toc-world-models与具身智能" class="nav-link" data-scroll-target="#world-models与具身智能"><span class="header-section-number">2.6</span> World Models与具身智能</a></li>
+  </ul></li>
+  <li><a href="#每个方向的核心问题" id="toc-每个方向的核心问题" class="nav-link" data-scroll-target="#每个方向的核心问题"><span class="header-section-number">3</span> 每个方向的核心问题</a>
+  <ul class="collapse">
+  <li><a href="#reasoning核心问题" id="toc-reasoning核心问题" class="nav-link" data-scroll-target="#reasoning核心问题"><span class="header-section-number">3.1</span> Reasoning：核心问题</a></li>
+  <li><a href="#长上下文核心问题" id="toc-长上下文核心问题" class="nav-link" data-scroll-target="#长上下文核心问题"><span class="header-section-number">3.2</span> 长上下文：核心问题</a></li>
+  <li><a href="#多模态核心问题" id="toc-多模态核心问题" class="nav-link" data-scroll-target="#多模态核心问题"><span class="header-section-number">3.3</span> 多模态：核心问题</a></li>
+  <li><a href="#效率核心问题" id="toc-效率核心问题" class="nav-link" data-scroll-target="#效率核心问题"><span class="header-section-number">3.4</span> 效率：核心问题</a></li>
+  <li><a href="#对齐核心问题" id="toc-对齐核心问题" class="nav-link" data-scroll-target="#对齐核心问题"><span class="header-section-number">3.5</span> 对齐：核心问题</a></li>
+  <li><a href="#world-models核心问题" id="toc-world-models核心问题" class="nav-link" data-scroll-target="#world-models核心问题"><span class="header-section-number">3.6</span> World Models：核心问题</a></li>
+  </ul></li>
+  <li><a href="#研究品味的培养" id="toc-研究品味的培养" class="nav-link" data-scroll-target="#研究品味的培养"><span class="header-section-number">4</span> 研究品味的培养</a>
+  <ul class="collapse">
+  <li><a href="#什么样的问题值得做" id="toc-什么样的问题值得做" class="nav-link" data-scroll-target="#什么样的问题值得做"><span class="header-section-number">4.1</span> 什么样的问题值得做？</a></li>
+  <li><a href="#如何判断一个方向是否过度拥挤" id="toc-如何判断一个方向是否过度拥挤" class="nav-link" data-scroll-target="#如何判断一个方向是否过度拥挤"><span class="header-section-number">4.2</span> 如何判断一个方向是否过度拥挤？</a></li>
+  <li><a href="#如何找到自己的niche" id="toc-如何找到自己的niche" class="nav-link" data-scroll-target="#如何找到自己的niche"><span class="header-section-number">4.3</span> 如何找到自己的niche</a></li>
+  </ul></li>
+  <li><a href="#给phd新生的建议" id="toc-给phd新生的建议" class="nav-link" data-scroll-target="#给phd新生的建议"><span class="header-section-number">5</span> 给PhD新生的建议</a>
+  <ul class="collapse">
+  <li><a href="#第一年应该读哪些论文" id="toc-第一年应该读哪些论文" class="nav-link" data-scroll-target="#第一年应该读哪些论文"><span class="header-section-number">5.1</span> 第一年应该读哪些论文？</a></li>
+  <li><a href="#如何找到第一个研究问题" id="toc-如何找到第一个研究问题" class="nav-link" data-scroll-target="#如何找到第一个研究问题"><span class="header-section-number">5.2</span> 如何找到第一个研究问题？</a></li>
+  <li><a href="#如何与导师和社区互动" id="toc-如何与导师和社区互动" class="nav-link" data-scroll-target="#如何与导师和社区互动"><span class="header-section-number">5.3</span> 如何与导师和社区互动</a></li>
+  </ul></li>
+  <li><a href="#开放的大问题" id="toc-开放的大问题" class="nav-link" data-scroll-target="#开放的大问题"><span class="header-section-number">6</span> 开放的大问题</a>
+  <ul class="collapse">
+  <li><a href="#幻觉问题与事实性" id="toc-幻觉问题与事实性" class="nav-link" data-scroll-target="#幻觉问题与事实性"><span class="header-section-number">6.1</span> 幻觉问题与事实性</a></li>
+  <li><a href="#推理能力的本质" id="toc-推理能力的本质" class="nav-link" data-scroll-target="#推理能力的本质"><span class="header-section-number">6.2</span> 推理能力的本质</a></li>
+  <li><a href="#效率的极限" id="toc-效率的极限" class="nav-link" data-scroll-target="#效率的极限"><span class="header-section-number">6.3</span> 效率的极限</a></li>
+  <li><a href="#agi之路" id="toc-agi之路" class="nav-link" data-scroll-target="#agi之路"><span class="header-section-number">6.4</span> AGI之路</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结"><span class="header-section-number">7</span> 本章小结</a>
+  <ul class="collapse">
+  <li><a href="#核心要点回顾" id="toc-核心要点回顾" class="nav-link" data-scroll-target="#核心要点回顾"><span class="header-section-number">7.1</span> 核心要点回顾</a></li>
+  <li><a href="#最后的话" id="toc-最后的话" class="nav-link" data-scroll-target="#最后的话"><span class="header-section-number">7.2</span> 最后的话</a></li>
+  </ul></li>
+  <li><a href="#延伸阅读" id="toc-延伸阅读" class="nav-link" data-scroll-target="#延伸阅读"><span class="header-section-number">8</span> 延伸阅读</a>
+  <ul class="collapse">
+  <li><a href="#研究前沿综述" id="toc-研究前沿综述" class="nav-link" data-scroll-target="#研究前沿综述"><span class="header-section-number">8.1</span> 研究前沿综述</a></li>
+  <li><a href="#研究方法论" id="toc-研究方法论" class="nav-link" data-scroll-target="#研究方法论"><span class="header-section-number">8.2</span> 研究方法论</a></li>
+  <li><a href="#前沿追踪资源" id="toc-前沿追踪资源" class="nav-link" data-scroll-target="#前沿追踪资源"><span class="header-section-number">8.3</span> 前沿追踪资源</a></li>
+  </ul></li>
+  <li><a href="#历史注脚" id="toc-历史注脚" class="nav-link" data-scroll-target="#历史注脚"><span class="header-section-number">9</span> 历史注脚</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">第35章：研究前沿地图</h1>
+<p class="subtitle lead">帮助你找到自己的研究方向</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">NLP</div>
+    <div class="quarto-category">Research</div>
+    <div class="quarto-category">LLM</div>
+    <div class="quarto-category">Reasoning</div>
+    <div class="quarto-category">Multimodal</div>
+    <div class="quarto-category">Alignment</div>
+    <div class="quarto-category">PhD Guide</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    当前最活跃的研究方向、核心问题、研究品味的培养，以及给PhD新生的建议
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying Zhang </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>核心问题</strong>：在这个快速演进的领域，如何找到值得投入的研究方向？</p>
+<p><strong>历史坐标</strong>：2024-2026 | 推理革命、多模态统一、具身智能 | 从”能力提升”到”真正理解”</p>
+</blockquote>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>本章参考来源
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<section id="论文与综述" class="level3" data-number="0.1">
+<h3 data-number="0.1" class="anchored" data-anchor-id="论文与综述"><span class="header-section-number">0.1</span> 论文与综述</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2504.09037">A Survey of Frontiers in LLM Reasoning</a> (2025) — 参考了推理范式的分类框架（Inference Scaling vs Learning to Reason）</li>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12546433/">Toward Large Reasoning Models</a> (2025) — 参考了RL for Reasoning的技术脉络</li>
+<li><a href="https://arxiv.org/abs/2503.14504">Aligning Multimodal LLM with Human Preference</a> (2025) — 参考了多模态对齐的研究方向</li>
+<li><a href="https://arxiv.org/abs/2509.20021">Embodied AI: From LLMs to World Models</a> (2025) — 参考了具身智能的技术演进</li>
+<li><a href="https://arxiv.org/abs/2507.10087">Foundation Model Driven Robotics</a> (2025) — 参考了机器人基础模型的综述</li>
+</ul>
+</section>
+<section id="顶会趋势" class="level3" data-number="0.2">
+<h3 data-number="0.2" class="anchored" data-anchor-id="顶会趋势"><span class="header-section-number">0.2</span> 顶会趋势</h3>
+<ul>
+<li>NeurIPS 2025 Best Paper: “Gated Attention for LLMs”</li>
+<li>ICML 2025 Workshop on Reasoning — 参考了推理研究的最新进展</li>
+<li>CVPR 2025 Workshop: Foundation Models Meet Embodied Agents</li>
+</ul>
+</section>
+<section id="研究者建议" class="level3" data-number="0.3">
+<h3 data-number="0.3" class="anchored" data-anchor-id="研究者建议"><span class="header-section-number">0.3</span> 研究者建议</h3>
+<ul>
+<li><a href="https://people.cs.umass.edu/~wallach/how_to_be_a_successful_phd_student.pdf">How to Be a Successful PhD Student</a> (Wallach)</li>
+<li><a href="https://www.ruder.io/10-tips-for-research-and-a-phd/">10 Tips for Research and a PhD</a> (Sebastian Ruder)</li>
+<li><a href="https://www.marekrei.com/blog/ml-nlp-research-project-advice/">ML/NLP Research Project Advice</a> (Marek Rei)</li>
+</ul>
+</section>
+</div>
+</div>
+<hr>
+<section id="从上一章说起" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从上一章说起"><span class="header-section-number">1</span> 从上一章说起</h2>
+<p>我们刚刚走过了一段漫长的旅程。从第0章的”如何阅读NLP研究”开始，我们经历了语言模型的整个演进史：从基于规则的符号系统到统计方法，从词向量到循环神经网络，从注意力机制到Transformer，从预训练范式到大语言模型时代。上一章我们讨论了多模态大模型——如何让语言模型”看见”并理解视觉世界。</p>
+<p>回顾全书，有一条清晰的主线贯穿始终：<strong>每一次技术进步都是对上一代方法局限性的回应</strong>。RNN解决了固定窗口N-gram的限制，但带来了梯度消失和无法并行的问题；Transformer解决了RNN的问题，但带来了O(n²)的复杂度；预训练范式解决了从头训练的数据饥渴，但带来了如何对齐人类意图的挑战。</p>
+<p>这种”问题→解决方案→新问题”的演进模式并没有终结。今天的大语言模型虽然能力惊人，但仍然面临着一系列根本性的挑战：它们真的在”推理”还是只是在做模式匹配？它们如何可靠地与物理世界交互？我们如何确保它们的行为符合人类价值观？这些未解决的问题，正是当前研究的前沿。</p>
+<blockquote class="blockquote">
+<p>💡 <strong>本章核心洞察</strong>：选择研究方向不是追逐热点，而是找到一个你真正关心的问题，一个你愿意在它不再”热门”之后依然投入的问题。本章将帮助你建立对研究前沿的全景认知，但最终的选择必须来自你自己的判断。</p>
+</blockquote>
+<hr>
+</section>
+<section id="当前最活跃的研究方向" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="当前最活跃的研究方向"><span class="header-section-number">2</span> 当前最活跃的研究方向</h2>
+<p>如果要用一句话概括2024-2026年NLP/LLM研究的主题，那就是：<strong>从”更大更强”到”真正理解”</strong>。在GPT-4和Claude这样的模型已经达到惊人能力的今天，研究社区开始更深入地思考一些根本性问题：这些模型真的理解了什么？它们的能力边界在哪里？如何让它们变得更可靠、更可控、更有用？</p>
+<p>让我们逐一审视当前最活跃的研究方向。</p>
+<section id="reasoning与system-2思维" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="reasoning与system-2思维"><span class="header-section-number">2.1</span> Reasoning与System 2思维</h3>
+<p>如果说2022-2023年的主题是”Scaling”（规模化），那么2024-2025年的主题无疑是”Reasoning”（推理）。这个转变的标志性事件是OpenAI o1系列模型的发布——它们不只是更大的语言模型，而是被设计为在回答之前进行显式的”思考”过程。</p>
+<p>这个方向的核心问题是：<strong>语言模型能否从”快速直觉反应”（System 1）转变为”慢速深思熟虑”（System 2）？</strong></p>
+<p>传统的语言模型本质上是在做一种”条件反射”——给定输入，立即产生输出。这种模式对于很多任务是够用的，但对于需要多步推理的问题（如数学证明、复杂规划、反事实推理），这种”一次性生成”的方式就显得力不从心。</p>
+<p>当前推理研究可以从两个正交维度来理解：</p>
+<p><strong>维度一：推理发生在什么时候？</strong></p>
+<ul>
+<li><strong>Inference-time Scaling</strong>（推理时扩展）：在推理阶段投入更多计算，让模型”思考更久”。典型代表是Chain-of-Thought prompting、Self-Consistency（多数投票）、Tree of Thoughts。这种方法不改变模型参数，而是通过更复杂的推理流程提升效果。</li>
+<li><strong>Learning to Reason</strong>（学习推理）：通过训练让模型内化推理能力。典型代表是DeepSeek-R1，它使用强化学习训练模型生成长链推理过程。这种方法改变了模型本身的能力。</li>
+</ul>
+<p><strong>维度二：推理涉及哪些组件？</strong></p>
+<ul>
+<li><strong>Standalone LLM</strong>：单个模型独立完成推理，如o1系列。</li>
+<li><strong>Agentic Systems</strong>：模型与外部工具、多个Agent协作完成推理，如OpenAI Deep Research。</li>
+</ul>
+<p>从技术角度看，当前最活跃的研究包括：</p>
+<ul>
+<li><strong>强化学习用于推理</strong>：使用PPO、GRPO等算法训练模型生成更好的推理轨迹。核心挑战是设计合适的奖励信号——什么样的推理过程是”好的”？</li>
+<li><strong>过程奖励模型</strong>（Process Reward Models, PRMs）：不只评估最终答案，而是评估推理过程的每一步。这使得模型可以获得更细粒度的反馈。</li>
+<li><strong>Verifier训练</strong>：训练一个专门的模型来验证推理过程的正确性，用于筛选或引导生成。</li>
+<li><strong>Test-time Compute Scaling</strong>：研究如何在推理时动态分配计算资源——简单问题快速回答，困难问题深入思考。</li>
+</ul>
+<p>研究表明，简单地增加推理长度并不总是有效——“thinking longer”可能引入冗余或放大错误。如何让模型知道”何时停止思考”是一个开放问题。</p>
+</section>
+<section id="长上下文与无限记忆" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="长上下文与无限记忆"><span class="header-section-number">2.2</span> 长上下文与无限记忆</h3>
+<p>第26章我们讨论了长上下文技术，但那只是故事的开始。当前研究的目标更加雄心勃勃：<strong>如何让模型拥有”无限”的有效上下文？</strong></p>
+<p>这个问题之所以重要，是因为真实世界的任务往往涉及海量的背景信息。阅读一本书并回答问题、处理长视频、在多轮对话中保持一致性——这些任务都需要模型能够有效利用远超当前上下文窗口的信息。</p>
+<p>当前研究的几个主要方向包括：</p>
+<p><strong>位置编码的进一步演进</strong>。RoPE及其变体（PI、NTK-aware、YaRN）已经将上下文长度推到了128K甚至更长，但外推能力仍有理论极限。研究者们在探索是否存在更好的位置表示方式。</p>
+<p><strong>分层记忆系统</strong>。受人类记忆的启发，一些工作尝试设计多层次的记忆结构——短期工作记忆（当前上下文）、长期记忆（压缩的历史信息）、外部知识库（RAG）。如何在这些层次之间高效地存取信息是核心挑战。</p>
+<p><strong>记忆压缩与检索</strong>。不可能把所有历史信息都放在上下文中，必须进行某种形式的压缩或选择性检索。研究方向包括：学习如何压缩长文本为固定长度表示、设计更好的检索策略来选择相关信息、端到端地联合训练压缩和生成。</p>
+<p><strong>稀疏注意力的实用化</strong>。Longformer、BigBird等稀疏注意力方法在理论上很优雅，但在实际LLM中的应用仍然有限。如何让稀疏注意力在保持效率的同时不损失关键信息，是工程和理论的双重挑战。</p>
+</section>
+<section id="多模态统一架构" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="多模态统一架构"><span class="header-section-number">2.3</span> 多模态统一架构</h3>
+<p>第34章我们讨论了多模态大模型的当前形态——“视觉编码器 + 适配器 + LLM”的流水线架构。但这种设计可能只是过渡方案。一个更根本的问题是：<strong>能否设计一个原生多模态的架构，从一开始就联合处理所有模态？</strong></p>
+<p>当前的流水线架构有几个明显的局限：</p>
+<ul>
+<li><strong>信息损失</strong>：将视觉信息”翻译”成语言空间的token，不可避免地会丢失某些视觉特有的信息。</li>
+<li><strong>模态不平等</strong>：语言通常是”主导模态”，其他模态被降格为辅助输入。这与人类多感官融合的方式不同。</li>
+<li><strong>训练复杂</strong>：需要分阶段训练各个组件，难以进行真正的端到端优化。</li>
+</ul>
+<p>研究者们正在探索几种可能的统一架构：</p>
+<p><strong>早期融合</strong>（Early Fusion）。将不同模态的输入在最底层就进行融合，用同一个Transformer处理混合的多模态序列。GPT-4o可能采用了这种方式。挑战在于不同模态的信息密度差异很大——一秒视频的信息量远超一个词。</p>
+<p><strong>统一的tokenization</strong>。将图像、音频、视频都编码成离散token，然后用标准的语言模型架构处理。这需要解决如何无损地将连续信号离散化的问题。</p>
+<p><strong>模态专用子网络 + 共享骨干</strong>。为每种模态保留专门的编码器，但在深层使用共享的Transformer进行跨模态推理。这是一种折中方案，试图平衡模态特异性和统一处理。</p>
+<p>另一个活跃的研究方向是<strong>多模态生成</strong>——不只是理解多模态输入，还要能够生成图像、视频、音频。这涉及将扩散模型或其他生成模型与语言模型集成的问题。</p>
+</section>
+<section id="高效训练与推理" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="高效训练与推理"><span class="header-section-number">2.4</span> 高效训练与推理</h3>
+<p>随着模型规模的增长，效率问题变得越来越突出。这不只是工程问题——它决定了什么样的研究是可行的，谁能够参与到前沿研究中。</p>
+<p><strong>训练效率</strong>方面，当前研究的热点包括：</p>
+<ul>
+<li><strong>Mixture of Experts的进一步发展</strong>。第27章我们讨论了MoE的基本原理，但还有很多开放问题：如何设计更好的路由机制？如何缓解负载不平衡？细粒度expert设计（如DeepSeek-V3的策略）能带来多大收益？</li>
+<li><strong>更高效的注意力计算</strong>。Flash Attention 3、各种线性注意力变体、硬件感知的算法设计。目标是在不牺牲模型能力的前提下降低计算成本。</li>
+<li><strong>数据效率</strong>。Chinchilla的发现表明我们可能一直在用太少的数据训练太大的模型。如何更高效地利用数据——通过更好的curriculum learning、数据选择、或合成数据生成——是一个活跃的研究方向。</li>
+</ul>
+<p><strong>推理效率</strong>方面：</p>
+<ul>
+<li><strong>量化的极限在哪里？</strong> INT4已经相当普遍，但能否推到INT2或更低而不显著损失质量？</li>
+<li><strong>投机解码</strong>（Speculative Decoding）的改进。用小模型起草、大模型验证的范式可以显著加速，但如何选择最优的草稿模型、如何处理不同任务的特异性，还有很多优化空间。</li>
+<li><strong>动态计算分配</strong>。不是所有token都需要同样的计算量——“the”和”quantum entanglement”的预测难度显然不同。能否让模型学会动态分配计算资源？</li>
+</ul>
+</section>
+<section id="对齐与安全" class="level3" data-number="2.5">
+<h3 data-number="2.5" class="anchored" data-anchor-id="对齐与安全"><span class="header-section-number">2.5</span> 对齐与安全</h3>
+<p>第24-25章我们讨论了RLHF和DPO，但对齐研究远不止于此。随着模型能力的增强，确保模型行为符合人类意图变得越来越关键——也越来越困难。</p>
+<p><strong>当前对齐研究的几个核心问题</strong>：</p>
+<p><strong>Scalable Oversight</strong>（可扩展的监督）。当模型的能力超过人类在某些领域的能力时，我们如何监督它？人类标注者可能无法判断一个复杂数学证明是否正确，或者一段代码是否有隐藏的漏洞。研究方向包括：用AI辅助人类进行评估、设计可被验证的任务分解、让模型解释自己的推理过程以便人类检查。</p>
+<p><strong>Reward Hacking</strong>（奖励黑客）。模型可能会找到满足奖励函数字面意义但违背设计者真实意图的方式。这在RLHF训练中尤为突出——如何设计更鲁棒的奖励信号是一个开放问题。</p>
+<p><strong>多目标对齐</strong>。真实世界中，“好的回答”需要同时满足多个有时冲突的目标：有帮助、无害、诚实、符合用户偏好、遵守法律法规……如何在这些目标之间取得平衡？</p>
+<p><strong>Interpretability</strong>（可解释性）。如果我们不理解模型内部在做什么，就很难确保它的行为是安全的。机械可解释性（Mechanistic Interpretability）试图逆向工程神经网络的内部表示和计算，虽然进展缓慢，但被认为是通向真正安全AI的必经之路。</p>
+</section>
+<section id="world-models与具身智能" class="level3" data-number="2.6">
+<h3 data-number="2.6" class="anchored" data-anchor-id="world-models与具身智能"><span class="header-section-number">2.6</span> World Models与具身智能</h3>
+<p>这是一个相对较新但快速增长的方向，它代表了一种更宏大的愿景：<strong>AI不应该只是理解和生成语言，而应该理解和交互物理世界</strong>。</p>
+<p>当前的语言模型，无论多么强大，都缺乏对物理世界的”真正理解”。它们可以描述一个苹果从桌上掉落的过程，但它们真的理解重力吗？它们可以规划一系列动作，但如果实际执行时遇到意外情况，它们能够灵活调整吗？</p>
+<p><strong>World Models</strong>（世界模型）试图解决这个问题。一个世界模型不只是学习语言中的统计模式，而是学习环境的动态规律——给定当前状态和一个动作，预测下一个状态会是什么。这使得模型可以在内部”模拟”行动的后果，而不是每次都需要实际执行。</p>
+<p>当前世界模型研究的几个方向：</p>
+<ul>
+<li><strong>视频预测与生成</strong>。如Sora等模型，它们学习预测视频的下一帧，这在某种意义上就是在学习世界的物理规律。但从”预测下一帧”到”理解物理”之间还有很大距离。</li>
+<li><strong>3D场景理解与交互</strong>。将语言模型与3D表示（如点云、NeRF）结合，使模型能够理解和推理三维空间中的物体关系。</li>
+<li><strong>机器人基础模型</strong>。Vision-Language-Action（VLA）模型试图将视觉理解、语言指令和物理动作统一在一个模型中。代表性工作如RT-2、PaLM-E、Gr00t等。</li>
+</ul>
+<p><strong>具身智能</strong>（Embodied AI）将语言模型的能力与物理体（机器人）结合：</p>
+<ul>
+<li><strong>感知-决策-执行循环</strong>。如何将LLM整合到机器人的控制循环中？LLM擅长高层规划，但不擅长实时的底层控制。</li>
+<li><strong>Sim-to-Real迁移</strong>。在模拟环境中训练的策略能否迁移到真实世界？两者之间的差距如何弥合？</li>
+<li><strong>安全与可靠性</strong>。物理交互的错误是不可逆的——机器人撞坏东西是真的会坏的。如何确保在物理世界中的安全操作？</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="每个方向的核心问题" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="每个方向的核心问题"><span class="header-section-number">3</span> 每个方向的核心问题</h2>
+<p>上一节我们概览了六个主要研究方向。但知道一个方向的存在和真正进入这个方向做研究是两回事。对于每个方向，你需要理解：什么问题被认为是重要的？当前的技术瓶颈在哪里？有哪些有希望的切入点？</p>
+<section id="reasoning核心问题" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="reasoning核心问题"><span class="header-section-number">3.1</span> Reasoning：核心问题</h3>
+<p><strong>什么是”推理”？</strong> 这个看似基础的问题其实没有公认的答案。是能够做数学证明？是能够进行反事实推理？是能够处理长链逻辑依赖？不同的定义会导向不同的研究方向和评估方法。</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>强化学习训练的不稳定性。用RL训练推理能力需要精心设计的奖励信号和训练策略，稍有不慎就会失败。</li>
+<li>推理长度与质量的权衡。更长的推理链不一定更好——如何知道”何时停止思考”？</li>
+<li>Verifier的准确性。如果用于评估推理过程的Verifier本身不够准确，就会引入噪声甚至误导。</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>特定领域的推理。与其追求通用推理能力，不如在特定领域（如数学、代码、科学推理）深入研究，更容易定义问题和评估进展。</li>
+<li>推理过程的可解释性分析。研究模型在推理时内部发生了什么，可能揭示推理能力的本质。</li>
+<li>形式化验证。对于某些领域（如数学证明），可以用形式化方法验证推理的正确性，这提供了”金标准”。</li>
+</ul>
+</section>
+<section id="长上下文核心问题" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="长上下文核心问题"><span class="header-section-number">3.2</span> 长上下文：核心问题</h3>
+<p><strong>有效利用 vs 仅仅支持</strong>。模型可能支持100K token的上下文，但这不意味着它能有效利用所有信息。“Needle in a Haystack”测试揭示了模型在长上下文中信息检索的困难。</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>位置编码的外推极限。目前的方法在极端长度下性能会下降。</li>
+<li>KV Cache的内存问题。即使用了PagedAttention等优化，超长上下文的KV Cache仍然是推理的瓶颈。</li>
+<li>训练长上下文模型的成本。在长序列上训练需要巨大的计算资源。</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>混合架构。结合不同的机制——近距离用full attention，远距离用稀疏attention或压缩表示。</li>
+<li>学习what to remember。让模型学会主动选择保留哪些信息，而不是被动压缩一切。</li>
+<li>与RAG的深度整合。长上下文和检索增强可能是互补而非竞争的关系。</li>
+</ul>
+</section>
+<section id="多模态核心问题" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="多模态核心问题"><span class="header-section-number">3.3</span> 多模态：核心问题</h3>
+<p><strong>语义对齐 vs 细节保留</strong>。CLIP式的对比学习擅长高层语义对齐，但可能丢失图像中的细节信息。如何在对齐和细节之间取得平衡？</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>图像token的数量。高分辨率图像需要大量token，这显著增加计算成本。</li>
+<li>空间推理能力不足。模型在精确空间关系判断上表现不佳。</li>
+<li>幻觉问题。模型容易”看见”图像中不存在的东西。</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>更好的视觉表示。ViT可能不是最优的视觉编码器——探索其他架构可能带来突破。</li>
+<li>视觉推理的专门数据集。当前的多模态数据集可能缺乏需要复杂视觉推理的样本。</li>
+<li>多模态CoT。如何让模型在视觉推理时也展示”思考过程”？</li>
+</ul>
+</section>
+<section id="效率核心问题" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="效率核心问题"><span class="header-section-number">3.4</span> 效率：核心问题</h3>
+<p><strong>能力-效率的帕累托前沿</strong>。在同样的计算预算下，如何达到最好的能力？反过来，要达到某个能力水平，最少需要多少计算？</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>MoE的通信开销。在多GPU上运行MoE，expert之间的通信可能成为瓶颈。</li>
+<li>量化的质量损失。激进的量化会导致能力下降，尤其是在推理任务上。</li>
+<li>硬件利用率。大多数训练和推理的硬件利用率远低于理论峰值。</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>硬件-算法协同设计。针对特定硬件（如TPU、自定义ASIC）设计算法，而非使用通用方法。</li>
+<li>稀疏性的更深入利用。不只是MoE——能否在attention、embedding等其他地方也利用稀疏性？</li>
+<li>知识蒸馏的改进。如何更有效地将大模型的能力转移到小模型？</li>
+</ul>
+</section>
+<section id="对齐核心问题" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="对齐核心问题"><span class="header-section-number">3.5</span> 对齐：核心问题</h3>
+<p><strong>什么是”对齐”？</strong> 是符合标注者偏好？是符合用户意图？是符合社会价值观？还是符合某种更抽象的”好”？</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>人类偏好的噪声和不一致。不同标注者对同一输出可能有不同评价，甚至同一标注者的评价也可能不一致。</li>
+<li>奖励模型的泛化。在已见数据上训练的奖励模型能否正确评估模型从未见过的输出类型？</li>
+<li>对齐的可逆性。经过对齐的模型能否被”越狱”恢复到未对齐状态？</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>自然语言规范。用自然语言描述期望的行为，而非依赖隐式的偏好数据。Constitutional AI是这个方向的早期探索。</li>
+<li>可解释的对齐。如果我们能理解模型”为什么”产生某个输出，就能更好地判断它是否对齐。</li>
+<li>形式化的对齐目标。能否用数学语言精确定义”对齐”，而非依赖模糊的直觉？</li>
+</ul>
+</section>
+<section id="world-models核心问题" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="world-models核心问题"><span class="header-section-number">3.6</span> World Models：核心问题</h3>
+<p><strong>预测 vs 理解</strong>。能够预测下一帧视频并不意味着理解了物理规律。如何区分”真正的理解”和”统计预测”？</p>
+<p><strong>当前技术瓶颈</strong>：</p>
+<ul>
+<li>3D表示与2D输入的gap。大多数训练数据是2D图像，但物理世界是3D的。</li>
+<li>动作空间的复杂性。机器人的动作空间（连续、高维）与语言（离散token）有根本不同。</li>
+<li>安全保证。在物理世界中，我们需要比”大多数时候正确”更强的保证。</li>
+</ul>
+<p><strong>有希望的切入点</strong>：</p>
+<ul>
+<li>模拟环境中的大规模训练。利用游戏引擎或物理模拟器生成大量交互数据。</li>
+<li>从人类演示中学习。人类操作视频包含丰富的物理直觉，如何提取和利用？</li>
+<li>模块化架构。将高层规划（LLM擅长）和底层控制（传统方法成熟）分离。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="研究品味的培养" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="研究品味的培养"><span class="header-section-number">4</span> 研究品味的培养</h2>
+<p>知道有哪些研究方向只是第一步。更重要的问题是：什么样的问题值得做？如何判断一个方向是否过度拥挤？如何找到自己的niche？这些问题没有标准答案，但可以通过培养”研究品味”来逐步形成判断力。</p>
+<section id="什么样的问题值得做" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="什么样的问题值得做"><span class="header-section-number">4.1</span> 什么样的问题值得做？</h3>
+<p>好的研究问题通常具有以下特征：</p>
+<p><strong>真实性</strong>。问题应该是真实存在的，而非为了发论文而人为构造的。判断标准之一是：如果这个问题被解决，会有人真正在乎吗？会改变实际应用吗？会影响我们对某个领域的理解吗？</p>
+<p><strong>可定义性</strong>。问题应该是可以被精确定义的，你需要能清晰地说明”什么算解决了这个问题”。如果一个问题太模糊（如”让AI更智能”），你就无法知道自己是否取得了进展。</p>
+<p><strong>可行性</strong>。问题应该是在你的资源和时间范围内可能取得进展的。一个太难的问题可能让你三年没有产出；一个太容易的问题可能没有足够的贡献。找到正确的难度级别需要经验和与导师的讨论。</p>
+<p><strong>个人兴趣</strong>。你需要真正关心这个问题。研究是一个漫长的过程，如果你对问题本身没有热情，很难坚持过那些无数次实验失败的日子。</p>
+</section>
+<section id="如何判断一个方向是否过度拥挤" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="如何判断一个方向是否过度拥挤"><span class="header-section-number">4.2</span> 如何判断一个方向是否过度拥挤？</h3>
+<p>一个方向太拥挤意味着：容易做的问题已经被做完了，剩下的要么太难要么太边缘。判断拥挤程度的一些信号：</p>
+<ul>
+<li><strong>论文增速</strong>。如果某个关键词的arXiv论文每周数十篇，这个方向很可能已经拥挤。</li>
+<li><strong>边际贡献递减</strong>。新论文的改进越来越小，从”10个点提升”变成”0.5个点提升”。</li>
+<li><strong>benchmark饱和</strong>。主要benchmark的分数已经接近天花板或人类水平。</li>
+<li><strong>大公司主导</strong>。如果一个方向需要大量计算资源才能有竞争力，学术界很难与大公司竞争。</li>
+</ul>
+<p>但要注意：一个方向拥挤不意味着你不应该做它。关键是找到<strong>你独特的切入角度</strong>——也许是新的问题视角、新的评估方法、与其他领域的交叉，或者对现有方法的深入理论分析。</p>
+</section>
+<section id="如何找到自己的niche" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="如何找到自己的niche"><span class="header-section-number">4.3</span> 如何找到自己的niche</h3>
+<p><strong>从复现开始</strong>。选择一篇你感兴趣的论文，尝试复现它。在复现过程中，你会发现论文的假设、局限、以及作者没有探索的方向。这些往往是好的研究起点。</p>
+<p><strong>寻找交叉点</strong>。如果你有某个独特的背景（比如语言学、认知科学、数学、特定领域知识），尝试将它与NLP/LLM结合。交叉领域往往有未被充分探索的机会。</p>
+<p><strong>关注实际应用中的痛点</strong>。与实际使用这些技术的人交流——他们遇到什么问题？什么功能他们一直想要但没有？实际痛点往往能指向有价值的研究问题。</p>
+<p><strong>不要追热点，但要了解热点</strong>。追逐每一个新热点会让你疲于奔命而没有深度。但你需要了解领域的动态，知道大家在关心什么，这样你才能把自己的工作与之连接。</p>
+<hr>
+</section>
+</section>
+<section id="给phd新生的建议" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="给phd新生的建议"><span class="header-section-number">5</span> 给PhD新生的建议</h2>
+<p>如果你是刚开始PhD旅程的学生，这一节专门为你而写。PhD是一段独特的经历——它既是学术训练，也是个人成长的过程。以下建议基于我的观察和前人的智慧。</p>
+<section id="第一年应该读哪些论文" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="第一年应该读哪些论文"><span class="header-section-number">5.1</span> 第一年应该读哪些论文？</h3>
+<p><strong>不要试图读完所有东西</strong>。NLP领域每天有太多新论文，试图跟上所有进展是不可能的。相反，专注于两类论文：</p>
+<p><strong>奠基性论文</strong>。这些论文定义了整个子领域。对于当前的LLM研究，附录C的论文列表是一个好的起点——从Word2Vec到GPT-3，这10篇左右的论文构成了知识骨架。精读它们，不只是理解它们做了什么，还要理解它们为什么重要，以及它们回答了什么问题。</p>
+<p><strong>与你项目直接相关的论文</strong>。一旦你开始一个具体项目，你需要深入了解这个子方向的所有重要工作。Related Work部分是你的阅读地图——找到被反复引用的论文，按时间顺序阅读，理解这个方向的演进脉络。</p>
+<p>每周可以花一些时间浏览arXiv或Twitter上的新论文，但只需要快速筛选（读标题和摘要），只有真正相关或有趣的才值得深入阅读。</p>
+</section>
+<section id="如何找到第一个研究问题" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="如何找到第一个研究问题"><span class="header-section-number">5.2</span> 如何找到第一个研究问题？</h3>
+<p><strong>与导师密切沟通</strong>。你的导师对领域有更全局的视野，知道哪些问题有意义、哪些方向有希望。初期的研究问题往往来自导师的建议，这是正常的。随着你成长，你会逐渐有自己的想法。</p>
+<p><strong>从小项目开始</strong>。你的第一个项目不需要是开创性的工作。一个复现论文并做一些扩展的项目，或者对现有方法的系统性分析，都可以是很好的起点。这会帮你建立技能、了解领域、以及与导师建立工作节奏。</p>
+<p><strong>拥抱失败</strong>。你的前几个想法很可能不会成功——实验失败、假设被推翻、deadline赶不上。这是正常的学习过程。关键是从失败中学到东西：为什么这个想法不work？这告诉你什么？</p>
+</section>
+<section id="如何与导师和社区互动" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="如何与导师和社区互动"><span class="header-section-number">5.3</span> 如何与导师和社区互动</h3>
+<p><strong>主动而非被动</strong>。不要等导师来找你——主动安排会议、主动汇报进展、主动提出问题。导师通常很忙，主动的学生更容易得到关注和帮助。</p>
+<p><strong>学会接受和给出反馈</strong>。研究是一个不断接受批评的过程——论文被拒、想法被质疑、实验被挑战。这不是针对你个人的攻击，而是学术社区寻求真理的方式。同样地，学会给出建设性的反馈也是重要的技能。</p>
+<p><strong>建立同辈网络</strong>。你的同学、同实验室的人、以及你在会议上遇到的同龄研究者，可能会成为你一生的合作者和朋友。花时间建立这些关系——它们不只对你的职业有帮助，也会让PhD这段旅程更加愉快。</p>
+<p><strong>参与社区</strong>。投稿论文、担任审稿人（在能力允许时）、参加研讨会和会议、在Twitter或博客上分享你的工作。这些不只是”履历”——它们让你成为社区的一部分，与更广泛的研究对话。</p>
+<hr>
+</section>
+</section>
+<section id="开放的大问题" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="开放的大问题"><span class="header-section-number">6</span> 开放的大问题</h2>
+<p>我们以一些更根本性的开放问题来结束这本书。这些问题没有明确的答案，甚至没有公认的研究方法。但它们代表了这个领域最深层次的挑战，也是最有可能带来根本性突破的方向。</p>
+<section id="幻觉问题与事实性" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="幻觉问题与事实性"><span class="header-section-number">6.1</span> 幻觉问题与事实性</h3>
+<p>语言模型会自信地生成错误的信息——这被称为”幻觉”（hallucination）。这不只是一个技术bug，它可能反映了当前方法的根本局限。</p>
+<p>一个核心问题是：<strong>语言模型”知道”什么？</strong> 当模型生成一个陈述时，它是否以某种方式”表示”了这个陈述的真假？还是它只是在做统计预测，完全不区分真假？</p>
+<p>如果是后者，那么幻觉可能是不可避免的——模型没有”真相”的概念，它只是在生成看起来合理的文本。但如果模型内部确实有某种形式的”知识表示”，也许我们可以通过可解释性研究找到它，并利用它来减少幻觉。</p>
+<p>另一个相关问题是：<strong>知识的来源应该是什么？</strong> 参数化知识（存储在模型权重中）vs 外部知识（通过RAG检索）各有优缺点。也许最终的方案是某种混合——模型知道什么时候该依赖自己的”记忆”，什么时候该去”查资料”。</p>
+</section>
+<section id="推理能力的本质" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="推理能力的本质"><span class="header-section-number">6.2</span> 推理能力的本质</h3>
+<p>o1等模型展示了令人印象深刻的推理能力，但我们仍然不清楚这些能力的本质是什么。</p>
+<p><strong>语言模型真的在”推理”吗？</strong> 一种观点认为，Chain-of-Thought只是一种更好的提示方式——它帮助模型”检索”了正确的答案，但模型并没有真正进行逻辑推理。另一种观点认为，通过生成中间步骤，模型确实在进行某种形式的符号推理，只是这种推理是分布式和近似的。</p>
+<p>一个更深层的问题是：<strong>推理是否可以完全从数据中学到？</strong> 人类的推理能力是如何形成的——纯粹通过经验学习，还是有某种先天的结构？语言模型如果只看文本，能否学到真正的推理能力，还是需要某种额外的归纳偏置？</p>
+</section>
+<section id="效率的极限" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="效率的极限"><span class="header-section-number">6.3</span> 效率的极限</h3>
+<p>当前的语言模型极度低效——它们消耗的能量和数据远超人类大脑。一个自然的问题是：<strong>效率的极限在哪里？</strong></p>
+<p>从信息论角度，完成某项任务所需的最小计算量是有下界的。但我们离这个下界还有多远？当前的Transformer架构是否接近最优，还是有根本不同的架构能够达到更好的效率？</p>
+<p>人类大脑在约20瓦的功耗下运行，却能完成极其复杂的认知任务。这暗示着在生物系统和硅基系统之间可能存在着我们尚未发现的效率原则。</p>
+</section>
+<section id="agi之路" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="agi之路"><span class="header-section-number">6.4</span> AGI之路</h3>
+<p>最后一个，也是最根本的问题：<strong>我们在通向AGI的道路上走到了哪里？</strong></p>
+<p>乐观主义者认为，继续扩大规模和改进训练方法，最终会导向某种形式的通用人工智能。悲观主义者认为，当前的方法有根本性的局限——它们可能是”无尽的曲线”，渐进地接近但永远无法达到真正的智能。</p>
+<p>一个更细化的问题是：<strong>什么是”通用”？</strong> AGI中的”G”（General）应该如何定义？是能够完成所有人类认知任务？是能够在任何新环境中快速学习？还是具有某种更抽象的”理解”能力？</p>
+<p>这些问题可能超出了技术研究的范畴，触及了心灵哲学、认知科学、甚至伦理学。但作为这个领域的研究者，思考这些根本问题会帮助你保持对大图景的视野，不至于迷失在日常的技术细节中。</p>
+<hr>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">7</span> 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">7.1</span> 核心要点回顾</h3>
+<ol type="1">
+<li><p><strong>研究前沿的主题</strong>：从”更大更强”转向”真正理解”——推理能力、长上下文、多模态统一、效率优化、对齐安全、世界模型。</p></li>
+<li><p><strong>选择研究方向</strong>：好的研究问题应该是真实的、可定义的、可行的，并且是你真正关心的。避免过度拥挤的方向，寻找你独特的切入点。</p></li>
+<li><p><strong>研究品味的培养</strong>：从复现开始，寻找交叉点，关注实际痛点，了解但不追逐热点。</p></li>
+<li><p><strong>PhD之旅</strong>：与导师密切沟通，从小项目开始，拥抱失败，建立同辈网络，参与社区。</p></li>
+<li><p><strong>开放的大问题</strong>：幻觉与事实性、推理能力的本质、效率的极限、AGI之路——这些问题没有答案，但值得思考。</p></li>
+</ol>
+</section>
+<section id="最后的话" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="最后的话"><span class="header-section-number">7.2</span> 最后的话</h3>
+<p>写这本书的过程中，NLP领域经历了多次巨变。当我开始写第一章时，ChatGPT还没有发布；当我写到预训练章节时，GPT-4刚刚震惊世界；现在写完最后一章，o1和各种推理模型已经开始改变我们对LLM能力的认知。</p>
+<p>这种快速变化既是挑战也是机遇。你进入这个领域的时机，正是它最激动人心的时刻之一。我们正在见证计算机科学历史上最重要的技术之一的演进，而你将参与塑造它的未来。</p>
+<p>但请记住：比起追逐最新的技术热点，更重要的是保持好奇心和批判性思维。问”为什么”比问”怎么做”更重要。理解问题的本质比解决问题的表面更重要。</p>
+<p>祝你在研究之路上一切顺利。</p>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">8</span> 延伸阅读</h2>
+<section id="研究前沿综述" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="研究前沿综述"><span class="header-section-number">8.1</span> 研究前沿综述</h3>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2504.09037">A Survey of Frontiers in LLM Reasoning</a></strong> (2025)：推理研究的全面综述
+<ul>
+<li>重点读：推理范式分类（Figure 1）、Learning to Reason vs Inference Scaling</li>
+</ul></li>
+<li><strong><a href="https://arxiv.org/abs/2509.20021">Embodied AI: From LLMs to World Models</a></strong> (2025)：具身智能的技术演进
+<ul>
+<li>重点读：MLLM与World Model的结合</li>
+</ul></li>
+<li><strong><a href="https://arxiv.org/abs/2503.14504">Aligning Multimodal LLM with Human Preference</a></strong> (2025)：多模态对齐的最新进展
+<ul>
+<li>重点读：对齐算法的分类</li>
+</ul></li>
+</ul>
+</section>
+<section id="研究方法论" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="研究方法论"><span class="header-section-number">8.2</span> 研究方法论</h3>
+<ul>
+<li><strong>“You and Your Research” by Richard Hamming</strong>：关于如何做重要研究的经典演讲
+<ul>
+<li><a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">链接</a></li>
+</ul></li>
+<li><strong>“10 Tips for Research and a PhD” by Sebastian Ruder</strong>：实用的PhD建议
+<ul>
+<li><a href="https://www.ruder.io/10-tips-for-research-and-a-phd/">链接</a></li>
+</ul></li>
+<li><strong>“How to Be a Successful PhD Student” by Hanna Wallach</strong>：系统的PhD指南
+<ul>
+<li><a href="https://people.cs.umass.edu/~wallach/how_to_be_a_successful_phd_student.pdf">链接</a></li>
+</ul></li>
+</ul>
+</section>
+<section id="前沿追踪资源" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="前沿追踪资源"><span class="header-section-number">8.3</span> 前沿追踪资源</h3>
+<ul>
+<li><strong>Sebastian Raschka’s Newsletter</strong>：每月LLM论文精选
+<ul>
+<li><a href="https://magazine.sebastianraschka.com/">链接</a></li>
+</ul></li>
+<li><strong>Papers with Code</strong>：追踪各领域的SOTA
+<ul>
+<li><a href="https://paperswithcode.com/">链接</a></li>
+</ul></li>
+<li><strong>arXiv Sanity</strong>：个性化arXiv推荐
+<ul>
+<li><a href="https://arxiv-sanity-lite.com/">链接</a></li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="历史注脚" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="历史注脚"><span class="header-section-number">9</span> 历史注脚</h2>
+<p>这本书从构思到完成，跨越了NLP历史上变化最快的几年。有些章节写完后不到几个月，技术就已经过时；有些当时认为是前沿的内容，现在已经成为基础知识。</p>
+<p>这种快速变化是这个领域的魅力所在，也是挑战所在。我试图写一本能够”存活”更久的教材——不只是介绍具体技术，更是培养理解技术的思维方式。如果这本书能帮你建立起”问题→解决方案→新问题”的演进思维，能帮你学会”为什么”而非仅仅”是什么”，那它就达到了目的。</p>
+<p>技术会变，但好的问题和好的思考方式不会。</p>
+<blockquote class="blockquote">
+<p><strong>全书完</strong></p>
+</blockquote>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

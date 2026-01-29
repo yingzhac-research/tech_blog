@@ -124,6 +124,16 @@ UniLM（Dong et al., 2019）最早明确地展示了这个统一视角——它�
 
 ## 核心思想与直觉
 
+在深入讨论之前，让我们先从一张经典的对比图建立直觉。D2L（Dive into Deep Learning）教材提供了一个清晰的视角来理解三种预训练范式的演进：
+
+![ELMo、GPT 和 BERT 三种预训练范式的对比。ELMo 使用任务特定的架构，分别训练前向和后向 LSTM；GPT 使用单向 Transformer 解码器，从左到右处理序列；BERT 使用双向 Transformer 编码器，可以同时利用左右上下文。图中清晰地展示了三种方法在架构设计和信息流动方向上的根本差异。](figures/chapter-16/original/fig-elmo-gpt-bert-d2l.svg){#fig-elmo-gpt-bert width=85%}
+
+::: {.figure-caption}
+*Source: Dive into Deep Learning, Figure 15.8.1. [d2l.ai](https://d2l.ai/chapter_natural-language-processing-pretraining/bert.html). License: CC BY-SA 4.0*
+:::
+
+这张图揭示了一个关键洞察：**预训练范式的演进是一个逐步"去任务特定化"的过程**。ELMo 仍然需要为每个下游任务设计特定的架构；GPT 和 BERT 则共享同一个预训练骨架，只是在信息流动的方向上做出了不同的选择——这个选择后来被证明对大语言模型时代的走向产生了深远影响。
+
 ### 三种设计哲学
 
 三种架构背后隐含着三种不同的"语言理解"哲学，理解这些哲学比记住技术细节更重要。

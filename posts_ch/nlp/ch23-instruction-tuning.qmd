@@ -1,0 +1,632 @@
+---
+title: "第23章：指令微调——让模型听话"
+subtitle: "Instruction Tuning: From Raw Language Models to Helpful Assistants"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, Instruction Tuning, Alignment]
+tags: [FLAN, InstructGPT, Self-Instruct, Alpaca, Vicuna, T0, Instruction Following, SFT, Multi-task, Zero-shot]
+description: "上一章的评测方法论揭示了一个深刻的困境：我们连'什么是好的模型输出'都还没有共识，就已经在训练越来越大的模型了。GPT-3拥有1750亿参数和惊人的few-shot能力，但它本质上只是一个'补全机器'——你必须精心设计prompt才能让它做正确的事。本章讲述指令微调（Instruction Tuning）如何将语言模型从被动的文本补全器变为主动的任务执行者：从FLAN的多任务指令微调，到Self-Instruct的自动数据生成，再到Alpaca/Vicuna的开源平民化浪潮。"
+image: "figures/chapter-23/original/fig2-flan-three-paradigms.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：如何让语言模型从"补全文本"变为"遵循指令"？
+>
+> **历史坐标**：2021–2023 | FLAN → InstructGPT SFT → Self-Instruct → Alpaca/Vicuna | 从手工标注到自动生成指令数据
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Wei et al. (2022)** "Finetuned Language Models Are Zero-Shot Learners" ([arXiv:2109.01652](https://arxiv.org/abs/2109.01652)) — 参考了 Section 2（方法）、Section 4（消融实验）、Figure 1（instruction tuning 总览）、Figure 2（三范式对比）；从论文提取了2张原图（Figure 1, Figure 2）
+- **Chung et al. (2022)** "Scaling Instruction-Finetuned Language Models" ([arXiv:2210.11416](https://arxiv.org/abs/2210.11416)) — 参考了 Section 2-3（scaling 实验）；FLAN-T5/FLAN-PaLM 结果
+- **Longpre et al. (2023)** "The Flan Collection: Designing Data and Methods for Effective Instruction Tuning" ([arXiv:2301.13688](https://arxiv.org/abs/2301.13688)) — 参考了 Section 3（数据设计决策）、Table 1（任务混合策略）
+- **Ouyang et al. (2022)** "Training language models to follow instructions with human feedback" ([arXiv:2203.02155](https://arxiv.org/abs/2203.02155)) — 参考了 Section 3.1-3.2（SFT数据构建）、Figure 2（三阶段流水线）；从论文提取了1张原图（Figure 2）
+- **Wang et al. (2023)** "Self-Instruct: Aligning Language Models with Self-Generated Instructions" ([arXiv:2212.10560](https://arxiv.org/abs/2212.10560)) — 参考了 Section 3（pipeline 设计）、Figure 2（Self-Instruct 流程图）、Algorithm 1；从论文提取了1张原图（Figure 2）
+- **Taori et al. (2023)** "Stanford Alpaca: An Instruction-Following LLaMA Model" ([GitHub](https://github.com/tatsu-lab/stanford_alpaca)) — 参考了数据生成方法、训练配置
+- **Chiang et al. (2023)** "Vicuna: An Open-Source Chatbot Impressing GPT-4 with 90% ChatGPT Quality" ([LMSYS Blog](https://lmsys.org/blog/2023-03-30-vicuna/)) — 参考了 ShareGPT 数据源、多轮对话训练
+- **Sanh et al. (2022)** "Multitask Prompted Training Enables Zero-Shot Task Generalization" ([arXiv:2110.08207](https://arxiv.org/abs/2110.08207)) — 参考了 T0 的 prompt template 设计
+
+### 教材
+- SLP3 Chapter 11-12 — 参考了 LLM 与指令微调的教学组织
+
+### 课程
+- Stanford CS224N Lecture 10 (Winter 2025): "Instruction Finetuning, and RLHF" — 参考了 Diyi Yang / Jesse Mu 的讲解角度和 slides 组织
+:::
+
+## 从上一章说起
+
+上一章我们系统讨论了评测方法论的演进：从 BLEU/ROUGE 等自动指标到 GLUE/SuperGLUE 等静态 benchmark，再到 LLM-as-Judge 和 Chatbot Arena 等新范式。这些评测手段试图回答一个根本性的问题——"模型变好了吗？"然而，评测方法论的核心洞察反而揭示了一个更深层的困境：**度量本身会影响我们对能力的判断**。Goodhart 定律告诉我们，一旦某个度量成为优化目标，它就不再是一个好的度量。
+
+但这里有一个更直接的问题。假设你手上有一个 GPT-3 级别的大模型——1750 亿参数，在海量文本上训练过，具备令人印象深刻的 few-shot 能力。你想让它帮你"把这段英文翻译成中文"。你会怎么做？
+
+如果你直接输入"把这段英文翻译成中文：Hello world"，GPT-3 可能会继续"补全"这段文本，输出类似"把这段英文翻译成法文：Bonjour le monde"——它把你的指令当成了某个文档的一部分，然后接着"续写"了。要让它真正翻译，你需要精心设计 prompt，比如"English: Hello world\nChinese:"，还得祈祷它理解你的格式意图。
+
+这不是 GPT-3 的 bug，而是它训练目标的必然结果。语言模型的预训练目标是**预测下一个 token**——它学到的是文本的统计分布，而不是"遵循人类指令"。一个在互联网文本上训练的模型，看到一段文字后最可能做的事情就是继续这段文字的风格和内容。想让它变成一个有用的助手，你必须让它学会一种新的行为模式：**读取指令，执行任务，返回结果**。
+
+这就是本章的核心主题：指令微调（Instruction Tuning）。
+
+> 💡 **本章核心洞察**：通过在大量"指令→输出"格式的数据上微调预训练语言模型，可以让它从被动的文本补全器变成主动的任务执行者——而且这种能力可以泛化到训练时从未见过的任务类型。
+
+## 问题的本质是什么？
+
+### 预训练模型的"能力-可用性"鸿沟
+
+让我们先精确定义问题。GPT-3 等大型预训练模型存在一个悖论：它们的**潜在能力**远超**可用能力**。在 few-shot 设置下，GPT-3 能做翻译、摘要、问答、推理等各种任务——但前提是你得知道正确的 prompt 格式。这被称为**能力-可用性鸿沟**（capability-usability gap）。
+
+这个鸿沟有多大？Ouyang et al. (2022) 在 InstructGPT 论文中给出了一个直观的例子：当用户输入"Explain the moon landing to a 6 year old"时，GPT-3 的典型输出不是一段面向儿童的解释，而是继续列举更多类似的 prompt（"Explain the theory of gravity to a 6 year old"），因为在它的训练数据中，这种格式更可能出现在一个"prompt 列表"的语境下。
+
+这个问题的根源在于**训练目标与使用方式的错配**。预训练的目标是最大化下一个 token 的预测概率：
+
+$$
+\mathcal{L}_{\text{pretrain}} = -\sum_{t=1}^{T} \log P(x_t \mid x_1, \ldots, x_{t-1}; \theta)
+$$
+
+这个目标让模型学会了语言的统计规律，但没有教它"当用户给出指令时，应该执行指令而不是续写文本"。
+
+### 之前的解决方案为何不够
+
+在指令微调出现之前，人们主要用两种方式来弥合这个鸿沟。
+
+**方式一：任务特定的微调（Pretrain-Finetune）**。对于每个下游任务，收集该任务的标注数据，然后在预训练模型上进行有监督微调。BERT 时代的做法就是这样：情感分析有情感分析的微调模型，NER 有 NER 的微调模型。这种方式的问题显而易见——你需要为**每个任务**分别训练一个模型，无法处理训练时没见过的任务。
+
+**方式二：Prompt Engineering**。GPT-3 的 few-shot 能力开辟了一条新路：不修改模型参数，而是通过设计精巧的 prompt 来引导模型行为。但 prompt engineering 高度依赖人的经验和创造力，不同的 prompt 格式可能导致截然不同的结果，而且对于复杂任务，few-shot 的 prompt 会占用大量的上下文窗口。
+
+### 我们需要什么样的解决方案？
+
+理想的方案应该同时具备以下特性：**单一模型**处理多种任务，无需任务特定的微调；在**未见过的任务**上也能工作（zero-shot 泛化）；用户可以用**自然语言指令**描述任务，而不是依赖精心设计的 prompt 格式。
+
+![Pretrain-Finetune、Prompting 与 Instruction Tuning 三种范式的对比。(A) 传统微调需要为每个任务训练专门模型；(B) Prompting 通过设计输入格式来引导行为；(C) Instruction Tuning 通过在多任务指令数据上微调，获得对未见任务的 zero-shot 泛化能力。](figures/chapter-23/original/fig2-flan-three-paradigms.png){#fig-three-paradigms width=95%}
+
+::: {.figure-caption}
+*Source: Wei et al. (2022) "Finetuned Language Models Are Zero-Shot Learners", Figure 2*
+:::
+
+@fig-three-paradigms 清楚地展示了三种范式的差异。Instruction Tuning 的关键洞察是：如果我们在**足够多样的任务**上微调模型，并且每个任务都以自然语言指令的形式描述，那么模型可以学会一种通用的"遵循指令"能力，从而泛化到全新的任务。
+
+## 核心思想与直觉
+
+### 关键洞察：教模型"读指令、做任务"
+
+指令微调的核心思想可以用一个简单的类比来理解。想象你在培训一个新入职的员工。如果你只让他做 A 任务，他就只会 A 任务（这是传统微调）。如果你给他看一本操作手册然后期望他自己悟（这是 prompting），效果取决于手册写得好不好以及他的悟性。但如果你让他在**多种不同的任务**上都实际操练过——今天翻译文档，明天写摘要，后天做数据分析——并且每次都告诉他"你的任务是做 X"，那么当他遇到一个没做过的新任务时，他已经学会了一种**通用的工作模式**：读取任务描述 → 理解要求 → 执行并输出结果。
+
+这就是指令微调的核心直觉。
+
+形式化地说，指令微调将每个训练样本构造为"指令 + 输入 → 输出"的三元组格式：
+
+$$
+(\text{instruction}, \text{input}, \text{output})
+$$
+
+例如：
+
+> **Instruction**: Translate the following sentence to French.
+> **Input**: The weather is beautiful today.
+> **Output**: Le temps est magnifique aujourd'hui.
+
+然后在这些三元组上进行标准的有监督微调（Supervised Fine-Tuning, SFT），优化目标与预训练相同——预测下一个 token——只是训练数据的格式变了：
+
+$$
+\mathcal{L}_{\text{SFT}} = -\sum_{t=1}^{|\text{output}|} \log P(y_t \mid \text{instruction}, \text{input}, y_1, \ldots, y_{t-1}; \theta)
+$$
+
+注意一个微妙但重要的细节：**损失函数只计算在 output 部分的 token 上**，instruction 和 input 部分不参与损失计算。这是因为我们希望模型学会的是"给定指令，生成正确输出"，而不是"生成指令本身"。
+
+### 设计动机：为什么多任务是关键？
+
+一个自然的问题是：如果只在翻译指令上微调，模型能学会做摘要吗？答案是不能——单任务的指令微调只是传统微调的换皮版本。指令微调的威力来自于**多任务的多样性**。当模型在翻译、摘要、问答、推理、分类等**数十种任务类型**上都见过"指令→输出"的模式后，它抽象出的不再是某个具体任务的解法，而是一种**元能力**——理解自然语言指令并执行相应操作。
+
+这里的理论直觉类似于元学习（meta-learning）：模型不是在学习某个具体任务，而是在学习"如何根据任务描述来完成任务"。
+
+## 技术细节
+
+### FLAN：指令微调的先驱
+
+2021 年 9 月，Google Research 的 Jason Wei 等人发表了 FLAN（Finetuned Language Net）——第一个系统性验证指令微调有效性的工作。
+
+![FLAN 的整体流程：在多种任务上以自然语言指令的形式微调预训练模型，然后在完全未见过的任务上进行 zero-shot 评估。底部的柱状图展示了 FLAN 在 NLI、阅读理解和封闭域 QA 三类未见任务上均大幅超越 GPT-3 的 zero-shot 和 few-shot 表现。](figures/chapter-23/original/fig1-flan-instruction-tuning-overview.png){#fig-flan-overview width=90%}
+
+::: {.figure-caption}
+*Source: Wei et al. (2022) "Finetuned Language Models Are Zero-Shot Learners", Figure 1*
+:::
+
+**任务组织与模板设计**。FLAN 的实验设计体现了极高的方法论严谨性。作者收集了 62 个 NLP 数据集，将它们按任务类型分成 12 个**任务簇**（task clusters）：自然语言推理、阅读理解、封闭域问答、翻译、常识推理、指代消解、结构化到文本等。对于每个数据集，作者手工编写了**10个不同的指令模板**（instruction templates），用自然语言描述该任务。
+
+例如，对于自然语言推理任务（判断两个句子的关系），10 个模板中的几个可能是：
+
+- "Does the premise entail the hypothesis? Answer yes, no, or maybe."
+- "Read the following two sentences and determine if they agree, disagree, or are neutral."
+- "Based on the premise, is the hypothesis true, false, or inconclusive?"
+
+同一个语义任务用不同的自然语言表达来描述，这迫使模型真正理解**指令的含义**，而不是记住特定的模板格式。
+
+**评估策略的精妙之处**。FLAN 的评估采用了一种**留出任务簇**（hold-out task clusters）的策略。在评估模型对某一类任务的 zero-shot 泛化时，整个任务簇的所有数据集都不参与训练。例如，要评估模型在 NLI 上的泛化能力，训练时会排除所有 NLI 相关的数据集（MNLI, SNLI, QNLI, RTE 等）。这比简单的数据集级别的留出更加严格——它确保模型真正面对的是一种**全新的任务类型**，而不仅仅是同类型任务的不同数据集。
+
+**关键结果**。基于 137B 参数的 LaMDA-PT，FLAN 在 20/25 个评估任务上超越了 175B 的 GPT-3 的 zero-shot 表现，甚至在 ANLI、RTE、BoolQ 等任务上超越了 GPT-3 的 few-shot 表现。这是一个令人震惊的结果：通过指令微调，模型的 zero-shot 能力可以超越更大模型的 few-shot 能力。
+
+### 消融实验：什么因素最重要？
+
+FLAN 的消融实验揭示了三个关键发现。
+
+**第一，任务数量至关重要**。随着训练时使用的任务簇从 1 个增加到 7 个，held-out 任务上的性能持续提升。这表明多样性是指令微调成功的关键——模型确实在从多任务中学习一种通用的指令遵循能力。
+
+**第二，模型规模存在阈值效应**。在较小的模型（如 422M、2B 参数）上，指令微调反而**损害**了 zero-shot 性能。只有当模型规模达到 68B 以上时，指令微调才开始带来一致的提升。这暗示指令微调不是在"注入"新能力，而是在"激活"预训练中已经学到的潜在能力——如果底层能力不够强，微调反而会破坏原有的泛化。
+
+**第三，自然语言指令格式是关键**。当把指令模板替换为简单的数据集名称（如"MNLI"而非"Does the premise entail the hypothesis?"），性能大幅下降。这证实了自然语言形式的指令是让模型理解任务意图的关键，而不仅仅是多任务混合训练本身。
+
+### 从 FLAN 到 FLAN v2：规模的力量
+
+FLAN 的成功引发了一系列后续工作。2022 年，Chung et al. 将指令微调扩展到更大的规模，推出了 FLAN-T5 和 FLAN-PaLM：
+
+| 维度 | FLAN (v1) | FLAN v2 |
+|------|-----------|---------|
+| **任务数量** | 62 个数据集 / 12 个簇 | 1,836 个任务 |
+| **模型** | LaMDA-PT 137B | T5 (80M–11B), PaLM (8B–540B) |
+| **模板策略** | 10 个手写模板/任务 | 混合 zero-shot + few-shot + CoT |
+| **关键创新** | 证明指令微调有效 | 混合 prompt 格式、任务平衡 |
+
+FLAN v2 的一个关键发现是**混合 prompt 格式训练**的价值。在训练时同时使用 zero-shot 模板、few-shot 示例和 Chain-of-Thought 模板，比只用其中一种格式的效果更好——在所有评估设置下都有 2% 以上的提升。这意味着指令微调的训练数据不仅要多样化任务类型，还要多样化**交互格式**。
+
+同一时期，BigScience 开源社区推出了 T0（Sanh et al., 2022），采用了类似的多任务 prompted training 理念，在 T5 架构上用 PromptSource 收集的高质量模板进行训练。T0 11B 在多个未见任务上达到了 GPT-3 175B 的水平，进一步验证了指令微调的普适性。
+
+### InstructGPT 的 SFT 阶段：人工标注的力量
+
+与 FLAN 的"将已有数据集改写为指令格式"不同，OpenAI 的 InstructGPT（Ouyang et al., 2022）走了一条更直接的路：**直接让人类标注员从头编写指令和期望的输出**。
+
+![InstructGPT 的三阶段训练流程：Step 1 使用人类标注的指令-输出对进行有监督微调（SFT）；Step 2 收集人类对多个输出的排序来训练奖励模型；Step 3 使用 PPO 进一步优化。本章聚焦 Step 1（SFT），Step 2-3 将在下一章详述。](figures/chapter-23/original/fig3-instructgpt-three-steps.png){#fig-instructgpt-pipeline width=90%}
+
+::: {.figure-caption}
+*Source: Ouyang et al. (2022) "Training language models to follow instructions with human feedback", Figure 2*
+:::
+
+本章聚焦的是 @fig-instructgpt-pipeline 中的 **Step 1**——有监督微调（SFT）。InstructGPT 的 SFT 数据来自两个渠道：一是标注员自己编写的 prompt（约 13,000 条），覆盖生成、问答、对话、摘要、改写、分类等多种任务类型；二是通过 OpenAI API 提交的真实用户 prompt（经过去重和脱敏处理）。
+
+与 FLAN 的关键区别在于数据的**来源和性质**。FLAN 使用的是将已有 NLP benchmark 改写成指令格式的数据——这些任务虽然多样，但本质上仍是学术任务。而 InstructGPT 的数据反映了**真实用户想让模型做的事情**：写邮件、编故事、解释概念、头脑风暴、写代码——这些任务更加开放和多样化，也更贴近实际使用场景。
+
+InstructGPT 的一个令人震惊的结果是：仅用 13K 条标注数据进行 SFT 的 1.3B 参数模型，在人类评估中就被认为优于 175B 的原始 GPT-3。这说明**数据的质量和格式**比数据的数量或模型的规模更为关键。
+
+### 指令数据的构建：从人工到自动
+
+FLAN 和 InstructGPT 都依赖人类来创建或改写指令数据，这面临一个根本性的瓶颈：人工标注既昂贵又难以规模化。一个自然的问题是：**能否让模型自己生成指令数据？**
+
+2022 年 12 月，Wang et al. 提出了 Self-Instruct——一个开创性的框架，通过让预训练语言模型自举（bootstrap）来生成指令微调数据。
+
+![Self-Instruct 的流程：从 175 个人工编写的种子任务出发，通过四个步骤迭代生成新的指令数据——指令生成（Step 1）→ 分类判断（Step 2）→ 实例生成（Step 3）→ 质量过滤（Step 4），然后将合格的数据加入任务池继续迭代。](figures/chapter-23/original/fig4-self-instruct-pipeline.png){#fig-self-instruct width=85%}
+
+::: {.figure-caption}
+*Source: Wang et al. (2023) "Self-Instruct: Aligning Language Models with Self-Generated Instructions", Figure 2*
+:::
+
+::: {.callout-note}
+## Algorithm: Self-Instruct Pipeline (Wang et al., 2023)
+
+```
+输入: 种子任务集 S = {(instruction, input, output)_1, ..., (instruction, input, output)_175}
+输出: 大规模指令数据集 D
+
+初始化: 任务池 TaskPool ← S
+
+重复以下步骤直到 |TaskPool| 足够大:
+  Step 1 — 指令生成:
+    从 TaskPool 中采样 8 个任务作为 in-context 示例
+    使用 LM 生成新的 instruction
+
+  Step 2 — 分类判断:
+    使用 LM 判断该 instruction 是否为分类任务
+    (这决定 Step 3 使用哪种生成策略)
+
+  Step 3 — 实例生成:
+    IF 分类任务:
+      使用 output-first 策略（先生成类别标签，再生成对应输入）
+    ELSE:
+      使用 input-first 策略（先生成输入，再生成输出）
+
+  Step 4 — 质量过滤:
+    过滤掉: 与已有任务太相似的（ROUGE-L > 0.7）
+             格式不合规的（缺少字段、输出为空等）
+             包含敏感内容的
+    将通过过滤的样本加入 TaskPool
+
+返回 TaskPool 作为最终数据集 D
+```
+
+*改编自: Wang et al. (2023) "Self-Instruct: Aligning Language Models with Self-Generated Instructions", Section 3*
+:::
+
+Self-Instruct 的巧妙之处在于**分类任务的特殊处理**。对于分类任务（如情感分析），如果先生成输入再让模型分类，模型往往会偏向某个类别。因此 Self-Instruct 采用了 **output-first** 策略：先指定一个类别标签，然后让模型生成对应该标签的输入文本。这种"先有答案再编题"的思路有效地改善了类别平衡。
+
+### 完整数值示例：从种子到生成
+
+让我们用一个具体的数值例子来走一遍 Self-Instruct 的流程。
+
+**设定**：假设任务池中已有以下 3 个种子任务（实际是 175 个，这里简化）：
+
+| # | Instruction | Input | Output |
+|---|-------------|-------|--------|
+| 1 | Translate the sentence to Spanish. | "The cat is sleeping." | "El gato está durmiendo." |
+| 2 | Is this review positive or negative? | "The food was terrible." | Negative |
+| 3 | Write a haiku about autumn. | (empty) | Crimson leaves descend / Whispers of the cooling breeze / Summer bids farewell |
+
+**Step 1 — 指令生成**：将这 3 个种子任务作为 in-context 示例，prompt 语言模型生成新指令。
+
+```
+Given the following tasks:
+Task 1: Translate the sentence to Spanish.
+Task 2: Is this review positive or negative?
+Task 3: Write a haiku about autumn.
+
+Generate a new, different task instruction:
+Task 4: Summarize the following paragraph in one sentence.
+```
+
+模型生成了一个新指令："Summarize the following paragraph in one sentence."
+
+**Step 2 — 分类判断**：模型判断这个指令是否是分类任务。答案是 **No**（摘要是生成任务，不是分类任务）。
+
+**Step 3 — 实例生成（input-first）**：因为不是分类任务，使用 input-first 策略。
+
+```
+Instruction: Summarize the following paragraph in one sentence.
+Input: "Climate change is causing significant shifts in global weather
+patterns. Rising temperatures lead to more frequent heat waves, stronger
+hurricanes, and unpredictable rainfall. These changes affect agriculture,
+water supply, and human health across all continents."
+Output: "Climate change is disrupting global weather patterns, leading to
+extreme events that impact agriculture, water supply, and health worldwide."
+```
+
+**Step 4 — 质量过滤**：计算新指令与已有指令的 ROUGE-L 相似度。"Summarize the following paragraph in one sentence" 与已有 3 条指令的 ROUGE-L 分数均低于 0.7 → **通过过滤**，加入任务池。
+
+通过反复迭代，Self-Instruct 从 175 个种子任务生成了约 **52K 条**高质量指令数据。将这些数据用于微调 GPT-3（vanilla，非 InstructGPT），在 Super-NaturalInstructions 上获得了 **33%** 的绝对提升，接近 InstructGPT-001 的水平——而后者使用的是昂贵的人类标注数据。
+
+### Alpaca 与 Vicuna：开源指令微调的平民化浪潮
+
+Self-Instruct 的成功在 2023 年初引发了一场"开源指令微调"的爆发。两个里程碑式的项目——Stanford Alpaca 和 LMSYS Vicuna——彻底改变了指令微调的生态。
+
+**Stanford Alpaca (2023 年 3 月)**。Taori et al. 将 Self-Instruct 与 Meta 刚开源的 LLaMA 7B 结合，用 text-davinci-003 生成了 52K 条指令数据，然后在 LLaMA 上微调。整个过程的成本不到 **600 美元**（数据生成 500 美元 + 训练 100 美元），而产出的模型在定性评估中与 text-davinci-003 表现相当。Alpaca 证明了：**高质量的指令数据 + 好的基座模型 = 用极低成本复制商业模型的行为**。
+
+**Vicuna (2023 年 3 月)**。来自 UC Berkeley、CMU、Stanford 和 UCSD 的团队走了另一条路：不用模型生成数据，而是利用 **ShareGPT** 上用户分享的真实 ChatGPT 对话。他们收集了约 70K 条多轮对话，在 LLaMA 13B 上微调，训练成本仅约 300 美元。Vicuna 的一个关键创新是**多轮对话的损失设计**：只在助手的回复部分计算损失，忽略用户的输入部分。GPT-4 评估显示 Vicuna 达到了 ChatGPT 约 90% 的质量。
+
+| 模型 | 基座模型 | 数据来源 | 数据量 | 成本 | 关键创新 |
+|------|----------|----------|--------|------|----------|
+| **Alpaca** | LLaMA 7B | Self-Instruct (text-davinci-003 生成) | 52K 条指令 | ~$600 | 低成本复现商业模型行为 |
+| **Vicuna** | LLaMA 13B | ShareGPT 用户真实对话 | 70K 条对话 | ~$300 | 多轮对话 + 真实分布数据 |
+
+这场开源浪潮揭示了一个深刻的事实：**指令微调的核心瓶颈不在模型架构或训练算法，而在指令数据的质量和多样性**。一个好的基座模型加上高质量的指令数据，就能以极低成本产出表现优异的助手模型。
+
+### 多任务指令微调的设计原则
+
+从 FLAN 到 Alpaca，指令微调的实践积累了一系列设计原则。Longpre et al. (2023) 在 "The Flan Collection" 论文中系统地研究了这些设计决策：
+
+**任务平衡是关键但常被忽视**。不同任务的数据量可能差距巨大（翻译数据可能有百万条，而逻辑推理只有几千条）。如果不做平衡，模型会被大数据集主导，在小数据集任务上表现不佳。Flan Collection 使用了**按任务均匀采样**（每个任务采样相同数量的样本）或**按任务簇加权**的策略。
+
+**输入倒置（Input Inversion）提升鲁棒性**。对于有明确输入-输出对的任务，将输入输出互换可以创造新的训练样本。例如，一个翻译任务 "Translate English to French: Hello → Bonjour" 可以倒置为 "Translate French to English: Bonjour → Hello"。这种数据增强技术在不增加标注成本的情况下有效提升了泛化能力。
+
+**混合 prompt 格式带来全面提升**。训练时混合使用 zero-shot 模板（只有指令）、few-shot 模板（指令 + 几个示例）和 Chain-of-Thought 模板（指令 + 推理步骤），在所有评估设置下都带来了提升。这说明模型从多种交互格式中学到了更通用的能力。
+
+## 工程实践
+
+### 从零构建指令微调数据集
+
+下面的代码展示了如何使用 Self-Instruct 的核心思路，用一个已有的语言模型来自动生成指令数据：
+
+```python
+import json
+import random
+from openai import OpenAI
+
+client = OpenAI()
+
+# 种子任务（实际应准备 175 个）
+seed_tasks = [
+    {
+        "instruction": "Translate the following sentence to French.",
+        "input": "The weather is beautiful today.",
+        "output": "Le temps est magnifique aujourd'hui."
+    },
+    {
+        "instruction": "Is this movie review positive or negative?",
+        "input": "This movie was a complete waste of time.",
+        "output": "Negative"
+    },
+    {
+        "instruction": "Write a short poem about the ocean.",
+        "input": "",
+        "output": "Waves crash upon the shore,\nWhispering tales of ancient lore..."
+    }
+]
+
+def generate_instruction(seed_tasks, n_examples=3):
+    """Step 1: 使用种子任务生成新指令"""
+    examples = random.sample(seed_tasks, min(n_examples, len(seed_tasks)))
+    prompt = "Below are some example tasks:\n\n"
+    for i, task in enumerate(examples, 1):
+        prompt += f"Task {i}: {task['instruction']}\n"
+    prompt += f"\nGenerate a new, creative task instruction that is different from the above:\nTask {len(examples)+1}:"
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=100,
+        temperature=0.7
+    )
+    return response.choices[0].message.content.strip()
+
+def generate_instance(instruction, is_classification=False):
+    """Step 3: 为指令生成 input-output 对"""
+    if is_classification:
+        # Output-first: 先生成标签，再生成对应输入
+        prompt = f"""Task: {instruction}
+First, list possible output labels. Then generate an input example for one of the labels.
+Format:
+Input: [your input]
+Output: [the label]"""
+    else:
+        # Input-first: 先生成输入，再生成输出
+        prompt = f"""Task: {instruction}
+Generate an example input and the corresponding output.
+Format:
+Input: [your input]
+Output: [your output]"""
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=300,
+        temperature=0.7
+    )
+    return parse_input_output(response.choices[0].message.content)
+
+def parse_input_output(text):
+    """解析模型输出为 input/output 对"""
+    input_text, output_text = "", ""
+    for line in text.strip().split("\n"):
+        if line.startswith("Input:"):
+            input_text = line[len("Input:"):].strip()
+        elif line.startswith("Output:"):
+            output_text = line[len("Output:"):].strip()
+    return input_text, output_text
+
+# 主循环：生成指令数据
+generated_data = []
+task_pool = seed_tasks.copy()
+
+for i in range(10):  # 实际应迭代数千次
+    # Step 1: 生成新指令
+    new_instruction = generate_instruction(task_pool)
+
+    # Step 2: 判断是否为分类任务（简化版）
+    is_clf = any(kw in new_instruction.lower()
+                 for kw in ["classify", "positive or negative",
+                           "true or false", "yes or no", "categorize"])
+
+    # Step 3: 生成实例
+    input_text, output_text = generate_instance(
+        new_instruction, is_classification=is_clf
+    )
+
+    # Step 4: 质量过滤（简化版 — 实际应计算 ROUGE-L）
+    if output_text and len(output_text) > 5:
+        new_task = {
+            "instruction": new_instruction,
+            "input": input_text,
+            "output": output_text
+        }
+        generated_data.append(new_task)
+        task_pool.append(new_task)
+        print(f"[{i+1}] {new_instruction[:60]}...")
+
+print(f"\nGenerated {len(generated_data)} instruction-output pairs")
+```
+
+### 使用 Hugging Face 进行指令微调
+
+有了指令数据后，微调过程本身相当标准。以下代码展示了在 Hugging Face 生态中微调一个小型模型的完整流程：
+
+```python
+from datasets import Dataset
+from transformers import (
+    AutoModelForCausalLM, AutoTokenizer,
+    TrainingArguments, Trainer
+)
+
+# 1. 加载模型和分词器
+model_name = "meta-llama/Llama-3.2-1B"  # 使用小模型演示
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+
+# 确保有 pad token
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+# 2. 格式化指令数据
+def format_instruction(sample):
+    """将指令三元组格式化为模型输入"""
+    if sample["input"]:
+        text = (
+            f"### Instruction:\n{sample['instruction']}\n\n"
+            f"### Input:\n{sample['input']}\n\n"
+            f"### Response:\n{sample['output']}"
+        )
+    else:
+        text = (
+            f"### Instruction:\n{sample['instruction']}\n\n"
+            f"### Response:\n{sample['output']}"
+        )
+    return text
+
+# 3. Tokenize（关键：只在 Response 部分计算损失）
+def tokenize_with_labels(sample):
+    formatted = format_instruction(sample)
+    tokenized = tokenizer(
+        formatted, truncation=True,
+        max_length=512, padding="max_length"
+    )
+
+    # 找到 "### Response:\n" 的位置
+    response_marker = "### Response:\n"
+    response_start = formatted.find(response_marker) + len(response_marker)
+    response_token_start = len(tokenizer.encode(
+        formatted[:response_start], add_special_tokens=False
+    ))
+
+    # 将 instruction/input 部分的 label 设为 -100（不参与损失）
+    labels = tokenized["input_ids"].copy()
+    labels[:response_token_start] = [-100] * response_token_start
+    tokenized["labels"] = labels
+
+    return tokenized
+
+# 4. 准备数据集
+dataset = Dataset.from_list(generated_data)  # 使用前面生成的数据
+tokenized_dataset = dataset.map(tokenize_with_labels)
+
+# 5. 训练配置
+training_args = TrainingArguments(
+    output_dir="./instruction-tuned-model",
+    num_train_epochs=3,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=4,
+    learning_rate=2e-5,
+    warmup_ratio=0.03,
+    lr_scheduler_type="cosine",
+    bf16=True,
+    logging_steps=10,
+    save_strategy="epoch",
+)
+
+# 6. 训练
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_dataset,
+)
+trainer.train()
+```
+
+注意代码中 `tokenize_with_labels` 函数的关键设计：将 instruction 和 input 部分的 label 设为 `-100`，使得损失函数只在 response 部分计算。这是指令微调区别于普通语言模型训练的核心工程细节。
+
+## 深入理解
+
+> **研究者必读**：这一节探讨指令微调的理论基础、边界条件和开放问题
+
+### 为什么有效？——理论视角
+
+指令微调的有效性可以从多个角度理解。
+
+**任务向量假说**。一种流行的解释是，预训练模型在其参数空间中已经编码了执行各种任务的能力，但这些能力分散在不同的"区域"。指令微调的作用相当于在参数空间中找到一个**公共方向**——一个"任务向量"——使得模型在面对自然语言指令时，能正确地激活相应的任务执行能力。这与 Ilharco et al. (2023) 的"task arithmetic"研究相呼应：通过对模型权重进行简单的算术运算，就可以组合或移除特定的任务能力。
+
+**分布对齐视角**。从更实际的角度看，预训练模型在互联网文本上学到的条件分布 $P(y|x)$ 并不匹配"指令→输出"的分布。互联网上的文本更多是文章、对话、代码等——很少有"任务指令 + 标准答案"的格式。指令微调本质上是在做**分布对齐**（distribution alignment）：将模型的输出分布从"最可能出现在互联网上的下一段文字"调整为"最可能满足用户指令的回答"。
+
+**元学习视角**。最有启发性的理论框架可能是将指令微调理解为一种隐式的元学习（implicit meta-learning）。在传统元学习中，模型显式地学习"如何学习新任务"。指令微调则通过多任务训练，让模型隐式地学会了一种元能力——"根据自然语言描述执行任务"。这解释了为什么多任务多样性如此重要：只有见过足够多种类的"指令→执行"模式，模型才能抽象出通用的指令遵循能力。
+
+### 边界条件与失效模式
+
+指令微调有几个值得注意的失效场景。
+
+**规模阈值**。正如 FLAN 的消融实验所示，指令微调在小模型上可能适得其反。研究表明，这个阈值大约在 **10B–60B 参数**之间，取决于具体任务。对于参数量低于阈值的模型，指令微调可能导致模型"忘记"预训练中学到的通用能力，转而过拟合到训练集中的特定格式。
+
+**任务多样性 vs. 任务深度的权衡**。虽然更多的任务通常带来更好的泛化，但对于特别复杂的任务（如多步推理、数学证明），少量高质量的该任务数据可能比大量简单任务更有效。这暗示了一个设计原则：指令微调的数据应该在**广度**（任务多样性）和**深度**（复杂任务的充分覆盖）之间找到平衡。
+
+**数据污染的隐患**。当使用强大的语言模型（如 GPT-4）来生成指令数据时，生成的数据不可避免地带有该模型的偏见和风格。用这些数据微调出的模型可能在某些评估中表现很好（因为评估也使用类似风格的数据），但在真实场景中的多样性和创造性可能受限。Gudibande et al. (2023) 的研究指出，模型蒸馏生成的指令数据主要帮助模型**模仿风格**，而非提升基础能力。
+
+**指令遵循 ≠ 回答正确**。指令微调让模型学会了"听指令并给出格式正确的回答"，但这不等于回答的内容是正确的。一个经过指令微调的模型可能以非常流畅和自信的语气给出完全错误的答案。这被称为**表面对齐**（surface alignment）问题——模型学会了"看起来在做正确的事"，而不是"真正在做正确的事"。
+
+### 开放研究问题
+
+**最优数据混合比例**。当同时使用多种来源的指令数据（NLP benchmark、人工标注、模型生成、真实用户对话）时，最优的混合比例是什么？目前没有理论指导，主要依赖经验性的消融实验。FLAN Collection 的研究是这个方向的初步尝试，但远未给出定论。
+
+**指令微调与预训练数据的交互**。指令微调的效果高度依赖基座模型的预训练质量，但两者之间的确切关系还不清楚。同样的指令数据在不同的基座模型上可能产生截然不同的效果。理解这种交互关系对于高效地设计训练流程至关重要。
+
+**自动化质量评估**。Self-Instruct 使用 ROUGE-L 来过滤低质量数据，但这是一个非常粗糙的代理。如何自动评估指令数据的质量——包括指令的清晰度、输出的正确性、任务的多样性——是一个重要的开放问题。
+
+## 局限性与未解决的问题
+
+### 指令微调的根本局限
+
+尽管指令微调取得了巨大成功，它有几个根本性的局限。
+
+第一个局限是**格式对齐 ≠ 价值对齐**。指令微调让模型学会了"理解指令并生成格式正确的输出"，但它并没有教模型区分"好的回答"和"不好的回答"。一个指令微调后的模型可能同样热心地回答"如何帮助邻居"和"如何伤害邻居"——它学会了遵循指令的格式，但没有学会判断指令的善恶。这不是指令微调能解决的问题，因为 SFT 的训练信号只有"正确答案长什么样"，没有"什么是好的、什么是坏的"这种偏好信号。
+
+第二个局限是**确定性的训练目标**。SFT 为每条指令提供一个"标准答案"，模型被训练为精确复现这个答案。但对于开放性问题（如"写一首关于春天的诗"），好的回答有无数种，将模型锁定在一种风格上反而限制了多样性。更深层地说，人类对"什么是好答案"的判断本身就是主观的，不同的标注员可能给出不同的"标准答案"。
+
+第三个局限是**缺乏拒绝能力**。指令微调教会了模型"有问必答"，但没有教它"何时应该拒绝回答"。模型不知道什么时候自己的知识不够用（应该说"我不确定"），什么时候问题本身有问题（应该指出问题的错误假设），什么时候回答可能造成伤害（应该拒绝）。
+
+### 这些局限导向了什么？
+
+这些局限指向了一个核心需求：我们不仅需要告诉模型"正确答案长什么样"（SFT），还需要告诉模型**什么样的回答更好**（偏好学习）。仅靠"指令→标准答案"的二元训练信号是不够的；我们需要一种能编码**人类偏好排序**（"回答 A 比回答 B 更好"）的训练方法。
+
+这正是下一章——RLHF（Reinforcement Learning from Human Feedback）——要解决的问题。InstructGPT 的三阶段流水线中，SFT 只是第一步；真正让 ChatGPT 变得"有用、诚实、无害"的，是后续的奖励模型训练和 PPO 优化。
+
+## 本章小结
+
+### 核心要点回顾
+
+1. **问题**：预训练语言模型存在"能力-可用性鸿沟"——它们潜力巨大，但不知道如何遵循人类指令
+2. **洞察**：通过在多任务、多格式的"指令→输出"数据上进行有监督微调，模型可以学会一种通用的指令遵循元能力
+3. **方法**：FLAN（学术任务改写）→ InstructGPT SFT（人工标注）→ Self-Instruct（自动生成）→ Alpaca/Vicuna（开源平民化）
+4. **意义**：指令微调是将语言模型从"文本补全器"变为"AI 助手"的第一步，但仅靠 SFT 无法解决价值对齐问题
+
+### 关键公式速查
+
+- **预训练目标**：$\mathcal{L}_{\text{pretrain}} = -\sum_{t} \log P(x_t \mid x_{<t}; \theta)$
+- **SFT 目标**（只在 output 上计算损失）：$\mathcal{L}_{\text{SFT}} = -\sum_{t=1}^{|y|} \log P(y_t \mid \text{instruction}, \text{input}, y_{<t}; \theta)$
+
+### 思考题
+
+1. **[概念理解]** FLAN 为什么要按任务簇（而非单个数据集）来做 hold-out 评估？这种设计与普通的 train/test split 有什么区别？如果只按数据集做 hold-out，可能导致什么问题？
+
+2. **[数学推导]** 假设 SFT 的损失函数在整个序列（包括 instruction 部分）上计算，而非只在 output 部分计算。用一个具体的例子说明这会导致什么问题。（提示：考虑不同长度的 instruction 对梯度的影响。）
+
+3. **[工程实践]** 使用 Self-Instruct 方法，从 5 个种子任务出发，生成 50 条指令数据。分析生成数据的质量分布——有多少是高质量的？哪些类型的指令更难自动生成？
+
+4. **[开放思考]** Self-Instruct 用模型自己的输出来训练自己，这是否会导致"回音室效应"——模型的偏见被不断放大？如何设计机制来检测和缓解这种风险？这与 Gudibande et al. (2023) 关于"模仿模型"的批评有什么关联？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+- **Finetuned Language Models Are Zero-Shot Learners (Wei et al., 2022)**：指令微调的奠基之作
+  - 重点读：Section 2（方法设计）、Section 4（消融实验）
+  - 可跳过：Appendix 中的具体模板细节
+- **Training language models to follow instructions with human feedback (Ouyang et al., 2022)**：InstructGPT 全文
+  - 重点读：Section 3.1-3.2（SFT 阶段的数据和方法）
+  - Section 3.3-3.4（RM 和 PPO）留到下一章
+
+### 方法改进
+- **Scaling Instruction-Finetuned Language Models (Chung et al., 2022)**：FLAN v2，将任务数扩展到 1800+
+- **The Flan Collection (Longpre et al., 2023)**：指令数据设计的系统性研究
+- **Self-Instruct (Wang et al., 2023)**：自动生成指令数据的开创性框架
+
+### 开源实践
+- **Stanford Alpaca (Taori et al., 2023)**：[github.com/tatsu-lab/stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
+- **Vicuna (Chiang et al., 2023)**：[lmsys.org/blog/2023-03-30-vicuna](https://lmsys.org/blog/2023-03-30-vicuna/)
+
+### 批判性视角
+- **The False Promise of Imitating Proprietary LLMs (Gudibande et al., 2023)**：对模型蒸馏式指令数据的质疑
+
+### 综述
+- **A Survey on Instruction Tuning (Zhang et al., 2023)**：指令微调的全面综述
+
+### 代码资源
+- Hugging Face TRL 库：[github.com/huggingface/trl](https://github.com/huggingface/trl)
+- Self-Instruct 官方实现：[github.com/yizhongw/self-instruct](https://github.com/yizhongw/self-instruct)
+
+---
+
+## 历史注脚
+
+FLAN 这个名字的全称是 "Finetuned Language Net"，但更广为人知的是它与一种甜点的谐音——焦糖布丁（flan）。Google Research 的团队似乎很享受用食物命名他们的模型：PaLM（虽然不是食物但读起来像 palm fruit）、Bard（不是食物但...）。
+
+Stanford Alpaca 的命名则来自羊驼（alpaca），因为它建立在 Meta 的 LLaMA（大驼、llama）之上——这开启了 LLM 社区中一连串的"骆驼科动物"命名传统：Vicuna（骆马）、Guanaco、Camel 等。这个看似随意的命名传统背后，反映了开源社区对 LLaMA 生态的认同和归属感。
+
+更有趣的是时间线。FLAN 论文提交于 2021 年 9 月，但在此之前的 2020 年底，OpenAI 已经在内部开始了 InstructGPT 的研究（Ouyang et al. 报告他们的数据收集始于 2020 年初）。这意味着 Google 和 OpenAI 几乎同时独立地意识到了指令微调的重要性——一个从学术角度（FLAN），一个从产品角度（InstructGPT），殊途同归。最终，InstructGPT 的后续产品 ChatGPT 在 2022 年 11 月的发布引爆了 AI 革命——而它的基础，正是本章讨论的指令微调技术。

@@ -1,0 +1,701 @@
+---
+title: "第19章：分布式训练系统"
+subtitle: "From One GPU to Ten Thousand: The Engineering of Large-Scale Model Training"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, 分布式训练, 并行计算]
+tags: [数据并行, 张量并行, 流水线并行, ZeRO, FSDP, DeepSpeed, Megatron-LM, GPipe, AllReduce, 3D 并行, 序列并行]
+description: "上一章解决了单卡训练的稳定性问题，但一个残酷的现实是：70B 参数的模型仅参数就需要 140GB 显存（BF16），加上优化器状态总计 840GB——没有任何单张 GPU 能装得下。本章系统讲述如何通过数据并行、张量并行、流水线并行和 ZeRO 内存优化，将大模型训练分布到成百上千张 GPU 上。"
+image: "figures/chapter-19/original/fig1-zero-memory-comparison.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+---
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **ZeRO: Memory Optimizations Toward Training Trillion Parameter Models** (arXiv:1910.02054, Rajbhandari et al., 2020) — 参考了 Section 3-5 的 ZeRO 三阶段设计、Figure 1 的内存对比图；提取了 1 张原图（Figure 1）
+- **Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism** (arXiv:1909.08053, Shoeybi et al., 2019) — 参考了 Section 3 的张量并行设计、Figure 3 的 MLP/Attention 切分图、Figure 8 的混合并行图；提取了 4 张原图（Figure 3a, 3b, 8）
+- **Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM** (arXiv:2104.04473, Narayanan et al., 2021) — 参考了 3D 并行策略设计和交错流水线调度
+- **GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism** (arXiv:1811.06965, Huang et al., 2019) — 参考了 Section 2-3 的流水线设计、Figure 2 的朴素并行 vs GPipe 对比图；提取了 2 张原图（Figure 2 的两个子图）
+- **PipeDream: Fast and Efficient Pipeline Parallel DNN Training** (arXiv:1806.03377, Harlap et al., 2018) — 参考了 1F1B 调度策略
+
+### 教材
+- D2L Chapter 13.5-13.7 — 参考了数据并行的教学组织方式、AllReduce 和 Ring 同步的讲解
+
+### 课程
+- CMU 11-868 LLM Systems (Spring 2024) — 参考了分布式训练的系统化讲解思路（Lectures 11, 12, 18）
+- Stanford CS336: Language Modeling from Scratch (Spring 2025) — 参考了并行训练的教学组织（Lectures 7-8）
+:::
+
+## 从上一章说起
+
+上一章我们系统地讨论了如何在训练过程中保持数值稳定：从优化器的选择（Adam 到 AdamW），到学习率策略（warmup + cosine decay），再到混合精度训练（BF16 的优势），最后到训练诊断与梯度裁剪。这些技术共同构成了大模型训练的"安全网"，让 PaLM 540B 和 OPT-175B 这样的庞然大物能够在数月的训练中保持稳定。
+
+然而，上一章结尾留下了一个绕不过去的问题：**一个 70B 参数的模型，仅参数本身就需要 140GB 显存（BF16 精度），加上 Adam 优化器的两组动量状态（FP32，共 560GB），总计需要约 840GB 的显存**。2024 年最顶级的单张 GPU——NVIDIA H100——也只有 80GB 显存。换句话说，即使你掌握了所有的训练稳定性技巧，面对一个足够大的模型，你甚至无法开始训练，因为模型根本装不进一张 GPU。
+
+这就是本章要解决的核心问题：**当一张 GPU 不够用时，如何将训练工作分配到多张 GPU 上？**
+
+这个问题比表面看起来复杂得多。简单地把数据分到不同 GPU 上（数据并行）只能加速计算，并不能解决单卡装不下模型的问题。把模型切分到不同 GPU 上（模型并行）可以突破内存限制，但会带来严重的 GPU 空闲和通信开销。如何在"内存限制"、"计算效率"和"通信开销"之间找到最优平衡，是过去五年间 ZeRO、Megatron-LM、GPipe 等一系列里程碑工作所回答的核心问题。
+
+> 💡 **本章核心洞察**：分布式训练的本质是在三个维度上做切分——沿数据维度（数据并行）、沿模型层内维度（张量并行）、沿模型层间维度（流水线并行），再通过 ZeRO 的内存优化将优化器状态、梯度和参数分散到各 GPU 上。三者组合形成"3D 并行"，让万亿参数模型的训练成为可能。
+
+## 问题的本质是什么？
+
+### GPU 显存中到底装了什么？
+
+要理解分布式训练为什么必要，首先需要清楚一个事实：训练一个模型时，GPU 显存中存放的远不只是模型参数。让我们以一个具体的 GPT-3 规模模型（$\Psi = 175\text{B}$ 参数）为例，逐项分析显存占用。
+
+**模型状态（Model States）**——训练过程中必须常驻显存的数据，包含三个部分。第一部分是模型参数本身，在混合精度训练下需要保存一份 FP16/BF16 参数（$2\Psi$ 字节）和一份 FP32 主参数（$4\Psi$ 字节）。第二部分是梯度，与参数同维度（$2\Psi$ 字节，FP16）。第三部分是优化器状态，Adam 需要保存一阶动量和二阶动量（各 $4\Psi$ 字节，FP32），共 $8\Psi$ 字节。三项合计，每个参数平均需要 $2 + 4 + 2 + 8 = 16$ 字节。
+
+**残差状态（Residual States）**——激活值、临时缓冲区和碎片内存。激活值是反向传播所需的中间计算结果，其占用与 batch size 和序列长度成正比，对于大模型可以达到数十 GB。临时缓冲区用于通信和梯度归约。碎片内存则来自于显存分配器的碎片化。
+
+让我们把数字算清楚。
+
+#### 完整数值示例：GPT-3 175B 的显存需求
+
+**设定**：$\Psi = 175 \times 10^9$（175B 参数），使用 Adam 优化器 + 混合精度训练。
+
+**Step 1：模型参数**
+
+$$
+\text{FP16 参数} = 2 \times 175 \times 10^9 = 350 \text{ GB}
+$$
+
+$$
+\text{FP32 主参数} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+$$
+
+**Step 2：梯度**
+
+$$
+\text{FP16 梯度} = 2 \times 175 \times 10^9 = 350 \text{ GB}
+$$
+
+**Step 3：Adam 优化器状态**
+
+$$
+\text{一阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+$$
+
+$$
+\text{二阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+$$
+
+**Step 4：合计**
+
+$$
+\text{模型状态总计} = 350 + 700 + 350 + 700 + 700 = 2800 \text{ GB} = 2.8 \text{ TB}
+$$
+
+**解读**：仅模型状态就需要 2.8 TB 显存，这是 35 张 H100（80GB）的总显存容量。还没有算激活值——以序列长度 2048、micro-batch size 1、96 层 Transformer 为例，激活值还需要额外数百 GB。
+
+这个计算揭示了一个关键洞察：**优化器状态占据了显存的绝大部分**（1400GB / 2800GB = 50%），而非模型参数本身（350GB / 2800GB = 12.5%）。这正是 ZeRO 优化的切入点——如果能让每张 GPU 只保存优化器状态的一小部分，就能大幅降低显存需求。
+
+### 为什么单纯的数据并行不够？
+
+数据并行（Data Parallelism, DP）是最简单、最常用的分布式训练策略：每张 GPU 都持有完整的模型副本，但处理不同的数据子集。训练步骤是这样的：将一个 mini-batch 均分到 $N$ 张 GPU 上，每张 GPU 独立做前向和反向传播计算梯度，然后通过 AllReduce 操作汇总所有 GPU 的梯度，最后每张 GPU 用汇总后的梯度更新自己的模型副本。
+
+数据并行的优势是实现简单、通信开销可控（每步只需一次 AllReduce），而且随着 GPU 数量增加，吞吐量近似线性增长。但它有一个致命限制：**每张 GPU 都需要能装下完整的模型**。回到 GPT-3 的例子，每张 GPU 都需要 2.8 TB 来存放模型状态——显然不可能。
+
+这意味着我们需要一种方式来"切分"模型本身，让每张 GPU 只负责模型的一部分。
+
+### 我们需要什么样的解决方案？
+
+理想的分布式训练方案应该满足以下几个条件。首先是**内存可扩展**：模型的内存需求应该随 GPU 数量近乎线性下降，这样 100 张 GPU 就能训练 100 倍大的模型。其次是**计算高效**：GPU 的利用率应该尽可能高，避免出现大量空闲等待。第三是**通信高效**：GPU 之间的数据传输应该尽量少，并且能被计算所掩盖。最后是**对用户透明**：理想情况下，用户的模型代码不需要大幅修改。
+
+我们将看到，没有一种单一的并行策略能同时满足所有条件。数据并行计算高效但不解决内存问题；模型并行解决内存问题但计算效率低。这正是为什么现代大模型训练需要组合多种并行策略——"3D 并行"——的根本原因。
+
+## 核心思想与直觉
+
+在深入技术细节之前，让我们用一个日常的类比来建立直觉。想象你要抄写一本 1000 页的书，但你一个人抄太慢了。你可以采用三种不同的策略来让多人协作完成。
+
+**策略一：每人抄不同的页**。你把 1000 页分成 10 份，每人负责 100 页。每个人都需要看到全书（因为可能需要前后文参考），但各自处理不同的内容。这就是**数据并行**的思想——每个 GPU 持有完整的模型，但处理不同的训练数据。
+
+**策略二：每人负责书的不同章节**。第一个人只抄第 1-10 章，第二个人只抄第 11-20 章，以此类推。每个人只需要记住自己负责的那几章内容，但必须等前一个人完成才能继续（因为章节有顺序依赖）。这就是**流水线并行**的思想——每个 GPU 只负责模型的若干层。
+
+**策略三：每个字由多人合作写不同笔画**。一个人写左半部分，另一个人写右半部分，然后拼起来。这个类比虽然有些奇怪，但它准确描述了**张量并行**的思想——将单个矩阵运算切分到多个 GPU 上同时计算。
+
+这三种策略各有优劣。策略一最简单，但每个人都需要整本书的记忆容量。策略二节省了每个人的记忆量，但存在"等待"的问题。策略三最精细，但需要频繁的协调和拼合。实际中，最有效的做法是**三种策略同时使用**——这就是"3D 并行"。
+
+而 ZeRO 则提供了一种正交的优化思路：它不改变计算的分配方式，而是**消除数据并行中的内存冗余**。回到抄书的类比，这相当于说"每个人不需要随身带全本书的参考资料，大家共享一套就行，需要哪页就临时借来看"。
+
+## 技术细节
+
+### 数据并行：最基础的分布式策略
+
+数据并行的核心思想在概念上非常简单：$N$ 张 GPU 各自持有完整的模型副本，每张 GPU 处理 mini-batch 的 $1/N$，然后通过梯度同步确保所有 GPU 的模型保持一致。
+
+在数学上，假设总 mini-batch 的损失函数为：
+
+$$
+\mathcal{L} = \frac{1}{B} \sum_{i=1}^{B} \ell(x_i, \theta)
+$$
+
+将 $B$ 个样本均分到 $N$ 张 GPU 上，每张 GPU 计算局部梯度：
+
+$$
+g_k = \frac{1}{B/N} \sum_{i \in \mathcal{D}_k} \nabla_\theta \ell(x_i, \theta), \quad k = 1, \ldots, N
+$$
+
+然后通过 AllReduce 得到全局梯度：
+
+$$
+g = \frac{1}{N} \sum_{k=1}^{N} g_k
+$$
+
+这个全局梯度与单 GPU 使用完整 mini-batch 计算的梯度在数学上完全等价（忽略浮点精度差异）。
+
+#### AllReduce：梯度同步的核心
+
+AllReduce 是数据并行的通信核心。它的目标是让每张 GPU 都得到所有 GPU 梯度的总和。朴素的实现是每张 GPU 把梯度发给一个中心节点汇总，但这会造成通信瓶颈。现代实践使用 **Ring AllReduce** 算法：将 $N$ 张 GPU 排列成一个环，数据在环上逐步传递和累加。
+
+Ring AllReduce 的通信量分析如下。假设每张 GPU 的梯度大小为 $D$ 字节。整个 AllReduce 过程分为两个阶段：Reduce-Scatter 阶段将梯度分成 $N$ 份在环上累加（$N-1$ 步，每步传输 $D/N$ 字节），All-Gather 阶段将累加结果广播到所有 GPU（$N-1$ 步，每步 $D/N$ 字节）。总通信量为：
+
+$$
+\text{每张 GPU 的通信量} = 2 \cdot (N-1) \cdot \frac{D}{N} \approx 2D \quad (\text{当 } N \gg 1)
+$$
+
+一个关键的洞察是：**这个通信量与 GPU 数量 $N$ 无关**。无论是 8 张 GPU 还是 1024 张 GPU，每张 GPU 的通信量都约为 $2D$。这意味着数据并行在通信上具有近乎理想的可扩展性——前提是网络带宽足够。
+
+#### 数据并行的局限
+
+数据并行有一个根本性的限制：**每张 GPU 必须能装下完整的模型状态**。对于 GPT-3 级别的模型，这意味着每张 GPU 需要 2.8 TB 显存——显然不现实。此外，当 GPU 数量过多时，每张 GPU 分到的 batch size 会变得很小，导致计算效率下降（GPU 无法充分利用并行计算能力）。
+
+### 张量并行：切分矩阵运算
+
+张量并行（Tensor Parallelism, TP）的核心思想是将 Transformer 层内的矩阵运算切分到多个 GPU 上。2019 年 NVIDIA 的 Megatron-LM 论文给出了一种优雅的切分方案，巧妙地利用了矩阵乘法的数学性质来最小化通信。
+
+#### MLP 的切分
+
+Transformer 中的 FFN（前馈网络）层由两个线性变换组成：
+
+$$
+Y = \text{GeLU}(XA) \cdot B
+$$
+
+其中 $X \in \mathbb{R}^{b \times d}$，$A \in \mathbb{R}^{d \times 4d}$，$B \in \mathbb{R}^{4d \times d}$。
+
+Megatron-LM 的做法是：**沿列切分第一个矩阵 $A$，沿行切分第二个矩阵 $B$**。
+
+具体地，将 $A$ 按列分成两半 $A = [A_1, A_2]$，分别放在 GPU 1 和 GPU 2 上：
+
+$$
+[Y_1, Y_2] = [\text{GeLU}(XA_1), \text{GeLU}(XA_2)]
+$$
+
+注意这里有一个精妙之处：GeLU 是逐元素操作，所以可以先切分再激活，结果与先激活再切分完全一致。如果激活函数不是逐元素的（比如 Softmax），这种切分就不成立。
+
+然后将 $B$ 按行分成 $B_1, B_2$：
+
+$$
+Y = Y_1 B_1 + Y_2 B_2
+$$
+
+每张 GPU 计算 $Y_k B_k$，然后通过一次 AllReduce 求和得到最终结果。
+
+![Megatron-LM MLP 块的张量并行切分。第一个矩阵 $A$ 按列切分，第二个矩阵 $B$ 按行切分，只需一次 AllReduce。](figures/chapter-19/original/fig3a-megatron-mlp-parallelism.png){#fig-megatron-mlp width=70%}
+
+::: {.figure-caption}
+*Source: Shoeybi et al. (2019) "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", Figure 3a. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*
+:::
+
+图中的 $f$ 和 $g$ 是一对共轭算子：$f$ 在前向传播中是恒等操作（identity），在反向传播中是 AllReduce；$g$ 则反过来，前向是 AllReduce，反向是恒等。通过这种设计，前向和反向传播各只需要一次 AllReduce，实现了优雅的对称性。
+
+#### Self-Attention 的切分
+
+Multi-Head Attention 的切分更加自然，因为多个注意力头本身就是独立计算的。将 $h$ 个头均分到 $N$ 张 GPU 上，每张 GPU 负责 $h/N$ 个头。每个头的 $Q_i, K_i, V_i$ 投影矩阵沿列切分（等价于分配不同的头），输出投影矩阵 $W^O$ 沿行切分，最后通过 AllReduce 汇总。
+
+![Megatron-LM Self-Attention 块的张量并行切分。多头注意力按头分配到不同 GPU，每个 GPU 独立计算自己负责的注意力头。](figures/chapter-19/original/fig3b-megatron-attention-parallelism.png){#fig-megatron-attention width=70%}
+
+::: {.figure-caption}
+*Source: Shoeybi et al. (2019) "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", Figure 3b. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*
+:::
+
+#### 张量并行的通信分析
+
+整个 Transformer 层中，MLP 块需要 2 次 AllReduce（前向 + 反向各 1 次），Self-Attention 块也需要 2 次 AllReduce，总计每层 4 次 AllReduce。
+
+通信量方面，每次 AllReduce 传输的数据量为 $O(b \cdot s \cdot d)$（batch size × 序列长度 × 隐藏维度），与 TP 的并行度 $N$ 无关。但是 AllReduce 的延迟（latency）会随着参与的 GPU 数量增加而增加。因此，**张量并行最适合在单个节点内的高带宽互连（如 NVLink）上使用**，通常 TP 度为 4 或 8（对应一个 DGX 节点内的 GPU 数量）。
+
+### 流水线并行：切分模型层
+
+流水线并行（Pipeline Parallelism, PP）的思想更加直观：将 Transformer 的 $L$ 层均分到 $K$ 个 GPU 上，每个 GPU（称为一个"阶段"）负责连续的 $L/K$ 层。GPU 1 处理第 1 到第 $L/K$ 层，GPU 2 处理第 $L/K + 1$ 到第 $2L/K$ 层，以此类推。
+
+#### 朴素流水线的问题
+
+最简单的实现方式是：一个 mini-batch 从第一个阶段开始，经过所有阶段完成前向传播，然后再从最后一个阶段反向传播回来。问题在于，在任意时刻，**只有一个阶段在工作，其他阶段都在空闲等待**。这意味着 $K$ 个 GPU 中有 $K-1$ 个在闲置——GPU 利用率仅为 $1/K$。
+
+![朴素模型并行：4 个 GPU 分别处理模型的不同层，但在任意时刻只有一个 GPU 在工作（蓝色），其余都在空闲等待（白色）。](figures/chapter-19/original/fig2-gpipe-naive-parallelism.png){#fig-naive-pp width=85%}
+
+::: {.figure-caption}
+*Source: Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Figure 2(b). [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*
+:::
+
+#### GPipe：微批次流水线
+
+2019 年 Google 提出的 GPipe 用一个简单的思想解决了这个问题：**将 mini-batch 进一步切分成 $M$ 个 micro-batch**，让这些 micro-batch 像流水线上的产品一样在各阶段间流转。当 GPU 1 处理完 micro-batch 1 并将结果传给 GPU 2 时，GPU 1 可以立即开始处理 micro-batch 2，而不是闲等。
+
+![GPipe 的微批次流水线并行。将 mini-batch 切分成多个 micro-batch 后，不同 GPU 可以同时处理不同的 micro-batch，大幅提高利用率。](figures/chapter-19/original/fig2-gpipe-pipeline-parallelism.png){#fig-gpipe-pp width=85%}
+
+::: {.figure-caption}
+*Source: Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Figure 2(c). [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*
+:::
+
+GPipe 的调度方式是：先让所有 $M$ 个 micro-batch 依次完成前向传播，然后再反向依次完成反向传播，最后同步更新参数。这保证了梯度的数学等价性——与在单 GPU 上用完整 mini-batch 训练的结果一致。
+
+#### 气泡分析
+
+即使使用了微批次，流水线中仍然存在不可避免的空闲时间，称为"气泡"（bubble）。在 GPipe 的调度中，第一个 micro-batch 需要 $K-1$ 步才能到达最后一个阶段，最后一个 micro-batch 的反向传播结果需要 $K-1$ 步才能传回第一个阶段。总的气泡时间正比于 $K-1$，而有效计算时间正比于 $M$。因此：
+
+$$
+\text{气泡比例} = \frac{K - 1}{M + K - 1} \approx \frac{K - 1}{M} \quad (\text{当 } M \gg K)
+$$
+
+**关键洞察**：当 $M \geq 4K$ 时，气泡比例低于 20%，GPU 利用率达到 80% 以上。实践中通常取 $M$ 为 $K$ 的 4-8 倍。
+
+#### 1F1B 调度
+
+PipeDream 提出了一种更优的调度策略——**1F1B（One Forward, One Backward）**。不同于 GPipe 先完成所有前向再做反向，1F1B 让每个阶段在完成一个 micro-batch 的前向后立即做一个 micro-batch 的反向，交替执行。这样做的好处是：反向传播产生的梯度可以尽早释放激活值，从而**减少约 50% 的峰值激活值内存**。
+
+1F1B 分为两个阶段。在"热身"（warmup）阶段，每个 GPU 先做若干个前向传播填满流水线。进入"稳定"（steady state）阶段后，每个 GPU 交替做一个前向和一个反向——此时所有 GPU 都在满负荷工作。
+
+::: {.callout-note}
+## Algorithm 1: GPipe 流水线调度（改编自 Huang et al., 2019）
+
+```
+输入：mini-batch B，K 个流水线阶段，M 个 micro-batch
+输出：更新后的模型参数
+
+# Step 1: 将 mini-batch 切分为 M 个 micro-batch
+B_1, B_2, ..., B_M = split(B, M)
+
+# Step 2: 前向传播阶段（所有 micro-batch 依次通过所有阶段）
+for m = 1 to M:
+    for k = 1 to K:
+        # 阶段 k 处理 micro-batch m
+        output[m][k] = forward(stage_k, input[m][k])
+        # 保存激活值供反向传播使用
+        save_activation(m, k)
+
+# Step 3: 反向传播阶段（反序）
+for m = M to 1:
+    for k = K to 1:
+        grad[m][k] = backward(stage_k, grad[m][k+1])
+
+# Step 4: 同步更新（所有 micro-batch 的梯度求和）
+for k = 1 to K:
+    gradient_k = sum(grad[1..M][k]) / M
+    update(stage_k.parameters, gradient_k)
+```
+
+*改编自 Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Section 2. [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*
+:::
+
+### ZeRO：内存优化的革命
+
+到目前为止，我们介绍了三种切分计算的并行策略。然而，微软在 2020 年提出的 ZeRO（Zero Redundancy Optimizer）采取了一种完全不同的思路：**它不改变计算方式，而是消除数据并行中的内存冗余**。
+
+回想一下，在标准数据并行中，每张 GPU 都持有完整的模型参数、梯度和优化器状态的副本。但仔细想想——如果有 64 张 GPU 做数据并行，那么优化器状态被重复存储了 64 份。这是巨大的浪费。ZeRO 的核心洞察很简单：**让每张 GPU 只保存 $1/N$ 的状态，需要时再从其他 GPU 获取**。
+
+ZeRO 分为三个递进的阶段，每个阶段分区更多类型的数据。
+
+![ZeRO 的三个阶段逐步减少每张 GPU 的内存需求。以 7.5B 参数模型、64 路数据并行为例，从基线的 120GB 逐步降低到 1.9GB。](figures/chapter-19/original/fig1-zero-memory-comparison.png){#fig-zero-stages width=85%}
+
+::: {.figure-caption}
+*Source: Rajbhandari et al. (2020) "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models", Figure 1. [arXiv:1910.02054](https://arxiv.org/abs/1910.02054)*
+:::
+
+#### 完整数值示例：ZeRO 各阶段的内存节省
+
+**设定**：模型参数 $\Psi = 7.5 \text{B}$，混合精度训练（FP16 参数 + FP32 主参数 + Adam），数据并行度 $N_d = 64$。
+
+**基线——标准数据并行（无 ZeRO）**
+
+每张 GPU 存储全部状态：
+
+$$
+\text{FP16 参数} = 2\Psi = 15 \text{ GB}, \quad \text{FP16 梯度} = 2\Psi = 15 \text{ GB}
+$$
+
+$$
+\text{FP32 主参数} = 4\Psi = 30 \text{ GB}, \quad \text{Adam 状态} = 8\Psi = 60 \text{ GB}
+$$
+
+$$
+\text{每张 GPU 总计} = 16\Psi = 120 \text{ GB}
+$$
+
+**ZeRO Stage 1（$P_{os}$）：分区优化器状态**
+
+只将 Adam 的两组动量和 FP32 主参数分区到 $N_d$ 张 GPU 上，参数和梯度仍然每张 GPU 完整保留：
+
+$$
+\text{每张 GPU} = 2\Psi + 2\Psi + \frac{12\Psi}{N_d} = 4\Psi + \frac{12\Psi}{64}
+$$
+
+$$
+= 30 + 1.41 = 31.4 \text{ GB}
+$$
+
+内存降低到原来的约 $1/4$。通信量与标准数据并行完全相同（每步一次 AllReduce），因为只有梯度和参数的同步不受影响。
+
+**ZeRO Stage 2（$P_{os+g}$）：分区优化器状态 + 梯度**
+
+进一步将梯度也分区：
+
+$$
+\text{每张 GPU} = 2\Psi + \frac{2\Psi + 12\Psi}{N_d} = 2\Psi + \frac{14\Psi}{64}
+$$
+
+$$
+= 15 + 1.64 = 16.6 \text{ GB}
+$$
+
+内存降低到原来的约 $1/8$。通信模式从 AllReduce 变为 Reduce-Scatter（每个 GPU 只需要接收自己负责的那部分梯度的归约结果），通信量与数据并行基本持平。
+
+**ZeRO Stage 3（$P_{os+g+p}$）：分区一切**
+
+连模型参数也分区，每张 GPU 只保存 $1/N_d$ 的参数：
+
+$$
+\text{每张 GPU} = \frac{16\Psi}{N_d} = \frac{16 \times 7.5}{64} = 1.875 \text{ GB}
+$$
+
+内存降低到原来的 $1/N_d$——理论上可以无限扩展。代价是在前向和反向传播时，每一层的计算都需要先从其他 GPU 获取（All-Gather）当前层的完整参数，用完后丢弃。这引入了额外的通信，约为数据并行的 1.5 倍。
+
+| ZeRO 阶段 | 每张 GPU 内存 | 相对基线 | 额外通信 |
+|-----------|--------------|---------|---------|
+| 基线（标准 DP） | 120 GB | 1× | 1× |
+| Stage 1 ($P_{os}$) | 31.4 GB | 0.26× | 1× |
+| Stage 2 ($P_{os+g}$) | 16.6 GB | 0.14× | 1× |
+| Stage 3 ($P_{os+g+p}$) | 1.9 GB | 0.016× | 1.5× |
+
+::: {.callout-note appearance="minimal"}
+## Algorithm 2: ZeRO Stage 3 Training Loop
+
+**Input**: 模型分为 $L$ 层，$N_d$ 张 GPU，每张 GPU 持有 $1/N_d$ 的参数/梯度/优化器状态
+
+**Notation**: GPU $i$ 持有参数分片 $\theta^{(i)}$，对应梯度 $g^{(i)}$，对应优化器状态 $s^{(i)}$
+
+```
+for each training step:
+    # ===== Forward Pass =====
+    for layer l = 1 to L:
+        θ_l ← AllGather(θ_l^(i))      # 收集当前层完整参数
+        a_l ← forward(a_{l-1}, θ_l)    # 计算激活
+        discard θ_l                     # 丢弃非本地参数
+
+    # ===== Backward Pass =====
+    for layer l = L to 1:
+        θ_l ← AllGather(θ_l^(i))       # 再次收集完整参数
+        g_l ← backward(∂L/∂a_l, θ_l)   # 计算当前层梯度
+        g_l^(i) ← ReduceScatter(g_l)   # 归约并分发梯度分片
+        discard θ_l
+
+    # ===== Optimizer Step =====
+    for each local shard i:
+        s^(i) ← update_optimizer(s^(i), g^(i))  # 更新本地优化器状态
+        θ^(i) ← s^(i).param                      # 更新本地参数分片
+```
+
+**通信量分析**: 每层参数在前向和反向各做一次 AllGather，反向还需一次 ReduceScatter。总通信量约为数据并行的 1.5 倍。
+
+<hr>
+*改编自 Rajbhandari et al. (2020) "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models", Section 3.3. [arXiv:1910.02054](https://arxiv.org/abs/1910.02054)*
+:::
+
+#### ZeRO-Offload 与 ZeRO-Infinity
+
+ZeRO 的思路可以进一步延伸到 CPU 甚至 NVMe 存储上。**ZeRO-Offload** 将优化器状态卸载到 CPU 内存中，让 GPU 只负责前向和反向计算。**ZeRO-Infinity** 更进一步，利用 NVMe SSD 作为额外的存储层。这使得在单张 GPU 上也能微调数十亿参数的模型——代价是速度会因为 CPU-GPU 或 SSD-GPU 的数据传输而变慢。
+
+#### FSDP：PyTorch 的原生 ZeRO
+
+PyTorch 的 **Fully Sharded Data Parallel（FSDP）** 本质上是 ZeRO Stage 3 的原生实现。FSDP2（PyTorch 2.x 的当前版本）提供了 `fully_shard()` API，基于 DTensor 实现按参数的 dim-0 分片。用户只需在模型的每个 Transformer 层上调用 `fully_shard()`，FSDP 就会自动处理参数的分片、通信和重组。
+
+### 3D 并行：三种策略的组合
+
+在实际的大模型训练中，单一的并行策略都有局限：数据并行不解决内存问题，张量并行受限于节点内带宽，流水线并行有气泡开销。解决方案是**将三种并行策略组合使用**。
+
+Narayanan et al. (2021) 在 Megatron-LM 的后续工作中系统地研究了如何组合这三种并行。他们的关键发现是：**张量并行应该在节点内使用，流水线并行在节点间使用，数据并行在最外层使用**。
+
+![混合模型并行与数据并行的 GPU 分组示意。内层是 8 路张量并行（节点内），外层是数据并行。](figures/chapter-19/original/fig8-megatron-hybrid-parallelism.png){#fig-hybrid-parallelism width=60%}
+
+::: {.figure-caption}
+*Source: Shoeybi et al. (2019) "Megatron-LM", Figure 8. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*
+:::
+
+这种分层设计的原因与硬件拓扑直接相关。节点内的 GPU 通过 NVLink 互连，带宽高达 900 GB/s（H100），适合通信密集的张量并行（每层 4 次 AllReduce）。节点间通过 InfiniBand 互连，带宽约为 50-400 Gb/s，适合通信量较小的流水线并行（每个 micro-batch 只需传递层间的激活值和梯度）。数据并行的 AllReduce 通信量与 GPU 数量无关，可以跨越整个集群。
+
+#### 完整数值示例：1024 GPU 的 3D 并行配置
+
+**设定**：训练一个 175B 参数的模型，共 1024 张 H100 GPU（128 个节点，每节点 8 张 GPU）。
+
+**Step 1：确定张量并行度** $T = 8$
+
+在每个节点内使用 8 路张量并行，充分利用 NVLink 带宽。每张 GPU 只需存储每层参数的 $1/8$。
+
+**Step 2：确定流水线并行度** $P = 16$
+
+模型有 96 层 Transformer，分成 16 个阶段，每阶段 6 层。每个阶段需要 8 张 GPU（张量并行），所以每个阶段占据 1 个完整节点。
+
+**Step 3：确定数据并行度** $D = 1024 / (T \times P) = 1024 / 128 = 8$
+
+剩余的 GPU 用于 8 路数据并行。总 GPU 数等于 $D \times T \times P = 8 \times 8 \times 16 = 1024$。
+
+**Step 4：分析内存**
+
+每张 GPU 的模型参数内存 = $\frac{175\text{B}}{T \times P} = \frac{175\text{B}}{128} \approx 1.37\text{B}$ 参数 = 2.7 GB（BF16）。加上优化器状态（约 16 GB）、激活值（通过激活检查点控制在 10-20 GB），总计约 40 GB，可以舒适地放入 H100 的 80GB 显存。
+
+**Step 5：分析通信**
+
+- 张量并行：每层 4 次 AllReduce，在 NVLink 上完成，延迟约 10-50 μs
+- 流水线并行：每个 micro-batch 传递 $b \times s \times d$ 的激活值，跨节点 InfiniBand
+- 数据并行：每步一次 AllReduce 同步梯度，梯度大小 = 参数量 / ($T \times P$)
+
+### 序列并行
+
+当序列长度变得很长（如 100K+ tokens）时，即使使用了上述三种并行策略，单个 GPU 上的激活值内存仍然可能成为瓶颈。序列并行（Sequence Parallelism, SP）将序列维度切分到不同 GPU 上：每张 GPU 只处理序列的一段。
+
+Megatron-LM 的序列并行与张量并行协同工作：在非张量并行的操作（如 LayerNorm 和 Dropout）上，沿序列维度切分计算。这样可以将这些操作的激活值内存分散到多张 GPU 上，进一步降低峰值内存。
+
+## 工程实践
+
+### 使用 DeepSpeed ZeRO 训练模型
+
+DeepSpeed 是微软开源的分布式训练框架，内置了 ZeRO 的完整实现。使用 DeepSpeed 只需要少量代码修改。
+
+```python
+import deepspeed
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Step 1: 定义 DeepSpeed 配置
+ds_config = {
+    "train_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "fp16": {"enabled": True},
+    "zero_optimization": {
+        "stage": 2,               # ZeRO Stage 2
+        "offload_optimizer": {     # 可选：卸载优化器到 CPU
+            "device": "cpu",
+            "pin_memory": True
+        },
+        "allgather_partitions": True,
+        "allgather_bucket_size": 2e8,
+        "reduce_scatter": True,
+        "reduce_bucket_size": 2e8,
+    },
+}
+
+# Step 2: 初始化模型
+model = AutoModelForCausalLM.from_pretrained("gpt2-large")
+
+# Step 3: 用 DeepSpeed 包装模型和优化器
+model_engine, optimizer, _, _ = deepspeed.initialize(
+    model=model,
+    config=ds_config,
+    model_parameters=model.parameters(),
+)
+
+# Step 4: 训练循环——和单 GPU 几乎一样！
+for batch in dataloader:
+    loss = model_engine(batch["input_ids"], labels=batch["labels"]).loss
+    model_engine.backward(loss)       # 替代 loss.backward()
+    model_engine.step()               # 替代 optimizer.step()
+```
+
+### 使用 PyTorch FSDP 训练模型
+
+PyTorch 原生的 FSDP 提供了更加 Pythonic 的 API：
+
+```python
+import torch
+from torch.distributed.fsdp import fully_shard
+from transformers import AutoModelForCausalLM
+
+# Step 1: 加载模型
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
+
+# Step 2: 对每个 Transformer 层应用 FSDP 分片
+for layer in model.model.layers:
+    fully_shard(layer)       # 每层独立分片
+fully_shard(model)           # 整体模型也分片
+
+# Step 3: 标准 PyTorch 训练循环
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
+for batch in dataloader:
+    loss = model(**batch).loss
+    loss.backward()
+    optimizer.step()
+    optimizer.zero_grad()
+```
+
+### 如何选择并行策略？
+
+选择并行策略取决于模型大小、GPU 数量和硬件拓扑。以下是一个决策流程：
+
+| 场景 | 推荐策略 | 原因 |
+|------|----------|------|
+| 模型 < 10B, GPU 1-8 | 数据并行（DDP） | 模型单卡装得下，DP 最简单 |
+| 模型 < 10B, GPU 8-64 | ZeRO Stage 2 + DP | 节省优化器内存，通信无增加 |
+| 模型 10-70B, GPU 8-64 | ZeRO Stage 3 / FSDP | 模型单卡装不下，需要分片 |
+| 模型 70B+, GPU 64+ | 3D 并行（TP + PP + DP） | 充分利用硬件拓扑 |
+| 资源有限, 微调 | ZeRO-Offload + QLoRA | 卸载到 CPU，最低显存要求 |
+
+### 复现论文的关键细节
+
+复现大模型分布式训练时，有几个经常被忽略但至关重要的细节。第一是**梯度累积与有效 batch size 的计算**：有效 batch size = micro-batch size × 梯度累积步数 × 数据并行度。许多论文报告的 batch size 是有效 batch size，直接使用会导致 GPU OOM。
+
+第二是**通信与计算的重叠**。高效的实现应该在 GPU 计算当前层的同时，预取下一层的参数（ZeRO Stage 3）或传输上一层的梯度。这种重叠对吞吐量的影响可达 20-30%。
+
+第三是**激活检查点（Activation Checkpointing）** 的使用。大模型训练几乎必须使用激活检查点来减少激活值的内存占用，代价是前向传播需要重新计算一次（约增加 33% 的计算量）。
+
+## 深入理解
+
+### 为什么有效？——通信复杂度的视角
+
+分布式训练的效率最终取决于"计算-通信比"。当 GPU 花在通信上的时间远小于计算时间时，系统的扩展效率就接近理想值。让我们定量分析不同并行策略的通信复杂度。
+
+| 策略 | 每步通信量 | 通信类型 | 适用互连 |
+|------|-----------|---------|---------|
+| 数据并行 | $O(2 \times |\theta|)$ | AllReduce | 任意（带宽够即可） |
+| 张量并行 | $O(4 \times b \times s \times d)$ per layer | AllReduce | NVLink（低延迟） |
+| 流水线并行 | $O(b \times s \times d)$ per micro-batch | 点对点 | InfiniBand |
+| ZeRO-3 | $O(3 \times |\theta|)$ | AllGather + ReduceScatter | 任意 |
+
+一个关键的理论结果是：**数据并行的通信量与 GPU 数量 $N$ 无关**（Ring AllReduce 的性质），而张量并行的通信延迟与 $N$ 线性相关（AllReduce 的 latency 瓶颈）。这就是为什么数据并行可以扩展到数千张 GPU，而张量并行通常限制在 4-8 张。
+
+### 方法的边界条件
+
+#### 张量并行的限制
+
+张量并行对 GPU 之间的通信延迟非常敏感。Megatron-LM 的实验表明，8 路 NVLink 张量并行的效率约为 85-90%，但在跨节点（InfiniBand）上使用 8 路张量并行时效率会降至 50% 以下。这是因为 Transformer 每层有 4 次 AllReduce，它们位于计算的关键路径上，无法被掩盖。
+
+#### 流水线气泡的不可消除性
+
+GPipe 和 1F1B 的气泡比例 $(K-1)/M$ 是一个理论下界——它假设所有阶段的计算时间完全相同。实际中，由于 embedding 层和输出层的参数量不同于中间 Transformer 层，各阶段的计算时间很难完美均衡，实际气泡会更大。Narayanan et al. (2021) 提出了交错流水线调度（Interleaved Pipeline Schedule），通过让每个 GPU 负责多个不连续的层来缓解负载不均衡，但代价是更复杂的实现和更多的通信。
+
+#### ZeRO-3 的通信开销
+
+ZeRO-3 在每层的前向和反向传播中都需要 All-Gather 完整参数，总通信量约为标准数据并行的 1.5 倍。当网络带宽有限时，这会成为瓶颈。ZeRO++ 通过量化通信（INT4/INT8）和分层通信来缓解这一问题。
+
+### 隐含假设与失效条件
+
+所有并行策略都隐含地假设了**同步训练**——每一步所有 GPU 必须完成计算并同步梯度后才能进入下一步。这意味着最慢的 GPU 决定了整个系统的速度（"straggler 问题"）。异步训练可以避免等待，但会引入"陈旧梯度"（stale gradients），可能影响收敛。在实践中，大模型训练几乎都使用同步策略，因为异步策略在超大规模下的收敛行为难以预测。
+
+另一个隐含假设是**网络的可靠性**。在数千张 GPU 的集群上，单个 GPU 或网络链路的故障概率不可忽略。现代训练框架需要支持故障恢复（从最近的 checkpoint 重启），以及 elastic training（GPU 数量动态变化）。
+
+### 开放研究问题
+
+**异步与半同步并行**仍然是一个活跃的研究方向。Local SGD（每几步才同步一次）可以大幅减少通信，但其理论收敛保证和实际效果仍有争议。
+
+**自动并行策略搜索**也是一个重要问题。手动选择 TP/PP/DP 的组合需要丰富的经验。AlPA（Zheng et al., 2022）尝试用 ILP（整数线性规划）自动搜索最优并行策略，但搜索空间随模型和集群规模指数增长。
+
+**通信压缩**的理论基础也尚不完善。梯度量化、稀疏化通信在实践中效果显著，但它们对收敛速度的影响缺乏紧致的理论界。
+
+## 局限性与未解决的问题
+
+### 工程复杂度的爆炸
+
+3D 并行的配置涉及大量的超参数——TP 度、PP 度、DP 度、micro-batch 数量、激活检查点策略、通信 bucket 大小等。这些超参数之间存在复杂的交互关系，最优配置依赖于具体的模型架构、硬件拓扑和网络带宽。目前还没有通用的自动化工具能可靠地找到最优配置。
+
+### 硬件异构性
+
+真实的 GPU 集群很少是完全均质的。不同节点之间的网络带宽可能不同，GPU 的型号可能混合。现有的并行策略大多假设同构环境，在异构环境中的效率和正确性需要更多研究。
+
+### 故障容错的代价
+
+万卡集群上的训练不可避免地会遇到硬件故障。每次故障都意味着从最近的 checkpoint 重新加载和恢复，这可能浪费数小时的训练进度。如何设计更高效的故障恢复机制——比如冗余计算、在线替换故障 GPU——仍然是一个活跃的工程挑战。
+
+### 从"能训练"到"能用"
+
+分布式训练解决了"如何训练一个超大模型"的工程问题，但训练出来的模型是否真的比小模型好？规模的增长是否带来了质变而非只是量变？这正是下一章的主题——GPT-3 的 175B 参数不仅带来了更低的困惑度，还涌现出了一种全新的能力：In-Context Learning。
+
+## 本章小结
+
+### 核心要点回顾
+
+本章系统讲述了大模型分布式训练的四种核心策略及其组合。
+
+**第一，数据并行**是最基础的策略——每张 GPU 持有完整模型，处理不同数据，通过 Ring AllReduce 同步梯度。它实现简单、计算高效，但无法突破单卡内存限制。
+
+**第二，张量并行**将单个 Transformer 层内的矩阵运算切分到多个 GPU 上。Megatron-LM 的列切分-行切分方案巧妙地将通信最小化为每层 4 次 AllReduce，但受限于节点内高带宽互连。
+
+**第三，流水线并行**将模型的不同层分配到不同 GPU 上，通过微批次流水线化来提高利用率。GPipe 和 1F1B 调度将气泡比例控制在 $(K-1)/M$，在 $M \geq 4K$ 时可达 80%+ 利用率。
+
+**第四，ZeRO** 消除数据并行中的内存冗余，通过分区优化器状态（Stage 1）、梯度（Stage 2）和参数（Stage 3），将内存需求从 $16\Psi$ 降低到 $16\Psi / N_d$，同时通信增加有限。
+
+将三种并行组合为 3D 并行——节点内张量并行、节点间流水线并行、最外层数据并行——再配合 ZeRO 的内存优化，使得万亿参数模型的训练成为可能。
+
+### 关键公式速查
+
+- **Ring AllReduce 通信量**：$2 \cdot (N-1)/N \cdot D \approx 2D$
+- **ZeRO 每张 GPU 内存**：Stage 1 = $4\Psi + 12\Psi/N_d$，Stage 2 = $2\Psi + 14\Psi/N_d$，Stage 3 = $16\Psi/N_d$
+- **流水线气泡比例**：$(K-1)/(M+K-1)$
+- **3D 并行 GPU 总数**：$N = D \times T \times P$
+- **有效 batch size**：$B_{\text{eff}} = b_{\text{micro}} \times M \times D$
+
+### 思考题
+
+1. **[概念理解]** 为什么张量并行通常限制在 4-8 张 GPU，而数据并行可以扩展到数千张？从通信模式的角度解释两者的根本区别。
+
+2. **[数学推导]** 推导 ZeRO Stage 2 的精确内存公式。假设模型参数量为 $\Psi$，使用 Adam 优化器 + 混合精度训练，数据并行度为 $N_d$。考虑 FP16 参数、FP16 梯度（分区）、FP32 主参数（分区）和 Adam 状态（分区）四部分。
+
+3. **[工程实践]** 使用 PyTorch FSDP 在多 GPU 环境下微调一个 7B 模型（如 Llama-2-7B）。比较不同分片策略（FULL_SHARD vs SHARD_GRAD_OP）对显存占用和训练速度的影响。
+
+4. **[开放思考]** 如果要在一个 1024 张 H100 的集群上训练一个 500B 参数的模型，你会如何选择 TP/PP/DP 的配置？需要考虑哪些因素？如果集群中有 10% 的节点网络带宽只有其余节点的一半，你的策略会如何调整？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+- **ZeRO: Memory Optimizations Toward Training Trillion Parameter Models (Rajbhandari et al., 2020)**：ZeRO 三阶段设计的原始论文
+  - 重点读：Section 3（ZeRO-DP 设计）、Section 5（实验）
+  - 可跳过：Section 4（ZeRO-R，关于激活值和碎片优化）
+
+- **Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism (Shoeybi et al., 2019)**：张量并行的经典设计
+  - 重点读：Section 3（张量并行方案）、Figure 3（MLP/Attention 切分）
+  - 可跳过：Section 4 的部分实验细节
+
+- **GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism (Huang et al., 2019)**：流水线并行的里程碑
+  - 重点读：Section 2（流水线设计）、Figure 2（气泡分析）
+  - 可跳过：Section 4 的 AmoebaNet 实验
+
+### 理论基础
+
+- **Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM (Narayanan et al., 2021)**：3D 并行的系统化研究，交错流水线调度
+- **PipeDream: Fast and Efficient Pipeline Parallel DNN Training (Harlap et al., 2018)**：1F1B 调度的提出者
+
+### 后续发展
+
+- **ZeRO++ (Wang et al., 2023)**：通过量化通信和分层通信减少 ZeRO 的通信开销
+- **PyTorch FSDP (Zhao et al., 2023)**：ZeRO Stage 3 的 PyTorch 原生工业级实现
+
+### 综述与教程
+
+- **DeepSpeed 官方教程**：[deepspeed.ai/tutorials](https://www.deepspeed.ai/tutorials/)
+- **PyTorch FSDP2 教程**：[docs.pytorch.org/tutorials/intermediate/FSDP_tutorial](https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html)
+- **CMU 11-868 LLM Systems 课程**：系统化的分布式训练教学，slides 公开
+
+### 代码资源
+
+- [DeepSpeed GitHub](https://github.com/microsoft/DeepSpeed)：ZeRO 的参考实现
+- [Megatron-LM GitHub](https://github.com/NVIDIA/Megatron-LM)：张量并行 + 流水线并行
+- [PyTorch FSDP](https://docs.pytorch.org/docs/stable/distributed.fsdp.fully_shard.html)：原生分片数据并行
+
+---
+
+## 历史注脚
+
+分布式训练的历史远比深度学习更悠久。早在 2012 年，Jeff Dean 和 Andrew Ng 的 Google Brain 团队就用 16,000 个 CPU 核心训练了一个能识别猫的神经网络——这或许是深度学习领域第一次真正意义上的大规模分布式训练。但那时的分布式训练主要使用参数服务器（Parameter Server）架构，一个中心节点负责汇总所有 worker 的梯度。这种架构的带宽瓶颈在 AllReduce 被广泛采用后才得到解决。
+
+一个有趣的细节是，ZeRO 论文的标题提到了"Trillion Parameter Models"——2020 年时万亿参数还只是一个理论目标。仅仅两年后，Switch Transformer（1.6 万亿参数，虽然是稀疏激活）就让这个目标变成了现实。ZeRO 的核心思想如此简单——"别在每张卡上重复存储一样的东西"——但它的影响是深远的：DeepSpeed 成为了开源大模型训练的事实标准，FSDP 则将这种思想融入了 PyTorch 的核心。
+
+Megatron-LM 的名字来自变形金刚（Transformers）系列中的反派角色——考虑到它训练的正是 Transformer 模型，这个命名颇有几分黑色幽默。

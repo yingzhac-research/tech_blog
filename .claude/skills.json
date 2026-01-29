@@ -1,16 +1,34 @@
 {
   "skills": [
     {
-      "name": "blog-writing-assistant",
-      "description": "教学导向的技术博客写作助手。用循序渐进、易于理解的风格撰写技术文章，同时检测和修复 Markdown-LaTeX 公式冲突。强调直觉解释、类比和具体例子。",
-      "file": "blog-writing-assistant.md",
-      "tags": ["blog", "writing", "teaching", "latex", "markdown", "math", "explanatory"]
+      "name": "nlp-textbook-chapter",
+      "description": "NLP教材章节写作模板。用于撰写痛点驱动、直觉先于公式、研究者导向的NLP/深度学习教材章节。参考资源包括论文原图和D2L教材图片。当需要写NLP章节、教材内容、技术教程、或按照\"第N章\"格式写作时使用。",
+      "file": "nlp-textbook-chapter/SKILL.md",
+      "tags": ["NLP", "textbook", "chapter", "教材", "深度学习", "Transformer", "BERT", "GPT", "D2L"]
     },
     {
-      "name": "explanatory-style",
-      "description": "教学导向的解释风格。像老师一样循序渐进地讲解概念，使用类比、具体例子和分步说明，帮助深入理解技术原理。",
-      "file": "explanatory-style.md",
-      "tags": ["teaching", "learning", "explanation", "education", "深度理解"]
+      "name": "learner-profile",
+      "description": "学习者偏好配置。定义了重视「为什么」、历史痛点驱动、数学推导、具体数值例子、批判性思考等学习风格特征。",
+      "file": "learner-profile/SKILL.md",
+      "tags": ["learner", "profile", "learning", "style", "preference"]
+    },
+    {
+      "name": "technical-standards",
+      "description": "技术博客写作规范。LaTeX公式规范、Markdown格式、中英文混排、常见冲突字符处理、Quarto callout blocks。",
+      "file": "technical-standards/SKILL.md",
+      "tags": ["LaTeX", "Markdown", "Quarto", "format", "规范"]
+    },
+    {
+      "name": "writing-style",
+      "description": "教学导向的技术写作风格。先直觉后公式、循序渐进、历史痛点驱动、类比比喻、具体数值例子、多角度视角。",
+      "file": "writing-style/SKILL.md",
+      "tags": ["writing", "style", "teaching", "教学", "风格"]
+    },
+    {
+      "name": "damodaran-series-guide",
+      "description": "Damodaran 估值系列写作指南。34章系列文章的结构模板、命名规范、质量检查清单。用于撰写 Investment Valuation 学习笔记。",
+      "file": "damodaran-series-guide/SKILL.md",
+      "tags": ["Damodaran", "valuation", "估值", "finance", "投资"]
     }
   ]
 }

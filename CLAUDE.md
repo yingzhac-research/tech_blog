@@ -4,8 +4,8 @@
 This is a Quarto-based technical blog that includes an NLP textbook series ("NLP: From Symbols to Intelligence"). The textbook follows a **pain-driven, model-centered** narrative tracing the evolution of NLP from pre-deep-learning to the LLM era.
 
 ## NLP Textbook Structure
-- **Source files**: `posts_ch/nlp/ch00-*.qmd` through `ch18-*.qmd` (19 chapters written, ch00-ch18)
-- **Outline**: `.claude/skills/nlp-textbook-chapter/references/outline.md` (34-chapter plan, v3.0)
+- **Source files**: `posts_ch/nlp/ch00-*.qmd` through `ch18-*.qmd` (20 chapters written, ch00-ch18 + new ch02)
+- **Outline**: `.claude/skills/nlp-textbook-chapter/references/outline.md` (36-chapter plan, v3.3)
 - **Writing guide/skill**: `.claude/skills/nlp-textbook-chapter/SKILL.md`
 - **Chapter template**: `.claude/skills/nlp-textbook-chapter/references/template.md`
 - **Writing examples**: `.claude/skills/nlp-textbook-chapter/references/examples.md`
@@ -13,14 +13,10 @@ This is a Quarto-based technical blog that includes an NLP textbook series ("NLP
 - **University course resources**: `.claude/skills/nlp-textbook-chapter/references/university-courses.md`
 - **D2L figure resources**: `.claude/skills/nlp-textbook-chapter/references/d2l-resources.md`
 
-## Active Restructure Plan
-**IMPORTANT**: There is an active restructuring plan at `nlp-textbook-restructure-plan.md` in the project root. This plan proposes 4 changes based on comparison with classic NLP textbooks (SLP3, D2L, UDL, DLB, PML) and courses (CS224N, CMU 11-711, Princeton COS 484). Read this file before making any structural changes to the textbook.
-
-### Summary of planned changes:
-1. **Merge Ch5+Ch6** → combined "Attention Mechanism" chapter
-2. **Add new Ch2** → "NLP Core Tasks Overview" (task landscape map)
-3. **Add new Ch27** → "Beyond Dense Transformer" (SSM/Mamba + MoE)
-4. **Expand Ch12 (GPT)** → add decoding strategies section
+## Writing Progress
+- **Completed**: Ch0–Ch18 + Ch2 (NLP核心任务全景) = 20 chapters written
+- **Next to write**: Ch19 (分布式训练系统) onward; Ch27 (MoE) and Ch28 (SSM/Mamba) are priority new chapters
+- **Restructure reference**: `nlp-textbook-restructure-plan.md` documents the completed restructuring (v3.0→v3.3)
 
 ## Writing Style
 - Language: Chinese (Simplified) for content, English for technical terms

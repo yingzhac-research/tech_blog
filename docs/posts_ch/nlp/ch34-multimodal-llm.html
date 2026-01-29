@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying Zhang">
+<meta name="dcterms.date" content="2026-01-29">
+<meta name="description" content="多模态大模型的演进：对比学习建立视觉-语言共享空间，视觉指令微调让模型学会看图说话">
+
+<title>第34章：多模态大模型 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从上一章说起" id="toc-从上一章说起" class="nav-link active" data-scroll-target="#从上一章说起"><span class="header-section-number">1</span> 从上一章说起</a></li>
+  <li><a href="#问题的本质是什么" id="toc-问题的本质是什么" class="nav-link" data-scroll-target="#问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</a>
+  <ul class="collapse">
+  <li><a href="#跨模态理解的核心挑战" id="toc-跨模态理解的核心挑战" class="nav-link" data-scroll-target="#跨模态理解的核心挑战"><span class="header-section-number">2.1</span> 跨模态理解的核心挑战</a></li>
+  <li><a href="#早期方法为何失败" id="toc-早期方法为何失败" class="nav-link" data-scroll-target="#早期方法为何失败"><span class="header-section-number">2.2</span> 早期方法为何失败？</a></li>
+  <li><a href="#我们需要什么样的解决方案" id="toc-我们需要什么样的解决方案" class="nav-link" data-scroll-target="#我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</a></li>
+  </ul></li>
+  <li><a href="#核心思想与直觉" id="toc-核心思想与直觉" class="nav-link" data-scroll-target="#核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</a>
+  <ul class="collapse">
+  <li><a href="#对比学习的关键洞察" id="toc-对比学习的关键洞察" class="nav-link" data-scroll-target="#对比学习的关键洞察"><span class="header-section-number">3.1</span> 对比学习的关键洞察</a></li>
+  <li><a href="#从预测到匹配范式转变" id="toc-从预测到匹配范式转变" class="nav-link" data-scroll-target="#从预测到匹配范式转变"><span class="header-section-number">3.2</span> 从预测到匹配：范式转变</a></li>
+  <li><a href="#llava的进一步洞察" id="toc-llava的进一步洞察" class="nav-link" data-scroll-target="#llava的进一步洞察"><span class="header-section-number">3.3</span> LLaVA的进一步洞察</a></li>
+  </ul></li>
+  <li><a href="#技术细节" id="toc-技术细节" class="nav-link" data-scroll-target="#技术细节"><span class="header-section-number">4</span> 技术细节</a>
+  <ul class="collapse">
+  <li><a href="#clip对比学习的基石" id="toc-clip对比学习的基石" class="nav-link" data-scroll-target="#clip对比学习的基石"><span class="header-section-number">4.1</span> CLIP：对比学习的基石</a></li>
+  <li><a href="#视觉编码器的选择" id="toc-视觉编码器的选择" class="nav-link" data-scroll-target="#视觉编码器的选择"><span class="header-section-number">4.2</span> 视觉编码器的选择</a></li>
+  <li><a href="#llava视觉指令微调" id="toc-llava视觉指令微调" class="nav-link" data-scroll-target="#llava视觉指令微调"><span class="header-section-number">4.3</span> LLaVA：视觉指令微调</a></li>
+  <li><a href="#blip-2高效的模态桥接" id="toc-blip-2高效的模态桥接" class="nav-link" data-scroll-target="#blip-2高效的模态桥接"><span class="header-section-number">4.4</span> BLIP-2：高效的模态桥接</a></li>
+  <li><a href="#gpt-4v闭源的多模态巨头" id="toc-gpt-4v闭源的多模态巨头" class="nav-link" data-scroll-target="#gpt-4v闭源的多模态巨头"><span class="header-section-number">4.5</span> GPT-4V：闭源的多模态巨头</a></li>
+  </ul></li>
+  <li><a href="#工程实践" id="toc-工程实践" class="nav-link" data-scroll-target="#工程实践"><span class="header-section-number">5</span> 工程实践</a>
+  <ul class="collapse">
+  <li><a href="#使用clip进行零样本分类" id="toc-使用clip进行零样本分类" class="nav-link" data-scroll-target="#使用clip进行零样本分类"><span class="header-section-number">5.1</span> 使用CLIP进行零样本分类</a></li>
+  <li><a href="#使用llava进行视觉问答" id="toc-使用llava进行视觉问答" class="nav-link" data-scroll-target="#使用llava进行视觉问答"><span class="header-section-number">5.2</span> 使用LLaVA进行视觉问答</a></li>
+  <li><a href="#构建简单的多模态rag系统" id="toc-构建简单的多模态rag系统" class="nav-link" data-scroll-target="#构建简单的多模态rag系统"><span class="header-section-number">5.3</span> 构建简单的多模态RAG系统</a></li>
+  </ul></li>
+  <li><a href="#深入理解" id="toc-深入理解" class="nav-link" data-scroll-target="#深入理解"><span class="header-section-number">6</span> 深入理解</a>
+  <ul class="collapse">
+  <li><a href="#为什么有效理论视角" id="toc-为什么有效理论视角" class="nav-link" data-scroll-target="#为什么有效理论视角"><span class="header-section-number">6.1</span> 为什么有效？——理论视角</a></li>
+  <li><a href="#方法的边界条件" id="toc-方法的边界条件" class="nav-link" data-scroll-target="#方法的边界条件"><span class="header-section-number">6.2</span> 方法的边界条件</a></li>
+  <li><a href="#开放研究问题" id="toc-开放研究问题" class="nav-link" data-scroll-target="#开放研究问题"><span class="header-section-number">6.3</span> 开放研究问题</a></li>
+  </ul></li>
+  <li><a href="#局限性与未解决的问题" id="toc-局限性与未解决的问题" class="nav-link" data-scroll-target="#局限性与未解决的问题"><span class="header-section-number">7</span> 局限性与未解决的问题</a>
+  <ul class="collapse">
+  <li><a href="#本方法的局限" id="toc-本方法的局限" class="nav-link" data-scroll-target="#本方法的局限"><span class="header-section-number">7.1</span> 本方法的局限</a></li>
+  <li><a href="#这些局限导向了什么" id="toc-这些局限导向了什么" class="nav-link" data-scroll-target="#这些局限导向了什么"><span class="header-section-number">7.2</span> 这些局限导向了什么？</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结"><span class="header-section-number">8</span> 本章小结</a>
+  <ul class="collapse">
+  <li><a href="#核心要点回顾" id="toc-核心要点回顾" class="nav-link" data-scroll-target="#核心要点回顾"><span class="header-section-number">8.1</span> 核心要点回顾</a></li>
+  <li><a href="#关键公式速查" id="toc-关键公式速查" class="nav-link" data-scroll-target="#关键公式速查"><span class="header-section-number">8.2</span> 关键公式速查</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8.3</span> 思考题</a></li>
+  </ul></li>
+  <li><a href="#延伸阅读" id="toc-延伸阅读" class="nav-link" data-scroll-target="#延伸阅读"><span class="header-section-number">9</span> 延伸阅读</a>
+  <ul class="collapse">
+  <li><a href="#核心论文必读" id="toc-核心论文必读" class="nav-link" data-scroll-target="#核心论文必读"><span class="header-section-number">9.1</span> 核心论文（必读）</a></li>
+  <li><a href="#理论基础" id="toc-理论基础" class="nav-link" data-scroll-target="#理论基础"><span class="header-section-number">9.2</span> 理论基础</a></li>
+  <li><a href="#后续发展" id="toc-后续发展" class="nav-link" data-scroll-target="#后续发展"><span class="header-section-number">9.3</span> 后续发展</a></li>
+  <li><a href="#综述与教程" id="toc-综述与教程" class="nav-link" data-scroll-target="#综述与教程"><span class="header-section-number">9.4</span> 综述与教程</a></li>
+  <li><a href="#代码资源" id="toc-代码资源" class="nav-link" data-scroll-target="#代码资源"><span class="header-section-number">9.5</span> 代码资源</a></li>
+  </ul></li>
+  <li><a href="#历史注脚" id="toc-历史注脚" class="nav-link" data-scroll-target="#历史注脚"><span class="header-section-number">10</span> 历史注脚</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">第34章：多模态大模型</h1>
+<p class="subtitle lead">从CLIP到GPT-4V：让语言模型理解视觉世界</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">NLP</div>
+    <div class="quarto-category">Multimodal</div>
+    <div class="quarto-category">CLIP</div>
+    <div class="quarto-category">LLaVA</div>
+    <div class="quarto-category">GPT-4V</div>
+    <div class="quarto-category">VLM</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    多模态大模型的演进：对比学习建立视觉-语言共享空间，视觉指令微调让模型学会看图说话
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying Zhang </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>核心问题</strong>：如何让语言模型”看见”并理解视觉世界？</p>
+<p><strong>历史坐标</strong>：2021-2024 | CLIP, Flamingo, BLIP-2, LLaVA, GPT-4V | 从视觉-语言对齐到端到端多模态理解</p>
+</blockquote>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>本章参考来源
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<section id="论文" class="level3" data-number="0.1">
+<h3 data-number="0.1" class="anchored" data-anchor-id="论文"><span class="header-section-number">0.1</span> 论文</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2103.00020">CLIP</a> (Radford et al., 2021) — 参考了 Figure 1 (对比学习架构), Section 2 (方法)；从论文提取了架构图</li>
+<li><a href="https://arxiv.org/abs/2304.08485">LLaVA</a> (Liu et al., 2023) — 参考了 Figure 1 (网络架构), Section 4 (方法)</li>
+<li><a href="https://arxiv.org/abs/2301.12597">BLIP-2</a> (Li et al., 2023) — 参考了 Figure 1-2 (Q-Former架构), Section 3 (两阶段预训练)</li>
+<li><a href="https://arxiv.org/abs/2204.14198">Flamingo</a> (Alayrac et al., 2022) — 参考了架构设计和few-shot能力</li>
+<li><a href="https://arxiv.org/abs/2303.08774">GPT-4 Technical Report</a> (OpenAI, 2023) — 参考了多模态评测结果</li>
+</ul>
+</section>
+<section id="教材" class="level3" data-number="0.2">
+<h3 data-number="0.2" class="anchored" data-anchor-id="教材"><span class="header-section-number">0.2</span> 教材</h3>
+<ul>
+<li>D2L Chapter 11.9 — 参考了Vision Transformer架构图</li>
+</ul>
+</section>
+<section id="课程" class="level3" data-number="0.3">
+<h3 data-number="0.3" class="anchored" data-anchor-id="课程"><span class="header-section-number">0.3</span> 课程</h3>
+<ul>
+<li>Stanford CS224N Lecture on Multimodal Models — 参考了多模态学习的教学组织</li>
+</ul>
+</section>
+</div>
+</div>
+<hr>
+<section id="从上一章说起" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从上一章说起"><span class="header-section-number">1</span> 从上一章说起</h2>
+<p>上一章我们见证了LLM从单纯的文本生成器演变为能够使用工具、规划任务、与环境交互的自主Agent。ReAct让模型学会了”思考-行动-观察”的循环，Function Calling让模型能够调用外部API，记忆系统让对话能够跨越时间延续。这些进展让LLM的能力边界大大拓展——它们不再只是被动地回答问题，而是能够主动地解决复杂任务。</p>
+<p>然而，当我们审视这些Agent的交互方式时，一个根本性的限制浮现出来：它们与世界的交互几乎完全依赖文本。当用户说”帮我分析这张图表”时，Agent需要依赖外部的OCR工具将图像转换为文本描述，然后才能处理。当用户说”这个产品看起来怎么样”时，Agent只能请求用户提供文字描述。这种”文本中介”的交互方式不仅繁琐，更重要的是，它丢失了大量视觉信息——颜色的微妙变化、空间布局的整体感、图表中数据点之间的关系，这些都难以用文字精确捕捉。</p>
+<p>人类认知世界的方式从来不是单一模态的。我们看到一朵花，闻到它的香气，触摸它的花瓣，听到蜜蜂嗡嗡的声音——这些感官信息在大脑中无缝融合，形成对”花”这个概念的完整理解。语言只是我们表达和交流这种多模态理解的一种方式，而非理解本身。如果我们希望AI真正理解世界，而不只是理解关于世界的文字描述，多模态能力就是必经之路。</p>
+<blockquote class="blockquote">
+<p>💡 <strong>本章核心洞察</strong>：对比学习（CLIP）提供了将视觉和语言映射到共享语义空间的范式，而视觉指令微调（LLaVA等）则在此基础上让语言模型学会了”看图说话”——不是简单地描述图像内容，而是理解图像、回答问题、进行推理。</p>
+</blockquote>
+<hr>
+</section>
+<section id="问题的本质是什么" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</h2>
+<section id="跨模态理解的核心挑战" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="跨模态理解的核心挑战"><span class="header-section-number">2.1</span> 跨模态理解的核心挑战</h3>
+<p>多模态理解的核心挑战可以用一个简单的问题来概括：如何让一个处理离散token序列的语言模型，理解本质上是连续像素矩阵的图像？</p>
+<p>这个问题比表面看起来要深刻得多。语言和视觉是两种截然不同的信息表示方式。语言是离散的、序列化的、高度抽象的：单词”猫”本身不包含任何关于猫的视觉信息，它只是一个任意的符号，通过社会约定与猫这个概念关联。而图像是连续的、空间化的、具体的：一张猫的照片包含了猫的毛色、姿态、表情等丰富的视觉细节。</p>
+<p>更深层的挑战在于<strong>语义鸿沟</strong>（Semantic Gap）。考虑一张图片中有一只橙色的猫躺在阳光下。从像素层面看，这只是一个 <span class="math inline">\(H \times W \times 3\)</span> 的数值矩阵。但人类看到这张图片会立即理解：“一只橙猫在晒太阳，看起来很惬意”。从像素到这种高层语义理解之间存在巨大的鸿沟，而跨模态模型必须学会跨越这个鸿沟。</p>
+</section>
+<section id="早期方法为何失败" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="早期方法为何失败"><span class="header-section-number">2.2</span> 早期方法为何失败？</h3>
+<p>在CLIP之前，视觉-语言领域的主流方法是<strong>任务特定的监督学习</strong>。例如，要训练一个图像分类器，你需要收集大量标注了类别的图像（如ImageNet的1000类）；要训练一个视觉问答模型，你需要收集大量图像-问题-答案的三元组（如VQA数据集）。</p>
+<p>这种方法存在几个根本性问题。首先是<strong>泛化能力有限</strong>：在ImageNet上训练的分类器只能识别预定义的1000个类别，遇到新类别（如”柯基犬穿着毛衣”）就束手无策。其次是<strong>标注成本高昂</strong>：高质量的标注数据需要大量人工，而且不同任务需要不同形式的标注。最后是<strong>知识难以复用</strong>：图像分类器学到的知识很难迁移到视觉问答或图像描述等其他任务。</p>
+<p>另一条路线是使用<strong>预训练的视觉特征+预训练的语言模型</strong>，然后在特定任务上微调。但这种”拼接”方式的问题在于，视觉模型和语言模型是分别在各自的数据上训练的，它们的表示空间没有对齐。就像两个说不同语言的人，即使你把他们放在一起，他们也无法直接交流。</p>
+</section>
+<section id="我们需要什么样的解决方案" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</h3>
+<p>理想的多模态解决方案应该具备以下特性：</p>
+<p><strong>开放词汇</strong>（Open-Vocabulary）：不应局限于预定义的类别集合，而是能够理解任意自然语言描述的视觉概念。用户应该能够用”戴着红帽子的小女孩在草地上奔跑”这样的自由文本来查询图像。</p>
+<p><strong>零样本迁移</strong>（Zero-Shot Transfer）：在一个任务上学到的知识应该能够迁移到其他任务，而不需要针对每个任务都收集标注数据。一个在互联网图文数据上训练的模型，应该能够直接用于图像分类、检索、甚至视觉问答。</p>
+<p><strong>统一的表示空间</strong>：视觉和语言应该被映射到同一个语义空间，使得”一张猫的图片”和”猫”这个词在表示空间中彼此接近。这样，跨模态的理解就变成了同一空间内的相似度计算。</p>
+<p>CLIP正是朝着这个方向迈出的关键一步。</p>
+<hr>
+</section>
+</section>
+<section id="核心思想与直觉" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</h2>
+<section id="对比学习的关键洞察" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="对比学习的关键洞察"><span class="header-section-number">3.1</span> 对比学习的关键洞察</h3>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<div id="fig-clip-arch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clip-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-34/original/fig-clip-contrastive.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clip-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: CLIP对比学习架构：图像编码器和文本编码器分别将图像和文本映射到共享的嵌入空间，通过对比学习使匹配的图文对接近、不匹配的图文对远离。
+</figcaption>
+</figure>
+</div>
+<p><em>Source: Radford et al.&nbsp;(2021) “Learning Transferable Visual Models From Natural Language Supervision”, Figure 1. <a href="https://arxiv.org/abs/2103.00020">arXiv:2103.00020</a></em></p>
+</div>
+</div>
+</div>
+<p>CLIP的核心思想可以用一句话概括：<strong>让图像和描述它的文本在表示空间中彼此接近，让图像和不相关的文本彼此远离</strong>。</p>
+<p>这个想法听起来简单，但其威力在于它利用了互联网上海量的图文配对数据。想想网络上有多少图片带有alt文本、标题、周围的描述性文字——这些都是天然的图文对，不需要人工标注。CLIP在4亿个这样的图文对上训练，学会了将视觉和语言映射到一个共享的语义空间。</p>
+<p>让我们用一个类比来理解对比学习。想象你在学习一门新语言，老师给你展示一系列图片，每张图片配有该语言的描述。你不知道每个词的精确定义，但通过大量的图文配对，你逐渐建立起视觉概念和语言符号之间的关联。看到一张苹果的图片配上”manzana”这个词足够多次后，你就知道”manzana”指的是苹果。CLIP的学习方式与此类似——它通过大规模的图文配对数据，自动学习视觉和语言之间的对应关系。</p>
+</section>
+<section id="从预测到匹配范式转变" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="从预测到匹配范式转变"><span class="header-section-number">3.2</span> 从预测到匹配：范式转变</h3>
+<p>传统的图像分类是一个<strong>生成性</strong>问题：给定图像，预测它属于哪个类别。这要求模型为每个可能的类别都学习一个独立的分类器。而CLIP将问题转化为<strong>匹配性</strong>问题：给定一个图像和一组文本描述，判断哪个描述与图像最匹配。</p>
+<p>这个范式转变的妙处在于，文本本身就编码了类别的语义信息。考虑”狗”和”猫”这两个类别。在传统分类器中，它们只是两个无关的标签（比如类别0和类别1）。但在CLIP中，“一只狗的照片”和”一只猫的照片”这两个文本描述本身就包含了狗和猫的语义信息——而且CLIP的文本编码器是在大规模语料上预训练的，它知道狗和狼比较相似，而狗和猫虽然都是宠物但有本质区别。</p>
+<p>这种设计使得CLIP具有天然的零样本能力。要识别一个新类别，不需要收集该类别的训练数据，只需要写出描述该类别的文本即可。比如要识别”柯基犬穿着毛衣”，你只需要把这个描述输入文本编码器，然后与图像编码器的输出计算相似度。</p>
+</section>
+<section id="llava的进一步洞察" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="llava的进一步洞察"><span class="header-section-number">3.3</span> LLaVA的进一步洞察</h3>
+<p>CLIP建立了视觉-语言的共享空间，但它的能力仍然局限于匹配——给定图像和文本，判断它们是否相关。它不能生成关于图像的描述，不能回答关于图像的问题，不能进行视觉推理。</p>
+<p>LLaVA（Large Language and Vision Assistant）的洞察是：<strong>既然我们已经有了强大的语言模型，也有了将视觉映射到语言空间的方法，为什么不直接把它们连接起来？</strong> 具体来说，LLaVA使用CLIP的视觉编码器提取图像特征，然后通过一个简单的投影层将这些特征映射到语言模型的词嵌入空间，让语言模型可以像处理文本token一样处理视觉token。</p>
+<p>这个设计的优雅之处在于它最大化地复用了已有的组件。视觉编码器（CLIP的ViT）已经学会了提取有意义的视觉特征，语言模型（如LLaMA或Vicuna）已经学会了强大的语言理解和生成能力。LLaVA需要学习的只是如何把两者连接起来——一个相对轻量的任务。</p>
+<hr>
+</section>
+</section>
+<section id="技术细节" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="技术细节"><span class="header-section-number">4</span> 技术细节</h2>
+<section id="clip对比学习的基石" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="clip对比学习的基石"><span class="header-section-number">4.1</span> CLIP：对比学习的基石</h3>
+<section id="架构设计" class="level4" data-number="4.1.1">
+<h4 data-number="4.1.1" class="anchored" data-anchor-id="架构设计"><span class="header-section-number">4.1.1</span> 架构设计</h4>
+<p>CLIP由两个编码器组成：一个图像编码器（Image Encoder）和一个文本编码器（Text Encoder）。图像编码器可以是ResNet或Vision Transformer（ViT），文本编码器是一个Transformer。两个编码器分别将图像和文本映射到同一维度的向量空间。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>CLIP 对比学习算法 (Radford et al., 2021)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 伪代码：CLIP的对比学习</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clip_forward(images, texts):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 编码图像和文本</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    I_f <span class="op">=</span> image_encoder(images)  <span class="co"># [N, d]</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    T_f <span class="op">=</span> text_encoder(texts)    <span class="co"># [N, d]</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># L2归一化</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    I_e <span class="op">=</span> I_f <span class="op">/</span> I_f.norm(dim<span class="op">=-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    T_e <span class="op">=</span> T_f <span class="op">/</span> T_f.norm(dim<span class="op">=-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 计算相似度矩阵</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    logits <span class="op">=</span> I_e <span class="op">@</span> T_e.T <span class="op">*</span> exp(temperature)  <span class="co"># [N, N]</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 对称的交叉熵损失</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> torch.arange(N)  <span class="co"># 对角线是正样本</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    loss_i2t <span class="op">=</span> cross_entropy(logits, labels)      <span class="co"># 图像到文本</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    loss_t2i <span class="op">=</span> cross_entropy(logits.T, labels)    <span class="co"># 文本到图像</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (loss_i2t <span class="op">+</span> loss_t2i) <span class="op">/</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Source: Radford et al.&nbsp;(2021) “Learning Transferable Visual Models From Natural Language Supervision”, Section 2.3</em></p>
+</div>
+</div>
+<p>对比学习的核心是<strong>InfoNCE损失</strong>。在一个batch中有 <span class="math inline">\(N\)</span> 个图文对，形成一个 <span class="math inline">\(N \times N\)</span> 的相似度矩阵。对角线上的元素是正样本对（匹配的图文），其他 <span class="math inline">\(N^2 - N\)</span> 个元素是负样本对。损失函数鼓励正样本对的相似度高于所有负样本对：</p>
+<p><span class="math display">\[
+\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(s_{ii} / \tau)}{\sum_{j=1}^{N} \exp(s_{ij} / \tau)}
+\]</span></p>
+<p>其中 <span class="math inline">\(s_{ij}\)</span> 是第 <span class="math inline">\(i\)</span> 个图像与第 <span class="math inline">\(j\)</span> 个文本的余弦相似度，<span class="math inline">\(\tau\)</span> 是温度参数。</p>
+</section>
+<section id="数值示例理解对比学习" class="level4" data-number="4.1.2">
+<h4 data-number="4.1.2" class="anchored" data-anchor-id="数值示例理解对比学习"><span class="header-section-number">4.1.2</span> 数值示例：理解对比学习</h4>
+<p>让我们用一个小例子来直观理解CLIP的训练过程。假设batch size为3，有以下图文对：</p>
+<ul>
+<li>图像1：“一只橙色的猫” → 嵌入向量 <span class="math inline">\(I_1\)</span></li>
+<li>图像2：“埃菲尔铁塔” → 嵌入向量 <span class="math inline">\(I_2\)</span></li>
+<li>图像3：“一杯咖啡” → 嵌入向量 <span class="math inline">\(I_3\)</span></li>
+</ul>
+<p>假设经过编码和归一化后，相似度矩阵为：</p>
+<p><span class="math display">\[
+S = \begin{bmatrix}
+0.85 &amp; 0.12 &amp; 0.08 \\
+0.15 &amp; 0.82 &amp; 0.10 \\
+0.05 &amp; 0.18 &amp; 0.78
+\end{bmatrix}
+\]</span></p>
+<p>对角线元素（0.85, 0.82, 0.78）是匹配的图文对的相似度，它们应该尽可能高。非对角线元素是不匹配对的相似度，它们应该尽可能低。</p>
+<p>应用softmax（假设温度 <span class="math inline">\(\tau = 0.07\)</span>），第一行变成：</p>
+<p><span class="math display">\[
+\text{softmax}([0.85, 0.12, 0.08] / 0.07) = \text{softmax}([12.1, 1.7, 1.1]) \approx [0.9997, 0.0002, 0.0001]
+\]</span></p>
+<p>交叉熵损失为 <span class="math inline">\(-\log(0.9997) \approx 0.0003\)</span>，非常小，说明模型很好地学会了这个配对。</p>
+</section>
+<section id="零样本分类" class="level4" data-number="4.1.3">
+<h4 data-number="4.1.3" class="anchored" data-anchor-id="零样本分类"><span class="header-section-number">4.1.3</span> 零样本分类</h4>
+<p>训练完成后，CLIP可以进行零样本图像分类。给定一张图像和 <span class="math inline">\(K\)</span> 个类别名称，将每个类别构造成文本提示（如”a photo of a {class}“），然后：</p>
+<ol type="1">
+<li>计算图像嵌入：<span class="math inline">\(\mathbf{v} = \text{ImageEncoder}(\text{image})\)</span></li>
+<li>计算每个类别的文本嵌入：<span class="math inline">\(\mathbf{t}_k = \text{TextEncoder}(\text{"a photo of a " + class}_k)\)</span></li>
+<li>预测类别：<span class="math inline">\(\hat{y} = \arg\max_k \cos(\mathbf{v}, \mathbf{t}_k)\)</span></li>
+</ol>
+<p>这种方法在ImageNet上达到了76.2%的零样本准确率，接近有监督训练的ResNet-50（76.1%）——而CLIP从未见过ImageNet的训练数据！</p>
+</section>
+</section>
+<section id="视觉编码器的选择" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="视觉编码器的选择"><span class="header-section-number">4.2</span> 视觉编码器的选择</h3>
+<p>CLIP的视觉编码器可以是CNN（如ResNet）或Transformer（如ViT）。在多模态大模型的后续发展中，Vision Transformer（ViT）逐渐成为主流选择。</p>
+<section id="vision-transformer架构" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="vision-transformer架构"><span class="header-section-number">4.2.1</span> Vision Transformer架构</h4>
+<p>ViT将图像分割成固定大小的patch（通常是16×16或14×14像素），将每个patch线性投影为一个向量，然后像处理文本token一样用Transformer处理这些patch token：</p>
+<p><span class="math display">\[
+\mathbf{z}_0 = [\mathbf{x}_{\text{class}}; \mathbf{x}_1 \mathbf{E}; \mathbf{x}_2 \mathbf{E}; \cdots; \mathbf{x}_N \mathbf{E}] + \mathbf{E}_{\text{pos}}
+\]</span></p>
+<p>其中 <span class="math inline">\(\mathbf{x}_i\)</span> 是第 <span class="math inline">\(i\)</span> 个patch的像素值展平后的向量，<span class="math inline">\(\mathbf{E}\)</span> 是投影矩阵，<span class="math inline">\(\mathbf{x}_{\text{class}}\)</span> 是可学习的类别token，<span class="math inline">\(\mathbf{E}_{\text{pos}}\)</span> 是位置嵌入。</p>
+</section>
+<section id="数值示例vit的patch处理" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="数值示例vit的patch处理"><span class="header-section-number">4.2.2</span> 数值示例：ViT的patch处理</h4>
+<p>考虑一张 <span class="math inline">\(224 \times 224\)</span> 的RGB图像，使用 <span class="math inline">\(16 \times 16\)</span> 的patch大小：</p>
+<ul>
+<li>Patch数量：<span class="math inline">\((224/16)^2 = 14^2 = 196\)</span></li>
+<li>每个patch的原始维度：<span class="math inline">\(16 \times 16 \times 3 = 768\)</span></li>
+<li>加上[CLS] token后的序列长度：<span class="math inline">\(196 + 1 = 197\)</span></li>
+</ul>
+<p>如果投影到 <span class="math inline">\(d = 768\)</span> 的隐藏维度（ViT-Base配置），则输入Transformer的序列形状为 <span class="math inline">\([197, 768]\)</span>。</p>
+<p>ViT相比CNN的优势在于： 1. <strong>全局感受野</strong>：每个patch可以直接attend到所有其他patch 2. <strong>更好的可扩展性</strong>：在大规模数据上训练时，ViT的性能持续提升 3. <strong>统一的架构</strong>：视觉和语言都用Transformer，便于后续的多模态融合</p>
+<p>主流的多模态大模型通常使用CLIP预训练的ViT-L/14（14×14 patch，Large规模）作为视觉编码器，它在视觉-语言对齐方面已经有很强的基础。</p>
+</section>
+</section>
+<section id="llava视觉指令微调" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="llava视觉指令微调"><span class="header-section-number">4.3</span> LLaVA：视觉指令微调</h3>
+<section id="架构设计-1" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="架构设计-1"><span class="header-section-number">4.3.1</span> 架构设计</h4>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<div id="fig-llava-arch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-llava-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-34/original/fig-llava-architecture.png" class="img-fluid figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-llava-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: LLaVA网络架构：CLIP视觉编码器提取图像特征，通过投影层映射到语言模型的词嵌入空间，与文本token一起输入LLM进行多模态理解。
+</figcaption>
+</figure>
+</div>
+<p><em>Source: Liu et al.&nbsp;(2023) “Visual Instruction Tuning”, Figure 1. <a href="https://arxiv.org/abs/2304.08485">arXiv:2304.08485</a></em></p>
+</div>
+</div>
+</div>
+<p>LLaVA的架构极其简洁：<strong>CLIP ViT + 投影层 + LLM</strong>。</p>
+<ol type="1">
+<li><strong>视觉编码器</strong>：使用预训练的CLIP ViT-L/14提取图像特征，输出形状为 <span class="math inline">\([N, d_v]\)</span>，其中 <span class="math inline">\(N=256\)</span>（来自 <span class="math inline">\(16 \times 16\)</span> 的patch）， <span class="math inline">\(d_v=1024\)</span></li>
+<li><strong>投影层</strong>：一个简单的线性层（或两层MLP），将视觉特征投影到LLM的词嵌入空间：<span class="math inline">\(\mathbf{H}_v = \mathbf{W} \cdot \mathbf{Z}_v\)</span>，其中 <span class="math inline">\(\mathbf{W} \in \mathbb{R}^{d_l \times d_v}\)</span></li>
+<li><strong>语言模型</strong>：使用Vicuna-7B/13B（基于LLaMA的指令微调模型）</li>
+</ol>
+<p>输入到LLM的序列是：<span class="math inline">\([\text{&lt;image&gt;}, \mathbf{H}_v, \text{&lt;/image&gt;}, \text{user instruction}, \text{&lt;assistant&gt;}]\)</span></p>
+<p>视觉token和文本token在同一个序列中被处理，语言模型需要学会理解视觉token的含义。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>LLaVA 视觉指令微调流程 (Liu et al., 2023)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>两阶段训练</strong>：</p>
+<p><strong>Stage 1: 特征对齐预训练</strong> - 冻结视觉编码器和LLM，只训练投影层 - 数据：CC3M过滤后的595K图文对 - 目标：让投影层学会将视觉特征映射到LLM的词空间</p>
+<p><strong>Stage 2: 端到端指令微调</strong> - 冻结视觉编码器，训练投影层和LLM - 数据：158K GPT-4生成的多模态指令数据 - 目标：让模型学会遵循多模态指令</p>
+<p><em>Source: Liu et al.&nbsp;(2023) “Visual Instruction Tuning”, Section 4</em></p>
+</div>
+</div>
+</section>
+<section id="指令数据的构建" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="指令数据的构建"><span class="header-section-number">4.3.2</span> 指令数据的构建</h4>
+<p>LLaVA的一个关键创新是使用GPT-4生成多模态指令数据。具体方法是：</p>
+<ol type="1">
+<li>给GPT-4提供图像的标题（caption）和边界框标注（bounding box）</li>
+<li>让GPT-4生成关于这张图像的问答对、详细描述、复杂推理任务</li>
+<li>将生成的数据用于微调</li>
+</ol>
+<p>这种”语言模型生成训练数据”的方法被称为<strong>Self-Instruct</strong>，它大大降低了数据标注的成本。</p>
+</section>
+</section>
+<section id="blip-2高效的模态桥接" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="blip-2高效的模态桥接"><span class="header-section-number">4.4</span> BLIP-2：高效的模态桥接</h3>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<div id="fig-blip2-arch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-blip2-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-34/original/fig-blip2-architecture.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-blip2-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: BLIP-2架构：Q-Former作为轻量级的模态桥接器，通过可学习的query从冻结的图像编码器中提取视觉信息，再传递给冻结的LLM。
+</figcaption>
+</figure>
+</div>
+<p><em>Source: Li et al.&nbsp;(2023) “BLIP-2: Bootstrapping Language-Image Pre-training”, Figure 1. <a href="https://arxiv.org/abs/2301.12597">arXiv:2301.12597</a></em></p>
+</div>
+</div>
+</div>
+<p>BLIP-2引入了一个关键组件：<strong>Q-Former</strong>（Querying Transformer），它解决了一个实际问题——如何高效地将视觉特征传递给LLM？</p>
+<p>直接将所有视觉token（如256个）传入LLM会显著增加计算成本。Q-Former的做法是使用一组可学习的query向量（如32个），通过cross-attention从视觉特征中”提取”最相关的信息，将视觉信息压缩到固定数量的token。</p>
+<section id="q-former的两阶段预训练" class="level4" data-number="4.4.1">
+<h4 data-number="4.4.1" class="anchored" data-anchor-id="q-former的两阶段预训练"><span class="header-section-number">4.4.1</span> Q-Former的两阶段预训练</h4>
+<p><strong>阶段1：视觉-语言表示学习</strong></p>
+<p>Q-Former同时连接冻结的图像编码器，执行三个预训练任务：</p>
+<ul>
+<li><strong>Image-Text Contrastive Learning (ITC)</strong>：对齐query输出和文本表示</li>
+<li><strong>Image-grounded Text Generation (ITG)</strong>：基于图像生成文本</li>
+<li><strong>Image-Text Matching (ITM)</strong>：判断图文是否匹配</li>
+</ul>
+<p><strong>阶段2：视觉到语言的生成学习</strong></p>
+<p>将Q-Former的输出连接到冻结的LLM，训练Q-Former提取对语言生成有用的视觉特征。</p>
+<p>这种设计使BLIP-2只需训练轻量的Q-Former（约188M参数），就能有效利用冻结的视觉编码器（如ViT-G，约2B参数）和LLM（如FlanT5-XXL，约11B参数）。</p>
+</section>
+</section>
+<section id="gpt-4v闭源的多模态巨头" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="gpt-4v闭源的多模态巨头"><span class="header-section-number">4.5</span> GPT-4V：闭源的多模态巨头</h3>
+<p>GPT-4V（GPT-4 with Vision）是OpenAI在2023年发布的多模态模型。虽然其具体架构未公开，但从其能力和技术报告可以推断一些关键特性：</p>
+<p><strong>推断的架构特点</strong>： 1. 可能使用了类似Flamingo的交叉注意力机制，让文本token可以attend到视觉特征 2. 在超大规模的图文数据上进行了预训练 3. 经过了大量的RLHF对齐，特别是在安全性方面</p>
+<p><strong>能力特征</strong>： 1. <strong>文档理解</strong>：能够阅读和理解文档、表格、图表中的文字和结构 2. <strong>空间推理</strong>：理解图像中物体的空间关系 3. <strong>视觉数学</strong>：能够”看懂”手写数学公式并求解 4. <strong>多图像输入</strong>：支持同时处理多张图像</p>
+<p>GPT-4V在多个视觉理解benchmark上达到了state-of-the-art，包括在模拟SAT考试中达到了接近人类的表现。</p>
+<hr>
+</section>
+</section>
+<section id="工程实践" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="工程实践"><span class="header-section-number">5</span> 工程实践</h2>
+<section id="使用clip进行零样本分类" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="使用clip进行零样本分类"><span class="header-section-number">5.1</span> 使用CLIP进行零样本分类</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> CLIPProcessor, CLIPModel</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载模型</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> CLIPModel.from_pretrained(<span class="st">"openai/clip-vit-large-patch14"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>processor <span class="op">=</span> CLIPProcessor.from_pretrained(<span class="st">"openai/clip-vit-large-patch14"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 准备输入</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">"cat.jpg"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>candidate_labels <span class="op">=</span> [<span class="st">"a photo of a cat"</span>, <span class="st">"a photo of a dog"</span>, <span class="st">"a photo of a bird"</span>]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 编码并计算相似度</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> processor(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span>candidate_labels,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    images<span class="op">=</span>image,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    return_tensors<span class="op">=</span><span class="st">"pt"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    padding<span class="op">=</span><span class="va">True</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>logits_per_image <span class="op">=</span> outputs.logits_per_image  <span class="co"># [1, 3]</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> logits_per_image.softmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 输出预测</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, prob <span class="kw">in</span> <span class="bu">zip</span>(candidate_labels, probs[<span class="dv">0</span>]):</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>prob<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 输出示例：</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># a photo of a cat: 97.23%</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># a photo of a dog: 2.15%</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># a photo of a bird: 0.62%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="使用llava进行视觉问答" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="使用llava进行视觉问答"><span class="header-section-number">5.2</span> 使用LLaVA进行视觉问答</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llava.model.builder <span class="im">import</span> load_pretrained_model</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llava.conversation <span class="im">import</span> conv_templates</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llava.mm_utils <span class="im">import</span> process_images, tokenizer_image_token</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载模型</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>tokenizer, model, image_processor, context_len <span class="op">=</span> load_pretrained_model(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    model_path<span class="op">=</span><span class="st">"liuhaotian/llava-v1.6-vicuna-7b"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    model_base<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    model_name<span class="op">=</span><span class="st">"llava-v1.6-vicuna-7b"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 准备图像和问题</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">"chart.png"</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> <span class="st">"这张图表显示了什么趋势？请详细分析。"</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 处理输入</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>image_tensor <span class="op">=</span> process_images([image], image_processor, model.config)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>conv <span class="op">=</span> conv_templates[<span class="st">"vicuna_v1"</span>].copy()</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>conv.append_message(conv.roles[<span class="dv">0</span>], <span class="ss">f"&lt;image&gt;</span><span class="ch">\n</span><span class="sc">{</span>question<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>conv.append_message(conv.roles[<span class="dv">1</span>], <span class="va">None</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> conv.get_prompt()</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 生成回答</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>input_ids <span class="op">=</span> tokenizer_image_token(prompt, tokenizer, return_tensors<span class="op">=</span><span class="st">'pt'</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.inference_mode():</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    output_ids <span class="op">=</span> model.generate(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        input_ids,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        images<span class="op">=</span>image_tensor,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        max_new_tokens<span class="op">=</span><span class="dv">512</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        temperature<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> tokenizer.decode(output_ids[<span class="dv">0</span>], skip_special_tokens<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(response)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="构建简单的多模态rag系统" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="构建简单的多模态rag系统"><span class="header-section-number">5.3</span> 构建简单的多模态RAG系统</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chromadb</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sentence_transformers <span class="im">import</span> SentenceTransformer</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> clip</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultimodalRAG:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># CLIP用于图像编码</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.clip_model, <span class="va">self</span>.clip_preprocess <span class="op">=</span> clip.load(<span class="st">"ViT-L/14"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 文本嵌入模型</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.text_model <span class="op">=</span> SentenceTransformer(<span class="st">'all-MiniLM-L6-v2'</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 向量数据库</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.client <span class="op">=</span> chromadb.Client()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.collection <span class="op">=</span> <span class="va">self</span>.client.create_collection(<span class="st">"multimodal"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_image(<span class="va">self</span>, image_path, description):</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""添加图像到检索库"""</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        image <span class="op">=</span> <span class="va">self</span>.clip_preprocess(Image.<span class="bu">open</span>(image_path)).unsqueeze(<span class="dv">0</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            image_features <span class="op">=</span> <span class="va">self</span>.clip_model.encode_image(image)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            image_features <span class="op">=</span> image_features <span class="op">/</span> image_features.norm(dim<span class="op">=-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.collection.add(</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>            embeddings<span class="op">=</span>[image_features[<span class="dv">0</span>].tolist()],</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>            metadatas<span class="op">=</span>[{<span class="st">"path"</span>: image_path, <span class="st">"description"</span>: description}],</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>            ids<span class="op">=</span>[image_path]</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> search(<span class="va">self</span>, query_text, top_k<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""用文本查询相关图像"""</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> clip.tokenize([query_text])</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            text_features <span class="op">=</span> <span class="va">self</span>.clip_model.encode_text(text)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>            text_features <span class="op">=</span> text_features <span class="op">/</span> text_features.norm(dim<span class="op">=-</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> <span class="va">self</span>.collection.query(</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            query_embeddings<span class="op">=</span>[text_features[<span class="dv">0</span>].tolist()],</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            n_results<span class="op">=</span>top_k</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> results</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用示例</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>rag <span class="op">=</span> MultimodalRAG()</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>rag.add_image(<span class="st">"beach.jpg"</span>, <span class="st">"A sunset at the beach"</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>rag.add_image(<span class="st">"mountain.jpg"</span>, <span class="st">"Snow-capped mountains"</span>)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> rag.search(<span class="st">"ocean view with sunset"</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(results[<span class="st">'metadatas'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="深入理解" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="深入理解"><span class="header-section-number">6</span> 深入理解</h2>
+<section id="为什么有效理论视角" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="为什么有效理论视角"><span class="header-section-number">6.1</span> 为什么有效？——理论视角</h3>
+<section id="对比学习的信息论解释" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="对比学习的信息论解释"><span class="header-section-number">6.1.1</span> 对比学习的信息论解释</h4>
+<p>CLIP的对比学习可以从<strong>互信息最大化</strong>的角度理解。InfoNCE损失的下界与图像和文本之间的互信息 <span class="math inline">\(I(V; T)\)</span> 相关：</p>
+<p><span class="math display">\[
+I(V; T) \geq \log(N) - \mathcal{L}_{\text{InfoNCE}}
+\]</span></p>
+<p>其中 <span class="math inline">\(N\)</span> 是batch size。这意味着最小化InfoNCE损失等价于最大化视觉和语言表示之间的互信息。直观地说，CLIP学会了捕捉图像和文本之间共享的语义信息，而忽略模态特有的噪声。</p>
+</section>
+<section id="投影层的表达能力" class="level4" data-number="6.1.2">
+<h4 data-number="6.1.2" class="anchored" data-anchor-id="投影层的表达能力"><span class="header-section-number">6.1.2</span> 投影层的表达能力</h4>
+<p>LLaVA使用简单的线性投影（或浅层MLP）将视觉特征映射到语言空间。一个自然的问题是：这么简单的投影真的够用吗？</p>
+<p>实证表明，在CLIP预训练的基础上，简单的投影确实足够。这是因为CLIP已经将视觉特征对齐到了与语言相关的语义空间。投影层主要起到的是<strong>维度匹配</strong>和<strong>微调</strong>的作用，而不需要学习从头开始的跨模态对齐。</p>
+<p>LLaVA-1.5的消融实验显示，将单层线性投影换成两层MLP可以带来约1-2%的性能提升，但更深的投影器并没有显著收益。这支持了上述观点——大部分跨模态理解能力来自预训练，而非投影层。</p>
+</section>
+</section>
+<section id="方法的边界条件" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="方法的边界条件"><span class="header-section-number">6.2</span> 方法的边界条件</h3>
+<section id="分辨率与细节理解" class="level4" data-number="6.2.1">
+<h4 data-number="6.2.1" class="anchored" data-anchor-id="分辨率与细节理解"><span class="header-section-number">6.2.1</span> 分辨率与细节理解</h4>
+<p>CLIP和LLaVA默认使用 <span class="math inline">\(224 \times 224\)</span> 或 <span class="math inline">\(336 \times 336\)</span> 的图像分辨率。这对于粗粒度的理解（如场景分类、主体识别）是足够的，但对于需要细节的任务（如阅读小字、识别远处物体）则存在困难。</p>
+<p>LLaVA-1.5通过<strong>动态高分辨率</strong>策略缓解这个问题：将高分辨率图像切分成多个 <span class="math inline">\(336 \times 336\)</span> 的patch分别编码，然后拼接。但这会显著增加token数量和计算成本。</p>
+</section>
+<section id="空间理解的局限" class="level4" data-number="6.2.2">
+<h4 data-number="6.2.2" class="anchored" data-anchor-id="空间理解的局限"><span class="header-section-number">6.2.2</span> 空间理解的局限</h4>
+<p>尽管多模态LLM在许多任务上表现出色，但它们在<strong>精确空间推理</strong>方面仍有明显不足。例如：</p>
+<ul>
+<li>“图中红色圆圈在蓝色方块的左边还是右边？”——模型经常出错</li>
+<li>“这两个物体之间的距离大约是多少？”——模型很难给出准确估计</li>
+<li>“按从左到右的顺序列出图中的物品”——模型可能混淆顺序</li>
+</ul>
+<p>这些局限可能源于：(1) 训练数据中缺乏足够的空间推理样本；(2) 将2D图像压缩到1D序列丢失了空间结构信息。</p>
+</section>
+<section id="幻觉问题" class="level4" data-number="6.2.3">
+<h4 data-number="6.2.3" class="anchored" data-anchor-id="幻觉问题"><span class="header-section-number">6.2.3</span> 幻觉问题</h4>
+<p>多模态LLM同样存在<strong>幻觉</strong>（Hallucination）问题——生成图像中不存在的内容。常见类型包括：</p>
+<ul>
+<li><strong>物体幻觉</strong>：描述图中不存在的物体</li>
+<li><strong>属性幻觉</strong>：错误描述物体的颜色、大小、位置等属性</li>
+<li><strong>关系幻觉</strong>：错误描述物体之间的关系</li>
+</ul>
+<p>POPE（Polling-based Object Probing Evaluation）等benchmark专门评估这类问题。研究表明，模型倾向于生成训练数据中常见的物体，即使图中没有。</p>
+</section>
+</section>
+<section id="开放研究问题" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="开放研究问题"><span class="header-section-number">6.3</span> 开放研究问题</h3>
+<section id="统一的多模态架构" class="level4" data-number="6.3.1">
+<h4 data-number="6.3.1" class="anchored" data-anchor-id="统一的多模态架构"><span class="header-section-number">6.3.1</span> 统一的多模态架构</h4>
+<p>当前的多模态LLM大多采用”视觉编码器 + 适配器 + LLM”的流水线架构。一个开放问题是：能否设计一个<strong>原生多模态</strong>的架构，从头开始联合处理多种模态，而不是拼接预训练的单模态模型？</p>
+<p>一些尝试包括： - <strong>Fuyu</strong>：直接将图像patch作为token输入LLM，不使用单独的视觉编码器 - <strong>Unified-IO</strong>：用统一的seq2seq架构处理文本、图像、音频等多种模态</p>
+<p>但这些方法目前在性能上还没有超越流水线架构。</p>
+</section>
+<section id="多模态chain-of-thought" class="level4" data-number="6.3.2">
+<h4 data-number="6.3.2" class="anchored" data-anchor-id="多模态chain-of-thought"><span class="header-section-number">6.3.2</span> 多模态Chain-of-Thought</h4>
+<p>文本LLM通过Chain-of-Thought (CoT)显著提升了推理能力。多模态场景下，CoT应该如何设计？</p>
+<ul>
+<li>是否需要”视觉思维”——在推理过程中生成中间的视觉表示？</li>
+<li>如何让模型”指向”图像中的特定区域来支持推理？</li>
+<li>视觉和语言的推理步骤应该如何交织？</li>
+</ul>
+</section>
+<section id="长视频理解" class="level4" data-number="6.3.3">
+<h4 data-number="6.3.3" class="anchored" data-anchor-id="长视频理解"><span class="header-section-number">6.3.3</span> 长视频理解</h4>
+<p>当前的多模态LLM主要处理单张图像或短视频片段。理解长视频（如电影、讲座）需要：</p>
+<ul>
+<li>高效的时序建模：如何在保持计算可行的同时捕捉长程依赖？</li>
+<li>选择性注意：不是所有帧都同等重要，如何自动聚焦关键帧？</li>
+<li>记忆管理：如何在有限的上下文窗口内维护视频的关键信息？</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="局限性与未解决的问题" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="局限性与未解决的问题"><span class="header-section-number">7</span> 局限性与未解决的问题</h2>
+<section id="本方法的局限" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="本方法的局限"><span class="header-section-number">7.1</span> 本方法的局限</h3>
+<p><strong>计算成本高昂</strong>。将图像编码为数百个token后输入LLM，显著增加了推理成本。对于需要处理大量图像或高分辨率图像的应用，这可能成为瓶颈。虽然BLIP-2的Q-Former通过压缩视觉token缓解了这个问题，但信息损失与效率之间的权衡仍需要更好的解决方案。</p>
+<p><strong>跨模态一致性不足</strong>。模型可能生成与图像内容矛盾的描述，或者在回答问题时”忘记”图像中的关键信息。这种不一致性在复杂推理任务中尤为明显。</p>
+<p><strong>安全性挑战</strong>。多模态输入带来了新的攻击面。视觉提示注入（Visual Prompt Injection）可以通过在图像中嵌入文字来操纵模型行为。对抗样本攻击可以通过微小的像素扰动误导模型判断。这些安全问题在实际部署中需要认真对待。</p>
+</section>
+<section id="这些局限导向了什么" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="这些局限导向了什么"><span class="header-section-number">7.2</span> 这些局限导向了什么？</h3>
+<p>多模态大模型的当前形态——将视觉”翻译”成语言然后用LLM处理——可能只是通往更强大AI系统的过渡阶段。更根本的问题是：<strong>如何构建真正理解物理世界的AI？</strong></p>
+<p>视觉只是人类感知世界的一种方式。听觉、触觉、本体感觉等其他模态同样重要。Agent不仅需要”看”世界，还需要在物理世界中”行动”——这就是<strong>具身智能</strong>（Embodied AI）的范畴。</p>
+<p>下一章我们将放眼整个研究前沿，讨论当前最活跃的研究方向，包括推理能力的提升、世界模型的构建、以及通向更通用AI的可能路径。</p>
+<hr>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">8</span> 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">8.1</span> 核心要点回顾</h3>
+<ol type="1">
+<li><p><strong>问题</strong>：如何让语言模型理解视觉世界？纯文本LLM与世界的交互受限于”文本中介”。</p></li>
+<li><p><strong>洞察</strong>：对比学习（CLIP）通过大规模图文配对数据，学习将视觉和语言映射到共享的语义空间。这使得零样本迁移成为可能。</p></li>
+<li><p><strong>方法</strong>：LLaVA等视觉指令微调模型，通过简单的投影层将CLIP的视觉特征接入LLM，再用GPT-4生成的指令数据微调，实现多模态理解与生成。</p></li>
+<li><p><strong>意义</strong>：多模态能力是AI理解真实世界的关键一步，也是构建更强大Agent和具身智能的基础。</p></li>
+</ol>
+</section>
+<section id="关键公式速查" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="关键公式速查"><span class="header-section-number">8.2</span> 关键公式速查</h3>
+<p><strong>CLIP对比学习损失</strong>： <span class="math display">\[\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(s_{ii} / \tau)}{\sum_{j=1}^{N} \exp(s_{ij} / \tau)}\]</span></p>
+<p><strong>零样本分类</strong>： <span class="math display">\[\hat{y} = \arg\max_k \cos(\text{ImageEnc}(x), \text{TextEnc}(\text{"a photo of "} + c_k))\]</span></p>
+<p><strong>ViT patch嵌入</strong>： <span class="math display">\[\mathbf{z}_0 = [\mathbf{x}_{\text{class}}; \mathbf{x}_1 \mathbf{E}; \mathbf{x}_2 \mathbf{E}; \cdots; \mathbf{x}_N \mathbf{E}] + \mathbf{E}_{\text{pos}}\]</span></p>
+</section>
+<section id="思考题" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8.3</span> 思考题</h3>
+<ol type="1">
+<li><p><strong>[概念理解]</strong> CLIP的对比学习为什么需要大batch size？如果batch size太小会有什么问题？</p></li>
+<li><p><strong>[数学推导]</strong> 证明：在CLIP的对比学习中，当温度参数 <span class="math inline">\(\tau \to 0\)</span> 时，损失函数趋近于硬分类损失（只考虑最大相似度的负样本）。</p></li>
+<li><p><strong><a href="#工程实践">工程实践</a></strong> 使用CLIP实现一个”以图搜图”系统：给定一张查询图像，从图库中检索最相似的图像。思考：如何设计提示模板来提升特定领域（如产品图、医学图像）的检索效果？</p></li>
+<li><p><strong>[开放思考]</strong> 当前的多模态LLM将图像压缩到几百个token后传入语言模型。但人类视觉系统每秒处理约10^9比特的信息，远超语言的带宽。这种”视觉→语言瓶颈”是否限制了多模态AI的能力上限？如何突破这个限制？</p></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">9</span> 延伸阅读</h2>
+<section id="核心论文必读" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="核心论文必读"><span class="header-section-number">9.1</span> 核心论文（必读）</h3>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2103.00020">CLIP</a></strong> (Radford et al., 2021)：对比学习的开山之作
+<ul>
+<li>重点读：Section 2（方法）、Section 3.1（零样本迁移）</li>
+<li>可跳过：Section 4（数据集细节）</li>
+</ul></li>
+<li><strong><a href="https://arxiv.org/abs/2304.08485">LLaVA</a></strong> (Liu et al., 2023)：视觉指令微调的代表
+<ul>
+<li>重点读：Section 4（架构）、Section 5（实验）</li>
+<li>关注：GPT-4生成数据的方法（Appendix）</li>
+</ul></li>
+<li><strong><a href="https://arxiv.org/abs/2301.12597">BLIP-2</a></strong> (Li et al., 2023)：高效模态桥接
+<ul>
+<li>重点读：Section 3（Q-Former设计）</li>
+<li>可跳过：Section 4.3（下游任务细节）</li>
+</ul></li>
+</ul>
+</section>
+<section id="理论基础" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="理论基础"><span class="header-section-number">9.2</span> 理论基础</h3>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2204.14198">Flamingo</a></strong> (Alayrac et al., 2022)：Few-shot多模态学习的里程碑</li>
+<li><strong><a href="https://arxiv.org/abs/2010.11929">ViT</a></strong> (Dosovitskiy et al., 2020)：Vision Transformer原论文</li>
+</ul>
+</section>
+<section id="后续发展" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="后续发展"><span class="header-section-number">9.3</span> 后续发展</h3>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2310.03744">LLaVA-1.5</a></strong>：改进的基线，达到更强性能</li>
+<li><strong><a href="https://arxiv.org/abs/2312.14238">InternVL</a></strong>：开源多模态模型的新标杆</li>
+<li><strong><a href="https://cdn.openai.com/papers/GPTV_System_Card.pdf">GPT-4V System Card</a></strong>：官方安全性分析</li>
+</ul>
+</section>
+<section id="综述与教程" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="综述与教程"><span class="header-section-number">9.4</span> 综述与教程</h3>
+<ul>
+<li><strong><a href="https://arxiv.org/abs/2306.13549">A Survey on Multimodal Large Language Models</a></strong>：全面的MLLM综述</li>
+</ul>
+</section>
+<section id="代码资源" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="代码资源"><span class="header-section-number">9.5</span> 代码资源</h3>
+<ul>
+<li><a href="https://github.com/openai/CLIP">OpenAI CLIP</a>：官方实现</li>
+<li><a href="https://github.com/haotian-liu/LLaVA">LLaVA</a>：官方实现，支持多种LLM后端</li>
+<li><a href="https://huggingface.co/docs/transformers/model_doc/clip">Hugging Face Transformers</a>：CLIP的标准接口</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="历史注脚" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="历史注脚"><span class="header-section-number">10</span> 历史注脚</h2>
+<p>CLIP的诞生有一段有趣的背景。在此之前，OpenAI的研究者们一直在探索用自然语言监督来训练视觉模型，但早期的尝试（如基于预测任务的方法）效果不佳。直到他们尝试了对比学习——这个在自监督学习领域已经被验证有效的方法——才取得了突破性进展。</p>
+<p>CLIP的名字”Contrastive Language-Image Pre-training”直接点明了其核心方法。但有趣的是，CLIP最初的内部代号是”WIT”（WebImageText），指的是它使用的大规模网络图文数据集。最终选择CLIP这个名字，是因为它更好地传达了”对比学习”这个关键创新。</p>
+<p>LLaVA的诞生则体现了开源社区的力量。在GPT-4V发布后不久，研究者们就开始思考如何用开源组件复现类似能力。LLaVA的作者们发现，通过简单地将CLIP和LLaMA连接起来，再用GPT-4生成的数据微调，就能达到令人惊讶的效果。这个发现大大降低了多模态研究的门槛，也推动了后续大量开源多模态模型的涌现。</p>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

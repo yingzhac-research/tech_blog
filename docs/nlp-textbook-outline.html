@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>nlp-textbook-outline – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#nlp从符号到智能的演进之路" id="toc-nlp从符号到智能的演进之路" class="nav-link active" data-scroll-target="#nlp从符号到智能的演进之路"><span class="header-section-number">1</span> NLP：从符号到智能的演进之路</a>
+  <ul class="collapse">
+  <li><a href="#a-pain-driven-history-of-natural-language-processing" id="toc-a-pain-driven-history-of-natural-language-processing" class="nav-link" data-scroll-target="#a-pain-driven-history-of-natural-language-processing"><span class="header-section-number">1.1</span> <em>A Pain-Driven History of Natural Language Processing</em></a></li>
+  <li><a href="#第零部分导论" id="toc-第零部分导论" class="nav-link" data-scroll-target="#第零部分导论"><span class="header-section-number">1.2</span> 第零部分：导论</a>
+  <ul class="collapse">
+  <li><a href="#第0章如何阅读nlp研究" id="toc-第0章如何阅读nlp研究" class="nav-link" data-scroll-target="#第0章如何阅读nlp研究"><span class="header-section-number">1.2.1</span> 第0章：如何阅读NLP研究</a></li>
+  </ul></li>
+  <li><a href="#第一部分前深度学习时代速览" id="toc-第一部分前深度学习时代速览" class="nav-link" data-scroll-target="#第一部分前深度学习时代速览"><span class="header-section-number">1.3</span> 第一部分：前深度学习时代（速览）</a>
+  <ul class="collapse">
+  <li><a href="#第1章语言理解的早期探索" id="toc-第1章语言理解的早期探索" class="nav-link" data-scroll-target="#第1章语言理解的早期探索"><span class="header-section-number">1.3.1</span> 第1章：语言理解的早期探索</a></li>
+  <li><a href="#第2章表示学习的觉醒" id="toc-第2章表示学习的觉醒" class="nav-link" data-scroll-target="#第2章表示学习的觉醒"><span class="header-section-number">1.3.2</span> 第2章：表示学习的觉醒</a></li>
+  <li><a href="#第3章tokenization与数据基础" id="toc-第3章tokenization与数据基础" class="nav-link" data-scroll-target="#第3章tokenization与数据基础"><span class="header-section-number">1.3.3</span> 第3章：Tokenization与数据基础</a></li>
+  </ul></li>
+  <li><a href="#第二部分序列建模与注意力的萌芽" id="toc-第二部分序列建模与注意力的萌芽" class="nav-link" data-scroll-target="#第二部分序列建模与注意力的萌芽"><span class="header-section-number">1.4</span> 第二部分：序列建模与注意力的萌芽</a>
+  <ul class="collapse">
+  <li><a href="#第4章循环神经网络时代" id="toc-第4章循环神经网络时代" class="nav-link" data-scroll-target="#第4章循环神经网络时代"><span class="header-section-number">1.4.1</span> 第4章：循环神经网络时代</a></li>
+  </ul></li>
+  <li><a href="#第三部分注意力机制的演进重点" id="toc-第三部分注意力机制的演进重点" class="nav-link" data-scroll-target="#第三部分注意力机制的演进重点"><span class="header-section-number">1.5</span> 第三部分：注意力机制的演进（重点）</a>
+  <ul class="collapse">
+  <li><a href="#第5章注意力机制的诞生" id="toc-第5章注意力机制的诞生" class="nav-link" data-scroll-target="#第5章注意力机制的诞生"><span class="header-section-number">1.5.1</span> 第5章：注意力机制的诞生</a></li>
+  <li><a href="#第6章注意力机制的变体演进" id="toc-第6章注意力机制的变体演进" class="nav-link" data-scroll-target="#第6章注意力机制的变体演进"><span class="header-section-number">1.5.2</span> 第6章：注意力机制的变体演进</a></li>
+  <li><a href="#第7章self-attention的突破" id="toc-第7章self-attention的突破" class="nav-link" data-scroll-target="#第7章self-attention的突破"><span class="header-section-number">1.5.3</span> 第7章：Self-Attention的突破</a></li>
+  <li><a href="#第8章transformer注意力即一切" id="toc-第8章transformer注意力即一切" class="nav-link" data-scroll-target="#第8章transformer注意力即一切"><span class="header-section-number">1.5.4</span> 第8章：Transformer——注意力即一切</a></li>
+  <li><a href="#第9章高效注意力复杂度优化" id="toc-第9章高效注意力复杂度优化" class="nav-link" data-scroll-target="#第9章高效注意力复杂度优化"><span class="header-section-number">1.5.5</span> 第9章：高效注意力——复杂度优化</a></li>
+  </ul></li>
+  <li><a href="#第四部分预训练范式的演进重点" id="toc-第四部分预训练范式的演进重点" class="nav-link" data-scroll-target="#第四部分预训练范式的演进重点"><span class="header-section-number">1.6</span> 第四部分：预训练范式的演进（重点）</a>
+  <ul class="collapse">
+  <li><a href="#第10章预训练思想的起源" id="toc-第10章预训练思想的起源" class="nav-link" data-scroll-target="#第10章预训练思想的起源"><span class="header-section-number">1.6.1</span> 第10章：预训练思想的起源</a></li>
+  <li><a href="#第11章上下文词向量elmo" id="toc-第11章上下文词向量elmo" class="nav-link" data-scroll-target="#第11章上下文词向量elmo"><span class="header-section-number">1.6.2</span> 第11章：上下文词向量——ELMo</a></li>
+  <li><a href="#第12章gpt自回归预训练路线" id="toc-第12章gpt自回归预训练路线" class="nav-link" data-scroll-target="#第12章gpt自回归预训练路线"><span class="header-section-number">1.6.3</span> 第12章：GPT——自回归预训练路线</a></li>
+  <li><a href="#第13章bert双向预训练路线" id="toc-第13章bert双向预训练路线" class="nav-link" data-scroll-target="#第13章bert双向预训练路线"><span class="header-section-number">1.6.4</span> 第13章：BERT——双向预训练路线</a></li>
+  <li><a href="#第14章预训练目标的演进" id="toc-第14章预训练目标的演进" class="nav-link" data-scroll-target="#第14章预训练目标的演进"><span class="header-section-number">1.6.5</span> 第14章：预训练目标的演进</a></li>
+  <li><a href="#第15章预训练模型的工程优化" id="toc-第15章预训练模型的工程优化" class="nav-link" data-scroll-target="#第15章预训练模型的工程优化"><span class="header-section-number">1.6.6</span> 第15章：预训练模型的工程优化</a></li>
+  <li><a href="#第16章gpt-vs-bert两条路线的分化与融合" id="toc-第16章gpt-vs-bert两条路线的分化与融合" class="nav-link" data-scroll-target="#第16章gpt-vs-bert两条路线的分化与融合"><span class="header-section-number">1.6.7</span> 第16章：GPT vs BERT——两条路线的分化与融合</a></li>
+  </ul></li>
+  <li><a href="#第五部分大语言模型时代重点" id="toc-第五部分大语言模型时代重点" class="nav-link" data-scroll-target="#第五部分大语言模型时代重点"><span class="header-section-number">1.7</span> 第五部分：大语言模型时代（重点）</a>
+  <ul class="collapse">
+  <li><a href="#第17章规模的力量scaling-laws" id="toc-第17章规模的力量scaling-laws" class="nav-link" data-scroll-target="#第17章规模的力量scaling-laws"><span class="header-section-number">1.7.1</span> 第17章：规模的力量——Scaling Laws</a></li>
+  <li><a href="#第18章训练稳定性与数值工程" id="toc-第18章训练稳定性与数值工程" class="nav-link" data-scroll-target="#第18章训练稳定性与数值工程"><span class="header-section-number">1.7.2</span> 第18章：训练稳定性与数值工程</a></li>
+  <li><a href="#第19章分布式训练系统" id="toc-第19章分布式训练系统" class="nav-link" data-scroll-target="#第19章分布式训练系统"><span class="header-section-number">1.7.3</span> 第19章：分布式训练系统</a></li>
+  <li><a href="#第20章gpt-3与in-context-learning" id="toc-第20章gpt-3与in-context-learning" class="nav-link" data-scroll-target="#第20章gpt-3与in-context-learning"><span class="header-section-number">1.7.4</span> 第20章：GPT-3与In-Context Learning</a></li>
+  <li><a href="#第21章涌现能力与思维链推理" id="toc-第21章涌现能力与思维链推理" class="nav-link" data-scroll-target="#第21章涌现能力与思维链推理"><span class="header-section-number">1.7.5</span> 第21章：涌现能力与思维链推理</a></li>
+  <li><a href="#第22章评测方法论如何判断模型变好了" id="toc-第22章评测方法论如何判断模型变好了" class="nav-link" data-scroll-target="#第22章评测方法论如何判断模型变好了"><span class="header-section-number">1.7.6</span> 第22章：评测方法论——如何判断模型变好了？</a></li>
+  <li><a href="#第23章指令微调让模型听话" id="toc-第23章指令微调让模型听话" class="nav-link" data-scroll-target="#第23章指令微调让模型听话"><span class="header-section-number">1.7.7</span> 第23章：指令微调——让模型听话</a></li>
+  <li><a href="#第24章rlhf从能力到对齐" id="toc-第24章rlhf从能力到对齐" class="nav-link" data-scroll-target="#第24章rlhf从能力到对齐"><span class="header-section-number">1.7.8</span> 第24章：RLHF——从能力到对齐</a></li>
+  <li><a href="#第25章对齐技术的演进" id="toc-第25章对齐技术的演进" class="nav-link" data-scroll-target="#第25章对齐技术的演进"><span class="header-section-number">1.7.9</span> 第25章：对齐技术的演进</a></li>
+  <li><a href="#第26章长上下文与高效推理" id="toc-第26章长上下文与高效推理" class="nav-link" data-scroll-target="#第26章长上下文与高效推理"><span class="header-section-number">1.7.10</span> 第26章：长上下文与高效推理</a></li>
+  <li><a href="#第27章开源大模型的演进" id="toc-第27章开源大模型的演进" class="nav-link" data-scroll-target="#第27章开源大模型的演进"><span class="header-section-number">1.7.11</span> 第27章：开源大模型的演进</a></li>
+  <li><a href="#第28章高效微调技术的演进" id="toc-第28章高效微调技术的演进" class="nav-link" data-scroll-target="#第28章高效微调技术的演进"><span class="header-section-number">1.7.12</span> 第28章：高效微调技术的演进</a></li>
+  <li><a href="#第29章推理优化" id="toc-第29章推理优化" class="nav-link" data-scroll-target="#第29章推理优化"><span class="header-section-number">1.7.13</span> 第29章：推理优化</a></li>
+  </ul></li>
+  <li><a href="#第六部分应用范式与前沿" id="toc-第六部分应用范式与前沿" class="nav-link" data-scroll-target="#第六部分应用范式与前沿"><span class="header-section-number">1.8</span> 第六部分：应用范式与前沿</a>
+  <ul class="collapse">
+  <li><a href="#第30章检索增强生成rag" id="toc-第30章检索增强生成rag" class="nav-link" data-scroll-target="#第30章检索增强生成rag"><span class="header-section-number">1.8.1</span> 第30章：检索增强生成（RAG）</a></li>
+  <li><a href="#第31章llm作为agent" id="toc-第31章llm作为agent" class="nav-link" data-scroll-target="#第31章llm作为agent"><span class="header-section-number">1.8.2</span> 第31章：LLM作为Agent</a></li>
+  <li><a href="#第32章多模态大模型" id="toc-第32章多模态大模型" class="nav-link" data-scroll-target="#第32章多模态大模型"><span class="header-section-number">1.8.3</span> 第32章：多模态大模型</a></li>
+  <li><a href="#第33章研究前沿地图" id="toc-第33章研究前沿地图" class="nav-link" data-scroll-target="#第33章研究前沿地图"><span class="header-section-number">1.8.4</span> 第33章：研究前沿地图</a></li>
+  </ul></li>
+  <li><a href="#附录" id="toc-附录" class="nav-link" data-scroll-target="#附录"><span class="header-section-number">1.9</span> 附录</a>
+  <ul class="collapse">
+  <li><a href="#附录a数学基础速览" id="toc-附录a数学基础速览" class="nav-link" data-scroll-target="#附录a数学基础速览"><span class="header-section-number">1.9.1</span> 附录A：数学基础速览</a></li>
+  <li><a href="#附录b环境配置与框架选择" id="toc-附录b环境配置与框架选择" class="nav-link" data-scroll-target="#附录b环境配置与框架选择"><span class="header-section-number">1.9.2</span> 附录B：环境配置与框架选择</a></li>
+  <li><a href="#附录c里程碑论文阅读清单" id="toc-附录c里程碑论文阅读清单" class="nav-link" data-scroll-target="#附录c里程碑论文阅读清单"><span class="header-section-number">1.9.3</span> 附录C：里程碑论文阅读清单</a></li>
+  <li><a href="#附录d常见面试题与思考题" id="toc-附录d常见面试题与思考题" class="nav-link" data-scroll-target="#附录d常见面试题与思考题"><span class="header-section-number">1.9.4</span> 附录D：常见面试题与思考题</a></li>
+  <li><a href="#附录e评测基准演进参考" id="toc-附录e评测基准演进参考" class="nav-link" data-scroll-target="#附录e评测基准演进参考"><span class="header-section-number">1.9.5</span> 附录E：评测基准演进参考</a></li>
+  </ul></li>
+  <li><a href="#章节分布统计" id="toc-章节分布统计" class="nav-link" data-scroll-target="#章节分布统计"><span class="header-section-number">1.10</span> 章节分布统计</a></li>
+  <li><a href="#核心设计原则" id="toc-核心设计原则" class="nav-link" data-scroll-target="#核心设计原则"><span class="header-section-number">1.11</span> 核心设计原则</a></li>
+  <li><a href="#v3.0-更新说明" id="toc-v3.0-更新说明" class="nav-link" data-scroll-target="#v3.0-更新说明"><span class="header-section-number">1.12</span> v3.0 更新说明</a>
+  <ul class="collapse">
+  <li><a href="#新增重组章节" id="toc-新增重组章节" class="nav-link" data-scroll-target="#新增重组章节"><span class="header-section-number">1.12.1</span> 新增/重组章节</a></li>
+  <li><a href="#研究者定位的体现" id="toc-研究者定位的体现" class="nav-link" data-scroll-target="#研究者定位的体现"><span class="header-section-number">1.12.2</span> 研究者定位的体现</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="nlp从符号到智能的演进之路" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> NLP：从符号到智能的演进之路</h1>
+<section id="a-pain-driven-history-of-natural-language-processing" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="a-pain-driven-history-of-natural-language-processing"><span class="header-section-number">1.1</span> <em>A Pain-Driven History of Natural Language Processing</em></h2>
+<blockquote class="blockquote">
+<p><strong>设计理念</strong>：以「痛点驱动」的历史视角，讲述NLP模型与算法的演进。每一次技术进步都是对上一代问题的回应。理论与工程实践并重。</p>
+<p><strong>读者定位</strong>：研究生/PhD，偏向研究——强调理论基础、方法论、边界条件与开放问题</p>
+</blockquote>
+<hr>
+</section>
+<section id="第零部分导论" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="第零部分导论"><span class="header-section-number">1.2</span> 第零部分：导论</h2>
+<section id="第0章如何阅读nlp研究" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="第0章如何阅读nlp研究"><span class="header-section-number">1.2.1</span> 第0章：如何阅读NLP研究</h3>
+<blockquote class="blockquote">
+<p><em>写给即将开始NLP研究的你</em></p>
+</blockquote>
+<ul>
+<li>0.1 NLP论文的典型结构
+<ul>
+<li>Introduction的套路：痛点→贡献→结果预告</li>
+<li>Related Work怎么读：找到positioning</li>
+<li>Method怎么读：先看图，再看公式</li>
+<li>Experiments怎么读：哪些是关键ablation</li>
+</ul></li>
+<li>0.2 如何判断一篇论文的价值
+<ul>
+<li>区分”增量改进”和”范式转变”</li>
+<li>警惕benchmark刷分论文</li>
+<li>看引用网络：这篇文章在学术图谱中的位置</li>
+</ul></li>
+<li>0.3 如何复现论文
+<ul>
+<li>为什么复现是最好的学习方式</li>
+<li>复现时的常见坑</li>
+<li>没有官方代码怎么办</li>
+</ul></li>
+<li>0.4 本书的阅读建议
+<ul>
+<li>核心章节 vs 可跳过章节</li>
+<li>数学基础的前置要求</li>
+<li>配套论文阅读顺序</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第一部分前深度学习时代速览" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="第一部分前深度学习时代速览"><span class="header-section-number">1.3</span> 第一部分：前深度学习时代（速览）</h2>
+<blockquote class="blockquote">
+<p><em>目标：建立”为什么需要深度学习”的动机，不深入技术细节</em></p>
+</blockquote>
+<section id="第1章语言理解的早期探索" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="第1章语言理解的早期探索"><span class="header-section-number">1.3.1</span> 第1章：语言理解的早期探索</h3>
+<ul>
+<li>1.1 符号主义的辉煌与幻灭（规则系统、专家系统）</li>
+<li>1.2 统计革命：从规则到概率</li>
+<li>1.3 N-gram与语言模型基础</li>
+<li>1.4 序列标注：HMM → CRF 的演进</li>
+<li>1.5 <strong>核心痛点</strong>：特征工程的诅咒</li>
+<li>1.6 工程实践：传统NLP pipeline体验</li>
+</ul>
+</section>
+<section id="第2章表示学习的觉醒" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="第2章表示学习的觉醒"><span class="header-section-number">1.3.2</span> 第2章：表示学习的觉醒</h3>
+<ul>
+<li>2.1 <strong>关键洞察</strong>：让机器自己学习特征</li>
+<li>2.2 Word2Vec：分布式语义的突破</li>
+<li>2.3 GloVe与FastText：词向量的改进</li>
+<li>2.4 <strong>痛点</strong>：静态词向量无法处理一词多义</li>
+<li>2.5 工程实践：词向量训练与可视化</li>
+</ul>
+</section>
+<section id="第3章tokenization与数据基础" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="第3章tokenization与数据基础"><span class="header-section-number">1.3.3</span> 第3章：Tokenization与数据基础</h3>
+<blockquote class="blockquote">
+<p><em>被低估的基础设施：如何将文本切分为模型可处理的单元</em></p>
+<p><strong>核心论点</strong>：Tokenizer不是预处理工具，它是模型架构的隐藏维度</p>
+</blockquote>
+<ul>
+<li>3.1 <strong>核心问题</strong>：什么是一个”词”？
+<ul>
+<li>中文分词的挑战</li>
+<li>形态丰富语言（德语、土耳其语）的困境</li>
+</ul></li>
+<li>3.2 词级别Tokenization的痛点
+<ul>
+<li>OOV（Out-of-Vocabulary）问题</li>
+<li>词汇表爆炸</li>
+</ul></li>
+<li>3.3 字符级别的尝试
+<ul>
+<li><strong>痛点</strong>：序列太长、语义碎片化</li>
+</ul></li>
+<li>3.4 子词方法的崛起
+<ul>
+<li>BPE（Byte Pair Encoding）：从数据压缩到NLP</li>
+<li>WordPiece：BERT的选择</li>
+<li>Unigram LM：概率视角的子词分割</li>
+<li>SentencePiece：语言无关的统一方案</li>
+</ul></li>
+<li>3.5 Byte-level BPE
+<ul>
+<li>GPT-2的创新：彻底解决未知字符</li>
+<li><strong>洞察</strong>：为什么现代LLM都用byte-level？</li>
+</ul></li>
+<li>3.6 <strong>Tokenizer是模型的一部分</strong>
+<ul>
+<li>计算效率：同样文本，不同tokenizer序列长度差2-3倍</li>
+<li>多语言公平性：英文1 token，中文可能2-3 token</li>
+<li>数学/代码能力：数字切分直接影响算术推理</li>
+<li>安全：Prompt injection的切分边界问题</li>
+</ul></li>
+<li>3.7 数据质量：清洗、去重与污染
+<ul>
+<li><strong>痛点</strong>：Garbage in, garbage out</li>
+<li>数据去重的重要性（Chinchilla发现）</li>
+<li>训练数据与测试数据的污染问题</li>
+</ul></li>
+<li>3.8 <strong>开放问题</strong>：最优tokenizer存在吗？</li>
+<li>3.9 工程实践：Hugging Face Tokenizers库使用</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第二部分序列建模与注意力的萌芽" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="第二部分序列建模与注意力的萌芽"><span class="header-section-number">1.4</span> 第二部分：序列建模与注意力的萌芽</h2>
+<section id="第4章循环神经网络时代" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="第4章循环神经网络时代"><span class="header-section-number">1.4.1</span> 第4章：循环神经网络时代</h3>
+<ul>
+<li>4.1 RNN：时间维度上的权重共享</li>
+<li>4.2 <strong>痛点</strong>：梯度消失/爆炸</li>
+<li>4.3 LSTM的门控设计智慧</li>
+<li>4.4 GRU：简化的探索</li>
+<li>4.5 Seq2Seq：Encoder-Decoder架构</li>
+<li>4.6 <strong>痛点</strong>：信息瓶颈——所有信息压缩到一个向量？</li>
+<li>4.7 工程实践：LSTM文本分类与生成</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第三部分注意力机制的演进重点" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="第三部分注意力机制的演进重点"><span class="header-section-number">1.5</span> 第三部分：注意力机制的演进（重点）</h2>
+<blockquote class="blockquote">
+<p><em>从”辅助机制”到”核心架构”的转变</em></p>
+</blockquote>
+<section id="第5章注意力机制的诞生" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="第5章注意力机制的诞生"><span class="header-section-number">1.5.1</span> 第5章：注意力机制的诞生</h3>
+<ul>
+<li>5.1 <strong>核心洞察</strong>：不同位置的重要性不同</li>
+<li>5.2 Bahdanau Attention (2014)：加性注意力</li>
+<li>5.3 <strong>工程细节</strong>：Attention Score的计算与归一化</li>
+<li>5.4 注意力可视化：模型在”看”什么？</li>
+<li>5.5 工程实践：带Attention的Seq2Seq翻译</li>
+</ul>
+</section>
+<section id="第6章注意力机制的变体演进" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="第6章注意力机制的变体演进"><span class="header-section-number">1.5.2</span> 第6章：注意力机制的变体演进</h3>
+<ul>
+<li>6.1 Luong Attention (2015)：乘性注意力
+<ul>
+<li>Dot-product vs General vs Concat</li>
+<li><strong>洞察</strong>：计算效率与表达能力的权衡</li>
+</ul></li>
+<li>6.2 Local vs Global Attention</li>
+<li>6.3 Hard Attention vs Soft Attention
+<ul>
+<li>可微分性的重要性</li>
+</ul></li>
+<li>6.4 <strong>痛点</strong>：注意力仍然依附于RNN，能否独立？</li>
+</ul>
+</section>
+<section id="第7章self-attention的突破" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="第7章self-attention的突破"><span class="header-section-number">1.5.3</span> 第7章：Self-Attention的突破</h3>
+<ul>
+<li>7.1 <strong>关键问题</strong>：序列内部元素如何相互关注？</li>
+<li>7.2 从Seq2Seq Attention到Self-Attention</li>
+<li>7.3 Memory Networks的启示</li>
+<li>7.4 <strong>痛点</strong>：Self-Attention丢失了位置信息</li>
+<li>7.5 位置编码的各种尝试</li>
+</ul>
+</section>
+<section id="第8章transformer注意力即一切" class="level3" data-number="1.5.4">
+<h3 data-number="1.5.4" class="anchored" data-anchor-id="第8章transformer注意力即一切"><span class="header-section-number">1.5.4</span> 第8章：Transformer——注意力即一切</h3>
+<ul>
+<li>8.1 <strong>革命性洞察</strong>：完全抛弃循环结构</li>
+<li>8.2 Scaled Dot-Product Attention
+<ul>
+<li>为什么要除以√d_k？（数学推导）</li>
+</ul></li>
+<li>8.3 Multi-Head Attention
+<ul>
+<li><strong>洞察</strong>：多个子空间捕获不同模式</li>
+<li>Head数量的选择与影响</li>
+</ul></li>
+<li>8.4 位置编码的设计
+<ul>
+<li>正弦编码的数学优雅</li>
+<li>可学习位置编码</li>
+</ul></li>
+<li>8.5 FFN层的角色（被低估的组件）</li>
+<li>8.6 残差连接与Layer Normalization</li>
+<li>8.7 Encoder vs Decoder的结构差异</li>
+<li>8.8 <strong>理论分析</strong>：Transformer的表达能力与归纳偏置</li>
+<li>8.9 工程实践：从零实现Transformer</li>
+</ul>
+</section>
+<section id="第9章高效注意力复杂度优化" class="level3" data-number="1.5.5">
+<h3 data-number="1.5.5" class="anchored" data-anchor-id="第9章高效注意力复杂度优化"><span class="header-section-number">1.5.5</span> 第9章：高效注意力——复杂度优化</h3>
+<blockquote class="blockquote">
+<p><em>O(n²)的第一次反击</em></p>
+</blockquote>
+<ul>
+<li>9.1 <strong>痛点</strong>：O(n²)的计算复杂度</li>
+<li>9.2 Sparse Attention系列
+<ul>
+<li>Longformer的滑动窗口</li>
+<li>BigBird的随机+局部+全局</li>
+</ul></li>
+<li>9.3 Linear Attention的尝试
+<ul>
+<li>Performer与核方法近似</li>
+<li><strong>理论分析</strong>：为什么Linear Attention有性能损失？</li>
+</ul></li>
+<li>9.4 <strong>边界条件</strong>：稀疏/线性注意力的适用场景</li>
+<li>9.5 工程实践：高效注意力实现对比</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第四部分预训练范式的演进重点" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="第四部分预训练范式的演进重点"><span class="header-section-number">1.6</span> 第四部分：预训练范式的演进（重点）</h2>
+<blockquote class="blockquote">
+<p><em>从词向量到基础模型的范式革命</em></p>
+</blockquote>
+<section id="第10章预训练思想的起源" class="level3" data-number="1.6.1">
+<h3 data-number="1.6.1" class="anchored" data-anchor-id="第10章预训练思想的起源"><span class="header-section-number">1.6.1</span> 第10章：预训练思想的起源</h3>
+<ul>
+<li>10.1 迁移学习的基本思想</li>
+<li>10.2 Word2Vec作为”预训练”的雏形</li>
+<li>10.3 <strong>痛点</strong>：词向量是静态的、与下游任务脱节</li>
+<li>10.4 计算机视觉的启示：ImageNet预训练</li>
+</ul>
+</section>
+<section id="第11章上下文词向量elmo" class="level3" data-number="1.6.2">
+<h3 data-number="1.6.2" class="anchored" data-anchor-id="第11章上下文词向量elmo"><span class="header-section-number">1.6.2</span> 第11章：上下文词向量——ELMo</h3>
+<ul>
+<li>11.1 <strong>核心洞察</strong>：词的表示应该依赖上下文</li>
+<li>11.2 双向LSTM的设计</li>
+<li>11.3 特征拼接策略</li>
+<li>11.4 <strong>痛点</strong>：双向是分离的，不是真正的融合</li>
+<li>11.5 工程实践：ELMo特征提取</li>
+</ul>
+</section>
+<section id="第12章gpt自回归预训练路线" class="level3" data-number="1.6.3">
+<h3 data-number="1.6.3" class="anchored" data-anchor-id="第12章gpt自回归预训练路线"><span class="header-section-number">1.6.3</span> 第12章：GPT——自回归预训练路线</h3>
+<ul>
+<li>12.1 <strong>设计决策</strong>：为什么选择Transformer Decoder？</li>
+<li>12.2 因果语言建模（Causal LM）</li>
+<li>12.3 预训练 + 微调的范式确立</li>
+<li>12.4 <strong>痛点</strong>：单向注意力限制了理解能力？</li>
+<li>12.5 工程实践：GPT微调实战</li>
+</ul>
+</section>
+<section id="第13章bert双向预训练路线" class="level3" data-number="1.6.4">
+<h3 data-number="1.6.4" class="anchored" data-anchor-id="第13章bert双向预训练路线"><span class="header-section-number">1.6.4</span> 第13章：BERT——双向预训练路线</h3>
+<ul>
+<li>13.1 <strong>核心洞察</strong>：理解任务需要双向上下文</li>
+<li>13.2 Masked Language Model (MLM)
+<ul>
+<li>为什么是15%？为什么80-10-10？</li>
+</ul></li>
+<li>13.3 Next Sentence Prediction (NSP)
+<ul>
+<li><strong>后来的争议</strong>：NSP真的有用吗？</li>
+</ul></li>
+<li>13.4 [CLS]和[SEP]的设计</li>
+<li>13.5 预训练数据的选择</li>
+<li>13.6 工程实践：BERT微调各类任务</li>
+</ul>
+</section>
+<section id="第14章预训练目标的演进" class="level3" data-number="1.6.5">
+<h3 data-number="1.6.5" class="anchored" data-anchor-id="第14章预训练目标的演进"><span class="header-section-number">1.6.5</span> 第14章：预训练目标的演进</h3>
+<ul>
+<li>14.1 <strong>反思</strong>：MLM的局限性是什么？</li>
+<li>14.2 XLNet：排列语言建模
+<ul>
+<li>保持自回归 + 获得双向</li>
+</ul></li>
+<li>14.3 ELECTRA：更高效的预训练
+<ul>
+<li>替换词检测 vs 生成词</li>
+<li><strong>洞察</strong>：判别式预训练的优势</li>
+</ul></li>
+<li>14.4 T5：统一的Text-to-Text
+<ul>
+<li>Span Corruption目标</li>
+</ul></li>
+<li>14.5 对比学习在NLP中的应用</li>
+<li>14.6 预训练目标设计的原则总结</li>
+</ul>
+</section>
+<section id="第15章预训练模型的工程优化" class="level3" data-number="1.6.6">
+<h3 data-number="1.6.6" class="anchored" data-anchor-id="第15章预训练模型的工程优化"><span class="header-section-number">1.6.6</span> 第15章：预训练模型的工程优化</h3>
+<ul>
+<li>15.1 RoBERTa：训练策略的系统研究
+<ul>
+<li>更多数据、更大batch、去掉NSP</li>
+</ul></li>
+<li>15.2 ALBERT：参数效率
+<ul>
+<li>跨层参数共享</li>
+<li>Embedding分解</li>
+</ul></li>
+<li>15.3 DistilBERT：知识蒸馏</li>
+<li>15.4 <strong>痛点</strong>：模型越来越大，普通人用不起</li>
+<li>15.5 工程实践：模型压缩与部署</li>
+</ul>
+</section>
+<section id="第16章gpt-vs-bert两条路线的分化与融合" class="level3" data-number="1.6.7">
+<h3 data-number="1.6.7" class="anchored" data-anchor-id="第16章gpt-vs-bert两条路线的分化与融合"><span class="header-section-number">1.6.7</span> 第16章：GPT vs BERT——两条路线的分化与融合</h3>
+<ul>
+<li>16.1 理解 vs 生成：任务导向的选择</li>
+<li>16.2 Encoder-only vs Decoder-only vs Encoder-Decoder</li>
+<li>16.3 T5/BART：尝试统一</li>
+<li>16.4 <strong>历史转折</strong>：为什么Decoder-only最终胜出？</li>
+<li>16.5 从”预训练+微调”到”预训练+提示”</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第五部分大语言模型时代重点" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="第五部分大语言模型时代重点"><span class="header-section-number">1.7</span> 第五部分：大语言模型时代（重点）</h2>
+<blockquote class="blockquote">
+<p><em>规模、涌现、对齐的三重革命</em></p>
+</blockquote>
+<section id="第17章规模的力量scaling-laws" class="level3" data-number="1.7.1">
+<h3 data-number="1.7.1" class="anchored" data-anchor-id="第17章规模的力量scaling-laws"><span class="header-section-number">1.7.1</span> 第17章：规模的力量——Scaling Laws</h3>
+<ul>
+<li>17.1 GPT-2：模型规模的初步探索
+<ul>
+<li>“Too dangerous to release”的争议</li>
+</ul></li>
+<li>17.2 <strong>关键发现</strong>：Scaling Laws (Kaplan et al., 2020)
+<ul>
+<li>损失与模型大小、数据量、计算量的关系</li>
+</ul></li>
+<li>17.3 Chinchilla Scaling Laws：数据的重要性</li>
+<li>17.4 <strong>洞察</strong>：规模带来的不只是量变</li>
+<li>17.5 工程挑战预告：如何训练这么大的模型？</li>
+</ul>
+</section>
+<section id="第18章训练稳定性与数值工程" class="level3" data-number="1.7.2">
+<h3 data-number="1.7.2" class="anchored" data-anchor-id="第18章训练稳定性与数值工程"><span class="header-section-number">1.7.2</span> 第18章：训练稳定性与数值工程</h3>
+<blockquote class="blockquote">
+<p><em>让百亿参数的训练不崩溃</em></p>
+</blockquote>
+<ul>
+<li>18.1 <strong>核心问题</strong>：为什么大模型训练容易不稳定？</li>
+<li>18.2 优化器的演进
+<ul>
+<li>SGD → Momentum → Adam：自适应学习率的胜利</li>
+<li>AdamW：权重衰减的正确方式</li>
+<li>Adafactor：内存优化的Adam</li>
+<li>8-bit Adam / Lion：最新探索</li>
+<li><strong>理论视角</strong>：为什么Adam更适合Transformer？</li>
+</ul></li>
+<li>18.3 学习率策略
+<ul>
+<li>Warmup的必要性（理论解释）</li>
+<li>Cosine Annealing vs Linear Decay</li>
+<li>大batch训练的学习率缩放</li>
+</ul></li>
+<li>18.4 混合精度训练
+<ul>
+<li>FP16 / BF16 的权衡</li>
+<li>Loss Scaling技巧</li>
+<li><strong>洞察</strong>：为什么BF16成为LLM标配？</li>
+</ul></li>
+<li>18.5 训练稳定性诊断
+<ul>
+<li>Loss spike的原因与处理</li>
+<li>梯度范数的监控</li>
+<li>Checkpoint策略</li>
+</ul></li>
+<li>18.6 <strong>风险卡片</strong>：训练稳定性问题</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>常见症状</strong></td>
+<td>Loss spike、NaN、训练后期震荡</td>
+</tr>
+<tr class="even">
+<td><strong>典型原因</strong></td>
+<td>学习率过大、数值溢出、数据异常、梯度爆炸</td>
+</tr>
+<tr class="odd">
+<td><strong>诊断方法</strong></td>
+<td>监控梯度范数、激活值分布、loss曲线</td>
+</tr>
+<tr class="even">
+<td><strong>防护措施</strong></td>
+<td>Gradient clipping、warmup、BF16、数据清洗</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>18.7 工程实践：训练监控与调试</li>
+</ul>
+</section>
+<section id="第19章分布式训练系统" class="level3" data-number="1.7.3">
+<h3 data-number="1.7.3" class="anchored" data-anchor-id="第19章分布式训练系统"><span class="header-section-number">1.7.3</span> 第19章：分布式训练系统</h3>
+<blockquote class="blockquote">
+<p><em>从单卡到万卡</em></p>
+</blockquote>
+<ul>
+<li>19.1 <strong>核心问题</strong>：单张GPU装不下一个大模型</li>
+<li>19.2 并行训练策略
+<ul>
+<li>数据并行（Data Parallelism）</li>
+<li>模型并行（Tensor Parallelism）</li>
+<li>流水线并行（Pipeline Parallelism）</li>
+<li>序列并行（Sequence Parallelism）</li>
+<li><strong>理论分析</strong>：通信复杂度与扩展效率</li>
+</ul></li>
+<li>19.3 ZeRO：内存优化的革命
+<ul>
+<li>ZeRO-1/2/3 的递进设计</li>
+<li>ZeRO-Offload：利用CPU内存</li>
+<li>FSDP：PyTorch的原生实现</li>
+<li><strong>数学推导</strong>：每阶段的内存节省</li>
+</ul></li>
+<li>19.4 混合并行策略
+<ul>
+<li>3D并行：DP + TP + PP</li>
+<li>如何选择并行策略？</li>
+</ul></li>
+<li>19.5 <strong>边界条件</strong>：不同规模下的最优策略</li>
+<li>19.6 工程实践：用DeepSpeed/FSDP训练模型</li>
+</ul>
+</section>
+<section id="第20章gpt-3与in-context-learning" class="level3" data-number="1.7.4">
+<h3 data-number="1.7.4" class="anchored" data-anchor-id="第20章gpt-3与in-context-learning"><span class="header-section-number">1.7.4</span> 第20章：GPT-3与In-Context Learning</h3>
+<ul>
+<li>20.1 175B参数：规模的质变</li>
+<li>20.2 <strong>涌现现象</strong>：Few-shot/Zero-shot能力</li>
+<li>20.3 In-Context Learning的神秘性
+<ul>
+<li>模型真的在”学习”吗？</li>
+<li><strong>理论探索</strong>：ICL的机制是什么？</li>
+</ul></li>
+<li>20.4 Prompt Engineering的诞生</li>
+<li>20.5 <strong>痛点</strong>：不稳定、昂贵、难以控制</li>
+<li>20.6 工程实践：Prompt设计技巧</li>
+</ul>
+</section>
+<section id="第21章涌现能力与思维链推理" class="level3" data-number="1.7.5">
+<h3 data-number="1.7.5" class="anchored" data-anchor-id="第21章涌现能力与思维链推理"><span class="header-section-number">1.7.5</span> 第21章：涌现能力与思维链推理</h3>
+<ul>
+<li>21.1 <strong>关键发现</strong>：能力的相变现象</li>
+<li>21.2 Chain-of-Thought (CoT) Prompting
+<ul>
+<li><strong>洞察</strong>：让模型”展示工作过程”</li>
+</ul></li>
+<li>21.3 Zero-shot CoT：“Let’s think step by step”</li>
+<li>21.4 Self-Consistency：多数投票</li>
+<li>21.5 Tree of Thoughts与更复杂的推理结构</li>
+<li>21.6 <strong>争议</strong>：涌现是真实的还是度量的假象？</li>
+<li>21.7 <strong>开放问题</strong>：LLM真的在”推理”吗？</li>
+<li>21.8 工程实践：CoT在实际任务中的应用</li>
+</ul>
+</section>
+<section id="第22章评测方法论如何判断模型变好了" class="level3" data-number="1.7.6">
+<h3 data-number="1.7.6" class="anchored" data-anchor-id="第22章评测方法论如何判断模型变好了"><span class="header-section-number">1.7.6</span> 第22章：评测方法论——如何判断模型变好了？</h3>
+<blockquote class="blockquote">
+<p><em>没有评测护栏，对齐就是玄学</em></p>
+</blockquote>
+<ul>
+<li>22.1 <strong>核心问题</strong>：Benchmark越刷越高，模型真的越来越强吗？</li>
+<li>22.2 传统评测的困境
+<ul>
+<li>静态benchmark的泄漏与过拟合</li>
+<li>BLEU/ROUGE等自动指标的局限</li>
+</ul></li>
+<li>22.3 理解能力的评测演进
+<ul>
+<li>GLUE → SuperGLUE → MMLU</li>
+<li>BigBench/HELM：涌现能力的探测</li>
+</ul></li>
+<li>22.4 生成式评测的新范式
+<ul>
+<li>LLM-as-Judge：原理、偏差、缓解方法</li>
+<li>Arena/Chatbot Arena：人类偏好的众包</li>
+<li><strong>理论问题</strong>：评测者偏差的形式化</li>
+</ul></li>
+<li>22.5 数据污染与科学诚实
+<ul>
+<li>训练-测试泄漏的检测方法</li>
+<li>去污染的工程实践</li>
+<li><strong>案例分析</strong>：著名的数据污染事件</li>
+</ul></li>
+<li>22.6 可靠性评测
+<ul>
+<li>事实性：如何衡量幻觉？</li>
+<li>一致性：同一问题不同问法</li>
+<li>拒答质量：该拒绝时是否拒绝？</li>
+<li>越狱鲁棒性</li>
+</ul></li>
+<li>22.7 <strong>开放问题</strong>：什么是好的评测？</li>
+<li>22.8 工程实践：评测pipeline搭建</li>
+</ul>
+</section>
+<section id="第23章指令微调让模型听话" class="level3" data-number="1.7.7">
+<h3 data-number="1.7.7" class="anchored" data-anchor-id="第23章指令微调让模型听话"><span class="header-section-number">1.7.7</span> 第23章：指令微调——让模型听话</h3>
+<ul>
+<li>23.1 <strong>痛点</strong>：GPT-3能力强但不好用</li>
+<li>23.2 FLAN：指令微调的先驱</li>
+<li>23.3 指令数据的构建
+<ul>
+<li>人工构建 vs 模型生成（Self-Instruct）</li>
+</ul></li>
+<li>23.4 多任务指令微调的设计</li>
+<li>23.5 Alpaca/Vicuna：开源指令微调</li>
+<li>23.6 工程实践：构建指令微调数据集</li>
+</ul>
+</section>
+<section id="第24章rlhf从能力到对齐" class="level3" data-number="1.7.8">
+<h3 data-number="1.7.8" class="anchored" data-anchor-id="第24章rlhf从能力到对齐"><span class="header-section-number">1.7.8</span> 第24章：RLHF——从能力到对齐</h3>
+<ul>
+<li>24.1 <strong>核心问题</strong>：模型的目标与人类意图的差距</li>
+<li>24.2 InstructGPT的三阶段训练
+<ul>
+<li>SFT → Reward Model → PPO</li>
+</ul></li>
+<li>24.3 奖励模型的训练
+<ul>
+<li>人类偏好数据的收集</li>
+<li>Bradley-Terry模型</li>
+</ul></li>
+<li>24.4 PPO算法在LLM中的应用
+<ul>
+<li><strong>工程挑战</strong>：稳定性问题</li>
+</ul></li>
+<li>24.5 <strong>风险卡片</strong>：RLHF</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>主要修复</strong></td>
+<td>让模型输出更符合人类偏好（更有帮助、更少有害）</td>
+</tr>
+<tr class="even">
+<td><strong>典型副作用</strong></td>
+<td>奖励黑客、过度拒答、风格漂移、sycophancy</td>
+</tr>
+<tr class="odd">
+<td><strong>工程防护</strong></td>
+<td>KL约束、回归集、红队测试、参考模型</td>
+</tr>
+<tr class="even">
+<td><strong>开放问题</strong></td>
+<td>人类标注者偏好 ≠ 真正的人类价值</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>24.6 <strong>痛点</strong>：RLHF太复杂、太贵</li>
+<li>24.7 工程实践：用TRL库实现RLHF</li>
+</ul>
+</section>
+<section id="第25章对齐技术的演进" class="level3" data-number="1.7.9">
+<h3 data-number="1.7.9" class="anchored" data-anchor-id="第25章对齐技术的演进"><span class="header-section-number">1.7.9</span> 第25章：对齐技术的演进</h3>
+<ul>
+<li>25.1 <strong>简化尝试</strong>：能否绕过RL？</li>
+<li>25.2 DPO：Direct Preference Optimization
+<ul>
+<li>数学推导：从RLHF到闭式解</li>
+<li><strong>理论分析</strong>：DPO与RLHF的等价性与差异</li>
+</ul></li>
+<li>25.3 <strong>风险卡片</strong>：DPO</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>主要修复</strong></td>
+<td>简化RLHF流程，无需单独训练奖励模型</td>
+</tr>
+<tr class="even">
+<td><strong>典型副作用</strong></td>
+<td>对数据质量更敏感、可能过度优化偏好</td>
+</tr>
+<tr class="odd">
+<td><strong>工程防护</strong></td>
+<td>高质量偏好数据、early stopping</td>
+</tr>
+<tr class="even">
+<td><strong>开放问题</strong></td>
+<td>离线优化 vs 在线优化的根本差异</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>25.4 ORPO, SimPO, KTO等变体</li>
+<li>25.5 Constitutional AI：自我改进</li>
+<li>25.6 对齐的本质讨论
+<ul>
+<li><strong>理论框架</strong>：什么是”对齐”的形式化定义？</li>
+</ul></li>
+<li>25.7 <strong>开放问题</strong>：Scalable oversight与超级对齐</li>
+</ul>
+</section>
+<section id="第26章长上下文与高效推理" class="level3" data-number="1.7.10">
+<h3 data-number="1.7.10" class="anchored" data-anchor-id="第26章长上下文与高效推理"><span class="header-section-number">1.7.10</span> 第26章：长上下文与高效推理</h3>
+<blockquote class="blockquote">
+<p><em>从算法到系统的完整链条</em></p>
+<p><strong>演进脉络</strong>：O(n²)太贵 → 位置编码外推 → 系统级优化</p>
+</blockquote>
+<ul>
+<li>26.1 <strong>核心问题</strong>：如何支持超长序列？</li>
+<li>26.2 位置编码的演进
+<ul>
+<li>绝对位置编码的局限</li>
+<li>相对位置编码的尝试</li>
+<li>RoPE：旋转位置编码
+<ul>
+<li>数学原理与几何直觉</li>
+<li><strong>理论分析</strong>：为什么RoPE有外推潜力？</li>
+</ul></li>
+<li>ALiBi：位置偏置</li>
+</ul></li>
+<li>26.3 长度外推技术
+<ul>
+<li>Position Interpolation (PI)</li>
+<li>NTK-aware Scaling</li>
+<li>YaRN：统一框架</li>
+<li><strong>边界条件</strong>：外推的理论极限</li>
+</ul></li>
+<li>26.4 Flash Attention：硬件感知的算法
+<ul>
+<li>IO-aware的计算优化</li>
+<li><strong>洞察</strong>：算法与硬件的协同设计</li>
+<li>Flash Attention 2/3的改进</li>
+</ul></li>
+<li>26.5 KV Cache优化
+<ul>
+<li>为什么KV Cache是推理瓶颈？</li>
+<li>PagedAttention (vLLM)</li>
+<li>Multi-Query/Grouped-Query Attention</li>
+</ul></li>
+<li>26.6 Ring Attention与分布式长序列</li>
+<li>26.7 <strong>开放问题</strong>：无限上下文可能吗？</li>
+<li>26.8 工程实践：长上下文模型部署</li>
+</ul>
+</section>
+<section id="第27章开源大模型的演进" class="level3" data-number="1.7.11">
+<h3 data-number="1.7.11" class="anchored" data-anchor-id="第27章开源大模型的演进"><span class="header-section-number">1.7.11</span> 第27章：开源大模型的演进</h3>
+<ul>
+<li>27.1 LLaMA：开源的里程碑</li>
+<li>27.2 LLaMA 2/3的改进</li>
+<li>27.3 Mistral系列：效率优先</li>
+<li>27.4 Qwen、DeepSeek等：多极化发展</li>
+<li>27.5 开源 vs 闭源的博弈</li>
+<li>27.6 工程实践：本地部署开源模型</li>
+</ul>
+</section>
+<section id="第28章高效微调技术的演进" class="level3" data-number="1.7.12">
+<h3 data-number="1.7.12" class="anchored" data-anchor-id="第28章高效微调技术的演进"><span class="header-section-number">1.7.12</span> 第28章：高效微调技术的演进</h3>
+<ul>
+<li>28.1 <strong>痛点</strong>：全参数微调的不可承受之重</li>
+<li>28.2 Adapter：插入式微调</li>
+<li>28.3 Prefix Tuning与Prompt Tuning</li>
+<li>28.4 LoRA：低秩适配
+<ul>
+<li>数学原理：为什么低秩有效？</li>
+<li><strong>理论分析</strong>：LoRA的表达能力边界</li>
+</ul></li>
+<li>28.5 QLoRA：量化+LoRA</li>
+<li>28.6 DoRA, LoRA+等改进</li>
+<li>28.7 不同方法的对比与选择</li>
+<li>28.8 工程实践：PEFT库使用指南</li>
+</ul>
+</section>
+<section id="第29章推理优化" class="level3" data-number="1.7.13">
+<h3 data-number="1.7.13" class="anchored" data-anchor-id="第29章推理优化"><span class="header-section-number">1.7.13</span> 第29章：推理优化</h3>
+<ul>
+<li>29.1 <strong>痛点</strong>：推理成本与延迟</li>
+<li>29.2 量化技术
+<ul>
+<li>INT8, INT4, GPTQ, AWQ, GGUF</li>
+<li><strong>理论分析</strong>：量化误差的传播</li>
+</ul></li>
+<li>29.3 投机解码（Speculative Decoding）
+<ul>
+<li>数学原理：为什么能加速？</li>
+</ul></li>
+<li>29.4 持续批处理</li>
+<li>29.5 模型并行推理</li>
+<li>29.6 <strong>边界条件</strong>：速度-质量权衡</li>
+<li>29.7 工程实践：vLLM/TGI部署</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="第六部分应用范式与前沿" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="第六部分应用范式与前沿"><span class="header-section-number">1.8</span> 第六部分：应用范式与前沿</h2>
+<section id="第30章检索增强生成rag" class="level3" data-number="1.8.1">
+<h3 data-number="1.8.1" class="anchored" data-anchor-id="第30章检索增强生成rag"><span class="header-section-number">1.8.1</span> 第30章：检索增强生成（RAG）</h3>
+<ul>
+<li>30.1 <strong>痛点</strong>：参数化知识的局限</li>
+<li>30.2 RAG架构的演进</li>
+<li>30.3 检索器的选择与优化</li>
+<li>30.4 Chunk策略与上下文构建</li>
+<li>30.5 高级RAG技术（Query改写、Re-ranking）</li>
+<li>30.6 <strong>理论问题</strong>：检索 vs 参数化记忆的权衡</li>
+<li>30.7 工程实践：构建生产级RAG系统</li>
+</ul>
+</section>
+<section id="第31章llm作为agent" class="level3" data-number="1.8.2">
+<h3 data-number="1.8.2" class="anchored" data-anchor-id="第31章llm作为agent"><span class="header-section-number">1.8.2</span> 第31章：LLM作为Agent</h3>
+<ul>
+<li>31.1 从语言模型到自主代理</li>
+<li>31.2 工具使用与Function Calling</li>
+<li>31.3 规划能力（ReAct, Plan-and-Execute）</li>
+<li>31.4 记忆系统设计</li>
+<li>31.5 多Agent协作</li>
+<li>31.6 <strong>开放问题</strong>：Agent的可靠性与安全性</li>
+<li>31.7 工程实践：Agent框架对比</li>
+</ul>
+</section>
+<section id="第32章多模态大模型" class="level3" data-number="1.8.3">
+<h3 data-number="1.8.3" class="anchored" data-anchor-id="第32章多模态大模型"><span class="header-section-number">1.8.3</span> 第32章：多模态大模型</h3>
+<ul>
+<li>32.1 CLIP：对比学习连接模态</li>
+<li>32.2 视觉编码器的选择</li>
+<li>32.3 LLaVA：视觉指令微调</li>
+<li>32.4 GPT-4V/4o的多模态能力</li>
+<li>32.5 <strong>开放问题</strong>：统一多模态架构</li>
+<li>32.6 工程实践：构建多模态应用</li>
+</ul>
+</section>
+<section id="第33章研究前沿地图" class="level3" data-number="1.8.4">
+<h3 data-number="1.8.4" class="anchored" data-anchor-id="第33章研究前沿地图"><span class="header-section-number">1.8.4</span> 第33章：研究前沿地图</h3>
+<blockquote class="blockquote">
+<p><em>帮助你找到自己的研究方向</em></p>
+</blockquote>
+<ul>
+<li>33.1 <strong>当前最活跃的研究方向</strong>
+<ul>
+<li>Reasoning与System 2思维</li>
+<li>长上下文与无限记忆</li>
+<li>多模态统一架构</li>
+<li>高效训练与推理</li>
+<li>对齐与安全</li>
+<li>World Models与具身智能</li>
+</ul></li>
+<li>33.2 <strong>每个方向的核心问题</strong>
+<ul>
+<li>什么问题被认为是重要的？</li>
+<li>当前的技术瓶颈在哪里？</li>
+<li>有哪些promising的方向？</li>
+</ul></li>
+<li>33.3 <strong>研究品味的培养</strong>
+<ul>
+<li>什么样的问题值得做？</li>
+<li>如何判断一个方向是否过度拥挤？</li>
+<li>如何找到自己的niche</li>
+</ul></li>
+<li>33.4 <strong>给PhD新生的建议</strong>
+<ul>
+<li>第一年应该读哪些论文？</li>
+<li>如何找到第一个研究问题？</li>
+<li>如何与导师/社区互动</li>
+</ul></li>
+<li>33.5 <strong>开放的大问题</strong>
+<ul>
+<li>幻觉问题与事实性</li>
+<li>推理能力的本质</li>
+<li>效率的极限在哪里？</li>
+<li>AGI之路的思考</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="附录" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="附录"><span class="header-section-number">1.9</span> 附录</h2>
+<section id="附录a数学基础速览" class="level3" data-number="1.9.1">
+<h3 data-number="1.9.1" class="anchored" data-anchor-id="附录a数学基础速览"><span class="header-section-number">1.9.1</span> 附录A：数学基础速览</h3>
+<ul>
+<li>A.1 线性代数核心概念</li>
+<li>A.2 概率与信息论</li>
+<li>A.3 优化方法基础
+<ul>
+<li>SGD与动量</li>
+<li>Adam家族</li>
+<li>学习率调度</li>
+</ul></li>
+</ul>
+</section>
+<section id="附录b环境配置与框架选择" class="level3" data-number="1.9.2">
+<h3 data-number="1.9.2" class="anchored" data-anchor-id="附录b环境配置与框架选择"><span class="header-section-number">1.9.2</span> 附录B：环境配置与框架选择</h3>
+<ul>
+<li>B.1 GPU环境搭建</li>
+<li>B.2 PyTorch vs TensorFlow</li>
+<li>B.3 Hugging Face生态系统</li>
+<li>B.4 分布式训练框架（DeepSpeed, FSDP, Megatron）</li>
+<li>B.5 训练调优检查清单</li>
+</ul>
+</section>
+<section id="附录c里程碑论文阅读清单" class="level3" data-number="1.9.3">
+<h3 data-number="1.9.3" class="anchored" data-anchor-id="附录c里程碑论文阅读清单"><span class="header-section-number">1.9.3</span> 附录C：里程碑论文阅读清单</h3>
+<p>按演进顺序排列的必读论文：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>论文</th>
+<th>核心贡献</th>
+<th>重点阅读</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2013</td>
+<td>Word2Vec</td>
+<td>分布式词表示</td>
+<td>Skip-gram公式推导</td>
+</tr>
+<tr class="even">
+<td>2014</td>
+<td>GloVe</td>
+<td>全局词向量</td>
+<td>矩阵分解视角</td>
+</tr>
+<tr class="odd">
+<td>2014</td>
+<td>Seq2Seq</td>
+<td>Encoder-Decoder架构</td>
+<td>架构设计</td>
+</tr>
+<tr class="even">
+<td>2014</td>
+<td>Bahdanau Attention</td>
+<td>注意力机制</td>
+<td>Attention计算</td>
+</tr>
+<tr class="odd">
+<td>2015</td>
+<td>Luong Attention</td>
+<td>注意力变体</td>
+<td>三种变体对比</td>
+</tr>
+<tr class="even">
+<td>2016</td>
+<td>BPE for NMT</td>
+<td>子词分词</td>
+<td>算法流程</td>
+</tr>
+<tr class="odd">
+<td>2017</td>
+<td>Transformer</td>
+<td>Self-Attention架构</td>
+<td>全文精读</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>ELMo</td>
+<td>上下文词向量</td>
+<td>双向表示</td>
+</tr>
+<tr class="odd">
+<td>2018</td>
+<td>GPT</td>
+<td>自回归预训练</td>
+<td>预训练目标</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>BERT</td>
+<td>双向预训练</td>
+<td>MLM设计</td>
+</tr>
+<tr class="odd">
+<td>2019</td>
+<td>GPT-2</td>
+<td>规模化探索</td>
+<td>Zero-shot实验</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>RoBERTa</td>
+<td>预训练优化</td>
+<td>消融实验</td>
+</tr>
+<tr class="odd">
+<td>2019</td>
+<td>XLNet</td>
+<td>排列语言模型</td>
+<td>理论推导</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>T5</td>
+<td>Text-to-Text统一</td>
+<td>实验对比</td>
+</tr>
+<tr class="odd">
+<td>2019</td>
+<td>ZeRO</td>
+<td>内存优化训练</td>
+<td>三阶段设计</td>
+</tr>
+<tr class="even">
+<td>2020</td>
+<td>GPT-3</td>
+<td>In-Context Learning</td>
+<td>Few-shot实验</td>
+</tr>
+<tr class="odd">
+<td>2020</td>
+<td>Scaling Laws</td>
+<td>规模定律</td>
+<td>公式与拟合</td>
+</tr>
+<tr class="even">
+<td>2021</td>
+<td>CLIP</td>
+<td>视觉-语言对比学习</td>
+<td>对比目标</td>
+</tr>
+<tr class="odd">
+<td>2021</td>
+<td>LoRA</td>
+<td>高效微调</td>
+<td>低秩分解</td>
+</tr>
+<tr class="even">
+<td>2021</td>
+<td>RoPE</td>
+<td>旋转位置编码</td>
+<td>数学推导</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>InstructGPT</td>
+<td>RLHF对齐</td>
+<td>三阶段训练</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>Chain-of-Thought</td>
+<td>思维链推理</td>
+<td>Prompting技巧</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>Chinchilla</td>
+<td>数据规模定律</td>
+<td>最优分配</td>
+</tr>
+<tr class="even">
+<td>2023</td>
+<td>LLaMA</td>
+<td>开源大模型</td>
+<td>训练配置</td>
+</tr>
+<tr class="odd">
+<td>2023</td>
+<td>DPO</td>
+<td>简化对齐</td>
+<td>数学推导</td>
+</tr>
+<tr class="even">
+<td>2023</td>
+<td>Flash Attention 2</td>
+<td>高效注意力</td>
+<td>IO分析</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="附录d常见面试题与思考题" class="level3" data-number="1.9.4">
+<h3 data-number="1.9.4" class="anchored" data-anchor-id="附录d常见面试题与思考题"><span class="header-section-number">1.9.4</span> 附录D：常见面试题与思考题</h3>
+<p>每章配套思考题，按四个层次组织： 1. <strong>概念理解</strong>：基本概念的掌握 2. <strong>数学推导</strong>：关键公式的推导能力 3. <strong>工程实践</strong>：实现与调试能力 4. <strong>研究思考</strong>：开放问题的思考</p>
+</section>
+<section id="附录e评测基准演进参考" class="level3" data-number="1.9.5">
+<h3 data-number="1.9.5" class="anchored" data-anchor-id="附录e评测基准演进参考"><span class="header-section-number">1.9.5</span> 附录E：评测基准演进参考</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 29%">
+<col style="width: 29%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>时期</th>
+<th>评测基准</th>
+<th>评测目标</th>
+<th>局限性</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>统计时代</td>
+<td>BLEU, ROUGE</td>
+<td>翻译/摘要质量</td>
+<td>与人类判断相关性低</td>
+</tr>
+<tr class="even">
+<td>预训练时代</td>
+<td>GLUE, SuperGLUE</td>
+<td>多任务理解能力</td>
+<td>已被刷满</td>
+</tr>
+<tr class="odd">
+<td>大模型时代</td>
+<td>MMLU, HELM, BigBench</td>
+<td>涌现能力、推理能力</td>
+<td>数据污染风险</td>
+</tr>
+<tr class="even">
+<td>当前</td>
+<td>LLM-as-Judge, Arena</td>
+<td>生成式评测、人类偏好</td>
+<td>评测者偏差</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="章节分布统计" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="章节分布统计"><span class="header-section-number">1.10</span> 章节分布统计</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>部分</th>
+<th>章节数</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>第零部分：导论</td>
+<td>1章</td>
+<td>如何阅读NLP研究</td>
+</tr>
+<tr class="even">
+<td>第一部分：前深度学习</td>
+<td>3章</td>
+<td>背景铺垫 + Tokenization</td>
+</tr>
+<tr class="odd">
+<td>第二部分：序列建模</td>
+<td>1章</td>
+<td>RNN/LSTM</td>
+</tr>
+<tr class="even">
+<td>第三部分：注意力机制</td>
+<td>5章</td>
+<td>注意力演进（重点）</td>
+</tr>
+<tr class="odd">
+<td>第四部分：预训练范式</td>
+<td>7章</td>
+<td>预训练演进（重点）</td>
+</tr>
+<tr class="even">
+<td>第五部分：大语言模型</td>
+<td>13章</td>
+<td>LLM时代（重点）</td>
+</tr>
+<tr class="odd">
+<td>第六部分：应用与前沿</td>
+<td>4章</td>
+<td>实践应用 + 研究前沿</td>
+</tr>
+<tr class="even">
+<td><strong>总计</strong></td>
+<td><strong>34章</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="核心设计原则" class="level2" data-number="1.11">
+<h2 data-number="1.11" class="anchored" data-anchor-id="核心设计原则"><span class="header-section-number">1.11</span> 核心设计原则</h2>
+<ol type="1">
+<li><strong>痛点驱动</strong>：每章都有明确的”上一代方法的局限性”作为引入动机</li>
+<li><strong>演进脉络清晰</strong>：
+<ul>
+<li>Tokenization：词级别 → 字符级别 → 子词（BPE/WordPiece）→ Byte-level</li>
+<li>注意力：Additive → Multiplicative → Self → Multi-Head → Efficient</li>
+<li>预训练：Word2Vec → ELMo → GPT/BERT → 目标改进 → 规模化</li>
+<li>大模型：Scaling Laws → 大规模训练 → ICL → 指令微调 → RLHF → DPO</li>
+<li>训练系统：单卡 → 数据并行 → 模型并行 → ZeRO → 混合并行</li>
+<li>长上下文：位置编码 → 外推技术 → Flash Attention → KV Cache优化</li>
+</ul></li>
+<li><strong>理论与工程并重</strong>：关键章节都有工程实践部分</li>
+<li><strong>研究者导向</strong>：每章包含理论分析、边界条件、开放问题</li>
+<li><strong>详略得当</strong>：早期内容作为背景，核心技术深入展开</li>
+</ol>
+<hr>
+</section>
+<section id="v3.0-更新说明" class="level2" data-number="1.12">
+<h2 data-number="1.12" class="anchored" data-anchor-id="v3.0-更新说明"><span class="header-section-number">1.12</span> v3.0 更新说明</h2>
+<section id="新增重组章节" class="level3" data-number="1.12.1">
+<h3 data-number="1.12.1" class="anchored" data-anchor-id="新增重组章节"><span class="header-section-number">1.12.1</span> 新增/重组章节</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>变化</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>第0章</strong></td>
+<td>新增</td>
+<td>研究方法论导论，帮助PhD读者学习”如何做研究”</td>
+</tr>
+<tr class="even">
+<td><strong>第3章</strong></td>
+<td>强化</td>
+<td>增加”Tokenizer是模型一部分”的核心论点</td>
+</tr>
+<tr class="odd">
+<td><strong>第18-19章</strong></td>
+<td>拆分</td>
+<td>原第18章内容过密，拆为”数值稳定性”和”分布式训练”</td>
+</tr>
+<tr class="even">
+<td><strong>第22章</strong></td>
+<td>新增</td>
+<td>评测方法论提到主线，为对齐章节做铺垫</td>
+</tr>
+<tr class="odd">
+<td><strong>第24-25章</strong></td>
+<td>增加风险卡片</td>
+<td>对齐技术的失败模式显式化</td>
+</tr>
+<tr class="even">
+<td><strong>第26章</strong></td>
+<td>收束</td>
+<td>长上下文相关内容（位置编码、外推、Flash Attention、KV Cache）合并</td>
+</tr>
+<tr class="odd">
+<td><strong>第33章</strong></td>
+<td>扩展</td>
+<td>从”开放问题”扩展为”研究前沿地图”</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="研究者定位的体现" class="level3" data-number="1.12.2">
+<h3 data-number="1.12.2" class="anchored" data-anchor-id="研究者定位的体现"><span class="header-section-number">1.12.2</span> 研究者定位的体现</h3>
+<ul>
+<li>每章增加 <strong>理论分析</strong> 小节</li>
+<li>每章增加 <strong>边界条件/失效条件</strong> 讨论</li>
+<li>每章增加 <strong>开放研究问题</strong></li>
+<li>延伸阅读以论文为核心，标注”重点阅读”部分</li>
+<li>对齐章节配套 <strong>风险卡片</strong></li>
+</ul>
+<hr>
+<p><em>文档更新时间：2026-01-21</em> <em>版本：v3.0（基于GPT-5.2 Pro建议 + 研究者定位调整）</em></p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

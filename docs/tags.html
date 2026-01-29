@@ -84,10 +84,10 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-subtitle','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       page: 25,
     pagination: { item: "<li class='page-item'><a class='page page-link' href='#'></a></li>" },
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -411,7 +411,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(41)</span></div><div class="category" data-category="QmV0YQ==">Beta <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y24=">cn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29kZQ==">code <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVlcC1sZWFybmluZw==">deep-learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RGVlcFNlZWs=">DeepSeek <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Z2VuZXJhdGl2ZS1tb2RlbHM=">generative-models <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW50cm8=">intro <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWF0aA==">math <span class="quarto-category-count">(3)</span></div><div class="category" data-category="bmxw">nlp <span class="quarto-category-count">(1)</span></div><div class="category" data-category="b3B0aW1pemF0aW9u">optimization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTY=">R&amp;D资本化 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="c2V0dXA=">setup <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHJhbnNmb3JtZXJz">transformers <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V0FDQw==">WACC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJTlBJUU4JUFFJUExJUU4JUIwJTgzJUU2JTk1JUI0">会计调整 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJUIwJUU1JTgwJUJD">估值 <span class="quarto-category-count">(28)</span></div><div class="category" data-category="JUU1JTgwJUJBJUU1JThBJUExJUU2JTg4JTkwJUU2JTlDJUFD">债务成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE">具身智能 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgx">多模态 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThC">大模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThC">大语言模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw">强化学习 <span class="quarto-category-count">(4)</span></div><div class="category" data-category="JUU2JThBJTk1JUU4JUI1JTg0">投资 <span class="quarto-category-count">(25)</span></div><div class="category" data-category="JUU2JThFJUE4JUU3JTkwJTg2">推理 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="JUU2JTk1JUIwJUU1JUFEJUE2">数学 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3">无风险利率 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJB">机器人 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC">概率模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw">深度学习 <span class="quarto-category-count">(5)</span></div><div class="category" data-category="JUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThC">生成模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU3JTlCJTg4JUU1JTg4JUE5">盈利 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JUJCJThGJUU4JTkwJUE1JUU3JUE3JTlGJUU4JUI1JTgx">经营租赁 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3">股权风险溢价 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JUI1JTg0JUU2JTlDJUFDJUU2JTg4JTkwJUU2JTlDJUFD">资本成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JTg3JTkxJUU4JTlFJThE">金融 <span class="quarto-category-count">(25)</span></div><div class="category" data-category="JUU5JUEzJThFJUU5JTk5JUE5">风险 <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(85)</span></div><div class="category" data-category="QWRhcHRlcg==">Adapter <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QWdlbnQ=">Agent <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QUxCRVJU">ALBERT <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QWxpZ25tZW50">Alignment <span class="quarto-category-count">(4)</span></div><div class="category" data-category="QXR0ZW50aW9u">Attention <span class="quarto-category-count">(3)</span></div><div class="category" data-category="QmFoZGFuYXU=">Bahdanau <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QkFSVA==">BART <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QmVuY2htYXJrcw==">Benchmarks <span class="quarto-category-count">(2)</span></div><div class="category" data-category="QkVSVA==">BERT <span class="quarto-category-count">(2)</span></div><div class="category" data-category="QmV0YQ==">Beta <span class="quarto-category-count">(1)</span></div><div class="category" data-category="QlBF">BPE <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q2hhaW4tb2YtVGhvdWdodA==">Chain-of-Thought <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q2hpbmNoaWxsYQ==">Chinchilla <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q0xJUA==">CLIP <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y24=">cn <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Y29kZQ==">code <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q29udGV4dHVhbCUyMEVtYmVkZGluZ3M=">Contextual Embeddings <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q1JG">CRF <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGF0YQ==">Data <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RGVlcCUyMExlYXJuaW5n">Deep Learning <span class="quarto-category-count">(25)</span></div><div class="category" data-category="ZGVlcC1sZWFybmluZw==">deep-learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RGVlcFNlZWs=">DeepSeek <span class="quarto-category-count">(2)</span></div><div class="category" data-category="ZGVtbw==">demo <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RGlzdGlsQkVSVA==">DistilBERT <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RFBP">DPO <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RWZmaWNpZW50JTIwQXR0ZW50aW9u">Efficient Attention <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RUxFQ1RSQQ==">ELECTRA <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RUxNbw==">ELMo <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RW1lcmdlbmNl">Emergence <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RXZhbHVhdGlvbg==">Evaluation <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RmFzdFRleHQ=">FastText <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RmVhdHVyZSUyMEVuZ2luZWVyaW5n">Feature Engineering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RmluZS10dW5pbmc=">Fine-tuning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Z2VuZXJhdGl2ZS1tb2RlbHM=">generative-models <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R2xvVmU=">GloVe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R1BU">GPT <span class="quarto-category-count">(2)</span></div><div class="category" data-category="R1BULTI=">GPT-2 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R1BULTM=">GPT-3 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R1BULTRW">GPT-4V <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R1JV">GRU <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SGlzdG9yeQ==">History <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SE1N">HMM <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW4tQ29udGV4dCUyMExlYXJuaW5n">In-Context Learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW5mZXJlbmNl">Inference <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SW5zdHJ1Y3Rpb24lMjBUdW5pbmc=">Instruction Tuning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="aW50cm8=">intro <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TExhTUE=">LLaMA <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TExhVkE=">LLaVA <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TExN">LLM <span class="quarto-category-count">(18)</span></div><div class="category" data-category="TG9SQQ==">LoRA <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TFNUTQ==">LSTM <span class="quarto-category-count">(1)</span></div><div class="category" data-category="THVvbmc=">Luong <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TWFtYmE=">Mamba <span class="quarto-category-count">(1)</span></div><div class="category" data-category="bWF0aA==">math <span class="quarto-category-count">(3)</span></div><div class="category" data-category="TWVtb3J5">Memory <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TWVtb3J5JTIwTmV0d29ya3M=">Memory Networks <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TWV0cmljcw==">Metrics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TWlzdHJhbA==">Mistral <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TW9F">MoE <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TXVsdGltb2RhbA==">Multimodal <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Ti1ncmFt">N-gram <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TkxQ">NLP <span class="quarto-category-count">(36)</span></div><div class="category" data-category="bmxw">nlp <span class="quarto-category-count">(1)</span></div><div class="category" data-category="b3B0aW1pemF0aW9u">optimization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UEVGVA==">PEFT <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UGhEJTIwR3VpZGU=">PhD Guide <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UGxhbm5pbmc=">Planning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UHJlLXRyYWluaW5n">Pre-training <span class="quarto-category-count">(7)</span></div><div class="category" data-category="UXVhbnRpemF0aW9u">Quantization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UXdlbg==">Qwen <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTY=">R&amp;D资本化 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UkFH">RAG <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmVhc29uaW5n">Reasoning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UmVwcmVzZW50YXRpb24lMjBMZWFybmluZw==">Representation Learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmVzZWFyY2g=">Research <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UmVzZWFyY2glMjBNZXRob2Rz">Research Methods <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UkxIRg==">RLHF <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Uk5O">RNN <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Um9CRVJUYQ==">RoBERTa <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2NhbGluZyUyMExhd3M=">Scaling Laws <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2VsZi1BdHRlbnRpb24=">Self-Attention <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2VudGVuY2VQaWVjZQ==">SentencePiece <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U2VxMlNlcQ==">Seq2Seq <span class="quarto-category-count">(2)</span></div><div class="category" data-category="c2V0dXA=">setup <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U3BlY3VsYXRpdmUlMjBEZWNvZGluZw==">Speculative Decoding <span class="quarto-category-count">(1)</span></div><div class="category" data-category="U1NN">SSM <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VDU=">T5 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="VGFza3M=">Tasks <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VG9rZW5pemF0aW9u">Tokenization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VG9vbCUyMFVzZQ==">Tool Use <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VHJhbnNmZXIlMjBMZWFybmluZw==">Transfer Learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VHJhbnNmb3JtZXI=">Transformer <span class="quarto-category-count">(4)</span></div><div class="category" data-category="dHJhbnNmb3JtZXJz">transformers <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dHV0b3JpYWw=">tutorial <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VkxN">VLM <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V0FDQw==">WACC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V29yZDJWZWM=">Word2Vec <span class="quarto-category-count">(1)</span></div><div class="category" data-category="V29yZFBpZWNl">WordPiece <span class="quarto-category-count">(1)</span></div><div class="category" data-category="WExOZXQ=">XLNet <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJTk4JUU1JThDJTk2JUU1JTk5JUE4">优化器 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJTlBJUU4JUFFJUExJUU4JUIwJTgzJUU2JTk1JUI0">会计调整 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU0JUJDJUIwJUU1JTgwJUJD">估值 <span class="quarto-category-count">(36)</span></div><div class="category" data-category="JUU0JUJEJThEJUU3JUJEJUFFJUU3JUJDJTk2JUU3JUEwJTgx">位置编码 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JTgwJUJBJUU1JThBJUExJUU2JTg4JTkwJUU2JTlDJUFD">债务成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE">具身智能 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JTg4JTg2JUU1JUI4JTgzJUU1JUJDJThGJUU4JUFFJUFEJUU3JUJCJTgz">分布式训练 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgx">多模态 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThC">大模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThC">大语言模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUI5JUI2JUU4JUExJThDJUU4JUFFJUExJUU3JUFFJTk3">并行计算 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUJBJThGJUU1JTg4JTk3JUU1JUJCJUJBJUU2JUE4JUEx">序列建模 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU1JUJDJTgwJUU2JUJBJTkwJUU2JUE4JUExJUU1JTlFJThC">开源模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw">强化学习 <span class="quarto-category-count">(4)</span></div><div class="category" data-category="JUU2JThBJTk1JUU4JUI1JTg0">投资 <span class="quarto-category-count">(33)</span></div><div class="category" data-category="JUU2JThFJUE4JUU3JTkwJTg2">推理 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="JUU2JTk1JUIwJUU1JUFEJUE2">数学 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3">无风险利率 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJB">机器人 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU2JTlDJUJBJUU1JTk5JUE4JUU3JUJGJUJCJUU4JUFGJTkx">机器翻译 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JTlEJUExJUU0JUJCJUI2JUU4JUFFJUExJUU3JUFFJTk3">条件计算 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC">概率模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw">深度学习 <span class="quarto-category-count">(6)</span></div><div class="category" data-category="JUU2JUI3JUI3JUU1JTkwJTg4JUU3JUIyJUJFJUU1JUJBJUE2">混合精度 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JThBJUI2JUU2JTgwJTgxJUU3JUE5JUJBJUU5JTk3JUI0">状态空间 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThC">生成模型 <span class="quarto-category-count">(2)</span></div><div class="category" data-category="JUU3JTlCJTg4JUU1JTg4JUE5">盈利 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JUE4JTgwJUU3JTk2JThGJUU2JUE4JUExJUU1JTlFJThC">稀疏模型 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU3JUJCJThGJUU4JTkwJUE1JUU3JUE3JTlGJUU4JUI1JTgx">经营租赁 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3">股权风险溢价 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JUFFJUFEJUU3JUJCJTgzJUU3JUE4JUIzJUU1JUFFJTlBJUU2JTgwJUE3">训练稳定性 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU4JUI1JTg0JUU2JTlDJUFDJUU2JTg4JTkwJUU2JTlDJUFD">资本成本 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JTg3JTkxJUU4JTlFJThE">金融 <span class="quarto-category-count">(33)</span></div><div class="category" data-category="JUU5JTk1JUJGJUU0JUI4JThBJUU0JUI4JThCJUU2JTk2JTg3">长上下文 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JUEzJThFJUU5JTk5JUE5">风险 <span class="quarto-category-count">(1)</span></div><div class="category" data-category="JUU5JUFCJTk4JUU2JTk1JTg4JUU2JThFJUE4JUU3JTkwJTg2">高效推理 <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -442,7 +442,267 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw" data-listing-date-sort="1767848400000" data-listing-file-modified-sort="1764160541666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1286">
+<div class="quarto-post image-right" data-index="0" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDUEVGVCUyQ0xvUkElMkNBZGFwdGVyJTJDRmluZS10dW5pbmc=" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769678754114" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3065">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch30-parameter-efficient-fine-tuning.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-30/original/fig-lora-reparametrization.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch30-parameter-efficient-fine-tuning.html" class="no-external">第30章：高效微调技术的演进</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch30-parameter-efficient-fine-tuning.html" class="no-external">From Full Fine-tuning to LoRA: The Art of Adapting Giants with Minimal Parameters</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UEVGVA=='); return false;">PEFT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TG9SQQ=='); return false;">LoRA</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWRhcHRlcg=='); return false;">Adapter</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RmluZS10dW5pbmc='); return false;">Fine-tuning</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch30-parameter-efficient-fine-tuning.html" class="no-external">
+<p>当模型参数量从亿级跃升到千亿级，全参数微调成为不可承受之重——一个70B模型的微调需要超过500GB显存。2019年起，研究者探索出多条参数高效微调（PEFT）路线：Adapter在Transformer层中插入小型瓶颈模块；Prefix/Prompt Tuning在输入端学习软提示；而2021年的LoRA另辟蹊径，通过低秩矩阵分解实现了训练参数减少10000倍、显存降低3倍、推理零额外延迟的完美平衡。本章系统梳理PEFT方法的演进脉络，从Adapter的插入式设计到LoRA的低秩分解，从QLoRA的4-bit量化到DoRA的权重分解，揭示为什么’少就是多’在大模型时代成为可能。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch30-parameter-efficient-fine-tuning.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDSW5mZXJlbmNlJTJDUXVhbnRpemF0aW9uJTJDU3BlY3VsYXRpdmUlMjBEZWNvZGluZw==" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769680293005" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3199">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch31-inference-optimization.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-31/original/fig-awq-overview.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch31-inference-optimization.html" class="no-external">第31章：推理优化</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch31-inference-optimization.html" class="no-external">From Training to Deployment: The Art of Making Giants Fast and Cheap</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW5mZXJlbmNl'); return false;">Inference</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UXVhbnRpemF0aW9u'); return false;">Quantization</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U3BlY3VsYXRpdmUlMjBEZWNvZGluZw=='); return false;">Speculative Decoding</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch31-inference-optimization.html" class="no-external">
+<p>当大语言模型从训练走向部署，推理成本成为新的瓶颈——一个70B模型的FP16推理需要140GB显存，远超单卡容量；自回归生成的token-by-token方式让GPU利用率仅有10-20%。本章系统梳理推理优化的三条主线：量化技术（GPTQ、AWQ）用精度换内存，将70B模型压缩到单卡运行；投机解码用小模型猜测、大模型验证的方式打破自回归瓶颈，实现2-3倍无损加速；持续批处理和PagedAttention通过动态调度最大化硬件利用率。这些技术可以叠加使用，将推理成本降低10倍以上，让’只有大厂用得起’变成’人人可部署’。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch31-inference-optimization.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="TkxQJTJDJUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDTExNJTJDUkFH" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769682252717" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1549">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch32-retrieval-augmented-generation.html" class="no-external">
+
+<p class="card-img-top"><img src="posts_ch\nlp\figures\chapter-32\original\fig-rag-architecture.png"  class="thumbnail-image card-img"/></p>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch32-retrieval-augmented-generation.html" class="no-external">第32章：检索增强生成——让大模型连接外部知识</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch32-retrieval-augmented-generation.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UkFH'); return false;">RAG</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch32-retrieval-augmented-generation.html" class="no-external">
+<p>从参数化知识的局限到检索增强生成的完整技术栈：理解RAG架构演进、检索器设计、分块策略与高级技术</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch32-retrieval-augmented-generation.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zhu
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDQWdlbnQlMkNUb29sJTIwVXNlJTJDUGxhbm5pbmclMkNNZW1vcnk=" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769682444711" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2127">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch33-llm-agent.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-33/original/fig2-agent-framework.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch33-llm-agent.html" class="no-external">第33章：LLM作为Agent</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch33-llm-agent.html" class="no-external">From Language Models to Autonomous Agents: Tool Use, Planning, and Memory</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWdlbnQ='); return false;">Agent</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VG9vbCUyMFVzZQ=='); return false;">Tool Use</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UGxhbm5pbmc='); return false;">Planning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWVtb3J5'); return false;">Memory</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch33-llm-agent.html" class="no-external">
+<p>上一章我们讲述了RAG——通过外部检索增强LLM的知识。但RAG本质上仍是’被动响应’：用户提问，系统检索，模型回答。2023年，一个更激进的想法席卷AI社区：如果让LLM不只是回答问题，而是主动采取行动呢？ReAct将推理与行动交织，Toolformer让模型自学工具使用，AutoGPT/BabyAGI展示了’给定目标，自主完成’的可能性，斯坦福的Generative Agents甚至创造了一个由25个AI’居民’组成的虚拟小镇。本章系统梳理LLM Agent的核心架构——工具使用、规划能力、记忆系统——探讨多Agent协作的范式，并直面Agent系统面临的可靠性与安全性挑战。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch33-llm-agent.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="TkxQJTJDTXVsdGltb2RhbCUyQ0NMSVAlMkNMTGFWQSUyQ0dQVC00ViUyQ1ZMTQ==" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769681736739" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1273">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch34-multimodal-llm.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-34/original/fig-clip-architecture.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch34-multimodal-llm.html" class="no-external">第34章：多模态大模型</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch34-multimodal-llm.html" class="no-external">从CLIP到GPT-4V：让语言模型理解视觉世界</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TXVsdGltb2RhbA=='); return false;">Multimodal</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q0xJUA=='); return false;">CLIP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExhVkE='); return false;">LLaVA</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1BULTRW'); return false;">GPT-4V</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VkxN'); return false;">VLM</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch34-multimodal-llm.html" class="no-external">
+<p>多模态大模型的演进：对比学习建立视觉-语言共享空间，视觉指令微调让模型学会看图说话</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch34-multimodal-llm.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zhang
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="5" data-categories="TkxQJTJDUmVzZWFyY2glMkNMTE0lMkNSZWFzb25pbmclMkNNdWx0aW1vZGFsJTJDQWxpZ25tZW50JTJDUGhEJTIwR3VpZGU=" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1769682990383" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="373">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch35-research-frontiers.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-35/original/fig-research-landscape.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch35-research-frontiers.html" class="no-external">第35章：研究前沿地图</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch35-research-frontiers.html" class="no-external">帮助你找到自己的研究方向</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVzZWFyY2g='); return false;">Research</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVhc29uaW5n'); return false;">Reasoning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TXVsdGltb2RhbA=='); return false;">Multimodal</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWxpZ25tZW50'); return false;">Alignment</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UGhEJTIwR3VpZGU='); return false;">PhD Guide</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch35-research-frontiers.html" class="no-external">
+<p>当前最活跃的研究方向、核心问题、研究品味的培养，以及给PhD新生的建议</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch35-research-frontiers.html" class="no-external">
+<div class="listing-date">
+Jan 29, 2026
+</div>
+<div class="listing-author">
+Ying Zhang
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="6" data-categories="JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEw" data-listing-date-sort="1769662800000" data-listing-file-modified-sort="1764160541666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1286">
 <div class="thumbnail"><a href="./posts_ch/vla-survey.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -452,6 +712,9 @@ window.Quarto = {
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/vla-survey.html" class="no-external">Vision-Language-Action (VLA) 模型综述：从动机到知识指导的触觉 VLA</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/vla-survey.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJB'); return false;">机器人</div>
@@ -470,7 +733,7 @@ window.Quarto = {
 <div class="metadata">
 <a href="./posts_ch/vla-survey.html" class="no-external">
 <div class="listing-date">
-Jan 8, 2026
+Jan 29, 2026
 </div>
 <div class="listing-author">
 在此填写作者
@@ -478,7 +741,1559 @@ Jan 8, 2026
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766725200000" data-listing-file-modified-sort="1767876445354" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1352">
+<div class="quarto-post image-right" data-index="7" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDJUU1JTg4JTg2JUU1JUI4JTgzJUU1JUJDJThGJUU4JUFFJUFEJUU3JUJCJTgzJTJDJUU1JUI5JUI2JUU4JUExJThDJUU4JUFFJUExJUU3JUFFJTk3" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769683203581" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2744">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch19-distributed-training.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-19/original/fig1-zero-memory-comparison.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch19-distributed-training.html" class="no-external">第19章：分布式训练系统</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch19-distributed-training.html" class="no-external">From One GPU to Ten Thousand: The Engineering of Large-Scale Model Training</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU1JTg4JTg2JUU1JUI4JTgzJUU1JUJDJThGJUU4JUFFJUFEJUU3JUJCJTgz'); return false;">分布式训练</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU1JUI5JUI2JUU4JUExJThDJUU4JUFFJUExJUU3JUFFJTk3'); return false;">并行计算</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch19-distributed-training.html" class="no-external">
+<p>上一章解决了单卡训练的稳定性问题，但一个残酷的现实是：70B 参数的模型仅参数就需要 140GB 显存（BF16），加上优化器状态总计 840GB——没有任何单张 GPU 能装得下。本章系统讲述如何通过数据并行、张量并行、流水线并行和 ZeRO 内存优化，将大模型训练分布到成百上千张 GPU 上。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch19-distributed-training.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="8" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDR1BULTMlMkNJbi1Db250ZXh0JTIwTGVhcm5pbmc=" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769584189950" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1841">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch20-gpt3-icl.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-20/original/fig1-gpt3-zero-one-few-shot.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch20-gpt3-icl.html" class="no-external">第20章：GPT-3与In-Context Learning</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch20-gpt3-icl.html" class="no-external">When Scale Brings Emergence: The Birth of In-Context Learning</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1BULTM='); return false;">GPT-3</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW4tQ29udGV4dCUyMExlYXJuaW5n'); return false;">In-Context Learning</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch20-gpt3-icl.html" class="no-external">
+<p>前三章（Ch17–Ch19）回答了’如何训练大模型’的理论和工程问题——Scaling Laws告诉我们规模与性能的数学关系，训练稳定性技术让百亿参数的训练不崩溃，分布式系统让千亿参数模型在万卡集群上跑起来。但一个更本质的问题悬而未决：这些大模型到底能做什么’小模型做不到的事’？2020年，OpenAI的GPT-3用175B参数给出了一个令人震惊的答案——In-Context Learning：不需要任何梯度更新，仅通过在输入中提供几个示例，模型就能学会新任务。这种能力不是被训练出来的，而是在规模达到一定阈值后自发涌现的。本章系统讲述GPT-3的架构、训练、ICL的现象与机制，以及由此诞生的Prompt Engineering范式。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch20-gpt3-icl.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="9" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDQ2hhaW4tb2YtVGhvdWdodCUyQ0VtZXJnZW5jZSUyQ1JlYXNvbmluZw==" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769598112397" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2756">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch21-emergence-cot.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-21/original/fig1-cot-example.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch21-emergence-cot.html" class="no-external">第21章：涌现能力与思维链推理</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch21-emergence-cot.html" class="no-external">Emergence, Chain-of-Thought, and the Boundaries of LLM Reasoning</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q2hhaW4tb2YtVGhvdWdodA=='); return false;">Chain-of-Thought</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RW1lcmdlbmNl'); return false;">Emergence</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVhc29uaW5n'); return false;">Reasoning</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch21-emergence-cot.html" class="no-external">
+<p>上一章我们见证了GPT-3的In-Context Learning——不需要梯度更新，仅凭输入中的几个示例就能完成新任务。但ICL有一个致命弱点：它在需要多步推理的任务上几乎完全失败。2022年，Wei等人发现了一个出奇简单的解决方案：在few-shot示例中不仅给出答案，还给出完整的推理过程——Chain-of-Thought prompting。这个看似微小的改动带来了数学和逻辑推理上的飞跃式提升，更引发了关于LLM’涌现能力’的激烈争论：这些能力是真实的相变，还是度量方式制造的假象？本章系统讲述CoT及其变体，探讨涌现现象的本质，并追问一个根本问题：LLM真的在’推理’吗？</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch21-emergence-cot.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="10" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDRXZhbHVhdGlvbiUyQ0JlbmNobWFya3MlMkNNZXRyaWNz" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769665047910" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3394">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch22-evaluation-methodology.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-22/original/fig1-evaluation-timeline.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch22-evaluation-methodology.html" class="no-external">第22章：评测方法论——如何判断模型变好了？</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch22-evaluation-methodology.html" class="no-external">Evaluation Methodology: Benchmarks, Metrics, and the Science of Measuring AI</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RXZhbHVhdGlvbg=='); return false;">Evaluation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmVuY2htYXJrcw=='); return false;">Benchmarks</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWV0cmljcw=='); return false;">Metrics</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch22-evaluation-methodology.html" class="no-external">
+<p>上一章关于涌现能力的讨论揭示了一个令人不安的事实：度量方式本身可能扭曲我们对模型能力的认知。如果连’涌现’这个核心概念的真实性都取决于评测度量的选择，那么我们对LLM能力的所有判断都需要更加审慎。本章系统讲述NLP评测方法论的演进：从BLEU/ROUGE等自动指标的局限，到GLUE/SuperGLUE/MMLU等静态benchmark的兴衰，再到LLM-as-Judge和Chatbot Arena等生成式评测的新范式。我们将讨论数据污染、Goodhart定律、评测者偏差等核心问题，试图回答一个根本性的问题：什么才是好的评测？</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch22-evaluation-methodology.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="11" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDSW5zdHJ1Y3Rpb24lMjBUdW5pbmclMkNBbGlnbm1lbnQ=" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769634618811" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2634">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch23-instruction-tuning.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-23/original/fig2-flan-three-paradigms.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch23-instruction-tuning.html" class="no-external">第23章：指令微调——让模型听话</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch23-instruction-tuning.html" class="no-external">Instruction Tuning: From Raw Language Models to Helpful Assistants</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SW5zdHJ1Y3Rpb24lMjBUdW5pbmc='); return false;">Instruction Tuning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWxpZ25tZW50'); return false;">Alignment</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch23-instruction-tuning.html" class="no-external">
+<p>上一章的评测方法论揭示了一个深刻的困境：我们连’什么是好的模型输出’都还没有共识，就已经在训练越来越大的模型了。GPT-3拥有1750亿参数和惊人的few-shot能力，但它本质上只是一个’补全机器’——你必须精心设计prompt才能让它做正确的事。本章讲述指令微调（Instruction Tuning）如何将语言模型从被动的文本补全器变为主动的任务执行者：从FLAN的多任务指令微调，到Self-Instruct的自动数据生成，再到Alpaca/Vicuna的开源平民化浪潮。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch23-instruction-tuning.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="12" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDQWxpZ25tZW50JTJDUkxIRg==" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769636626624" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2581">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch24-rlhf.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-24/original/fig2-instructgpt-rlhf-pipeline.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch24-rlhf.html" class="no-external">第24章：RLHF——从能力到对齐</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch24-rlhf.html" class="no-external">Reinforcement Learning from Human Feedback: Bridging the Gap Between Capability and Alignment</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWxpZ25tZW50'); return false;">Alignment</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UkxIRg=='); return false;">RLHF</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch24-rlhf.html" class="no-external">
+<p>上一章的指令微调让模型学会了’遵循指令’，但格式对齐不等于价值对齐——模型同样热心地回答善意和恶意的请求，无法区分’好回答’和’坏回答’。本章讲述RLHF如何通过人类偏好数据训练奖励模型，再用PPO优化语言模型，实现从InstructGPT到ChatGPT的关键飞跃：不仅让模型听话，还要让它变得有用、诚实、无害。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch24-rlhf.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="13" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDQWxpZ25tZW50JTJDRFBP" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769654563730" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1840">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch25-alignment-evolution.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-25/original/fig1-dpo-vs-rlhf.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch25-alignment-evolution.html" class="no-external">第25章：对齐技术的演进</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch25-alignment-evolution.html" class="no-external">The Evolution of Alignment: From RLHF to Direct Preference Optimization</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWxpZ25tZW50'); return false;">Alignment</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RFBP'); return false;">DPO</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch25-alignment-evolution.html" class="no-external">
+<p>RLHF 的三阶段流水线让 ChatGPT 成为可能，但它的工程复杂度也让许多研究者望而却步。本章讲述对齐技术的演进：从 DPO 发现 RLHF 可以被等价地简化为一个分类损失，到 ORPO/SimPO/KTO 等变体进一步消除参考模型依赖，再到 Constitutional AI 用 AI 自己来提供反馈。我们将追问对齐的本质——什么是’对齐’？对齐到谁的价值观？——并展望可扩展监督和超级对齐的前沿问题。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch25-alignment-evolution.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="14" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDJUU5JTk1JUJGJUU0JUI4JThBJUU0JUI4JThCJUU2JTk2JTg3JTJDJUU5JUFCJTk4JUU2JTk1JTg4JUU2JThFJUE4JUU3JTkwJTg2JTJDJUU0JUJEJThEJUU3JUJEJUFFJUU3JUJDJTk2JUU3JUEwJTgx" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769657203529" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2859">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch26-long-context-efficient-inference.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-26/original/fig-flash-attention-tiling.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch26-long-context-efficient-inference.html" class="no-external">第26章：长上下文与高效推理</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch26-long-context-efficient-inference.html" class="no-external">From 512 Tokens to Millions: The Quest for Infinite Context</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTk1JUJGJUU0JUI4JThBJUU0JUI4JThCJUU2JTk2JTg3'); return false;">长上下文</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JUFCJTk4JUU2JTk1JTg4JUU2JThFJUE4JUU3JTkwJTg2'); return false;">高效推理</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJEJThEJUU3JUJEJUFFJUU3JUJDJTk2JUU3JUEwJTgx'); return false;">位置编码</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch26-long-context-efficient-inference.html" class="no-external">
+<p>原始Transformer的512 token上下文窗口曾经足够，但大语言模型时代催生了对超长上下文的需求——从代码库理解到长文档摘要，从多轮对话到RAG检索。本章讲述突破上下文长度瓶颈的完整技术栈：位置编码从绝对到相对再到RoPE/ALiBi的演进、Position Interpolation到YaRN的长度外推技术、FlashAttention对注意力计算的IO感知革命、KV Cache的PagedAttention内存管理，以及Ring Attention的分布式长序列方案。每一项技术都是对O(n²)瓶颈的不同维度的突围。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch26-long-context-efficient-inference.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="15" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDTW9FJTJDJUU3JUE4JTgwJUU3JTk2JThGJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JTlEJUExJUU0JUJCJUI2JUU4JUFFJUExJUU3JUFFJTk3" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769659214263" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2324">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch27-mixture-of-experts.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-27/original/fig-switch-transformer-architecture.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch27-mixture-of-experts.html" class="no-external">第27章：Mixture of Experts——稀疏激活的智慧</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch27-mixture-of-experts.html" class="no-external">Conditional Computation: Scaling Parameters Without Scaling Compute</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TW9F'); return false;">MoE</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU3JUE4JTgwJUU3JTk2JThGJUU2JUE4JUExJUU1JTlFJThC'); return false;">稀疏模型</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JTlEJUExJUU0JUJCJUI2JUU4JUFFJUExJUU3JUFFJTk3'); return false;">条件计算</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch27-mixture-of-experts.html" class="no-external">
+<p>Dense Transformer有一个根本性的浪费：对于每一个token，所有参数都会被激活。一个关于烹饪的token真的需要激活’数学知识’的参数吗？Mixture of Experts (MoE) 提供了一种优雅的解决方案：将FFN层拆分为多个Expert，让Router动态选择每个token应该走哪几个Expert。这种稀疏激活让模型可以拥有数千亿的总参数，但每次推理只激活其中一小部分——实现了参数量与计算量的解耦。从Shazeer 2017的开创性工作，到Switch Transformer的简化设计，再到Mixtral 8x7B和DeepSeek-V3的工业级成功，MoE正在成为大语言模型的标准架构选择。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch27-mixture-of-experts.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="16" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDU1NNJTJDTWFtYmElMkMlRTUlQkElOEYlRTUlODglOTclRTUlQkIlQkElRTYlQTglQTElMkMlRTclOEElQjYlRTYlODAlODElRTclQTklQkElRTklOTclQjQ=" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769660304686" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3003">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch28-state-space-models.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-28/original/fig1-mamba-overview.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch28-state-space-models.html" class="no-external">第28章：状态空间模型——序列建模的另一条路</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch28-state-space-models.html" class="no-external">Beyond Attention: Linear-Time Sequence Modeling with Structured State Spaces</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U1NN'); return false;">SSM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWFtYmE='); return false;">Mamba</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU1JUJBJThGJUU1JTg4JTk3JUU1JUJCJUJBJUU2JUE4JUEx'); return false;">序列建模</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU3JThBJUI2JUU2JTgwJTgxJUU3JUE5JUJBJUU5JTk3JUI0'); return false;">状态空间</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch28-state-space-models.html" class="no-external">
+<p>Transformer的自注意力机制需要O(n²)的计算复杂度，这在处理长序列时成为瓶颈。但O(n²)是序列建模的唯一选择吗？状态空间模型（SSM）提供了一条全新的路径：借鉴控制论中的线性时不变系统，通过结构化的状态转移矩阵实现O(n)或O(n log n)的序列建模。从HiPPO的记忆理论，到S4的结构化参数化，再到Mamba的选择性机制——SSM正在成为Transformer的有力替代者。本章将带你深入这条’从循环到选择’的技术演进之路。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch28-state-space-models.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="17" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDJUU1JUJDJTgwJUU2JUJBJTkwJUU2JUE4JUExJUU1JTlFJThCJTJDTExhTUElMkNNaXN0cmFsJTJDUXdlbiUyQ0RlZXBTZWVr" data-listing-date-sort="1769576400000" data-listing-file-modified-sort="1769662385181" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1470">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch29-open-source-llm.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-29/original/fig1-mistral-sliding-window.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch29-open-source-llm.html" class="no-external">第29章：开源大模型的演进</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch29-open-source-llm.html" class="no-external">From LLaMA to the Open Frontier: The Democratization of Large Language Models</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU1JUJDJTgwJUU2JUJBJTkwJUU2JUE4JUExJUU1JTlFJThC'); return false;">开源模型</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExhTUE='); return false;">LLaMA</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWlzdHJhbA=='); return false;">Mistral</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UXdlbg=='); return false;">Qwen</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcFNlZWs='); return false;">DeepSeek</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch29-open-source-llm.html" class="no-external">
+<p>长期以来，最强大的语言模型一直是闭源的——GPT-4、Claude、Gemini的权重都不对外开放。研究者只能通过API窥见其能力，却无法复现、研究或改进。2023年2月，Meta发布LLaMA，打破了这一格局。从7B到65B参数，从LLaMA到Llama 3，从单一厂商到Mistral、Qwen、DeepSeek的多极化竞争——开源LLM不仅追上了闭源模型的性能，更构建了一个繁荣的研究与应用生态。本章将带你回顾这场’开源革命’的技术演进与生态变迁。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch29-open-source-llm.html" class="no-external">
+<div class="listing-date">
+Jan 28, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="18" data-categories="TkxQJTJDVGFza3MlMkNFdmFsdWF0aW9uJTJDQmVuY2htYXJrcw==" data-listing-date-sort="1769490000000" data-listing-file-modified-sort="1769560956866" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="994">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch02-nlp-task-landscape.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch02-nlp-task-landscape.html" class="no-external">第2章：NLP核心任务全景</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch02-nlp-task-landscape.html" class="no-external">先看清问题，再看模型如何解题</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VGFza3M='); return false;">Tasks</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RXZhbHVhdGlvbg=='); return false;">Evaluation</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmVuY2htYXJrcw=='); return false;">Benchmarks</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch02-nlp-task-landscape.html" class="no-external">
+<p>NLP核心任务的全景地图：从文本分类到机器翻译，从序列标注到问答系统。理解模型在解决什么问题，是理解模型演进的前提。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch02-nlp-task-landscape.html" class="no-external">
+<div class="listing-date">
+Jan 27, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="19" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDR1BUJTJDQkVSVCUyQ1Q1JTJDQkFSVA==" data-listing-date-sort="1769490000000" data-listing-file-modified-sort="1769665313048" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2038">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch16-gpt-vs-bert.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-16/original/fig-t5-architecture-variants.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch16-gpt-vs-bert.html" class="no-external">第16章：GPT vs BERT——两条路线的分化与融合</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch16-gpt-vs-bert.html" class="no-external">Encoder-only, Decoder-only, or Encoder-Decoder: The Great Architecture Debate</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1BU'); return false;">GPT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QkVSVA=='); return false;">BERT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VDU='); return false;">T5</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QkFSVA=='); return false;">BART</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch16-gpt-vs-bert.html" class="no-external">
+<p>BERT用双向注意力在理解任务上一骑绝尘，GPT用因果注意力在生成任务上独领风骚，T5和BART尝试用Encoder-Decoder统一两者。三种架构的差异本质上是Attention Mask的不同——全可见、因果三角、还是混合模式。但到2020年，一个令人意外的趋势正在形成：Decoder-only架构开始在几乎所有任务上追平甚至超越其他两种架构。这不是因为Decoder-only在架构上更优——T5的控制实验甚至表明Encoder-Decoder在同等条件下更强——而是因为自回归语言建模目标在规模化时展现出了压倒性的工程优势。从「预训练+微调」到「预训练+提示」的范式转变，彻底改写了我们对预训练架构的选择逻辑。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch16-gpt-vs-bert.html" class="no-external">
+<div class="listing-date">
+Jan 27, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="20" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDU2NhbGluZyUyMExhd3MlMkNHUFQtMiUyQ0NoaW5jaGlsbGE=" data-listing-date-sort="1769490000000" data-listing-file-modified-sort="1769683425680" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2269">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch17-scaling-laws.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-17/original/fig-kaplan-overview-loss-scaling.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch17-scaling-laws.html" class="no-external">第17章：规模的力量——Scaling Laws</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch17-scaling-laws.html" class="no-external">When Bigger Is Predictably Better: The Science of Scaling Neural Language Models</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2NhbGluZyUyMExhd3M='); return false;">Scaling Laws</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1BULTI='); return false;">GPT-2</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q2hpbmNoaWxsYQ=='); return false;">Chinchilla</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch17-scaling-laws.html" class="no-external">
+<p>上一章确立了Decoder-only作为大语言模型时代的主流架构，但留下了一个根本性的问题：规模究竟如何影响模型的能力？2019年GPT-2用四个规模的模型展示了’越大越好’的初步证据；2020年Kaplan等人发现损失函数与参数量、数据量、计算量之间遵循优雅的幂律关系，且应优先扩大模型而非数据；2022年Hoffmann等人的Chinchilla工作颠覆了这一结论——数据与参数应等比例扩展，此前的大模型几乎都训练不足。这些发现将大模型训练从炼金术变成了可预测的工程科学，也深刻重塑了整个行业的训练策略。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch17-scaling-laws.html" class="no-external">
+<div class="listing-date">
+Jan 27, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="21" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDTExNJTJDJUU4JUFFJUFEJUU3JUJCJTgzJUU3JUE4JUIzJUU1JUFFJTlBJUU2JTgwJUE3JTJDJUU0JUJDJTk4JUU1JThDJTk2JUU1JTk5JUE4JTJDJUU2JUI3JUI3JUU1JTkwJTg4JUU3JUIyJUJFJUU1JUJBJUE2" data-listing-date-sort="1769490000000" data-listing-file-modified-sort="1769503317144" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3783">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch18-training-stability.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-18/original/fig-mixed-precision-training-loop.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch18-training-stability.html" class="no-external">第18章：训练稳定性与数值工程</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch18-training-stability.html" class="no-external">Taming the Chaos: How to Train Billion-Parameter Models Without Blowing Up</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU4JUFFJUFEJUU3JUJCJTgzJUU3JUE4JUIzJUU1JUFFJTlBJUU2JTgwJUE3'); return false;">训练稳定性</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJTk4JUU1JThDJTk2JUU1JTk5JUE4'); return false;">优化器</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUI3JUU1JTkwJTg4JUU3JUIyJUJFJUU1JUJBJUE2'); return false;">混合精度</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch18-training-stability.html" class="no-external">
+<p>上一章Scaling Laws将大模型训练从炼金术变成了可预测的科学，但隐含了一个关键假设——训练能够正常完成。现实中，PaLM 540B训练出现约20次loss spike需要人工重启，OPT-175B的100页训练日志记录了35次重启和无数次手动干预。本章系统讲述大模型训练稳定性的工程艺术：从Adam到AdamW的权重衰减修正、从FP32到BF16的数值精度演进、从手动warmup到RAdam的自动化——每一步都是对具体痛点的回应。核心论文包括Adam (Kingma &amp; Ba, 2014)、AdamW (Loshchilov &amp; Hutter, 2017)、Mixed Precision Training (Micikevicius et al., 2017)、RAdam (Liu et al., 2019)、Adafactor (Shazeer &amp; Stern, 2018)、Lion (Chen et al., 2023)，以及PaLM和OPT的训练稳定性实战报告。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch18-training-stability.html" class="no-external">
+<div class="listing-date">
+Jan 27, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="22" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDRWZmaWNpZW50JTIwQXR0ZW50aW9uJTJDVHJhbnNmb3JtZXI=" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769492907859" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2579">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch09-efficient-attention.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/efficient-attention-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch09-efficient-attention.html" class="no-external">第9章：高效注意力——复杂度优化</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch09-efficient-attention.html" class="no-external">O(n²)的第一次反击</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RWZmaWNpZW50JTIwQXR0ZW50aW9u'); return false;">Efficient Attention</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmb3JtZXI='); return false;">Transformer</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch09-efficient-attention.html" class="no-external">
+<p>当Transformer遇上长序列：Sparse Attention、Linear Attention、Low-Rank三条路线如何挑战O(n²)的魔咒，以及为什么实践给出了出人意料的答案。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch09-efficient-attention.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="23" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDVHJhbnNmZXIlMjBMZWFybmluZw==" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769555803681" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1584">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch10-pretraining-origins.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/pretraining-origins-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch10-pretraining-origins.html" class="no-external">第10章：预训练思想的起源</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch10-pretraining-origins.html" class="no-external">从词向量到迁移学习：NLP如何借鉴CV的成功经验</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmZXIlMjBMZWFybmluZw=='); return false;">Transfer Learning</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch10-pretraining-origins.html" class="no-external">
+<p>预训练范式的思想起源：迁移学习的基本思想、Word2Vec作为预训练雏形、计算机视觉的ImageNet启示、以及从特征提取到模型微调的范式演进。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch10-pretraining-origins.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="24" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDRUxNbyUyQ0NvbnRleHR1YWwlMjBFbWJlZGRpbmdz" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769467323224" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2295">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch11-elmo.html" class="no-external">
+
+<img loading="lazy" src="./posts_ch/nlp/figures/chapter-11/elmo-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch11-elmo.html" class="no-external">第11章：上下文词向量——ELMo</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch11-elmo.html" class="no-external">从静态词典到动态阅读：让词的表示随语境而变</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RUxNbw=='); return false;">ELMo</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q29udGV4dHVhbCUyMEVtYmVkZGluZ3M='); return false;">Contextual Embeddings</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch11-elmo.html" class="no-external">
+<p>ELMo：第一个生成上下文相关词向量的预训练模型。通过深层双向LSTM语言模型，让同一个词在不同语境中拥有不同的向量表示，标志着从’词典式’到’阅读式’词向量的范式转变。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch11-elmo.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="25" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDR1BUJTJDVHJhbnNmb3JtZXI=" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769559791770" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3404">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch12-gpt.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-12/gpt-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch12-gpt.html" class="no-external">第12章：GPT——自回归预训练路线</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch12-gpt.html" class="no-external">Improving Language Understanding by Generative Pre-Training</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1BU'); return false;">GPT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmb3JtZXI='); return false;">Transformer</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch12-gpt.html" class="no-external">
+<p>GPT：第一个将Transformer用于大规模语言模型预训练的工作。通过自回归语言建模预训练Transformer Decoder，再在下游任务上微调全部参数，确立了’预训练+微调’的现代NLP范式。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch12-gpt.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="26" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDQkVSVCUyQ1RyYW5zZm9ybWVy" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769555807278" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2799">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch13-bert.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-13/original/fig1-pretraining-finetuning.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch13-bert.html" class="no-external">第13章：BERT——双向预训练路线</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch13-bert.html" class="no-external">Pre-Training of Deep Bidirectional Transformers for Language Understanding</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QkVSVA=='); return false;">BERT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmb3JtZXI='); return false;">Transformer</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch13-bert.html" class="no-external">
+<p>BERT：用掩码语言模型（MLM）实现真正的双向预训练。通过随机遮蔽输入token并让模型根据完整的左右上下文来预测被遮蔽的词，BERT在11个NLP基准任务上全面超越了GPT和ELMo，开启了预训练模型的’BERT时代’。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch13-bert.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="27" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDWExOZXQlMkNFTEVDVFJBJTJDVDU=" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769482729702" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2371">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch14-pretraining-objectives.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-14/original/fig-t5-text-to-text.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch14-pretraining-objectives.html" class="no-external">第14章：预训练目标的演进</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch14-pretraining-objectives.html" class="no-external">Beyond MLM: Permutation, Discrimination, Span Corruption, and Contrastive Learning</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('WExOZXQ='); return false;">XLNet</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RUxFQ1RSQQ=='); return false;">ELECTRA</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VDU='); return false;">T5</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch14-pretraining-objectives.html" class="no-external">
+<p>BERT的MLM开创了双向预训练的先河，但它的15%信号效率、[MASK]标记的预训练-微调不一致、以及无法生成文本的局限性，催生了一系列创新的预训练目标：XLNet的排列语言建模、ELECTRA的替换词检测、T5的Span Corruption、以及对比学习在句子表示中的应用。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch14-pretraining-objectives.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="28" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDUHJlLXRyYWluaW5nJTJDUm9CRVJUYSUyQ0FMQkVSVCUyQ0Rpc3RpbEJFUlQ=" data-listing-date-sort="1769403600000" data-listing-file-modified-sort="1769493197759" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2318">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch15-engineering-optimization.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-15/original/fig2-distilbert-model-sizes.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch15-engineering-optimization.html" class="no-external">第15章：预训练模型的工程优化</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch15-engineering-optimization.html" class="no-external">RoBERTa, ALBERT, and DistilBERT: Training Better, Sharing Smarter, Distilling Smaller</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UHJlLXRyYWluaW5n'); return false;">Pre-training</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Um9CRVJUYQ=='); return false;">RoBERTa</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QUxCRVJU'); return false;">ALBERT</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGlzdGlsQkVSVA=='); return false;">DistilBERT</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch15-engineering-optimization.html" class="no-external">
+<p>BERT的潜力被训练策略所限制了吗？RoBERTa通过’训练更好’——更多数据、更大batch、去掉NSP——不改一行架构就超越了XLNet。ALBERT通过嵌入分解和跨层参数共享将参数量压缩到BERT的1/9。DistilBERT通过知识蒸馏将模型缩小40%、加速60%，同时保留97%的性能。三条路线共同揭示：模型的潜力往往被工程因素所限制，而非架构或目标本身。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch15-engineering-optimization.html" class="no-external">
+<div class="listing-date">
+Jan 26, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="29" data-categories="TkxQJTJDV29yZDJWZWMlMkNHbG9WZSUyQ0Zhc3RUZXh0JTJDUmVwcmVzZW50YXRpb24lMjBMZWFybmluZw==" data-listing-date-sort="1769317200000" data-listing-file-modified-sort="1769561218917" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2108">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch03-representation-learning.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-3/fig3-cbow-vs-skipgram.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch03-representation-learning.html" class="no-external">第3章：表示学习的觉醒</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch03-representation-learning.html" class="no-external">从离散符号到分布式语义</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('V29yZDJWZWM='); return false;">Word2Vec</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R2xvVmU='); return false;">GloVe</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RmFzdFRleHQ='); return false;">FastText</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVwcmVzZW50YXRpb24lMjBMZWFybmluZw=='); return false;">Representation Learning</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch03-representation-learning.html" class="no-external">
+<p>从离散符号到分布式语义：Word2Vec、GloVe、FastText如何让机器理解词义，以及静态词向量的根本局限。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch03-representation-learning.html" class="no-external">
+<div class="listing-date">
+Jan 25, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="30" data-categories="TkxQJTJDVG9rZW5pemF0aW9uJTJDQlBFJTJDV29yZFBpZWNlJTJDU2VudGVuY2VQaWVjZSUyQ0RhdGE=" data-listing-date-sort="1769317200000" data-listing-file-modified-sort="1769555780093" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2469">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch04-tokenization.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-4/fig-bpe-merge-process.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch04-tokenization.html" class="no-external">第4章：Tokenization与数据基础</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch04-tokenization.html" class="no-external">被低估的基础设施：从文本到模型输入的艺术</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VG9rZW5pemF0aW9u'); return false;">Tokenization</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QlBF'); return false;">BPE</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('V29yZFBpZWNl'); return false;">WordPiece</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2VudGVuY2VQaWVjZQ=='); return false;">SentencePiece</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGF0YQ=='); return false;">Data</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch04-tokenization.html" class="no-external">
+<p>Tokenizer不是预处理工具，它是模型架构的隐藏维度：从词级别到子词方法的演进，以及分词策略对模型能力的深远影响。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch04-tokenization.html" class="no-external">
+<div class="listing-date">
+Jan 25, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="31" data-categories="TkxQJTJDUk5OJTJDTFNUTSUyQ0dSVSUyQ1NlcTJTZXElMkMlRTUlQkElOEYlRTUlODglOTclRTUlQkIlQkElRTYlQTglQTE=" data-listing-date-sort="1769317200000" data-listing-file-modified-sort="1769555781663" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2035">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch05-rnn-lstm.html" class="no-external">
+
+<p class="card-img-top"><img data-src="posts_ch\nlp\figures\chapter-5\original\fig-rnn-unrolled-colah.png"  class="thumbnail-image card-img"/></p>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch05-rnn-lstm.html" class="no-external">第5章：循环神经网络时代</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch05-rnn-lstm.html" class="no-external">当神经网络学会记忆：从RNN到Seq2Seq的序列建模之路</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Uk5O'); return false;">RNN</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TFNUTQ=='); return false;">LSTM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R1JV'); return false;">GRU</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2VxMlNlcQ=='); return false;">Seq2Seq</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU1JUJBJThGJUU1JTg4JTk3JUU1JUJCJUJBJUU2JUE4JUEx'); return false;">序列建模</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch05-rnn-lstm.html" class="no-external">
+<p>序列建模的第一个黄金时代：RNN如何学会记忆，LSTM/GRU如何解决梯度消失，以及Seq2Seq架构的信息瓶颈问题。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch05-rnn-lstm.html" class="no-external">
+<div class="listing-date">
+Jan 25, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="32" data-categories="TkxQJTJDQXR0ZW50aW9uJTJDU2VxMlNlcSUyQyVFNiU5QyVCQSVFNSU5OSVBOCVFNyVCRiVCQiVFOCVBRiU5MSUyQ0JhaGRhbmF1JTJDTHVvbmc=" data-listing-date-sort="1769317200000" data-listing-file-modified-sort="1769555570560" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24" data-listing-word-count-sort="4789">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch06-attention-mechanism.html" class="no-external">
+
+<p class="card-img-top"><img data-src="posts_ch\nlp\figures\chapter-6\original\fig-bahdanau-attention-d2l.svg"  class="thumbnail-image card-img"/></p>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch06-attention-mechanism.html" class="no-external">第6章：注意力机制的诞生与演进</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch06-attention-mechanism.html" class="no-external">从信息瓶颈到动态聚焦：Bahdanau加性注意力、Luong乘性注意力，以及注意力设计空间的系统探索</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QXR0ZW50aW9u'); return false;">Attention</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2VxMlNlcQ=='); return false;">Seq2Seq</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JTlDJUJBJUU1JTk5JUE4JUU3JUJGJUJCJUU4JUFGJTkx'); return false;">机器翻译</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QmFoZGFuYXU='); return false;">Bahdanau</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('THVvbmc='); return false;">Luong</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch06-attention-mechanism.html" class="no-external">
+<p>注意力机制的完整故事：从Bahdanau打破Seq2Seq信息瓶颈，到Luong的系统性探索（加性vs乘性、全局vs局部、软vs硬），再到注意力独立于RNN的前奏。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch06-attention-mechanism.html" class="no-external">
+<div class="listing-date">
+Jan 25, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="33" data-categories="TkxQJTJDQXR0ZW50aW9uJTJDU2VsZi1BdHRlbnRpb24lMkNNZW1vcnklMjBOZXR3b3JrcyUyQyVFNCVCRCU4RCVFNyVCRCVBRSVFNyVCQyU5NiVFNyVBMCU4MQ==" data-listing-date-sort="1769317200000" data-listing-file-modified-sort="1769419143595" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2641">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch07-self-attention.html" class="no-external">
+
+<p class="card-img-top"><img data-src="posts_ch\nlp\figures\chapter-7\original\fig-memory-network.png"  class="thumbnail-image card-img"/></p>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch07-self-attention.html" class="no-external">第7章：Self-Attention的突破</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch07-self-attention.html" class="no-external">当序列开始审视自己</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QXR0ZW50aW9u'); return false;">Attention</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2VsZi1BdHRlbnRpb24='); return false;">Self-Attention</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWVtb3J5JTIwTmV0d29ya3M='); return false;">Memory Networks</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJEJThEJUU3JUJEJUFFJUU3JUJDJTk2JUU3JUEwJTgx'); return false;">位置编码</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch07-self-attention.html" class="no-external">
+<p>从跨序列注意力到自注意力：序列如何审视自己，Q-K-V框架的建立，以及位置信息缺失的挑战与解决方案。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch07-self-attention.html" class="no-external">
+<div class="listing-date">
+Jan 25, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="34" data-categories="TkxQJTJDUmVzZWFyY2glMjBNZXRob2RzJTJDUGhEJTIwR3VpZGU=" data-listing-date-sort="1769144400000" data-listing-file-modified-sort="1769555776964" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="372">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch00-how-to-read-nlp-research.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-0/research-guide-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch00-how-to-read-nlp-research.html" class="no-external">第0章：如何阅读NLP研究</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch00-how-to-read-nlp-research.html" class="no-external">写给即将开始NLP研究的你</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVzZWFyY2glMjBNZXRob2Rz'); return false;">Research Methods</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UGhEJTIwR3VpZGU='); return false;">PhD Guide</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch00-how-to-read-nlp-research.html" class="no-external">
+<strong>写给谁</strong>：即将开始NLP研究的研究生、博士生，以及任何想深入理解而非仅仅”使用”这个领域的人
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch00-how-to-read-nlp-research.html" class="no-external">
+<div class="listing-date">
+Jan 23, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="35" data-categories="TkxQJTJDSGlzdG9yeSUyQ04tZ3JhbSUyQ0hNTSUyQ0NSRiUyQ0ZlYXR1cmUlMjBFbmdpbmVlcmluZw==" data-listing-date-sort="1769144400000" data-listing-file-modified-sort="1769561214057" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2396">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch01-early-explorations.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/chapter-1/early-nlp-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch01-early-explorations.html" class="no-external">第1章：语言理解的早期探索</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch01-early-explorations.html" class="no-external">从符号到统计的范式转变</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SGlzdG9yeQ=='); return false;">History</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Ti1ncmFt'); return false;">N-gram</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SE1N'); return false;">HMM</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q1JG'); return false;">CRF</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RmVhdHVyZSUyMEVuZ2luZWVyaW5n'); return false;">Feature Engineering</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch01-early-explorations.html" class="no-external">
+<p>前深度学习时代的NLP技术演进：从规则系统到统计学习，从N-gram到CRF，以及为什么特征工程成为了整个领域的天花板。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch01-early-explorations.html" class="no-external">
+<div class="listing-date">
+Jan 23, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="36" data-categories="TkxQJTJDRGVlcCUyMExlYXJuaW5nJTJDVHJhbnNmb3JtZXIlMkNBdHRlbnRpb24=" data-listing-date-sort="1769058000000" data-listing-file-modified-sort="1769555783356" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3840">
+<div class="thumbnail"><a href="./posts_ch/nlp/ch08-transformer.html" class="no-external">
+
+<img loading="lazy" data-src="./posts_ch/nlp/figures/transformer-banner.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/nlp/ch08-transformer.html" class="no-external">第8章：Transformer——注意力即一切</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/nlp/ch08-transformer.html" class="no-external">Attention Is All You Need</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmb3JtZXI='); return false;">Transformer</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QXR0ZW50aW9u'); return false;">Attention</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/nlp/ch08-transformer.html" class="no-external">
+<p>Attention Is All You Need：Transformer如何用纯注意力替代循环结构，Multi-Head、FFN、残差连接的设计智慧，以及这个架构为何改变了一切。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/nlp/ch08-transformer.html" class="no-external">
+<div class="listing-date">
+Jan 22, 2026
+</div>
+<div class="listing-author">
+Ying Zha
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="37" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1767416400000" data-listing-file-modified-sort="1767969016063" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2633">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch34-overview-conclusion.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch34-overview-conclusion.html" class="no-external">【第34章】估值方法选择：如何为不同资产匹配正确的模型</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch34-overview-conclusion.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch34-overview-conclusion.html" class="no-external">
+<p>估值的难题不是没有足够的模型，而是模型太多。本章整合全书 33 章内容，提供一个完整的决策框架：如何根据资产特征、分析师目的和市场信念，选择最适合的估值方法。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch34-overview-conclusion.html" class="no-external">
+<div class="listing-date">
+Jan 3, 2026
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="38" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1767330000000" data-listing-file-modified-sort="1767962863915" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1645">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch33-probabilistic-valuation.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch33-probabilistic-valuation.html" class="no-external">【第33章】概率估值方法：情景分析、决策树与蒙特卡洛模拟</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch33-probabilistic-valuation.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch33-probabilistic-valuation.html" class="no-external">
+<p>传统DCF只给出一个点估计值，但风险资产的价值可能有数百种结果。本章探讨三种概率方法——情景分析、决策树和蒙特卡洛模拟——如何帮助我们理解价值的完整分布，以及如何避免风险的双重计数陷阱。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch33-probabilistic-valuation.html" class="no-external">
+<div class="listing-date">
+Jan 2, 2026
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="39" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1767243600000" data-listing-file-modified-sort="1767955705173" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2560">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch32-eva-cfroi.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch32-eva-cfroi.html" class="no-external">【第32章】价值衡量工具：EVA、CFROI与DCF的桥梁</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch32-eva-cfroi.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch32-eva-cfroi.html" class="no-external">
+<p>DCF模型虽然全面，但过于复杂且易被操纵。本章探讨两种替代的价值衡量机制——经济增加值(EVA)和现金流投资回报率(CFROI)，分析它们与DCF的数学等价性，以及管理者可能利用的三种’游戏’来提升指标却损害价值。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch32-eva-cfroi.html" class="no-external">
+<div class="listing-date">
+Jan 1, 2026
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="40" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1767157200000" data-listing-file-modified-sort="1767953173331" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1149">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch31-value-enhancement.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch31-value-enhancement.html" class="no-external">【第31章】价值提升：从被动估值到主动创造</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch31-value-enhancement.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch31-value-enhancement.html" class="no-external">
+<p>如何用DCF框架指导企业管理决策？本章将估值工具转化为价值创造的行动指南，探讨增加现金流、提升增长、延长竞争优势期、降低资本成本的四条路径。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch31-value-enhancement.html" class="no-external">
+<div class="listing-date">
+Dec 31, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="41" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1767070800000" data-listing-file-modified-sort="1767950254961" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1600">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch30-distressed-equity.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch30-distressed-equity.html" class="no-external">【第30章】困境公司股权估值：当负净值遇见期权思维</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch30-distressed-equity.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch30-distressed-equity.html" class="no-external">
+<p>DCF告诉你股权一文不值，但市场却给出正价格——这不是市场疯狂，而是你的估值框架需要升级。本章将股权重构为看涨期权，揭示困境公司股权价值的真正来源：有限责任 + 时间价值 + 波动性。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch30-distressed-equity.html" class="no-external">
+<div class="listing-date">
+Dec 30, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="42" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766984400000" data-listing-file-modified-sort="1767947008603" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3091">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch29-expand-abandon-options.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch29-expand-abandon-options.html" class="no-external">【第29章】扩张与放弃期权：战略灵活性的价值</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch29-expand-abandon-options.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch29-expand-abandon-options.html" class="no-external">
+<p>为什么有些公司愿意投资 NPV 为负的项目？本章深入解析扩张期权、放弃期权、财务灵活性期权的估值方法，涵盖 Ambev 市场扩张、Secure Mail 软件公司、Home Depot 财务灵活性、Airbus 联合开发等核心案例。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch29-expand-abandon-options.html" class="no-external">
+<div class="listing-date">
+Dec 29, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="43" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766898000000" data-listing-file-modified-sort="1767944916906" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2385">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch28-option-to-delay.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch28-option-to-delay.html" class="no-external">【第28章】延迟期权：当「等一等」比「现在做」更值钱</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch28-option-to-delay.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch28-option-to-delay.html" class="no-external">
+<p>为什么 NPV 为负的项目可能仍然有价值？本章将金融期权的框架映射到实物资产，系统解析延迟期权的估值方法，涵盖专利估值（Avonex/Biogen）、自然资源储量（Gulf Oil）、空置土地等核心应用。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch28-option-to-delay.html" class="no-external">
+<div class="listing-date">
+Dec 28, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="44" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766811600000" data-listing-file-modified-sort="1767942217834" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="856">
+<div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch27-valuing-other-assets.html" class="no-external">
+
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts_ch/valuation/damodaran-ch27-valuing-other-assets.html" class="no-external">【第27章】其他资产估值：当现金流消失时，我们还能估值吗？</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch27-valuing-other-assets.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU2JThBJTk1JUU4JUI1JTg0'); return false;">投资</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
+
+</div>
+<div class="delink listing-description"><a href="./posts_ch/valuation/damodaran-ch27-valuing-other-assets.html" class="no-external">
+<p>从纽约出租车牌照到星球大战特许权，从梵高画作到比特币，从体育球队到 NFT——探索传统 DCF 框架之外的估值边界。</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts_ch/valuation/damodaran-ch27-valuing-other-assets.html" class="no-external">
+<div class="listing-date">
+Dec 27, 2025
+</div>
+<div class="listing-author">
+Ying
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="45" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766725200000" data-listing-file-modified-sort="1767876445354" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1352">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch26-valuing-real-estate.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -488,6 +2303,9 @@ Jan 8, 2026
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch26-valuing-real-estate.html" class="no-external">【第26章】房地产估值：当估值遇见实物资产</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch26-valuing-real-estate.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -512,7 +2330,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766638800000" data-listing-file-modified-sort="1767873811512" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1701">
+<div class="quarto-post image-right" data-index="46" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766638800000" data-listing-file-modified-sort="1767873811512" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1701">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch25-acquisitions-takeovers.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -522,6 +2340,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch25-acquisitions-takeovers.html" class="no-external">【第25章】并购估值：协同效应、控制权与价值创造</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch25-acquisitions-takeovers.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -546,7 +2367,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766552400000" data-listing-file-modified-sort="1767870433001" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2114">
+<div class="quarto-post image-right" data-index="47" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766552400000" data-listing-file-modified-sort="1767870433001" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2114">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch24-valuing-private-firms.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -556,6 +2377,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch24-valuing-private-firms.html" class="no-external">【第24章】私有公司估值：当买家决定价值</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch24-valuing-private-firms.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -580,7 +2404,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766466000000" data-listing-file-modified-sort="1767868271880" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2245">
+<div class="quarto-post image-right" data-index="48" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766466000000" data-listing-file-modified-sort="1767868271880" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2245">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch23-valuing-young-startups.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -590,6 +2414,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch23-valuing-young-startups.html" class="no-external">【第23章】初创公司估值：在不确定性中寻找价值</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch23-valuing-young-startups.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -614,7 +2441,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766379600000" data-listing-file-modified-sort="1767860948293" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2135">
+<div class="quarto-post image-right" data-index="49" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766379600000" data-listing-file-modified-sort="1767860948293" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2135">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch22-valuing-money-losing-firms.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -624,6 +2451,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch22-valuing-money-losing-firms.html" class="no-external">【第22章】亏损公司估值：当传统 DCF 失效时</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch22-valuing-money-losing-firms.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -648,7 +2478,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766293200000" data-listing-file-modified-sort="1767754199121" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2125">
+<div class="quarto-post image-right" data-index="50" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766293200000" data-listing-file-modified-sort="1767754199121" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2125">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch21-financial-services.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -658,6 +2488,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch21-financial-services.html" class="no-external">【第21章】金融服务公司估值：当债务变成原材料</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch21-financial-services.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -682,7 +2515,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766206800000" data-listing-file-modified-sort="1767751385580" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3466">
+<div class="quarto-post image-right" data-index="51" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766206800000" data-listing-file-modified-sort="1767751385580" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="18" data-listing-word-count-sort="3466">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch20-revenue-multiples.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -692,6 +2525,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch20-revenue-multiples.html" class="no-external">【第20章】营收倍数与行业特定倍数：当盈利为负时如何估值？</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch20-revenue-multiples.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -716,7 +2552,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766120400000" data-listing-file-modified-sort="1767700653347" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2019">
+<div class="quarto-post image-right" data-index="52" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766120400000" data-listing-file-modified-sort="1767700653347" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2019">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -726,6 +2562,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external">【第19章】账面价值倍数：从 PBV 到 Tobin’s Q 的价值发现</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch19-book-value-multiples.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -750,7 +2589,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766034000000" data-listing-file-modified-sort="1767825540256" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3795">
+<div class="quarto-post image-right" data-index="53" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1766034000000" data-listing-file-modified-sort="1767825540256" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3795">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -760,6 +2599,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external">【第18章】盈利倍数：从 PE 到 EV/EBITDA 的估值艺术</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch18-earnings-multiples.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -784,7 +2626,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765947600000" data-listing-file-modified-sort="1767342861062" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="742">
+<div class="quarto-post image-right" data-index="54" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765947600000" data-listing-file-modified-sort="1767342861062" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="742">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -794,6 +2636,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external">【第17章】相对估值的基本原理：倍数的正确使用方法</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch17-relative-valuation-principles.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -818,7 +2663,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="11" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765861200000" data-listing-file-modified-sort="1767257298624" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="981">
+<div class="quarto-post image-right" data-index="55" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765861200000" data-listing-file-modified-sort="1767257298624" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="981">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -828,6 +2673,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external">【第16章】从股权价值到每股价值：估值的最后一公里</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch16-equity-to-per-share.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -852,7 +2700,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="12" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765774800000" data-listing-file-modified-sort="1767837462864" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3031">
+<div class="quarto-post image-right" data-index="56" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765774800000" data-listing-file-modified-sort="1767837462864" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3031">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -862,6 +2710,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external">【第15章】企业估值：资本成本法与调整现值法</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch15-fcfe-fcff-models.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -886,7 +2737,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="13" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765688400000" data-listing-file-modified-sort="1767859543211" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3947">
+<div class="quarto-post image-right" data-index="57" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765688400000" data-listing-file-modified-sort="1767859543211" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3947">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -896,6 +2747,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external">【第14章】股权内在价值模型：从股息到自由现金流</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch14-dividend-discount-models.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -920,7 +2774,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="14" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765602000000" data-listing-file-modified-sort="1767844559859" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="53" data-listing-word-count-sort="10474">
+<div class="quarto-post image-right" data-index="58" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765602000000" data-listing-file-modified-sort="1767844559859" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="53" data-listing-word-count-sort="10474">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -930,6 +2784,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external">【第13章】叙事与数字：让估值讲述一个连贯的故事</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch13-narrative-numbers.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -954,7 +2811,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="15" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765515600000" data-listing-file-modified-sort="1767238745231" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="696">
+<div class="quarto-post image-right" data-index="59" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765515600000" data-listing-file-modified-sort="1767238745231" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="696">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -964,6 +2821,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external">【第12章】终值：DCF估值中最重要却最容易出错的环节</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch12-terminal-value.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -988,7 +2848,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="16" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765429200000" data-listing-file-modified-sort="1767834402681" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2618">
+<div class="quarto-post image-right" data-index="60" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765429200000" data-listing-file-modified-sort="1767834402681" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2618">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch11-estimating-growth.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -998,6 +2858,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch11-estimating-growth.html" class="no-external">【第11章】增长率估计：DCF估值的核心驱动力</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch11-estimating-growth.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1022,7 +2885,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="17" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765342800000" data-listing-file-modified-sort="1767096042955" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
+<div class="quarto-post image-right" data-index="61" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1765342800000" data-listing-file-modified-sort="1767096042955" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1003">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch10-earnings-to-cashflows.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1032,6 +2895,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch10-earnings-to-cashflows.html" class="no-external">【第10章】从盈利到现金流：估值中最关键的转换</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch10-earnings-to-cashflows.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1056,16 +2922,19 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="18" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU3JTlCJTg4JUU1JTg4JUE5JTJDUiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTYlMkMlRTclQkIlOEYlRTglOTAlQTUlRTclQTclOUYlRTglQjUlODElMkMlRTQlQkMlOUElRTglQUUlQTElRTglQjAlODMlRTYlOTUlQjQ=" data-listing-date-sort="1765256400000" data-listing-file-modified-sort="1767096041703" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="812">
+<div class="quarto-post image-right" data-index="62" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU3JTlCJTg4JUU1JTg4JUE5JTJDUiUyNkQlRTglQjUlODQlRTYlOUMlQUMlRTUlOEMlOTYlMkMlRTclQkIlOEYlRTglOTAlQTUlRTclQTclOUYlRTglQjUlODElMkMlRTQlQkMlOUElRTglQUUlQTElRTglQjAlODMlRTYlOTUlQjQ=" data-listing-date-sort="1765256400000" data-listing-file-modified-sort="1767096041703" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="812">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch9-measuring-earnings.html" class="no-external">
 
-<img loading="lazy" src="./posts_ch/valuation/images/ch9-measuring-earnings.png" class="thumbnail-image">
+<img loading="lazy" data-src="./posts_ch/valuation/images/ch9-measuring-earnings.png" class="thumbnail-image">
 
 </a></div>
 <div class="body">
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch9-measuring-earnings.html" class="no-external">【第9章】衡量盈利：从会计数字到真实盈利能力</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch9-measuring-earnings.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
@@ -1094,16 +2963,19 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="19" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDQmV0YSUyQyVFOCVCNSU4NCVFNiU5QyVBQyVFNiU4OCU5MCVFNiU5QyVBQyUyQ1dBQ0MlMkMlRTUlODAlQkElRTUlOEElQTElRTYlODglOTAlRTYlOUMlQUM=" data-listing-date-sort="1765170000000" data-listing-file-modified-sort="1767846644662" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1531">
+<div class="quarto-post image-right" data-index="63" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDQmV0YSUyQyVFOCVCNSU4NCVFNiU5QyVBQyVFNiU4OCU5MCVFNiU5QyVBQyUyQ1dBQ0MlMkMlRTUlODAlQkElRTUlOEElQTElRTYlODglOTAlRTYlOUMlQUM=" data-listing-date-sort="1765170000000" data-listing-file-modified-sort="1767846644662" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1531">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch8-risk-parameters-cost-of-capital.html" class="no-external">
 
-<img loading="lazy" src="./posts_ch/valuation/images/ch8-cost-of-capital.png" class="thumbnail-image">
+<img loading="lazy" data-src="./posts_ch/valuation/images/ch8-cost-of-capital.png" class="thumbnail-image">
 
 </a></div>
 <div class="body">
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch8-risk-parameters-cost-of-capital.html" class="no-external">【第8章】估算风险参数与融资成本：从Beta到WACC</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch8-risk-parameters-cost-of-capital.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
@@ -1132,16 +3004,19 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="20" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU5JUEzJThFJUU5JTk5JUE5JTJDJUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3JTJDJUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3" data-listing-date-sort="1765083600000" data-listing-file-modified-sort="1767096039588" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="516">
+<div class="quarto-post image-right" data-index="64" data-categories="JUU0JUJDJUIwJUU1JTgwJUJDJTJDJUU5JUEzJThFJUU5JTk5JUE5JTJDJUU2JTk3JUEwJUU5JUEzJThFJUU5JTk5JUE5JUU1JTg4JUE5JUU3JThFJTg3JTJDJUU4JTgyJUExJUU2JTlEJTgzJUU5JUEzJThFJUU5JTk5JUE5JUU2JUJBJUEyJUU0JUJCJUI3" data-listing-date-sort="1765083600000" data-listing-file-modified-sort="1767096039588" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="516">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch7-riskless-rates-erp.html" class="no-external">
 
-<img loading="lazy" src="./posts_ch/valuation/images/ch7-risk-premiums.png" class="thumbnail-image">
+<img loading="lazy" data-src="./posts_ch/valuation/images/ch7-risk-premiums.png" class="thumbnail-image">
 
 </a></div>
 <div class="body">
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch7-riskless-rates-erp.html" class="no-external">【第7章】无风险利率与风险溢价：估值中最关键的输入参数</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch7-riskless-rates-erp.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU0JUJDJUIwJUU1JTgwJUJD'); return false;">估值</div>
@@ -1168,7 +3043,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="21" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764997200000" data-listing-file-modified-sort="1767096011348" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="395">
+<div class="quarto-post image-right" data-index="65" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764997200000" data-listing-file-modified-sort="1767096011348" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="395">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch6-market-efficiency.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1178,6 +3053,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch6-market-efficiency.html" class="no-external">【第6章】市场有效性：定义、检验与证据</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch6-market-efficiency.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1202,7 +3080,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="22" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764910800000" data-listing-file-modified-sort="1767855562042" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2020">
+<div class="quarto-post image-right" data-index="66" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764910800000" data-listing-file-modified-sort="1767855562042" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2020">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch5-option-pricing.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1212,6 +3090,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch5-option-pricing.html" class="no-external">【第5章】期权定价理论与模型：从直觉到 Black-Scholes</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch5-option-pricing.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1236,7 +3117,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="23" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764824400000" data-listing-file-modified-sort="1767096009227" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
+<div class="quarto-post image-right" data-index="67" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764824400000" data-listing-file-modified-sort="1767096009227" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="748">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch4-risk-basics.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1246,6 +3127,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch4-risk-basics.html" class="no-external">【第4章】风险的本质：从方差到 Beta 的思维跃迁</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch4-risk-basics.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1270,7 +3154,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="24" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764738000000" data-listing-file-modified-sort="1767096008180" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="993">
+<div class="quarto-post image-right" data-index="68" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764738000000" data-listing-file-modified-sort="1767096008180" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="993">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch3-financial-statements.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1280,6 +3164,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch3-financial-statements.html" class="no-external">【第3章】读懂财务报表：估值分析师的视角</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch3-financial-statements.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1304,7 +3191,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="25" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764651600000" data-listing-file-modified-sort="1767415297560" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1042">
+<div class="quarto-post image-right" data-index="69" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764651600000" data-listing-file-modified-sort="1767415297560" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1042">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch2-valuation-approaches.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1314,6 +3201,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch2-valuation-approaches.html" class="no-external">【第2章】估值方法论：DCF、相对估值与实物期权</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch2-valuation-approaches.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1338,7 +3228,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="26" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764565200000" data-listing-file-modified-sort="1767096006257" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
+<div class="quarto-post image-right" data-index="70" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764565200000" data-listing-file-modified-sort="1767096006257" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch1-valuation-intro.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1348,6 +3238,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch1-valuation-intro.html" class="no-external">【第1章】估值导论：从哲学基础到实践应用</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch1-valuation-intro.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1372,7 +3265,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="27" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764478800000" data-listing-file-modified-sort="1767702028666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="80" data-listing-word-count-sort="15830">
+<div class="quarto-post image-right" data-index="71" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1764478800000" data-listing-file-modified-sort="1767702028666" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="80" data-listing-word-count-sort="15830">
 <div class="thumbnail"><a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1382,6 +3275,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external">【导读】Damodaran 估值体系全景：从哲学到实践的完整地图</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/damodaran-ch0-overview.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>
@@ -1406,7 +3302,7 @@ Ying
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="28" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE" data-listing-date-sort="1764133200000" data-listing-file-modified-sort="1764201897664" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="885">
+<div class="quarto-post image-right" data-index="72" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JTlDJUJBJUU1JTk5JUE4JUU0JUJBJUJBJTJDJUU1JUE0JTlBJUU2JUE4JUExJUU2JTgwJTgxJTJDJUU1JTg1JUI3JUU4JUJBJUFCJUU2JTk5JUJBJUU4JTgzJUJE" data-listing-date-sort="1764133200000" data-listing-file-modified-sort="1764201897664" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="885">
 <div class="thumbnail"><a href="./posts_ch/vla_claude.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1416,6 +3312,9 @@ Ying
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/vla_claude.html" class="no-external">Vision-Language-Action 模型：让机器人理解世界并行动</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/vla_claude.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
@@ -1439,7 +3338,7 @@ Nov 26, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="29" data-categories="ZGVlcC1sZWFybmluZyUyQ2dlbmVyYXRpdmUtbW9kZWxzJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175331" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="255">
+<div class="quarto-post image-right" data-index="73" data-categories="ZGVlcC1sZWFybmluZyUyQ2dlbmVyYXRpdmUtbW9kZWxzJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175331" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="255">
 <div class="thumbnail"><a href="./posts_en/diffusion-models-intro.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1449,6 +3348,9 @@ Nov 26, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/diffusion-models-intro.html" class="no-external">Introduction to Diffusion Models</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_en/diffusion-models-intro.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('ZGVlcC1sZWFybmluZw=='); return false;">deep-learning</div>
@@ -1470,7 +3372,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="30" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175333" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
+<div class="quarto-post image-right" data-index="74" data-categories="b3B0aW1pemF0aW9uJTJDbWF0aA==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175333" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="226">
 <div class="thumbnail"><a href="./posts_en/optimization-notes.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1480,6 +3382,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/optimization-notes.html" class="no-external">Optimization Notes — Gradient Descent and Convexity</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_en/optimization-notes.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('b3B0aW1pemF0aW9u'); return false;">optimization</div>
@@ -1499,7 +3404,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="31" data-categories="ZGVlcC1sZWFybmluZyUyQ25scCUyQ3RyYW5zZm9ybWVycw==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175333" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="228">
+<div class="quarto-post image-right" data-index="75" data-categories="ZGVlcC1sZWFybmluZyUyQ25scCUyQ3RyYW5zZm9ybWVycw==" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175333" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="228">
 <div class="thumbnail"><a href="./posts_en/transformer-architecture.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1509,6 +3414,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/transformer-architecture.html" class="no-external">Transformer Architecture — Self-Attention and Beyond</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_en/transformer-architecture.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('ZGVlcC1sZWFybmluZw=='); return false;">deep-learning</div>
@@ -1530,7 +3438,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="32" data-categories="ZGVtbyUyQ3R1dG9yaWFsJTJDY24=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="24">
+<div class="quarto-post image-right" data-index="76" data-categories="ZGVtbyUyQ3R1dG9yaWFsJTJDY24=" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="24">
 <div class="thumbnail"><a href="./posts_ch/你好-开始使用.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1540,6 +3448,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/你好-开始使用.html" class="no-external">你好，开始使用 Quarto</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/你好-开始使用.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('ZGVtbw=='); return false;">demo</div>
@@ -1561,7 +3472,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="33" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="166">
+<div class="quarto-post image-right" data-index="77" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JUE2JTgyJUU3JThFJTg3JUU2JUE4JUExJUU1JTlFJThC" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175329" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="166">
 <div class="thumbnail"><a href="./posts_ch/变分自编码器.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1571,6 +3482,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/变分自编码器.html" class="no-external">变分自编码器 (VAE) 简介</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/变分自编码器.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
@@ -1592,7 +3506,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="34" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JTk1JUIwJUU1JUFEJUE2" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175330" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="120">
+<div class="quarto-post image-right" data-index="78" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU3JTk0JTlGJUU2JTg4JTkwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU2JTk1JUIwJUU1JUFEJUE2" data-listing-date-sort="1763010000000" data-listing-file-modified-sort="1763193175330" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="120">
 <div class="thumbnail"><a href="./posts_ch/扩散模型简介.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1602,6 +3516,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/扩散模型简介.html" class="no-external">扩散模型简介</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/扩散模型简介.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
@@ -1623,7 +3540,7 @@ Nov 13, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="35" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762923600000" data-listing-file-modified-sort="1763193175332" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
+<div class="quarto-post image-right" data-index="79" data-categories="ZGVtbyUyQ21hdGglMkNjb2Rl" data-listing-date-sort="1762923600000" data-listing-file-modified-sort="1763193175332" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="257">
 <div class="thumbnail"><a href="./posts_en/math-and-code-demo.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1633,6 +3550,9 @@ Nov 13, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/math-and-code-demo.html" class="no-external">Math and Code Demo</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_en/math-and-code-demo.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('ZGVtbw=='); return false;">demo</div>
@@ -1654,7 +3574,7 @@ Nov 12, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="36" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762837200000" data-listing-file-modified-sort="1763193175332" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
+<div class="quarto-post image-right" data-index="80" data-categories="c2V0dXAlMkNpbnRybw==" data-listing-date-sort="1762837200000" data-listing-file-modified-sort="1763193175332" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="47">
 <div class="thumbnail"><a href="./posts_en/hello-quarto.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1664,6 +3584,9 @@ Nov 12, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_en/hello-quarto.html" class="no-external">Hello Quarto</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_en/hello-quarto.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('c2V0dXA='); return false;">setup</div>
@@ -1683,7 +3606,7 @@ Nov 11, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="37" data-categories="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2JTJDRGVlcFNlZWs=" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763248351047" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="767">
+<div class="quarto-post image-right" data-index="81" data-categories="JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2JTJDRGVlcFNlZWs=" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763248351047" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="767">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-cn.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1693,6 +3616,9 @@ Nov 11, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/deepseek-r1-cn.html" class="no-external">DeepSeek-R1：推理增强的大语言模型</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/deepseek-r1-cn.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU1JUE0JUE3JUU2JUE4JUExJUU1JTlFJThC'); return false;">大模型</div>
@@ -1716,7 +3642,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="38" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763466677380" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5266">
+<div class="quarto-post image-right" data-index="82" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763466677380" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5266">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-codex.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1726,6 +3652,9 @@ Jan 20, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/deepseek-r1-codex.html" class="no-external">DeepSeek-R1：推理增强的大语言模型（codex 版）</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/deepseek-r1-codex.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
@@ -1749,7 +3678,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="39" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763458756493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6534">
+<div class="quarto-post image-right" data-index="83" data-categories="JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU1JUE0JUE3JUU4JUFGJUFEJUU4JUE4JTgwJUU2JUE4JUExJUU1JTlFJThCJTJDJUU1JUJDJUJBJUU1JThDJTk2JUU1JUFEJUE2JUU0JUI5JUEwJTJDJUU2JThFJUE4JUU3JTkwJTg2" data-listing-date-sort="1737349200000" data-listing-file-modified-sort="1763458756493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6534">
 <div class="thumbnail"><a href="./posts_ch/deepseek-r1-详解.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1759,6 +3688,9 @@ Jan 20, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/deepseek-r1-详解.html" class="no-external">DeepSeek-R1：推理增强的大语言模型</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/deepseek-r1-详解.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU2JUI3JUIxJUU1JUJBJUE2JUU1JUFEJUE2JUU0JUI5JUEw'); return false;">深度学习</div>
@@ -1782,7 +3714,7 @@ Jan 20, 2025
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="40" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1736917200000" data-listing-file-modified-sort="1767096557303" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
+<div class="quarto-post image-right" data-index="84" data-categories="JUU5JTg3JTkxJUU4JTlFJThEJTJDJUU2JThBJTk1JUU4JUI1JTg0JTJDJUU0JUJDJUIwJUU1JTgwJUJD" data-listing-date-sort="1736917200000" data-listing-file-modified-sort="1767096557303" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="316">
 <div class="thumbnail"><a href="./posts_ch/valuation/估值导论-达摩达兰.html" class="no-external">
 
 <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
@@ -1792,6 +3724,9 @@ Jan 20, 2025
 <h3 class="no-anchor listing-title">
 <a href="./posts_ch/valuation/估值导论-达摩达兰.html" class="no-external">估值导论：从哲学基础到实践应用</a>
 </h3>
+<div class="listing-subtitle">
+<a href="./posts_ch/valuation/估值导论-达摩达兰.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 
 <div class="listing-category" onclick="window.quartoListingCategory('JUU5JTg3JTkxJUU4JTlFJThE'); return false;">金融</div>

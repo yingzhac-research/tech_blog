@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying">
+<meta name="description" content="DCF告诉你股权一文不值，但市场却给出正价格——这不是市场疯狂，而是你的估值框架需要升级。本章将股权重构为看涨期权，揭示困境公司股权价值的真正来源：有限责任 + 时间价值 + 波动性。">
+
+<title>【第30章】困境公司股权估值：当负净值遇见期权思维 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">该页面内容</h2>
+   
+  <ul>
+  <li><a href="#从一个悖论开始" id="toc-从一个悖论开始" class="nav-link active" data-scroll-target="#从一个悖论开始"><span class="header-section-number">1</span> 从一个悖论开始</a></li>
+  <li><a href="#股权作为看涨期权概念框架" id="toc-股权作为看涨期权概念框架" class="nav-link" data-scroll-target="#股权作为看涨期权概念框架"><span class="header-section-number">2</span> 股权作为看涨期权：概念框架</a>
+  <ul class="collapse">
+  <li><a href="#股权收益结构的重新审视" id="toc-股权收益结构的重新审视" class="nav-link" data-scroll-target="#股权收益结构的重新审视"><span class="header-section-number">2.1</span> 股权收益结构的重新审视</a></li>
+  <li><a href="#期权类比的映射关系" id="toc-期权类比的映射关系" class="nav-link" data-scroll-target="#期权类比的映射关系"><span class="header-section-number">2.2</span> 期权类比的映射关系</a></li>
+  <li><a href="#为什么即使资不抵债股权仍有价值" id="toc-为什么即使资不抵债股权仍有价值" class="nav-link" data-scroll-target="#为什么即使资不抵债股权仍有价值"><span class="header-section-number">2.3</span> 为什么即使「资不抵债」股权仍有价值？</a></li>
+  </ul></li>
+  <li><a href="#股权期权估值基础案例" id="toc-股权期权估值基础案例" class="nav-link" data-scroll-target="#股权期权估值基础案例"><span class="header-section-number">3</span> 股权期权估值：基础案例</a>
+  <ul class="collapse">
+  <li><a href="#illustration-30.1完整的期权估值" id="toc-illustration-30.1完整的期权估值" class="nav-link" data-scroll-target="#illustration-30.1完整的期权估值"><span class="header-section-number">3.1</span> Illustration 30.1：完整的期权估值</a></li>
+  <li><a href="#illustration-30.2当公司价值下跌" id="toc-illustration-30.2当公司价值下跌" class="nav-link" data-scroll-target="#illustration-30.2当公司价值下跌"><span class="header-section-number">3.2</span> Illustration 30.2：当公司价值下跌</a></li>
+  <li><a href="#illustration-30.3波动性与股权价值" id="toc-illustration-30.3波动性与股权价值" class="nav-link" data-scroll-target="#illustration-30.3波动性与股权价值"><span class="header-section-number">3.3</span> Illustration 30.3：波动性与股权价值</a></li>
+  <li><a href="#illustration-30.4违约概率与违约利差" id="toc-illustration-30.4违约概率与违约利差" class="nav-link" data-scroll-target="#illustration-30.4违约概率与违约利差"><span class="header-section-number">3.4</span> Illustration 30.4：违约概率与违约利差</a></li>
+  </ul></li>
+  <li><a href="#期权性在企业生命周期中的位置" id="toc-期权性在企业生命周期中的位置" class="nav-link" data-scroll-target="#期权性在企业生命周期中的位置"><span class="header-section-number">4</span> 期权性在企业生命周期中的位置</a>
+  <ul class="collapse">
+  <li><a href="#不同阶段的期权类型" id="toc-不同阶段的期权类型" class="nav-link" data-scroll-target="#不同阶段的期权类型"><span class="header-section-number">4.1</span> 不同阶段的期权类型</a></li>
+  <li><a href="#筛选困境股权投资标的" id="toc-筛选困境股权投资标的" class="nav-link" data-scroll-target="#筛选困境股权投资标的"><span class="header-section-number">4.2</span> 筛选困境股权投资标的</a></li>
+  </ul></li>
+  <li><a href="#估值输入参数的实务处理" id="toc-估值输入参数的实务处理" class="nav-link" data-scroll-target="#估值输入参数的实务处理"><span class="header-section-number">5</span> 估值输入参数的实务处理</a>
+  <ul class="collapse">
+  <li><a href="#公司资产价值的估计" id="toc-公司资产价值的估计" class="nav-link" data-scroll-target="#公司资产价值的估计"><span class="header-section-number">5.1</span> 公司资产价值的估计</a></li>
+  <li><a href="#公司价值波动率的估计" id="toc-公司价值波动率的估计" class="nav-link" data-scroll-target="#公司价值波动率的估计"><span class="header-section-number">5.2</span> 公司价值波动率的估计</a></li>
+  <li><a href="#债务期限的处理" id="toc-债务期限的处理" class="nav-link" data-scroll-target="#债务期限的处理"><span class="header-section-number">5.3</span> 债务期限的处理</a></li>
+  <li><a href="#债务面值的三种处理方式" id="toc-债务面值的三种处理方式" class="nav-link" data-scroll-target="#债务面值的三种处理方式"><span class="header-section-number">5.4</span> 债务面值的三种处理方式</a></li>
+  </ul></li>
+  <li><a href="#完整案例分析" id="toc-完整案例分析" class="nav-link" data-scroll-target="#完整案例分析"><span class="header-section-number">6</span> 完整案例分析</a>
+  <ul class="collapse">
+  <li><a href="#案例-1eurotunnel1997" id="toc-案例-1eurotunnel1997" class="nav-link" data-scroll-target="#案例-1eurotunnel1997"><span class="header-section-number">6.1</span> 案例 1：Eurotunnel（1997）</a></li>
+  <li><a href="#案例-2jet-india2013" id="toc-案例-2jet-india2013" class="nav-link" data-scroll-target="#案例-2jet-india2013"><span class="header-section-number">6.2</span> 案例 2：Jet India（2013）</a></li>
+  </ul></li>
+  <li><a href="#秃鹫投资策略" id="toc-秃鹫投资策略" class="nav-link" data-scroll-target="#秃鹫投资策略"><span class="header-section-number">7</span> 秃鹫投资策略</a>
+  <ul class="collapse">
+  <li><a href="#期权框架对秃鹫投资的启示" id="toc-期权框架对秃鹫投资的启示" class="nav-link" data-scroll-target="#期权框架对秃鹫投资的启示"><span class="header-section-number">7.1</span> 期权框架对秃鹫投资的启示</a></li>
+  </ul></li>
+  <li><a href="#股东与债权人的利益冲突" id="toc-股东与债权人的利益冲突" class="nav-link" data-scroll-target="#股东与债权人的利益冲突"><span class="header-section-number">8</span> 股东与债权人的利益冲突</a>
+  <ul class="collapse">
+  <li><a href="#冲突-1高风险项目的诱惑" id="toc-冲突-1高风险项目的诱惑" class="nav-link" data-scroll-target="#冲突-1高风险项目的诱惑"><span class="header-section-number">8.1</span> 冲突 1：高风险项目的诱惑</a></li>
+  <li><a href="#冲突-2混合并购中的财富转移" id="toc-冲突-2混合并购中的财富转移" class="nav-link" data-scroll-target="#冲突-2混合并购中的财富转移"><span class="header-section-number">8.2</span> 冲突 2：混合并购中的财富转移</a></li>
+  </ul></li>
+  <li><a href="#不是所有公司的股权都是期权吗" id="toc-不是所有公司的股权都是期权吗" class="nav-link" data-scroll-target="#不是所有公司的股权都是期权吗"><span class="header-section-number">9</span> 不是所有公司的股权都是期权吗？</a></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结"><span class="header-section-number">10</span> 总结</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">11</span> 思考题</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">【第30章】困境公司股权估值：当负净值遇见期权思维</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">金融</div>
+    <div class="quarto-category">投资</div>
+    <div class="quarto-category">估值</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    DCF告诉你股权一文不值，但市场却给出正价格——这不是市场疯狂，而是你的估值框架需要升级。本章将股权重构为看涨期权，揭示困境公司股权价值的真正来源：有限责任 + 时间价值 + 波动性。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">作者</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2025年12月30日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="从一个悖论开始" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从一个悖论开始"><span class="header-section-number">1</span> 从一个悖论开始</h2>
+<p>假设你面前有一家公司：</p>
+<ul>
+<li>资产价值：5000 万美元</li>
+<li>债务面值：8000 万美元（零息债券，10 年后到期）</li>
+<li>净资产：-3000 万美元</li>
+</ul>
+<p>按传统估值逻辑，这家公司的<strong>股权价值应该是零</strong>——你欠的比你拥有的还多，股东不应该得到任何东西。</p>
+<p>但现实是：<strong>这家公司的股票仍在交易，而且价格不是零</strong>。</p>
+<p>是市场疯了吗？</p>
+<p>不。市场在告诉你一件重要的事：<strong>股权不只是资产减负债的残值，股权是一个期权</strong>。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>本章的核心洞察
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>在第 22 章，我们讨论了如何估值亏损公司——通过预测未来盈利转正、调整利润率、估计生存概率。但当一家公司不仅亏损，还有<strong>巨额债务</strong>时，DCF 框架会告诉你股权价值为零。</p>
+<p>然而，有限责任制度赋予股东一种独特的权利：<strong>他们可以选择在公司价值低于债务时「弃船」，只损失已投入的资本，而不需要补足差额</strong>。</p>
+<p>这种「有限损失 + 无限收益」的结构，正是<strong>看涨期权</strong>的特征。</p>
+</div>
+</div>
+<p>本章将深入探讨：</p>
+<ul>
+<li><strong>股权作为看涨期权</strong>——从概念到公式</li>
+<li><strong>估值输入参数的处理</strong>——如何将现实中的复杂债务结构映射到期权模型</li>
+<li><strong>完整案例分析</strong>——Eurotunnel（1997）和 Jet India（2013）</li>
+<li><strong>秃鹫投资策略</strong>——如何利用期权框架寻找被低估的困境股权</li>
+<li><strong>股东与债权人的博弈</strong>——为什么股东会选择高风险项目</li>
+</ul>
+</section>
+<section id="股权作为看涨期权概念框架" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="股权作为看涨期权概念框架"><span class="header-section-number">2</span> 股权作为看涨期权：概念框架</h2>
+<section id="股权收益结构的重新审视" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="股权收益结构的重新审视"><span class="header-section-number">2.1</span> 股权收益结构的重新审视</h3>
+<p>让我们先回顾股权投资者在公司清算时的收益结构。</p>
+<p><strong>股权是剩余索取权</strong>：股东在所有其他索取权人（债权人、优先股股东等）得到满足后，才能获得剩余部分。</p>
+<p>如果公司清算：</p>
+<ul>
+<li>当公司价值 <span class="math inline">\(V\)</span> <strong>大于</strong>债务面值 <span class="math inline">\(D\)</span>：股东得到 <span class="math inline">\(V - D\)</span></li>
+<li>当公司价值 <span class="math inline">\(V\)</span> <strong>小于</strong>债务面值 <span class="math inline">\(D\)</span>：股东得到 <span class="math inline">\(0\)</span>（有限责任保护）</li>
+</ul>
+<p>用数学表达：</p>
+<p><span class="math display">\[
+\text{股权清算价值} = \begin{cases}
+V - D &amp; \text{如果 } V &gt; D \\
+0 &amp; \text{如果 } V \leq D
+\end{cases}
+\]</span></p>
+<p>等一下——这个收益结构是不是很眼熟？</p>
+<p>让我们回忆第 5 章学过的<strong>看涨期权</strong>收益结构：</p>
+<p><span class="math display">\[
+\text{看涨期权收益} = \begin{cases}
+S - K &amp; \text{如果 } S &gt; K \\
+0 &amp; \text{如果 } S \leq K
+\end{cases}
+\]</span></p>
+<p>其中 <span class="math inline">\(S\)</span> 是标的资产价格，<span class="math inline">\(K\)</span> 是执行价格。</p>
+<p><strong>完美匹配！</strong> 股权就是一个以公司价值为标的、以债务面值为执行价格的看涨期权。</p>
+<pre><code>收益
+  ^
+  |                    /
+  |                   /  股权收益
+  |                  /
+  |                 /
+  |----------------*--------------&gt; 公司价值 V
+  |                D（债务面值）
+  |  有限损失 = 0
+  |</code></pre>
+</section>
+<section id="期权类比的映射关系" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="期权类比的映射关系"><span class="header-section-number">2.2</span> 期权类比的映射关系</h3>
+<p>让我们建立完整的映射关系：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>看涨期权</th>
+<th>困境公司股权</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>标的资产价格 <span class="math inline">\(S\)</span></td>
+<td>公司资产价值 <span class="math inline">\(V\)</span></td>
+</tr>
+<tr class="even">
+<td>执行价格 <span class="math inline">\(K\)</span></td>
+<td>债务面值 <span class="math inline">\(D\)</span></td>
+</tr>
+<tr class="odd">
+<td>期权到期时间 <span class="math inline">\(t\)</span></td>
+<td>债务到期时间</td>
+</tr>
+<tr class="even">
+<td>标的资产波动率 <span class="math inline">\(\sigma\)</span></td>
+<td>公司价值波动率</td>
+</tr>
+<tr class="odd">
+<td>无风险利率 <span class="math inline">\(r\)</span></td>
+<td>无风险利率</td>
+</tr>
+<tr class="even">
+<td>行权</td>
+<td>清算公司，偿还债务</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>有限责任的重要性
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这个类比<strong>只在有限责任制度下成立</strong>。</p>
+<p>在上市公司中，股东的损失上限就是他们的股权投资。但在某些私人公司中，业主可能承担无限责任——如果公司无法偿债，业主的个人资产可能被追索。</p>
+<p><strong>如果没有有限责任，就不能把股权当作期权来估值。</strong></p>
+</div>
+</div>
+</section>
+<section id="为什么即使资不抵债股权仍有价值" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="为什么即使资不抵债股权仍有价值"><span class="header-section-number">2.3</span> 为什么即使「资不抵债」股权仍有价值？</h3>
+<p>回到开头的悖论：资产 5000 万，债务 8000 万，为什么股权不是零？</p>
+<p>答案在于期权的<strong>时间价值</strong>。</p>
+<p>就像一个深度虚值（deep out-of-the-money）的看涨期权——尽管当前股价远低于执行价，但只要期权还没到期，就有可能在剩余时间内标的资产价格上涨到执行价之上。</p>
+<p>对于困境公司股权：</p>
+<ol type="1">
+<li><strong>债务还没到期</strong>：债权人不能立即要求清算</li>
+<li><strong>公司价值有波动性</strong>：未来可能回升到债务面值之上</li>
+<li><strong>股东只有上行收益</strong>：如果公司价值回升，股东获益；如果继续下跌，股东最多损失为零</li>
+</ol>
+<p>这就是为什么 <strong>股权的期权价值 = 时间价值 + 内在价值</strong>。</p>
+<p>即使内在价值为零（<span class="math inline">\(V &lt; D\)</span>），时间价值仍然存在。</p>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>DCF vs 期权视角的根本区别</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>DCF 视角</th>
+<th>期权视角</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>股权 = 资产 - 负债</td>
+<td>股权 = Call(V, D, t, σ, r)</td>
+</tr>
+<tr class="even">
+<td>V &lt; D → 股权 = 0</td>
+<td>V &lt; D → 股权仍有时间价值</td>
+</tr>
+<tr class="odd">
+<td>风险是坏事（提高折现率）</td>
+<td>波动性是好事（提高期权价值）</td>
+</tr>
+<tr class="even">
+<td>债务越多越糟糕</td>
+<td>债务期限越长，期权价值越高</td>
+</tr>
+</tbody>
+</table>
+<p>这是估值范式的根本转变。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+</section>
+<section id="股权期权估值基础案例" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="股权期权估值基础案例"><span class="header-section-number">3</span> 股权期权估值：基础案例</h2>
+<section id="illustration-30.1完整的期权估值" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="illustration-30.1完整的期权估值"><span class="header-section-number">3.1</span> Illustration 30.1：完整的期权估值</h3>
+<p>让我们用一个具体例子来演示如何将股权估值为期权。</p>
+<p><strong>公司信息</strong>：</p>
+<ul>
+<li>资产当前价值：<span class="math inline">\(V = 1\)</span> 亿美元</li>
+<li>债务面值：<span class="math inline">\(D = 8000\)</span> 万美元（零息债券，10 年到期）</li>
+<li>公司价值年化标准差：<span class="math inline">\(\sigma = 40\%\)</span></li>
+<li>10 年期国债利率：<span class="math inline">\(r = 10\%\)</span></li>
+</ul>
+<p><strong>期权参数映射</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+S &amp;= V = 1 \text{ 亿美元（标的资产价值）} \\
+K &amp;= D = 0.8 \text{ 亿美元（执行价格）} \\
+t &amp;= 10 \text{ 年（期权期限）} \\
+\sigma^2 &amp;= 0.16 \text{（方差）} \\
+r &amp;= 10\%
+\end{aligned}
+\]</span></p>
+<p><strong>Black-Scholes 计算</strong>：</p>
+<p>首先计算 <span class="math inline">\(d_1\)</span> 和 <span class="math inline">\(d_2\)</span>：</p>
+<p><span class="math display">\[
+d_1 = \frac{\ln(S/K) + (r + \sigma^2/2)t}{\sigma\sqrt{t}} = \frac{\ln(100/80) + (0.10 + 0.08) \times 10}{0.40 \times \sqrt{10}}
+\]</span></p>
+<p><span class="math display">\[
+d_1 = \frac{0.2231 + 1.80}{1.265} = \frac{2.0231}{1.265} = 1.5994
+\]</span></p>
+<p><span class="math display">\[
+d_2 = d_1 - \sigma\sqrt{t} = 1.5994 - 1.265 = 0.3345
+\]</span></p>
+<p>查标准正态分布表：</p>
+<p><span class="math display">\[
+N(d_1) = N(1.5994) = 0.9451
+\]</span> <span class="math display">\[
+N(d_2) = N(0.3345) = 0.6310
+\]</span></p>
+<p><strong>股权价值（看涨期权价值）</strong>：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{股权价值} &amp;= S \cdot N(d_1) - K \cdot e^{-rt} \cdot N(d_2) \\
+&amp;= 100 \times 0.9451 - 80 \times e^{-0.10 \times 10} \times 0.6310 \\
+&amp;= 94.51 - 80 \times 0.3679 \times 0.6310 \\
+&amp;= 94.51 - 18.57 \\
+&amp;= \mathbf{75.94} \text{ 百万美元}
+\end{aligned}
+\]</span></p>
+<p><strong>债务的市场价值</strong>：</p>
+<p><span class="math display">\[
+\text{债务市场价值} = V - \text{股权价值} = 100 - 75.94 = \mathbf{24.06} \text{ 百万美元}
+\]</span></p>
+<p><strong>债务的隐含利率</strong>：</p>
+<p>这是一个 10 年期零息债券，面值 8000 万，市场价值 2406 万：</p>
+<p><span class="math display">\[
+\text{债务利率} = \left(\frac{80}{24.06}\right)^{1/10} - 1 = 3.325^{0.1} - 1 = \mathbf{12.77\%}
+\]</span></p>
+<p><strong>违约利差</strong>：</p>
+<p><span class="math display">\[
+\text{违约利差} = 12.77\% - 10\% = \mathbf{2.77\%}
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>估值结果解读
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>注意几个关键发现：</p>
+<ol type="1">
+<li><strong>股权价值远高于「资产-债务」</strong>：传统算法是 <span class="math inline">\(100 - 80 = 20\)</span> 百万，期权算法是 75.94 百万</li>
+<li><strong>债务被大幅折价</strong>：面值 8000 万的债务只值 2406 万（约 30%）</li>
+<li><strong>违约风险被定价</strong>：2.77% 的违约利差反映了债务的信用风险</li>
+</ol>
+<p>这就是期权框架的力量——它自动将违约风险、时间价值和波动性纳入估值。</p>
+</div>
+</div>
+</section>
+<section id="illustration-30.2当公司价值下跌" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="illustration-30.2当公司价值下跌"><span class="header-section-number">3.2</span> Illustration 30.2：当公司价值下跌</h3>
+<p>现在假设公司价值从 1 亿下跌到 5000 万——<strong>远低于</strong>债务面值 8000 万。</p>
+<p>传统估值：股权 = <span class="math inline">\(50 - 80 = -30\)</span> 百万 → 调整为 0</p>
+<p>期权估值：</p>
+<p><span class="math display">\[
+\begin{aligned}
+S &amp;= 50 \text{ 百万} \\
+K &amp;= 80 \text{ 百万} \\
+t &amp;= 10 \text{ 年}, \quad \sigma^2 = 0.16, \quad r = 10\%
+\end{aligned}
+\]</span></p>
+<p>计算结果：</p>
+<p><span class="math display">\[
+d_1 = 1.0515, \quad N(d_1) = 0.8534
+\]</span> <span class="math display">\[
+d_2 = -0.2135, \quad N(d_2) = 0.4155
+\]</span></p>
+<p><span class="math display">\[
+\text{股权价值} = 50 \times 0.8534 - 80 \times e^{-1.0} \times 0.4155 = 42.67 - 12.23 = \mathbf{30.44} \text{ 百万}
+\]</span></p>
+<p><strong>即使公司价值只有债务的 62.5%，股权仍然价值 3000 多万美元！</strong></p>
+<p>下图展示了随着公司价值下降，股权价值的变化：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司价值</th>
+<th>传统估值</th>
+<th>期权估值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>100</td>
+<td>20</td>
+<td>75.94</td>
+</tr>
+<tr class="even">
+<td>90</td>
+<td>10</td>
+<td>67.73</td>
+</tr>
+<tr class="odd">
+<td>80</td>
+<td>0</td>
+<td>59.27</td>
+</tr>
+<tr class="even">
+<td>70</td>
+<td>0</td>
+<td>50.58</td>
+</tr>
+<tr class="odd">
+<td>60</td>
+<td>0</td>
+<td>41.78</td>
+</tr>
+<tr class="even">
+<td>50</td>
+<td>0</td>
+<td>30.44</td>
+</tr>
+<tr class="odd">
+<td>40</td>
+<td>0</td>
+<td>23.16</td>
+</tr>
+<tr class="even">
+<td>30</td>
+<td>0</td>
+<td>15.78</td>
+</tr>
+<tr class="odd">
+<td>20</td>
+<td>0</td>
+<td>9.32</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>0</td>
+<td>3.99</td>
+</tr>
+</tbody>
+</table>
+<p>即使公司价值降到 1000 万（债务面值的 12.5%），股权仍然有近 400 万的价值！</p>
+</section>
+<section id="illustration-30.3波动性与股权价值" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="illustration-30.3波动性与股权价值"><span class="header-section-number">3.3</span> Illustration 30.3：波动性与股权价值</h3>
+<p>在传统 DCF 中，更高的风险意味着更高的折现率，从而降低股权价值。</p>
+<p>但在期权框架中，情况<strong>完全相反</strong>。</p>
+<p>让我们保持 Illustration 30.1 的其他参数不变，只改变公司价值的波动率：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>标准差</th>
+<th>股权价值</th>
+<th>债务利率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10%</td>
+<td>41.08</td>
+<td>10.18%</td>
+</tr>
+<tr class="even">
+<td>20%</td>
+<td>52.10</td>
+<td>10.56%</td>
+</tr>
+<tr class="odd">
+<td>30%</td>
+<td>64.47</td>
+<td>11.22%</td>
+</tr>
+<tr class="even">
+<td><strong>40%</strong></td>
+<td><strong>75.94</strong></td>
+<td><strong>12.77%</strong></td>
+</tr>
+<tr class="odd">
+<td>50%</td>
+<td>85.78</td>
+<td>15.25%</td>
+</tr>
+<tr class="even">
+<td>60%</td>
+<td>93.73</td>
+<td>19.38%</td>
+</tr>
+<tr class="odd">
+<td>70%</td>
+<td>99.77</td>
+<td>25.72%</td>
+</tr>
+<tr class="even">
+<td>80%</td>
+<td>104.20</td>
+<td>34.87%</td>
+</tr>
+</tbody>
+</table>
+<p><code>★ Insight ─────────────────────────────────────</code></p>
+<p><strong>风险变成了股东的朋友</strong></p>
+<p>这是困境公司估值中最反直觉的结论之一：</p>
+<ul>
+<li>波动性从 40% 上升到 80%，股权价值从 7594 万上升到 10420 万——增加 37%</li>
+<li>同时，债务的违约利差从 2.77% 飙升到 24.87%</li>
+</ul>
+<p><strong>原因</strong>：股东的收益结构是不对称的。公司价值大幅上涨，股东获得全部收益；公司价值大幅下跌，股东只损失到零。</p>
+<p>这解释了为什么困境公司的股东有时会支持高风险项目——即使这些项目是负 NPV 的。</p>
+<p><code>─────────────────────────────────────────────────</code></p>
+</section>
+<section id="illustration-30.4违约概率与违约利差" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="illustration-30.4违约概率与违约利差"><span class="header-section-number">3.4</span> Illustration 30.4：违约概率与违约利差</h3>
+<p>期权模型的一个副产品是<strong>风险中性违约概率</strong>。</p>
+<p>在 Black-Scholes 模型中，<span class="math inline">\(N(d_2)\)</span> 是在风险中性测度下，期权到期时标的资产价格高于执行价格的概率。</p>
+<p>因此：</p>
+<p><span class="math display">\[
+\text{风险中性违约概率} = 1 - N(d_2)
+\]</span></p>
+<p>回到 Illustration 30.1：</p>
+<p><span class="math display">\[
+\text{违约概率} = 1 - 0.6310 = 36.9\%
+\]</span></p>
+<p>下表展示了随着波动率变化，违约概率和违约利差的关系：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>标准差</th>
+<th>违约概率</th>
+<th>违约利差</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10%</td>
+<td>0.04%</td>
+<td>0.18%</td>
+</tr>
+<tr class="even">
+<td>20%</td>
+<td>3.07%</td>
+<td>0.56%</td>
+</tr>
+<tr class="odd">
+<td>30%</td>
+<td>14.63%</td>
+<td>1.22%</td>
+</tr>
+<tr class="even">
+<td>40%</td>
+<td>36.90%</td>
+<td>2.77%</td>
+</tr>
+<tr class="odd">
+<td>50%</td>
+<td>53.25%</td>
+<td>5.25%</td>
+</tr>
+<tr class="even">
+<td>60%</td>
+<td>65.29%</td>
+<td>9.38%</td>
+</tr>
+<tr class="odd">
+<td>70%</td>
+<td>73.81%</td>
+<td>15.72%</td>
+</tr>
+<tr class="even">
+<td>80%</td>
+<td>79.90%</td>
+<td>24.87%</td>
+</tr>
+</tbody>
+</table>
+<p>这个框架可以应用于银行贷款组合管理——估计每笔贷款的违约概率，并判断当前收取的利率是否足够补偿风险。</p>
+<p>事实上，KMV（现为 Moody’s Analytics）等商业服务就是使用类似的期权定价模型来估计公司违约概率。</p>
+</section>
+</section>
+<section id="期权性在企业生命周期中的位置" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="期权性在企业生命周期中的位置"><span class="header-section-number">4</span> 期权性在企业生命周期中的位置</h2>
+<section id="不同阶段的期权类型" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="不同阶段的期权类型"><span class="header-section-number">4.1</span> 不同阶段的期权类型</h3>
+<p>在第 28 章和第 29 章，我们讨论了延迟期权和扩张/放弃期权。现在加上清算期权（股权作为期权），我们可以绘制一张完整的期权地图：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>生命周期阶段</th>
+<th>主导期权类型</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>初创期</strong></td>
+<td>延迟期权</td>
+<td>未验证的商业模式、未成形的业务</td>
+</tr>
+<tr class="even">
+<td><strong>成长期</strong></td>
+<td>扩张期权</td>
+<td>用户平台、独家数据、新市场进入</td>
+</tr>
+<tr class="odd">
+<td><strong>成熟期</strong></td>
+<td>延迟期权</td>
+<td>专利、许可证、未开发的自然资源</td>
+</tr>
+<tr class="even">
+<td><strong>衰退期（低杠杆）</strong></td>
+<td>放弃期权</td>
+<td>资产剥离、业务出售</td>
+</tr>
+<tr class="odd">
+<td><strong>衰退期（高杠杆）</strong></td>
+<td>清算期权</td>
+<td>困境股权</td>
+</tr>
+</tbody>
+</table>
+<p><strong>股权作为期权的适用条件</strong>：</p>
+<p>只有在公司进入生命周期后期，并且<strong>累积了大量债务</strong>时，清算期权才会显著影响股权价值。</p>
+<p>对于低杠杆的衰退期公司，放弃期权（将资产出售获得残值）更为相关。</p>
+</section>
+<section id="筛选困境股权投资标的" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="筛选困境股权投资标的"><span class="header-section-number">4.2</span> 筛选困境股权投资标的</h3>
+<p>什么样的公司适合用期权框架估值？Damodaran 提出了三个筛选标准：</p>
+<ol type="1">
+<li><strong>持续亏损</strong>：过去 10 年中至少 4 年净亏损，最近一年也在亏损</li>
+<li><strong>高债务负担</strong>：总债务（含租赁）/ EBITDA 的比率很高</li>
+<li><strong>业务波动性</strong>：股价或营业收入的变异系数较高</li>
+</ol>
+<p>用这些标准筛选 2024 年初美国 6415 家上市公司，得到 <strong>560 家</strong>符合条件的公司。</p>
+<p><strong>哪些行业更常见困境股权？</strong></p>
+<ul>
+<li><strong>航空公司</strong>：高固定成本、周期性需求、大量飞机资产</li>
+<li><strong>酒店和赌场</strong>：大量房地产资产、高杠杆经营</li>
+<li><strong>房地产</strong>：资产具有明确的清算价值</li>
+</ul>
+<p>这些行业的共同特点：</p>
+<ol type="1">
+<li>资产有<strong>显著的清算价值</strong></li>
+<li>经营模式需要<strong>大量债务融资</strong></li>
+<li>业务<strong>波动性较高</strong></li>
+</ol>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>生物技术的特殊情况
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>生物技术行业有大量亏损公司，但很少有高债务负担。没有债务，清算期权就不会产生显著价值——这些公司的价值主要来自研发管线（延迟期权或扩张期权），而不是清算期权。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="估值输入参数的实务处理" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="估值输入参数的实务处理"><span class="header-section-number">5</span> 估值输入参数的实务处理</h2>
+<p>现实中的困境公司很少符合我们前面案例的简化假设（单一零息债务）。本节讨论如何处理真实世界的复杂性。</p>
+<section id="公司资产价值的估计" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="公司资产价值的估计"><span class="header-section-number">5.1</span> 公司资产价值的估计</h3>
+<p>这是最关键也是最困难的输入。有四种方法：</p>
+<p><strong>方法 1：市场价值加总法</strong></p>
+<p><span class="math display">\[
+V = \text{股权市值} + \text{债务市值}
+\]</span></p>
+<p>将所有公开交易的股权和债务市值相加。</p>
+<p><strong>问题</strong>：内部不一致——你用市场价值作为输入，然后用期权模型得出不同的估值。</p>
+<p><strong>方法 2：DCF 估值法</strong></p>
+<p>用折现现金流模型估计公司价值。</p>
+<p><strong>关键调整</strong>：期权模型中的资产价值应该是<strong>清算价值</strong>，而不是作为持续经营的价值。这意味着：</p>
+<ul>
+<li>只考虑现有资产，不包括增长机会</li>
+<li>可能需要扣除清算成本</li>
+</ul>
+<p><strong>方法 3：可比公司收入倍数法</strong></p>
+<p>找同行业的成熟健康公司，计算它们的 EV/Revenue 或 EV/EBITDA 倍数，然后应用到目标公司。</p>
+<p><strong>假设</strong>：这代表潜在买家在清算时愿意支付的价格。</p>
+</section>
+<section id="公司价值波动率的估计" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="公司价值波动率的估计"><span class="header-section-number">5.2</span> 公司价值波动率的估计</h3>
+<p>如果股票和债券都有公开交易，可以用组合方差公式：</p>
+<p><span class="math display">\[
+\sigma^2_{\text{firm}} = w_e^2 \sigma_e^2 + w_d^2 \sigma_d^2 + 2 w_e w_d \rho_{ed} \sigma_e \sigma_d
+\]</span></p>
+<p>其中：</p>
+<ul>
+<li><span class="math inline">\(w_e, w_d\)</span> 是股权和债务的市值权重</li>
+<li><span class="math inline">\(\sigma_e, \sigma_d\)</span> 是股票和债券价格的标准差</li>
+<li><span class="math inline">\(\rho_{ed}\)</span> 是股票和债券收益率的相关系数</li>
+</ul>
+<p><strong>问题</strong>：当公司陷入困境时，股票和债券价格都会变得更加波动，可能高估公司基本面的波动性。</p>
+<p><strong>替代方案</strong>：使用同行业其他公司的<strong>平均公司价值波动率</strong>。</p>
+</section>
+<section id="债务期限的处理" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="债务期限的处理"><span class="header-section-number">5.3</span> 债务期限的处理</h3>
+<p>现实中公司有多种债务：银行贷款、债券、可转债……期限各不相同。</p>
+<p><strong>解决方案</strong>：计算所有债务的<strong>面值加权久期</strong>（Duration）。</p>
+<p><span class="math display">\[
+\text{加权久期} = \sum_i \frac{D_i}{\sum D} \times \text{Duration}_i
+\]</span></p>
+<p><strong>简化近似</strong>：使用面值加权的到期期限。</p>
+</section>
+<section id="债务面值的三种处理方式" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="债务面值的三种处理方式"><span class="header-section-number">5.4</span> 债务面值的三种处理方式</h3>
+<p><strong>方法 1：仅计入本金</strong></p>
+<p><span class="math display">\[
+K = \sum \text{各债务的本金}
+\]</span></p>
+<p><strong>问题</strong>：低估了公司真正需要偿还的金额（忽略了利息）。</p>
+<p><strong>方法 2：本金 + 累计利息</strong></p>
+<p><span class="math display">\[
+K = \sum \text{本金} + \sum \text{预期利息支付}
+\]</span></p>
+<p><strong>问题</strong>：混合了不同时点的现金流。</p>
+<p><strong>方法 3：本金作为执行价，利息作为「股息收益率」</strong></p>
+<ul>
+<li>执行价格 = 债务本金</li>
+<li>在期权模型中设置「股息率」= 年利息支出 / 公司价值</li>
+</ul>
+<p>这种方法的逻辑是：每年的利息支付都会<strong>消耗</strong>公司价值，就像股息会降低股价一样。</p>
+</section>
+</section>
+<section id="完整案例分析" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="完整案例分析"><span class="header-section-number">6</span> 完整案例分析</h2>
+<section id="案例-1eurotunnel1997" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="案例-1eurotunnel1997"><span class="header-section-number">6.1</span> 案例 1：Eurotunnel（1997）</h3>
+<p><strong>背景</strong></p>
+<p>Eurotunnel 是建造和运营英吉利海峡隧道的公司。隧道在 1990 年代初建成，但商业上并不成功，连年亏损。</p>
+<p><strong>1997 年财务状况</strong>：</p>
+<ul>
+<li>账面净资产：<strong>-1.17 亿英镑</strong></li>
+<li>EBIT：<strong>-345 万英镑</strong></li>
+<li>净亏损：<strong>-6.11 亿英镑</strong></li>
+<li>营业收入：4.56 亿英镑</li>
+</ul>
+<p>大部分融资来自债务。债务结构如下：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>债务类型</th>
+<th>面值（含累计利息）</th>
+<th>久期（年）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>短期债务</td>
+<td>9.35 亿英镑</td>
+<td>0.5</td>
+</tr>
+<tr class="even">
+<td>10 年期</td>
+<td>24.35 亿英镑</td>
+<td>6.7</td>
+</tr>
+<tr class="odd">
+<td>20 年期</td>
+<td>35.55 亿英镑</td>
+<td>12.6</td>
+</tr>
+<tr class="even">
+<td>更长期</td>
+<td>19.40 亿英镑</td>
+<td>18.2</td>
+</tr>
+<tr class="odd">
+<td><strong>合计</strong></td>
+<td><strong>88.65 亿英镑</strong></td>
+<td><strong>10.93</strong></td>
+</tr>
+</tbody>
+</table>
+<p>按传统估值，股权一文不值。但市场价格是 <strong>1.50 亿英镑</strong>。</p>
+<p><strong>步骤 1：估计公司资产价值</strong></p>
+<p>用 DCF 估计隧道资产的价值。关键假设：</p>
+<ul>
+<li>收入年增长 10%（5 年），之后 3%</li>
+<li>直接运营成本从 72% 降至 60%（5 年内线性下降）</li>
+<li>资本支出和折旧年增长 3%</li>
+<li>债务比率从 95.35% 降至 70%（5 年内）</li>
+<li>股权 Beta 从 2.0 降至 0.8</li>
+</ul>
+<p>基于这些假设的现金流预测：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>年份</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>终值年</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>收入</td>
+<td>501.6</td>
+<td>551.8</td>
+<td>606.9</td>
+<td>667.6</td>
+<td>734.4</td>
+<td>756.4</td>
+</tr>
+<tr class="even">
+<td>EBIT</td>
+<td>-0.66</td>
+<td>25.7</td>
+<td>56.7</td>
+<td>92.8</td>
+<td>134.9</td>
+<td>139.0</td>
+</tr>
+<tr class="odd">
+<td>FCFF</td>
+<td>94.1</td>
+<td>114.3</td>
+<td>137.4</td>
+<td>163.9</td>
+<td>194.4</td>
+<td>90.3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公司价值 = 22.78 亿英镑</strong></p>
+<p><strong>步骤 2：估计公司价值波动率</strong></p>
+<p>由于没有直接可比公司，用 Eurotunnel 自身的股票和债券波动率：</p>
+<p><span class="math display">\[
+\sigma_{\text{stock}} = 41\%, \quad \sigma_{\text{bond}} = 17\%
+\]</span></p>
+<p><span class="math display">\[
+\rho = 0.50, \quad w_e = 0.15, \quad w_d = 0.85
+\]</span></p>
+<p><span class="math display">\[
+\sigma^2_{\text{firm}} = 0.15^2 \times 0.41^2 + 0.85^2 \times 0.17^2 + 2 \times 0.15 \times 0.85 \times 0.5 \times 0.41 \times 0.17 = 0.0335
+\]</span></p>
+<p><span class="math display">\[
+\sigma_{\text{firm}} = 18.3\%
+\]</span></p>
+<p><strong>步骤 3：期权估值</strong></p>
+<p>输入参数：</p>
+<p><span class="math display">\[
+\begin{aligned}
+S &amp;= 22.78 \text{ 亿英镑} \\
+K &amp;= 88.65 \text{ 亿英镑} \\
+t &amp;= 10.93 \text{ 年} \\
+\sigma^2 &amp;= 0.0335 \\
+r &amp;= 6\%
+\end{aligned}
+\]</span></p>
+<p>计算结果：</p>
+<p><span class="math display">\[
+d_1 = -0.8582, \quad N(d_1) = 0.1955
+\]</span> <span class="math display">\[
+d_2 = -1.4637, \quad N(d_2) = 0.0717
+\]</span></p>
+<p><span class="math display">\[
+\text{股权价值} = 22.78 \times 0.1955 - 88.65 \times e^{-0.06 \times 10.93} \times 0.0717
+\]</span> <span class="math display">\[
+= 4.45 - 3.29 = \mathbf{1.16 亿英镑}
+\]</span></p>
+<p><strong>实际市场价格：1.50 亿英镑</strong></p>
+<p>期权模型估值与市场价格相当接近！</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>Eurotunnel 案例的关键启示
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>除了估值结果，期权框架还揭示了股权价值的<strong>驱动因素</strong>：</p>
+<ol type="1">
+<li><strong>债务久期是关键</strong>：当法国政府施压银行延长还款期限时，股权价值上升——因为期权期限变长了</li>
+<li><strong>波动性是朋友</strong>：任何增加隧道业务不确定性的因素（如竞争加剧、需求波动），实际上可能增加股权价值</li>
+<li><strong>降低运营成本只是锦上添花</strong>：真正决定股权价值的是债务结构和业务波动性</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="案例-2jet-india2013" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="案例-2jet-india2013"><span class="header-section-number">6.2</span> 案例 2：Jet India（2013）</h3>
+<p><strong>背景</strong></p>
+<p>Jet India 是一家印度航空公司，处于持续亏损和高杠杆的困境中。</p>
+<p><strong>财务数据</strong>：</p>
+<ul>
+<li>收入：1884.1 亿卢比</li>
+<li>EBITDA：94.17 亿卢比</li>
+<li>利息支出：101.6 亿卢比</li>
+<li>净亏损：78 亿卢比</li>
+<li>账面净资产：<strong>-182.8 亿卢比</strong></li>
+<li>总债务：1142.72 亿卢比（平均久期 4.5 年）</li>
+</ul>
+<p>唯一的好消息：印度航空市场正在快速增长。</p>
+<p><strong>期权估值</strong></p>
+<p><strong>步骤 1：资产价值</strong></p>
+<p>用印度上市航空公司的 EV/EBITDA 倍数（6.5x）：</p>
+<p><span class="math display">\[
+V = 94.17 \times 6.5 = 612.11 \text{ 亿卢比}
+\]</span></p>
+<p><strong>步骤 2：波动率</strong></p>
+<p>使用印度上市航空公司的平均公司价值方差：<span class="math inline">\(\sigma^2 = 0.0826\)</span></p>
+<p><strong>步骤 3：期权参数</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+S &amp;= 612.11 \text{ 亿卢比} \\
+K &amp;= 1142.72 \text{ 亿卢比} \\
+t &amp;= 4.5 \text{ 年} \\
+\sigma^2 &amp;= 0.0826 \\
+r &amp;= 8\%
+\end{aligned}
+\]</span></p>
+<p><strong>步骤 4：计算</strong></p>
+<p><span class="math display">\[
+d_1 = -0.1291, \quad N(d_1) = 0.4487
+\]</span> <span class="math display">\[
+d_2 = -0.7384, \quad N(d_2) = 0.2301
+\]</span></p>
+<p><span class="math display">\[
+\text{股权价值} = 612.11 \times 0.4487 - 1142.72 \times e^{-0.08 \times 4.5} \times 0.2301
+\]</span> <span class="math display">\[
+= 274.6 - 183.5 = \mathbf{91.13 亿卢比}
+\]</span></p>
+<p><strong>Jet India 的股权价值约为 91 亿卢比</strong>——尽管账面净资产是负 183 亿卢比。</p>
+</section>
+</section>
+<section id="秃鹫投资策略" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="秃鹫投资策略"><span class="header-section-number">7</span> 秃鹫投资策略</h2>
+<p><strong>秃鹫投资</strong>（Vulture Investing）是指专门购买严重财务困境公司证券的投资策略。从期权视角看，这是投资<strong>深度虚值期权</strong>的策略。</p>
+<section id="期权框架对秃鹫投资的启示" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="期权框架对秃鹫投资的启示"><span class="header-section-number">7.1</span> 期权框架对秃鹫投资的启示</h3>
+<p><strong>启示 1：预期大量失败</strong></p>
+<p>就像深度虚值期权组合一样，你应该预期大部分投资最终归零。但少数成功的投资可能带来巨额回报，使整体组合表现出色。</p>
+<p><strong>启示 2：偏好高波动性行业</strong></p>
+<p>风险是你的朋友。应该把股权投资集中在<strong>高波动性行业的困境公司</strong>，而不是稳定行业的困境公司。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>优先投资</th>
+<th>避免投资</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>航空公司</td>
+<td>公用事业</td>
+</tr>
+<tr class="even">
+<td>科技硬件</td>
+<td>食品零售</td>
+</tr>
+<tr class="odd">
+<td>能源开采</td>
+<td>医药分销</td>
+</tr>
+<tr class="even">
+<td>酒店赌场</td>
+<td>电信运营</td>
+</tr>
+</tbody>
+</table>
+<p><strong>启示 3：偏好长期债务</strong></p>
+<p>如果投资困境公司股权，应该选择<strong>债务期限较长</strong>的公司。期权期限越长，时间价值越高。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>公司 A</th>
+<th>公司 B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>债务 5 年到期</td>
+<td>债务 1 年到期</td>
+</tr>
+<tr class="even">
+<td>更多时间等待业务好转</td>
+<td>很快面临清算压力</td>
+</tr>
+<tr class="odd">
+<td><strong>更高的期权价值</strong></td>
+<td>较低的期权价值</td>
+</tr>
+</tbody>
+</table>
+<p><strong>启示 4：债务投资需要主动管理</strong></p>
+<p>如果你投资的是困境公司的债务，不能做被动的债券持有人。你必须：</p>
+<ol type="1">
+<li><strong>积极参与管理</strong>：争取董事会席位</li>
+<li><strong>获取股权头寸</strong>：通过债转股或可转债</li>
+<li><strong>影响公司决策</strong>：防止股东采取损害债权人的行动</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>著名秃鹫投资者
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Wilbur Ross</strong>：专门投资破产钢铁和煤炭公司，后成为美国商务部长</li>
+<li><strong>Howard Marks / Oaktree Capital</strong>：困境债务投资的先驱</li>
+<li><strong>Elliott Management</strong>：激进投资，经常成为困境公司的「白衣骑士」或「敌意收购者」</li>
+</ul>
+<p>这些投资者的共同特点：不是被动持有，而是积极介入重组过程。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="股东与债权人的利益冲突" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="股东与债权人的利益冲突"><span class="header-section-number">8</span> 股东与债权人的利益冲突</h2>
+<p>期权框架清晰地揭示了困境公司中股东和债权人之间的根本性利益冲突。</p>
+<section id="冲突-1高风险项目的诱惑" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="冲突-1高风险项目的诱惑"><span class="header-section-number">8.1</span> 冲突 1：高风险项目的诱惑</h3>
+<p><strong>场景</strong>：一家公司资产价值 1 亿美元，债务 8000 万（正如 Illustration 30.1）。现在有一个投资机会：</p>
+<ul>
+<li>投资额：200 万美元</li>
+<li>NPV：<strong>-200 万美元</strong>（这是一个坏项目！）</li>
+<li>但它会把公司价值波动率从 40% 提高到 50%</li>
+</ul>
+<p>应该投资吗？</p>
+<p><strong>从公司角度</strong>：不应该。NPV 为负，会毁灭价值。</p>
+<p><strong>从股东角度</strong>：让我们算算……</p>
+<p><strong>投资前</strong>（来自 Illustration 30.1）：</p>
+<ul>
+<li>公司价值 = 100，波动率 = 40%</li>
+<li>股权价值 = 75.94</li>
+<li>债务价值 = 24.06</li>
+</ul>
+<p><strong>投资后</strong>：</p>
+<ul>
+<li>公司价值 = 100 - 2 = 98（项目 NPV 为负）</li>
+<li>波动率 = 50%</li>
+</ul>
+<p>重新用 Black-Scholes 计算：</p>
+<p><span class="math display">\[
+d_1 = 1.4189, \quad N(d_1) = 0.9220
+\]</span> <span class="math display">\[
+d_2 = -0.1622, \quad N(d_2) = 0.4356
+\]</span></p>
+<p><span class="math display">\[
+\text{股权价值} = 98 \times 0.9220 - 80 \times e^{-1.0} \times 0.4356 = 90.36 - 12.82 = \mathbf{77.71}
+\]</span></p>
+<p><strong>结果</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>投资前</th>
+<th>投资后</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>公司价值</td>
+<td>100</td>
+<td>98</td>
+<td>-2</td>
+</tr>
+<tr class="even">
+<td>股权价值</td>
+<td>75.94</td>
+<td>77.71</td>
+<td><strong>+1.77</strong></td>
+</tr>
+<tr class="odd">
+<td>债务价值</td>
+<td>24.06</td>
+<td>20.29</td>
+<td><strong>-3.77</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>股东赚了 177 万，债权人亏了 377 万！</strong></p>
+<p>这就是经典的<strong>资产替代问题</strong>（Asset Substitution Problem）：股东有动机让公司承担过度风险，把价值从债权人转移给自己。</p>
+</section>
+<section id="冲突-2混合并购中的财富转移" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="冲突-2混合并购中的财富转移"><span class="header-section-number">8.2</span> 冲突 2：混合并购中的财富转移</h3>
+<p>考虑两家公司合并的情况。假设：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Lube &amp; Auto</th>
+<th>Gianni Cosmetics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>公司价值</td>
+<td>100 百万</td>
+<td>150 百万</td>
+</tr>
+<tr class="even">
+<td>债务面值</td>
+<td>80 百万</td>
+<td>50 百万</td>
+</tr>
+<tr class="odd">
+<td>债务期限</td>
+<td>10 年</td>
+<td>10 年</td>
+</tr>
+<tr class="even">
+<td>波动率</td>
+<td>40%</td>
+<td>50%</td>
+</tr>
+</tbody>
+</table>
+<p>两公司现金流相关系数 = 0.4</p>
+<p><strong>合并前</strong>：</p>
+<p>分别用期权模型估值：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Lube &amp; Auto</th>
+<th>Gianni Cosmetics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>股权价值</td>
+<td>75.94</td>
+<td>134.48</td>
+</tr>
+<tr class="even">
+<td>债务价值</td>
+<td>24.06</td>
+<td>15.52</td>
+</tr>
+</tbody>
+</table>
+<p>股权合计 = 75.94 + 134.48 = <strong>210.42</strong></p>
+<p><strong>合并后</strong>：</p>
+<p>合并公司的波动率下降（多元化效应）：</p>
+<p><span class="math display">\[
+\sigma^2_{\text{combined}} = 0.4^2 \times 0.16 + 0.6^2 \times 0.25 + 2 \times 0.4 \times 0.6 \times 0.4 \times 0.4 \times 0.5 = 0.154
+\]</span></p>
+<p><span class="math display">\[
+\sigma_{\text{combined}} = 39.2\%
+\]</span></p>
+<p>用期权模型估值合并后的股权：<strong>207.58 百万</strong></p>
+<p><strong>结果</strong>：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>合并前</th>
+<th>合并后</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>股权价值</td>
+<td>210.42</td>
+<td>207.58</td>
+<td><strong>-2.84</strong></td>
+</tr>
+<tr class="even">
+<td>债务价值</td>
+<td>39.58</td>
+<td>42.42</td>
+<td><strong>+2.84</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>股东损失了 284 万，债权人获得了 284 万！</strong></p>
+<p>这是因为合并降低了公司整体的波动性，而波动性是股权期权价值的重要来源。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>混合并购的教训
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>如果一家高杠杆公司进行多元化并购，<strong>且不同时增加杠杆</strong>，股东会向债权人转移财富。</p>
+<p><strong>对策</strong>：在并购的同时增加债务，利用合并带来的更高债务承受能力。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="不是所有公司的股权都是期权吗" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="不是所有公司的股权都是期权吗"><span class="header-section-number">9</span> 不是所有公司的股权都是期权吗？</h2>
+<p>你可能会问：按照这个框架，每家公司的股权都可以被视为期权——那是不是所有 DCF 估值都应该加上一个「期权溢价」？</p>
+<p>答案是：<strong>不需要</strong>。</p>
+<p>对于大多数公司，<strong>作为持续经营的价值远高于清算期权的价值</strong>。</p>
+<p>考虑一家高增长公司：</p>
+<ul>
+<li>几乎没有「在建资产」（assets in place），大部分价值来自未来增长</li>
+<li>如果清算，只能获得有限的资产价值</li>
+<li>清算价值 &lt;&lt; 持续经营价值</li>
+</ul>
+<p>对于这类公司，清算期权的执行价格（债务）远高于标的资产（清算价值），期权深度虚值，几乎没有价值。</p>
+<p><strong>只有当公司满足以下条件时，期权价值才显著</strong>：</p>
+<ol type="1">
+<li>大部分价值来自<strong>现有资产</strong>（而非增长期权）</li>
+<li><strong>大量债务</strong></li>
+<li>经营状况<strong>持续恶化</strong></li>
+</ol>
+<p>这就是为什么期权估值框架主要适用于生命周期后期的高杠杆困境公司。</p>
+</section>
+<section id="总结" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="总结"><span class="header-section-number">10</span> 总结</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>核心要点
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>股权是看涨期权</strong>：标的资产是公司价值，执行价格是债务面值，有限责任制度保证了股东的最大损失是零</li>
+<li><strong>即使资不抵债，股权仍有价值</strong>：时间价值 + 波动性价值，这是 DCF 框架无法捕捉的</li>
+<li><strong>波动性是股东的朋友</strong>：与 DCF 完全相反，更高的风险可以增加股权价值</li>
+<li><strong>期权框架揭示利益冲突</strong>：股东有动机追求高风险项目、避免多元化并购</li>
+<li><strong>秃鹫投资的本质</strong>：投资深度虚值期权，押注于波动性和时间价值</li>
+<li><strong>适用范围有限</strong>：只有高杠杆的衰退期公司才适合用期权框架估值</li>
+</ul>
+</div>
+</div>
+<p>本章完成了实物期权系列的讨论。从第 28 章的延迟期权（专利、自然资源），到第 29 章的扩张和放弃期权，再到本章的清算期权（困境股权），我们看到了期权思维如何为估值提供全新视角。</p>
+<p>关键的 takeaway 是：<strong>期权框架的价值不在于它总是给出更高的估值，而在于它迫使我们思考不确定性、灵活性和时间的价值——这些在传统 DCF 中常常被忽视的维度。</strong></p>
+</section>
+<section id="思考题" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="思考题"><span class="header-section-number">11</span> 思考题</h2>
+<ol type="1">
+<li><p><strong>有限责任的影响</strong>：如果一家困境公司的大股东对公司债务提供了个人担保（即放弃了有限责任保护），这会如何影响股权的期权价值？能否继续用期权模型估值？</p></li>
+<li><p><strong>债务期限的策略选择</strong>：作为困境公司的管理层（假设你代表股东利益），在与债权人谈判债务重组时，你会争取延长债务期限还是缩短？为什么？</p></li>
+<li><p><strong>波动性与公司决策</strong>：假设你是一家深度困境公司的 CEO，面临两个投资项目：</p>
+<ul>
+<li>项目 A：NPV = +100 万，但会降低公司波动率</li>
+<li>项目 B：NPV = -50 万，但会大幅增加公司波动率</li>
+</ul>
+<p>从股东角度，哪个项目更有吸引力？这引发了什么治理问题？</p></li>
+<li><p><strong>中国市场应用</strong>：恒大地产在 2021-2023 年陷入债务危机。如果用期权框架分析其股权价值，你需要哪些数据？估计这些输入参数时会遇到什么困难？</p></li>
+<li><p><strong>与第 22 章的联系</strong>：第 22 章讨论了亏损公司的 DCF 估值（调整利润率、估计生存概率等），本章讨论了用期权模型估值。这两种方法什么时候会给出相似的结果？什么时候会有显著差异？哪种方法更适合什么类型的公司？</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

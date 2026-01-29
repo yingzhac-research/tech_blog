@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying Zha">
+<meta name="dcterms.date" content="2026-01-28">
+<meta name="description" content="RLHF 的三阶段流水线让 ChatGPT 成为可能，但它的工程复杂度也让许多研究者望而却步。本章讲述对齐技术的演进：从 DPO 发现 RLHF 可以被等价地简化为一个分类损失，到 ORPO/SimPO/KTO 等变体进一步消除参考模型依赖，再到 Constitutional AI 用 AI 自己来提供反馈。我们将追问对齐的本质——什么是’对齐’？对齐到谁的价值观？——并展望可扩展监督和超级对齐的前沿问题。">
+
+<title>第25章：对齐技术的演进 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从上一章说起" id="toc-从上一章说起" class="nav-link active" data-scroll-target="#从上一章说起"><span class="header-section-number">1</span> 从上一章说起</a></li>
+  <li><a href="#问题的本质是什么" id="toc-问题的本质是什么" class="nav-link" data-scroll-target="#问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</a>
+  <ul class="collapse">
+  <li><a href="#rlhf-的核心瓶颈" id="toc-rlhf-的核心瓶颈" class="nav-link" data-scroll-target="#rlhf-的核心瓶颈"><span class="header-section-number">2.1</span> RLHF 的核心瓶颈</a></li>
+  <li><a href="#变换视角从奖励到策略" id="toc-变换视角从奖励到策略" class="nav-link" data-scroll-target="#变换视角从奖励到策略"><span class="header-section-number">2.2</span> 变换视角：从奖励到策略</a></li>
+  <li><a href="#我们需要什么样的解决方案" id="toc-我们需要什么样的解决方案" class="nav-link" data-scroll-target="#我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</a></li>
+  </ul></li>
+  <li><a href="#核心思想与直觉" id="toc-核心思想与直觉" class="nav-link" data-scroll-target="#核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</a>
+  <ul class="collapse">
+  <li><a href="#关键洞察语言模型就是奖励模型" id="toc-关键洞察语言模型就是奖励模型" class="nav-link" data-scroll-target="#关键洞察语言模型就是奖励模型"><span class="header-section-number">3.1</span> 关键洞察：语言模型就是奖励模型</a></li>
+  <li><a href="#从偏好到损失函数" id="toc-从偏好到损失函数" class="nav-link" data-scroll-target="#从偏好到损失函数"><span class="header-section-number">3.2</span> 从偏好到损失函数</a></li>
+  <li><a href="#dpo-vs-rlhf直观对比" id="toc-dpo-vs-rlhf直观对比" class="nav-link" data-scroll-target="#dpo-vs-rlhf直观对比"><span class="header-section-number">3.3</span> DPO vs RLHF：直观对比</a></li>
+  </ul></li>
+  <li><a href="#技术细节" id="toc-技术细节" class="nav-link" data-scroll-target="#技术细节"><span class="header-section-number">4</span> 技术细节</a>
+  <ul class="collapse">
+  <li><a href="#dpo-的完整推导" id="toc-dpo-的完整推导" class="nav-link" data-scroll-target="#dpo-的完整推导"><span class="header-section-number">4.1</span> DPO 的完整推导</a></li>
+  <li><a href="#完整数值示例从偏好数据到梯度更新" id="toc-完整数值示例从偏好数据到梯度更新" class="nav-link" data-scroll-target="#完整数值示例从偏好数据到梯度更新"><span class="header-section-number">4.2</span> 完整数值示例：从偏好数据到梯度更新</a></li>
+  <li><a href="#dpo-与-rlhf-的理论等价性" id="toc-dpo-与-rlhf-的理论等价性" class="nav-link" data-scroll-target="#dpo-与-rlhf-的理论等价性"><span class="header-section-number">4.3</span> DPO 与 RLHF 的理论等价性</a></li>
+  <li><a href="#dpo-的梯度解析隐式奖励的视角" id="toc-dpo-的梯度解析隐式奖励的视角" class="nav-link" data-scroll-target="#dpo-的梯度解析隐式奖励的视角"><span class="header-section-number">4.4</span> DPO 的梯度解析：隐式奖励的视角</a></li>
+  <li><a href="#关键设计决策" id="toc-关键设计决策" class="nav-link" data-scroll-target="#关键设计决策"><span class="header-section-number">4.5</span> 关键设计决策</a></li>
+  <li><a href="#dpo-的实验效果" id="toc-dpo-的实验效果" class="nav-link" data-scroll-target="#dpo-的实验效果"><span class="header-section-number">4.6</span> DPO 的实验效果</a></li>
+  </ul></li>
+  <li><a href="#工程实践" id="toc-工程实践" class="nav-link" data-scroll-target="#工程实践"><span class="header-section-number">5</span> 工程实践</a>
+  <ul class="collapse">
+  <li><a href="#用-trl-库实现-dpo" id="toc-用-trl-库实现-dpo" class="nav-link" data-scroll-target="#用-trl-库实现-dpo"><span class="header-section-number">5.1</span> 用 TRL 库实现 DPO</a></li>
+  <li><a href="#dpo-vs-rlhf工程对比" id="toc-dpo-vs-rlhf工程对比" class="nav-link" data-scroll-target="#dpo-vs-rlhf工程对比"><span class="header-section-number">5.2</span> DPO vs RLHF：工程对比</a></li>
+  </ul></li>
+  <li><a href="#dpo-的变体与发展" id="toc-dpo-的变体与发展" class="nav-link" data-scroll-target="#dpo-的变体与发展"><span class="header-section-number">6</span> DPO 的变体与发展</a>
+  <ul class="collapse">
+  <li><a href="#orpo去掉参考模型" id="toc-orpo去掉参考模型" class="nav-link" data-scroll-target="#orpo去掉参考模型"><span class="header-section-number">6.1</span> ORPO：去掉参考模型</a></li>
+  <li><a href="#simpo长度归一化奖励" id="toc-simpo长度归一化奖励" class="nav-link" data-scroll-target="#simpo长度归一化奖励"><span class="header-section-number">6.2</span> SimPO：长度归一化奖励</a></li>
+  <li><a href="#kto从配对偏好到二元信号" id="toc-kto从配对偏好到二元信号" class="nav-link" data-scroll-target="#kto从配对偏好到二元信号"><span class="header-section-number">6.3</span> KTO：从配对偏好到二元信号</a></li>
+  <li><a href="#constitutional-aiai-自己当评委" id="toc-constitutional-aiai-自己当评委" class="nav-link" data-scroll-target="#constitutional-aiai-自己当评委"><span class="header-section-number">6.4</span> Constitutional AI：AI 自己当评委</a></li>
+  <li><a href="#变体对比总结" id="toc-变体对比总结" class="nav-link" data-scroll-target="#变体对比总结"><span class="header-section-number">6.5</span> 变体对比总结</a></li>
+  </ul></li>
+  <li><a href="#深入理解" id="toc-深入理解" class="nav-link" data-scroll-target="#深入理解"><span class="header-section-number">7</span> 深入理解</a>
+  <ul class="collapse">
+  <li><a href="#离线-vs-在线dpo-的根本局限" id="toc-离线-vs-在线dpo-的根本局限" class="nav-link" data-scroll-target="#离线-vs-在线dpo-的根本局限"><span class="header-section-number">7.1</span> 离线 vs 在线：DPO 的根本局限</a></li>
+  <li><a href="#dpo-与-rlhf-在实践中的差异" id="toc-dpo-与-rlhf-在实践中的差异" class="nav-link" data-scroll-target="#dpo-与-rlhf-在实践中的差异"><span class="header-section-number">7.2</span> DPO 与 RLHF 在实践中的差异</a></li>
+  <li><a href="#对齐的本质是什么" id="toc-对齐的本质是什么" class="nav-link" data-scroll-target="#对齐的本质是什么"><span class="header-section-number">7.3</span> 对齐的本质是什么？</a></li>
+  <li><a href="#dpo-风险卡片" id="toc-dpo-风险卡片" class="nav-link" data-scroll-target="#dpo-风险卡片"><span class="header-section-number">7.4</span> DPO 风险卡片</a></li>
+  <li><a href="#开放研究问题" id="toc-开放研究问题" class="nav-link" data-scroll-target="#开放研究问题"><span class="header-section-number">7.5</span> 开放研究问题</a></li>
+  </ul></li>
+  <li><a href="#局限性与未解决的问题" id="toc-局限性与未解决的问题" class="nav-link" data-scroll-target="#局限性与未解决的问题"><span class="header-section-number">8</span> 局限性与未解决的问题</a>
+  <ul class="collapse">
+  <li><a href="#dpo-家族的共同局限" id="toc-dpo-家族的共同局限" class="nav-link" data-scroll-target="#dpo-家族的共同局限"><span class="header-section-number">8.1</span> DPO 家族的共同局限</a></li>
+  <li><a href="#这些局限导向了什么" id="toc-这些局限导向了什么" class="nav-link" data-scroll-target="#这些局限导向了什么"><span class="header-section-number">8.2</span> 这些局限导向了什么？</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结"><span class="header-section-number">9</span> 本章小结</a>
+  <ul class="collapse">
+  <li><a href="#核心要点回顾" id="toc-核心要点回顾" class="nav-link" data-scroll-target="#核心要点回顾"><span class="header-section-number">9.1</span> 核心要点回顾</a></li>
+  <li><a href="#关键公式速查" id="toc-关键公式速查" class="nav-link" data-scroll-target="#关键公式速查"><span class="header-section-number">9.2</span> 关键公式速查</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">9.3</span> 思考题</a></li>
+  </ul></li>
+  <li><a href="#延伸阅读" id="toc-延伸阅读" class="nav-link" data-scroll-target="#延伸阅读"><span class="header-section-number">10</span> 延伸阅读</a>
+  <ul class="collapse">
+  <li><a href="#核心论文必读" id="toc-核心论文必读" class="nav-link" data-scroll-target="#核心论文必读"><span class="header-section-number">10.1</span> 核心论文（必读）</a></li>
+  <li><a href="#重要变体" id="toc-重要变体" class="nav-link" data-scroll-target="#重要变体"><span class="header-section-number">10.2</span> 重要变体</a></li>
+  <li><a href="#对齐理论" id="toc-对齐理论" class="nav-link" data-scroll-target="#对齐理论"><span class="header-section-number">10.3</span> 对齐理论</a></li>
+  <li><a href="#综述与教程" id="toc-综述与教程" class="nav-link" data-scroll-target="#综述与教程"><span class="header-section-number">10.4</span> 综述与教程</a></li>
+  <li><a href="#代码资源" id="toc-代码资源" class="nav-link" data-scroll-target="#代码资源"><span class="header-section-number">10.5</span> 代码资源</a></li>
+  </ul></li>
+  <li><a href="#历史注脚" id="toc-历史注脚" class="nav-link" data-scroll-target="#历史注脚"><span class="header-section-number">11</span> 历史注脚</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">第25章：对齐技术的演进</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">The Evolution of Alignment: From RLHF to Direct Preference Optimization</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">NLP</div>
+    <div class="quarto-category">Deep Learning</div>
+    <div class="quarto-category">LLM</div>
+    <div class="quarto-category">Alignment</div>
+    <div class="quarto-category">DPO</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    RLHF 的三阶段流水线让 ChatGPT 成为可能，但它的工程复杂度也让许多研究者望而却步。本章讲述对齐技术的演进：从 DPO 发现 RLHF 可以被等价地简化为一个分类损失，到 ORPO/SimPO/KTO 等变体进一步消除参考模型依赖，再到 Constitutional AI 用 AI 自己来提供反馈。我们将追问对齐的本质——什么是’对齐’？对齐到谁的价值观？——并展望可扩展监督和超级对齐的前沿问题。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying Zha </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 28, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>核心问题</strong>：能否绕过强化学习的复杂性，直接用偏好数据优化语言模型？对齐的本质是什么？</p>
+<p><strong>历史坐标</strong>：2023–2024 | DPO → ORPO/SimPO/KTO → Constitutional AI | 从 RL-based 到 RL-free alignment</p>
+</blockquote>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>本章参考来源
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="论文" class="level3" data-number="0.1">
+<h3 data-number="0.1" class="anchored" data-anchor-id="论文"><span class="header-section-number">0.1</span> 论文</h3>
+<ul>
+<li><strong>Rafailov et al.&nbsp;(2023)</strong> “Direct Preference Optimization: Your Language Model is Secretly a Reward Model” (<a href="https://arxiv.org/abs/2305.18290">arXiv:2305.18290</a>) — 参考了 Section 4（DPO 推导）、Section 5（理论分析）；核心推导改编为算法框</li>
+<li><strong>Hong et al.&nbsp;(2024)</strong> “ORPO: Monolithic Preference Optimization without Reference Model” (<a href="https://arxiv.org/abs/2403.07691">arXiv:2403.07691</a>) — 参考了 Section 3（Odds Ratio 推导）</li>
+<li><strong>Meng et al.&nbsp;(2024)</strong> “SimPO: Simple Preference Optimization with a Reference-Free Reward” (<a href="https://arxiv.org/abs/2405.14734">arXiv:2405.14734</a>) — 参考了 Section 3（长度归一化奖励）</li>
+<li><strong>Ethayarajh et al.&nbsp;(2024)</strong> “KTO: Model Alignment as Prospect Theoretic Optimization” (<a href="https://arxiv.org/abs/2402.01306">arXiv:2402.01306</a>) — 参考了 Section 3（Kahneman-Tversky 效用模型）</li>
+<li><strong>Bai et al.&nbsp;(2022)</strong> “Constitutional AI: Harmlessness from AI Feedback” (<a href="https://arxiv.org/abs/2212.08073">arXiv:2212.08073</a>) — 参考了 Section 3（RLAIF 流程）</li>
+<li><strong>Burns et al.&nbsp;(2023)</strong> “Weak-to-strong generalization” (<a href="https://openai.com/index/weak-to-strong-generalization/">OpenAI</a>) — 参考了超级对齐与可扩展监督的讨论</li>
+</ul>
+</section>
+<section id="教材" class="level3" data-number="0.2">
+<h3 data-number="0.2" class="anchored" data-anchor-id="教材"><span class="header-section-number">0.2</span> 教材</h3>
+<ul>
+<li>SLP3 Chapter 9: “Post-training: Instruction Tuning, Alignment, and Test-Time Compute” — 参考了 DPO 与 RLHF 的对比讲解</li>
+</ul>
+</section>
+<section id="课程" class="level3" data-number="0.3">
+<h3 data-number="0.3" class="anchored" data-anchor-id="课程"><span class="header-section-number">0.3</span> 课程</h3>
+<ul>
+<li>Stanford CS224N Lecture 10 (Winter 2025): “Instruction Finetuning, and RLHF” — 参考了 DPO 简化 RLHF 的教学思路</li>
+<li>University of Toronto MScAC (2024): “Direct Preference Optimization” — 参考了 DPO 推导的课程讲义</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<section id="从上一章说起" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从上一章说起"><span class="header-section-number">1</span> 从上一章说起</h2>
+<p>上一章我们深入探讨了 RLHF 的三阶段流水线——SFT 建立指令遵循基线，奖励模型学习人类偏好，PPO 优化策略以最大化奖励。这个框架造就了 InstructGPT 和 ChatGPT，将大语言模型从”文本补全器”转变为真正有用的 AI 助手。1.3B 参数的 InstructGPT 击败了 175B 的 GPT-3，有力地证明了”对齐”与”规模”同样重要。</p>
+<p>然而，RLHF 的成功背后隐藏着巨大的工程复杂度。三阶段流水线意味着三次独立的训练过程，每个阶段都有自己的超参数、数据需求和失效模式。PPO 阶段需要同时在 GPU 上维护四个大模型——策略模型、参考模型、奖励模型、价值模型——对于一个 7B 模型，这意味着至少需要 2-4 张 A100 (80GB) 才能勉强跑起来。更令人头疼的是调试：如果最终模型表现不好，问题可能出在 SFT 数据质量、偏好标注一致性、奖励模型泛化能力、PPO 超参数中的任何一个环节。</p>
+<p>这种复杂度让 RLHF 在很长一段时间内只是大公司的专属技术。学术界和开源社区虽然对对齐技术充满兴趣，但面对 RLHF 的工程门槛往往望而却步。一个自然的问题浮现出来：<strong>RLHF 的三阶段流水线是必要的吗？能否绕过强化学习，直接用偏好数据优化语言模型？</strong></p>
+<p>2023 年，Stanford 的 Rafailov 等人给出了一个令人惊喜的回答：可以。他们发现 RLHF 的目标函数可以被等价地转化为一个简单的分类损失——不需要单独训练奖励模型，不需要 PPO 的复杂训练循环。这个方法被命名为 <strong>DPO（Direct Preference Optimization）</strong>，它将三阶段流水线简化为一阶段的直接优化，大大降低了对齐技术的门槛。</p>
+<blockquote class="blockquote">
+<p>💡 <strong>本章核心洞察</strong>：通过将 RLHF 的最优策略解析解代入 Bradley-Terry 偏好模型，可以将奖励模型”消元”掉，得到一个直接关于策略模型的损失函数。这意味着偏好对齐不需要强化学习——它本质上可以是一个分类问题。</p>
+</blockquote>
+<div id="fig-dpo-vs-rlhf" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dpo-vs-rlhf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-25/original/fig1-dpo-vs-rlhf.png" class="img-fluid figure-img" style="width:95.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dpo-vs-rlhf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: DPO 与 RLHF 的核心区别：RLHF 需要先训练奖励模型，再用 RL 优化策略；DPO 直接在偏好数据上用最大似然优化策略。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Rafailov et al.&nbsp;(2023) “Direct Preference Optimization: Your Language Model is Secretly a Reward Model”, Figure 1</em></p>
+</div>
+</section>
+<section id="问题的本质是什么" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</h2>
+<section id="rlhf-的核心瓶颈" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="rlhf-的核心瓶颈"><span class="header-section-number">2.1</span> RLHF 的核心瓶颈</h3>
+<p>让我们从更本质的角度重新审视 RLHF 的设计。在 RLHF 中，奖励模型扮演着”人类偏好代理”的角色——它将人类的成对比较判断转化为一个标量奖励信号，供 PPO 使用。这个设计的初衷是合理的：人类不可能评审模型的每一个输出，所以需要一个自动化的代理。</p>
+<p>但仔细想想，奖励模型真的是必要的中间环节吗？我们有偏好数据（“A 比 B 好”），我们想要优化策略模型。奖励模型只是偏好数据和策略优化之间的一个桥梁——一个<strong>间接</strong>的桥梁。能否建立一条从偏好数据到策略优化的<strong>直接</strong>通路？</p>
+<p>这个问题的答案隐藏在上一章推导的 RLHF 最优策略解中。回忆一下，RLHF 的目标是最大化期望奖励同时约束 KL 散度：</p>
+<p><span class="math display">\[
+\max_{\pi} \; \mathbb{E}_{x, y \sim \pi} [r(x, y)] - \beta \, D_{\text{KL}}[\pi \| \pi_{\text{ref}}]
+\]</span></p>
+<p>这个约束优化问题的闭式最优解是：</p>
+<p><span class="math display">\[
+\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\!\left(\frac{r(x,y)}{\beta}\right)
+\]</span></p>
+<p>其中 <span class="math inline">\(Z(x)\)</span> 是归一化常数。这个公式告诉我们：<strong>最优策略与奖励函数之间存在一个解析的映射关系</strong>。如果我们将这个关系反过来，可以用最优策略来表达奖励函数——而一旦奖励函数可以用策略来表达，奖励模型作为独立组件就变得多余了。</p>
+</section>
+<section id="变换视角从奖励到策略" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="变换视角从奖励到策略"><span class="header-section-number">2.2</span> 变换视角：从奖励到策略</h3>
+<p>让我们把上面的最优策略公式重新排列。对 <span class="math inline">\(\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{r(x,y)}{\beta}\right)\)</span> 两边取对数：</p>
+<p><span class="math display">\[
+\log \pi^*(y|x) = \log \pi_{\text{ref}}(y|x) + \frac{r(x,y)}{\beta} - \log Z(x)
+\]</span></p>
+<p>整理得到奖励函数的表达式：</p>
+<p><span class="math display">\[
+r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)
+\]</span></p>
+<p>这个公式的意义极为深远：<strong>奖励函数可以完全用策略的对数概率比来表达</strong>（加上一个只依赖于 <span class="math inline">\(x\)</span> 的常数项 <span class="math inline">\(\beta \log Z(x)\)</span>）。换句话说，如果我们知道最优策略 <span class="math inline">\(\pi^*\)</span>，我们就隐含地知道了奖励函数——不需要单独训练一个奖励模型。</p>
+<p>更妙的是，当我们将这个”隐式奖励”代入 Bradley-Terry 偏好模型时，由于偏好概率只取决于两个回答的奖励<strong>差值</strong>，<span class="math inline">\(\beta \log Z(x)\)</span> 项会被抵消掉！</p>
+</section>
+<section id="我们需要什么样的解决方案" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</h3>
+<p>综合以上分析，理想的”直接对齐”方法应该满足三个条件。第一，它应该<strong>直接从偏好数据到策略优化</strong>，跳过奖励模型这个中间环节。第二，它应该<strong>只需要监督学习</strong>，不需要 PPO 那样的强化学习训练循环。第三，它的优化目标应该与 RLHF <strong>理论上等价</strong>——不是近似，不是启发式，而是在适当假设下数学上等价。</p>
+<p>DPO 正是这样的解决方案。它利用了”奖励可以用策略表达”这一洞察，将 RLHF 的三阶段流水线压缩为一个简洁的分类损失。</p>
+</section>
+</section>
+<section id="核心思想与直觉" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</h2>
+<section id="关键洞察语言模型就是奖励模型" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="关键洞察语言模型就是奖励模型"><span class="header-section-number">3.1</span> 关键洞察：语言模型就是奖励模型</h3>
+<p>DPO 的核心洞察可以用论文标题来概括：“Your Language Model is Secretly a Reward Model”（你的语言模型偷偷就是一个奖励模型）。</p>
+<p>这句话的意思是：一旦语言模型被优化为 RLHF 目标的最优解，它的对数概率本身就编码了奖励信息。具体来说，给定最优策略 <span class="math inline">\(\pi^*\)</span>，我们可以定义一个”隐式奖励”：</p>
+<p><span class="math display">\[
+r_{\text{implicit}}(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)}
+\]</span></p>
+<p>这个隐式奖励与 RLHF 中训练出的显式奖励在数学上是等价的（差一个只依赖于 <span class="math inline">\(x\)</span> 的常数）。所以，<strong>训练一个对齐良好的策略模型，等价于训练一个奖励模型</strong>——我们不需要两个独立的模型。</p>
+</section>
+<section id="从偏好到损失函数" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="从偏好到损失函数"><span class="header-section-number">3.2</span> 从偏好到损失函数</h3>
+<p>有了隐式奖励的概念，我们可以把它代入 Bradley-Terry 偏好模型。回忆 Bradley-Terry 模型假设人类偏好 <span class="math inline">\(y_w\)</span> 胜过 <span class="math inline">\(y_l\)</span> 的概率是：</p>
+<p><span class="math display">\[
+P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))
+\]</span></p>
+<p>将隐式奖励代入：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(y_w \succ y_l | x) &amp;= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \\
+&amp;= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} \cdot \frac{\pi_{\text{ref}}(y_l|x)}{\pi^*(y_l|x)}\right)
+\end{aligned}
+\]</span></p>
+<p>注意 <span class="math inline">\(Z(x)\)</span> 项确实被抵消了！现在偏好概率完全用策略模型的概率比来表达，不再需要单独的奖励模型。</p>
+<p>当然，我们不知道真正的最优策略 <span class="math inline">\(\pi^*\)</span> 是什么——那正是我们想要学习的。但我们可以把 <span class="math inline">\(\pi^*\)</span> 替换为我们正在训练的策略 <span class="math inline">\(\pi_\theta\)</span>，然后通过最大化偏好数据的似然来优化 <span class="math inline">\(\pi_\theta\)</span>：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma\!\left(\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \right]
+\]</span></p>
+<p>这就是 <strong>DPO 损失函数</strong>——一个惊人简洁的公式。它说的是：调整策略 <span class="math inline">\(\pi_\theta\)</span>，使得偏好回答 <span class="math inline">\(y_w\)</span> 相对于参考模型的”提升幅度”大于不偏好回答 <span class="math inline">\(y_l\)</span> 的提升幅度。</p>
+</section>
+<section id="dpo-vs-rlhf直观对比" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="dpo-vs-rlhf直观对比"><span class="header-section-number">3.3</span> DPO vs RLHF：直观对比</h3>
+<p>让我用一个类比来解释 DPO 和 RLHF 的区别。</p>
+<p>想象你是一位烹饪学校的校长，想教学生做出美味的菜品。</p>
+<p><strong>RLHF 的做法</strong>（三阶段）： 1. 先让资深厨师示范一些标准菜谱（SFT） 2. 找一批美食评论家，让他们品尝学生做的菜并打分，然后训练一个”AI 评分系统”来模仿评论家的判断（RM） 3. 让学生不断做菜，AI 评分系统给反馈，学生根据反馈调整烹饪技巧（PPO）</p>
+<p><strong>DPO 的做法</strong>（一阶段）： 1. 收集美食评论家的成对评判：这道菜 A 比菜 B 更好吃 2. 直接告诉学生：调整你的烹饪方式，使得做出 A 这类菜品的概率提高、做出 B 这类菜品的概率降低</p>
+<p>DPO 跳过了训练”AI 评分系统”这一步——它直接把评论家的成对判断转化为烹饪指导。这之所以可行，是因为 Rafailov 等人证明了这两种方法在数学上是等价的。</p>
+</section>
+</section>
+<section id="技术细节" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="技术细节"><span class="header-section-number">4</span> 技术细节</h2>
+<section id="dpo-的完整推导" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="dpo-的完整推导"><span class="header-section-number">4.1</span> DPO 的完整推导</h3>
+<p>让我们完整地走一遍 DPO 的数学推导，这是理解其精妙之处的关键。</p>
+<p><strong>Step 1: RLHF 目标函数</strong></p>
+<p>RLHF 的目标是最大化期望奖励同时约束 KL 散度：</p>
+<p><span class="math display">\[
+\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D}} \left[ \mathbb{E}_{y \sim \pi(\cdot|x)} [r(x, y)] - \beta \, D_{\text{KL}}[\pi(\cdot|x) \| \pi_{\text{ref}}(\cdot|x)] \right]
+\]</span></p>
+<p><strong>Step 2: 推导最优策略</strong></p>
+<p>这是一个带 KL 约束的期望最大化问题，可以用变分推断或 Lagrange 乘子法求解。结果是：</p>
+<p><span class="math display">\[
+\pi^*(y|x) = \frac{\pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)}{Z(x)}
+\]</span></p>
+<p>其中归一化常数 <span class="math inline">\(Z(x) = \sum_y \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)\)</span>。</p>
+<p><strong>Step 3: 反解奖励函数</strong></p>
+<p>对上式取对数并整理：</p>
+<p><span class="math display">\[
+r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)
+\]</span></p>
+<p><strong>Step 4: 代入 Bradley-Terry 模型</strong></p>
+<p>将隐式奖励代入偏好概率公式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(y_w \succ y_l | x) &amp;= \sigma(r(x, y_w) - r(x, y_l)) \\
+&amp;= \sigma\!\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} + \cancel{\beta \log Z(x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \cancel{\beta \log Z(x)}\right)
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(Z(x)\)</span> 项抵消！</p>
+<p><strong>Step 5: 定义 DPO 损失</strong></p>
+<p>既然 <span class="math inline">\(\pi^*\)</span> 是我们想要找到的目标，我们用可学习的 <span class="math inline">\(\pi_\theta\)</span> 来近似它，并最大化偏好数据的似然：</p>
+<p><span class="math display">\[
+\boxed{\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l)} \left[ \log \sigma\!\left(\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right) \right]}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Algorithm 1: Direct Preference Optimization (DPO)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DPO Training Algorithm</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Rafailov et al. (2023), Section 4</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Input: Reference policy π_ref, preference dataset D <span class="op">=</span> {(x, y_w, y_l)}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Output: Aligned policy π_θ</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>Hyperparameter: β (temperature, typically <span class="fl">0.1</span><span class="op">-</span><span class="fl">0.5</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> Initialize π_θ <span class="im">from</span> π_ref (<span class="kw">or</span> <span class="im">from</span> SFT model)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fl">2.</span> For each batch of (x, y_w, y_l) <span class="kw">in</span> D:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Compute log probabilities</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>   log_π_θ_w <span class="op">=</span> log π_θ(y_w <span class="op">|</span> x)    <span class="co"># policy on preferred</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>   log_π_θ_l <span class="op">=</span> log π_θ(y_l <span class="op">|</span> x)    <span class="co"># policy on dispreferred</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>   log_π_ref_w <span class="op">=</span> log π_ref(y_w <span class="op">|</span> x)  <span class="co"># reference on preferred</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>   log_π_ref_l <span class="op">=</span> log π_ref(y_l <span class="op">|</span> x)  <span class="co"># reference on dispreferred</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Compute log ratios</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>   log_ratio_w <span class="op">=</span> log_π_θ_w <span class="op">-</span> log_π_ref_w</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>   log_ratio_l <span class="op">=</span> log_π_θ_l <span class="op">-</span> log_π_ref_l</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>   <span class="co"># DPO loss (negative log-likelihood of preference)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>   loss <span class="op">=</span> <span class="op">-</span>log σ(β · (log_ratio_w <span class="op">-</span> log_ratio_l))</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Update θ using gradient descent</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>   θ ← θ <span class="op">-</span> α · ∇_θ loss</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fl">3.</span> Return π_θ</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Source: Rafailov et al.&nbsp;(2023) “Direct Preference Optimization”, Algorithm 1. <a href="https://arxiv.org/abs/2305.18290">arXiv:2305.18290</a></em></p>
+</div>
+</div>
+</section>
+<section id="完整数值示例从偏好数据到梯度更新" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="完整数值示例从偏好数据到梯度更新"><span class="header-section-number">4.2</span> 完整数值示例：从偏好数据到梯度更新</h3>
+<p>让我们用一个具体的数值示例来走一遍 DPO 的计算流程。</p>
+<p><strong>设定</strong>：假设有 prompt <span class="math inline">\(x\)</span> = “写一个关于春天的短诗”，模型生成了两个回答：</p>
+<ul>
+<li><span class="math inline">\(y_w\)</span>（偏好）：“春风拂面暖，花开满园香。燕子归来日，万物竞生长。”</li>
+<li><span class="math inline">\(y_l\)</span>（不偏好）：“春天来了，天气变暖。”</li>
+</ul>
+<p>假设 <span class="math inline">\(\beta = 0.5\)</span>，我们来计算 DPO 损失和梯度方向。</p>
+<p><strong>Step 1: 计算对数概率</strong></p>
+<p>假设当前策略 <span class="math inline">\(\pi_\theta\)</span> 和参考策略 <span class="math inline">\(\pi_{\text{ref}}\)</span> 给出的对数概率为：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\log \pi_\theta(y_w|x) &amp;= -15.2 \\
+\log \pi_\theta(y_l|x) &amp;= -8.3 \\
+\log \pi_{\text{ref}}(y_w|x) &amp;= -18.0 \\
+\log \pi_{\text{ref}}(y_l|x) &amp;= -7.5
+\end{aligned}
+\]</span></p>
+<p>注意：<span class="math inline">\(y_w\)</span> 更长更复杂，所以绝对概率更低（对数概率更负）。</p>
+<p><strong>Step 2: 计算对数比值</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} &amp;= -15.2 - (-18.0) = 2.8 \\
+\log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} &amp;= -8.3 - (-7.5) = -0.8
+\end{aligned}
+\]</span></p>
+<p><strong>解读</strong>：当前策略相比参考策略，将 <span class="math inline">\(y_w\)</span> 的概率提升了（对数比值为正），将 <span class="math inline">\(y_l\)</span> 的概率降低了（对数比值为负）。这是我们希望的方向！</p>
+<p><strong>Step 3: 计算隐式奖励差</strong></p>
+<p><span class="math display">\[
+\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) = 0.5 \times (2.8 - (-0.8)) = 0.5 \times 3.6 = 1.8
+\]</span></p>
+<p><strong>Step 4: 计算偏好概率和损失</strong></p>
+<p><span class="math display">\[
+P(y_w \succ y_l | x) = \sigma(1.8) = \frac{e^{1.8}}{e^{1.8} + 1} = \frac{6.05}{7.05} \approx 0.858
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{DPO}} = -\log(0.858) \approx 0.153
+\]</span></p>
+<p><strong>Step 5: 梯度方向分析</strong></p>
+<p>DPO 损失对策略参数 <span class="math inline">\(\theta\)</span> 的梯度是：</p>
+<p><span class="math display">\[
+\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta (1 - \sigma(\cdot)) \left[ \nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x) \right]
+\]</span></p>
+<p>其中 <span class="math inline">\(1 - \sigma(1.8) \approx 0.142\)</span> 是误差信号。梯度更新会： - 增加 <span class="math inline">\(\log \pi_\theta(y_w|x)\)</span>（提高偏好回答的概率） - 减少 <span class="math inline">\(\log \pi_\theta(y_l|x)\)</span>（降低不偏好回答的概率）</p>
+<p>当 <span class="math inline">\(\sigma(\cdot) \to 1\)</span> 时，误差信号趋近于 0，说明模型已经正确区分了偏好顺序。</p>
+</section>
+<section id="dpo-与-rlhf-的理论等价性" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="dpo-与-rlhf-的理论等价性"><span class="header-section-number">4.3</span> DPO 与 RLHF 的理论等价性</h3>
+<p>Rafailov et al.&nbsp;(2023) 证明了在两个条件下，DPO 和 RLHF 的全局最优解是相同的：</p>
+<ol type="1">
+<li><strong>Bradley-Terry 模型完美拟合偏好数据</strong>：即真实的人类偏好确实可以用某个奖励函数通过 <span class="math inline">\(P(y_w \succ y_l) = \sigma(r(y_w) - r(y_l))\)</span> 来表达。</li>
+<li><strong>RLHF 学到了最优奖励函数</strong>：即奖励模型训练没有欠拟合或过拟合。</li>
+</ol>
+<p>在这两个假设下，DPO 的全局最优解 <span class="math inline">\(\pi^*_{\text{DPO}}\)</span> 与 RLHF 的全局最优解 <span class="math inline">\(\pi^*_{\text{RLHF}}\)</span> 完全一致。</p>
+<p>然而，这只是理论结果。在实践中，由于优化的路径不同（DPO 是离线的、RLHF 是在线的），两者可能收敛到不同的局部最优。这个问题我们会在”深入理解”部分讨论。</p>
+</section>
+<section id="dpo-的梯度解析隐式奖励的视角" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="dpo-的梯度解析隐式奖励的视角"><span class="header-section-number">4.4</span> DPO 的梯度解析：隐式奖励的视角</h3>
+<p>DPO 损失的梯度有一个非常直观的解释。经过推导，可以写成：</p>
+<p><span class="math display">\[
+\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta \, \mathbb{E} \left[ \underbrace{\sigma\!\left(\hat{r}_\theta(x, y_l) - \hat{r}_\theta(x, y_w)\right)}_{\text{权重：当前排序有多"错"}} \cdot \left[\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)\right] \right]
+\]</span></p>
+<p>其中 <span class="math inline">\(\hat{r}_\theta(x, y) = \beta \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)}\)</span> 是隐式奖励。</p>
+<p>这个梯度公式有两个部分：</p>
+<ol type="1">
+<li><p><strong>权重项</strong> <span class="math inline">\(\sigma(\hat{r}_\theta(y_l) - \hat{r}_\theta(y_w))\)</span>：衡量当前模型对这对样本的排序有多”错”。如果模型已经正确地给 <span class="math inline">\(y_w\)</span> 更高的隐式奖励，这个权重接近 0，几乎不更新；如果模型错误地给 <span class="math inline">\(y_l\)</span> 更高的奖励，这个权重接近 1，强力更新。这是一种<strong>自适应加权</strong>——困难样本（排序错误的）获得更大的梯度。</p></li>
+<li><p><strong>方向项</strong> <span class="math inline">\(\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)\)</span>：增加偏好回答的概率，减少不偏好回答的概率。</p></li>
+</ol>
+</section>
+<section id="关键设计决策" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="关键设计决策"><span class="header-section-number">4.5</span> 关键设计决策</h3>
+<section id="决策1beta-的选择" class="level4" data-number="4.5.1">
+<h4 data-number="4.5.1" class="anchored" data-anchor-id="决策1beta-的选择"><span class="header-section-number">4.5.1</span> 决策1：<span class="math inline">\(\beta\)</span> 的选择</h4>
+<p><strong>决策</strong>：DPO 引入了温度参数 <span class="math inline">\(\beta\)</span>，它直接继承自 RLHF 目标中的 KL 系数。</p>
+<p><strong>原因</strong>：<span class="math inline">\(\beta\)</span> 控制了偏好信号的”尖锐程度”。<span class="math inline">\(\beta\)</span> 越大，对偏好差异越敏感，模型会更激进地调整概率分布；<span class="math inline">\(\beta\)</span> 越小，模型更保守地偏离参考模型。</p>
+<p><strong>实践经验</strong>： - 太大（如 <span class="math inline">\(\beta &gt; 1\)</span>）：模型可能过度拟合偏好数据中的噪声 - 太小（如 <span class="math inline">\(\beta &lt; 0.05\)</span>）：偏好信号太弱，模型几乎不改变行为 - 推荐范围：<span class="math inline">\(\beta \in [0.1, 0.5]\)</span>，通常从 0.1 开始调</p>
+<p><strong>替代方案</strong>：一些后续工作（如 IPO）探索了不同的 <span class="math inline">\(\beta\)</span> 调度策略，如从小到大逐渐增加。</p>
+</section>
+<section id="决策2参考模型的角色" class="level4" data-number="4.5.2">
+<h4 data-number="4.5.2" class="anchored" data-anchor-id="决策2参考模型的角色"><span class="header-section-number">4.5.2</span> 决策2：参考模型的角色</h4>
+<p><strong>决策</strong>：DPO 需要一个固定的参考模型 <span class="math inline">\(\pi_{\text{ref}}\)</span>，通常就是 SFT 模型。</p>
+<p><strong>原因</strong>：参考模型提供了”锚点”——隐式奖励是策略相对于参考模型的提升幅度。没有参考模型，DPO 会退化为直接最大化偏好回答的似然、最小化不偏好回答的似然，这容易导致模型分布崩溃。</p>
+<p><strong>工程注意</strong>：参考模型在训练过程中必须保持固定（不更新梯度）。这意味着需要同时加载两个模型（策略模型和参考模型），显存开销是 SFT 的两倍。</p>
+</section>
+<section id="决策3离线-vs-在线" class="level4" data-number="4.5.3">
+<h4 data-number="4.5.3" class="anchored" data-anchor-id="决策3离线-vs-在线"><span class="header-section-number">4.5.3</span> 决策3：离线 vs 在线</h4>
+<p><strong>决策</strong>：原始 DPO 是<strong>离线</strong>算法——在固定的偏好数据集上训练，训练过程中不生成新的回答。</p>
+<p><strong>原因</strong>：离线训练大大简化了实现——不需要采样、不需要实时评估、一次前向传播就能计算损失。这是 DPO 比 RLHF 简单的主要原因之一。</p>
+<p><strong>代价</strong>：离线训练意味着策略模型只能从固定数据中学习。如果策略模型的分布与生成偏好数据时的模型分布差距太大（distribution shift），DPO 的效果可能下降。后续的 Online DPO / Iterative DPO 试图解决这个问题。</p>
+</section>
+</section>
+<section id="dpo-的实验效果" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="dpo-的实验效果"><span class="header-section-number">4.6</span> DPO 的实验效果</h3>
+<p>Rafailov et al.&nbsp;(2023) 在多个任务上验证了 DPO 的效果。</p>
+<p><strong>对话任务</strong>（Anthropic HH）：DPO 与 RLHF (PPO) 达到了相似的人类偏好胜率，同时训练更加稳定、超参数更少。</p>
+<p><strong>摘要任务</strong>（TL;DR）：DPO 在 GPT-4 评估和人类评估中都达到了与 PPO 相当的性能。</p>
+<p><strong>情感控制</strong>（IMDb）：DPO 在控制生成文本情感方面略优于 PPO。</p>
+<p>最重要的是，DPO 的训练过程<strong>更加稳定</strong>。PPO 经常出现的奖励崩溃（reward collapse）、KL 散度失控等问题在 DPO 中很少发生，因为 DPO 本质上是监督学习。</p>
+</section>
+</section>
+<section id="工程实践" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="工程实践"><span class="header-section-number">5</span> 工程实践</h2>
+<section id="用-trl-库实现-dpo" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="用-trl-库实现-dpo"><span class="header-section-number">5.1</span> 用 TRL 库实现 DPO</h3>
+<p>Hugging Face 的 TRL 库提供了 DPO 的开箱即用实现：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> trl <span class="im">import</span> DPOTrainer, DPOConfig</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 加载模型（既作为策略模型也作为参考模型）</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ref_model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 准备偏好数据</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 格式：每条数据包含 (prompt, chosen, rejected)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="st">"Anthropic/hh-rlhf"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 配置 DPO</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> DPOConfig(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    output_dir<span class="op">=</span><span class="st">"dpo-model"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    per_device_train_batch_size<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    gradient_accumulation_steps<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    learning_rate<span class="op">=</span><span class="fl">5e-7</span>,        <span class="co"># DPO 通常用较小的学习率</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.1</span>,                   <span class="co"># KL 系数 β</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    max_length<span class="op">=</span><span class="dv">512</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    max_prompt_length<span class="op">=</span><span class="dv">256</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    num_train_epochs<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    bf16<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    logging_steps<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    save_strategy<span class="op">=</span><span class="st">"epoch"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 创建 DPO Trainer</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> DPOTrainer(</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    ref_model<span class="op">=</span>ref_model,       <span class="co"># 参考模型（训练时冻结）</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>config,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset[<span class="st">"train"</span>],</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    tokenizer<span class="op">=</span>tokenizer,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 训练！</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>trainer.train()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>与 RLHF 相比，DPO 的实现要简洁得多——没有奖励模型、没有 PPO 循环、没有 GAE 计算。一次 <code>trainer.train()</code> 就完成了整个对齐过程。</p>
+</section>
+<section id="dpo-vs-rlhf工程对比" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="dpo-vs-rlhf工程对比"><span class="header-section-number">5.2</span> DPO vs RLHF：工程对比</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 50%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>RLHF (PPO)</th>
+<th>DPO</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>训练阶段</strong></td>
+<td>3 阶段（SFT → RM → PPO）</td>
+<td>1 阶段（直接优化）</td>
+</tr>
+<tr class="even">
+<td><strong>GPU 模型数</strong></td>
+<td>4 个（策略、参考、奖励、价值）</td>
+<td>2 个（策略、参考）</td>
+</tr>
+<tr class="odd">
+<td><strong>超参数</strong></td>
+<td>多（KL 系数、裁剪范围、GAE 参数…）</td>
+<td>少（主要就是 <span class="math inline">\(\beta\)</span>）</td>
+</tr>
+<tr class="even">
+<td><strong>训练稳定性</strong></td>
+<td>较差（奖励崩溃、KL 失控常见）</td>
+<td>较好（本质是监督学习）</td>
+</tr>
+<tr class="odd">
+<td><strong>采样需求</strong></td>
+<td>需要（PPO 需要在线生成）</td>
+<td>不需要（离线数据集即可）</td>
+</tr>
+<tr class="even">
+<td><strong>实现复杂度</strong></td>
+<td>高</td>
+<td>低</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="dpo-的变体与发展" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="dpo-的变体与发展"><span class="header-section-number">6</span> DPO 的变体与发展</h2>
+<p>DPO 的成功激发了大量后续工作，每个都试图解决 DPO 的某个局限性或进一步简化算法。</p>
+<section id="orpo去掉参考模型" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="orpo去掉参考模型"><span class="header-section-number">6.1</span> ORPO：去掉参考模型</h3>
+<p><strong>核心思想</strong>：DPO 需要同时加载策略模型和参考模型，这在大模型上是显著的显存开销。Hong et al.&nbsp;(2024) 提出的 ORPO（Odds Ratio Preference Optimization）直接将 SFT 和偏好对齐合并为一步，不再需要单独的参考模型。</p>
+<p><strong>数学形式</strong>：ORPO 在标准语言建模损失的基础上，添加一个 Odds Ratio 惩罚项：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{ORPO}} = \mathbb{E} \left[ -\log P(y_w|x) - \lambda \cdot \log \sigma\!\left(\log \frac{\text{odds}(y_w|x)}{\text{odds}(y_l|x)}\right) \right]
+\]</span></p>
+<p>其中 <span class="math inline">\(\text{odds}(y|x) = \frac{P(y|x)}{1 - P(y|x)}\)</span>。</p>
+<p><strong>优势</strong>： - 只需要一个模型，显存减半 - 将 SFT 和对齐一步完成</p>
+<p><strong>实验结果</strong>：ORPO 在 Mistral-7B 上达到了 AlpacaEval 2.0 的 12.20%，超过了许多更大的模型。</p>
+</section>
+<section id="simpo长度归一化奖励" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="simpo长度归一化奖励"><span class="header-section-number">6.2</span> SimPO：长度归一化奖励</h3>
+<p><strong>核心思想</strong>：DPO 的一个问题是它隐式地偏好更短的回答（短回答的对数概率绝对值更小，更容易被”提升”）。Meng et al.&nbsp;(2024) 提出的 SimPO 用<strong>长度归一化的对数概率</strong>作为隐式奖励，解决了长度偏见问题。</p>
+<p><strong>数学形式</strong>：</p>
+<p><span class="math display">\[
+r_{\text{SimPO}}(x, y) = \frac{1}{|y|} \sum_{t=1}^{|y|} \log \pi_\theta(y_t | x, y_{&lt;t})
+\]</span></p>
+<p>用平均对数概率代替总对数概率，消除了对回答长度的敏感性。</p>
+<p><strong>额外改进</strong>：SimPO 还引入了一个”目标奖励边界”（target reward margin）<span class="math inline">\(\gamma\)</span>，确保偏好和不偏好回答的奖励差距足够大：</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{SimPO}} = -\log \sigma\!\left(\frac{\beta}{|y_w|} \log \pi_\theta(y_w|x) - \frac{\beta}{|y_l|} \log \pi_\theta(y_l|x) - \gamma\right)
+\]</span></p>
+<p><strong>优势</strong>： - 不需要参考模型（像 ORPO） - 解决长度偏见 - 在 AlpacaEval 2 和 Arena-Hard 上显著优于 DPO</p>
+</section>
+<section id="kto从配对偏好到二元信号" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="kto从配对偏好到二元信号"><span class="header-section-number">6.3</span> KTO：从配对偏好到二元信号</h3>
+<p><strong>核心思想</strong>：DPO、ORPO、SimPO 都需要<strong>成对偏好数据</strong>（“A 比 B 好”）。但这样的数据收集成本较高。Ethayarajh et al.&nbsp;(2024) 提出的 KTO 只需要<strong>二元信号</strong>——这个回答是”好”还是”不好”——就能进行对齐。</p>
+<p><strong>理论基础</strong>：KTO 的名字来自 Kahneman-Tversky 的前景理论（Prospect Theory）。他们发现 DPO 隐式地编码了人类的许多认知偏见（如损失厌恶），并设计了一个直接最大化 Kahneman-Tversky 效用函数的目标。</p>
+<p><strong>优势</strong>： - 数据收集更简单（只需要”好/不好”标签，不需要成对比较） - 在 1B-30B 规模上与基于配对偏好的方法效果相当</p>
+</section>
+<section id="constitutional-aiai-自己当评委" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="constitutional-aiai-自己当评委"><span class="header-section-number">6.4</span> Constitutional AI：AI 自己当评委</h3>
+<p><strong>核心思想</strong>：前面所有方法都依赖人类提供偏好信号。Bai et al.&nbsp;(2022) 的 Constitutional AI 提出了一个激进的想法：<strong>让 AI 自己来评判</strong>。</p>
+<div id="fig-cai-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cai-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-25/original/fig3-constitutional-ai-pipeline.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cai-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Constitutional AI 的两阶段流程：监督学习阶段（SL）通过自我批评和修正生成训练数据；强化学习阶段（RL）用 AI 生成的偏好替代人类偏好来训练奖励模型。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Bai et al.&nbsp;(2022) “Constitutional AI: Harmlessness from AI Feedback”, Figure 1</em></p>
+</div>
+<p><strong>方法</strong>： 1. 给模型一套”宪法原则”（如”回答应该无害”、“回答应该诚实”） 2. 让模型自我批评和修正：生成一个回答 → 根据宪法评价该回答 → 生成修正版本 3. 用 AI 生成的偏好（而非人类偏好）来训练奖励模型</p>
+<p>这个框架被称为 <strong>RLAIF</strong>（RL from AI Feedback）。</p>
+<p><strong>优势</strong>： - 可扩展——不需要大量人类标注 - 更加精确——可以指定非常详细的”宪法原则”</p>
+<p><strong>风险</strong>： - 模型的自我评价可能有系统性偏差 - 可能放大模型已有的偏见</p>
+</section>
+<section id="变体对比总结" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="变体对比总结"><span class="header-section-number">6.5</span> 变体对比总结</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>核心改进</th>
+<th>需要参考模型？</th>
+<th>数据要求</th>
+<th>发表</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DPO</td>
+<td>RLHF → 分类损失</td>
+<td>是</td>
+<td>成对偏好</td>
+<td>NeurIPS 2023</td>
+</tr>
+<tr class="even">
+<td>ORPO</td>
+<td>去掉参考模型</td>
+<td>否</td>
+<td>成对偏好</td>
+<td>EMNLP 2024</td>
+</tr>
+<tr class="odd">
+<td>SimPO</td>
+<td>长度归一化 + 无参考模型</td>
+<td>否</td>
+<td>成对偏好</td>
+<td>NeurIPS 2024</td>
+</tr>
+<tr class="even">
+<td>KTO</td>
+<td>二元信号代替配对</td>
+<td>是</td>
+<td>二元（好/不好）</td>
+<td>ICML 2024</td>
+</tr>
+<tr class="odd">
+<td>CAI/RLAIF</td>
+<td>AI 自生成偏好</td>
+<td>是</td>
+<td>AI 生成的偏好</td>
+<td>2022</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="深入理解" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="深入理解"><span class="header-section-number">7</span> 深入理解</h2>
+<blockquote class="blockquote">
+<p><strong>研究者必读</strong>：这一节探讨对齐技术的理论基础、边界条件和对齐的本质问题</p>
+</blockquote>
+<section id="离线-vs-在线dpo-的根本局限" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="离线-vs-在线dpo-的根本局限"><span class="header-section-number">7.1</span> 离线 vs 在线：DPO 的根本局限</h3>
+<p>DPO 是一个<strong>离线</strong>算法——它在一个固定的偏好数据集上训练，不生成新样本。这与 RLHF (PPO) 的<strong>在线</strong>特性形成对比。</p>
+<p>这个区别有深刻的影响。在线学习允许模型探索新的输出空间，并获得对这些新输出的反馈。离线学习只能从已有数据中提取信息。当策略模型的分布偏离数据收集时的分布时（这在训练过程中不可避免），离线算法的效果可能下降——这就是<strong>分布偏移</strong>（distribution shift）问题。</p>
+<p>具体来说，假设偏好数据是用 <span class="math inline">\(\pi_{\text{old}}\)</span> 生成的，但我们正在训练 <span class="math inline">\(\pi_\theta\)</span>。当 <span class="math inline">\(\pi_\theta\)</span> 与 <span class="math inline">\(\pi_{\text{old}}\)</span> 差距变大时，偏好数据中的”偏好回答”对 <span class="math inline">\(\pi_\theta\)</span> 来说可能不再是最优的——也许 <span class="math inline">\(\pi_\theta\)</span> 能生成更好的回答，但这些更好的回答不在训练数据中。</p>
+<p><strong>缓解方法</strong>： - <strong>Online DPO / Iterative DPO</strong>：每隔一定步数，用当前策略重新生成回答并收集偏好，更新训练数据 - <strong>更大的初始数据集</strong>：覆盖更广泛的输出分布 - <strong>正则化</strong>：防止策略偏离参考模型太远</p>
+</section>
+<section id="dpo-与-rlhf-在实践中的差异" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="dpo-与-rlhf-在实践中的差异"><span class="header-section-number">7.2</span> DPO 与 RLHF 在实践中的差异</h3>
+<p>虽然 DPO 和 RLHF 理论上等价，但在实践中它们有微妙的差异。</p>
+<p><strong>优化路径不同</strong>：RLHF 是在线优化，策略逐步改善并获得对改善后策略的反馈。DPO 是离线优化，一步到位地拟合偏好数据。这可能导致收敛到不同的局部最优。</p>
+<p><strong>对数据质量的敏感度</strong>：DPO 对偏好数据的质量更敏感。在 RLHF 中，奖励模型可以一定程度上”平滑”掉数据中的噪声；而 DPO 直接拟合偏好数据，噪声会直接影响策略。</p>
+<p><strong>实验观察</strong>：多项研究发现，在大规模、高质量偏好数据上，DPO 与 RLHF 效果接近甚至略优；但在小规模、嘈杂数据上，RLHF 有时更鲁棒。</p>
+</section>
+<section id="对齐的本质是什么" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="对齐的本质是什么"><span class="header-section-number">7.3</span> 对齐的本质是什么？</h3>
+<p>让我们退一步，思考一个更根本的问题：<strong>什么是”对齐”？我们到底在优化什么？</strong></p>
+<p>目前主流的对齐方法（无论 RLHF 还是 DPO）都隐含地假设存在一个”真实的人类偏好函数”，而我们的目标是学习并优化这个函数。Bradley-Terry 模型甚至给出了这个函数的数学形式：<span class="math inline">\(P(A \succ B) = \sigma(r(A) - r(B))\)</span>。</p>
+<p>但这个假设有多合理？</p>
+<p><strong>多元偏好</strong>：不同人有不同的偏好。有人喜欢详细的回答，有人喜欢简洁的；有人欣赏幽默，有人偏好严肃。用一个单一的标量奖励函数来表达所有人的偏好，必然是一种压缩和妥协。</p>
+<p><strong>偏好的不一致性</strong>：即使同一个人，在不同情境下偏好也可能不一致。Bradley-Terry 模型假设偏好是传递的（如果 A &gt; B 且 B &gt; C，则 A &gt; C），但人类的真实偏好经常违反传递性。</p>
+<p><strong>代理问题</strong>：我们收集的是标注员的偏好，但我们真正想对齐的是最终用户的偏好——甚至是某种”全人类的价值观”。标注员是全人类的有效代理吗？InstructGPT 的 40 人标注团队能代表世界上几十亿用户吗？</p>
+<p>这些问题没有简单的答案，但它们提醒我们：当前的对齐方法是<strong>工具</strong>，而非<strong>解决方案</strong>。它们在当前阶段是有用的，但我们不应该把它们神化为”让 AI 与人类价值观对齐”的最终答案。</p>
+</section>
+<section id="dpo-风险卡片" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="dpo-风险卡片"><span class="header-section-number">7.4</span> DPO 风险卡片</h3>
+<section id="dpo-风险卡片-1" class="level4" data-number="7.4.1">
+<h4 data-number="7.4.1" class="anchored" data-anchor-id="dpo-风险卡片-1"><span class="header-section-number">7.4.1</span> DPO 风险卡片</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>主要修复</strong></td>
+<td>简化 RLHF 流程，无需单独训练奖励模型，无需 RL 训练循环</td>
+</tr>
+<tr class="even">
+<td><strong>典型副作用</strong></td>
+<td>对数据质量更敏感、可能过度优化配对偏好、长度偏见（原始 DPO）</td>
+</tr>
+<tr class="odd">
+<td><strong>工程防护</strong></td>
+<td>高质量偏好数据、适当的 <span class="math inline">\(\beta\)</span> 值、early stopping、数据多样性</td>
+</tr>
+<tr class="even">
+<td><strong>开放问题</strong></td>
+<td>离线 vs 在线优化的根本差异、分布偏移的处理、与 RLHF 在何种条件下等价</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="开放研究问题" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="开放研究问题"><span class="header-section-number">7.5</span> 开放研究问题</h3>
+<p><strong>可扩展监督（Scalable Oversight）</strong>：当模型能力超过人类评审能力时，如何获得可靠的对齐信号？OpenAI 的”弱到强泛化”（Weak-to-Strong Generalization）研究表明，用弱模型监督强模型是可能的，但性能有明显损失。如何缩小这个差距是超级对齐的核心挑战。</p>
+<p><strong>超级对齐（Superalignment）</strong>：如何对齐比人类更聪明的 AI 系统？这个问题在当前看来还很遥远，但它迫使我们思考对齐方法的可扩展性边界。RLHF/DPO 假设人类能够可靠地判断输出质量——这个假设在超人类 AI 面前将不再成立。</p>
+<p><strong>对齐的形式化</strong>：目前没有一个被广泛接受的”对齐”的形式化定义。我们优化的是偏好数据的似然，但这与”真正的对齐”（如果存在的话）有什么关系？能否建立理论框架来分析对齐方法的保证和局限？</p>
+</section>
+</section>
+<section id="局限性与未解决的问题" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="局限性与未解决的问题"><span class="header-section-number">8</span> 局限性与未解决的问题</h2>
+<section id="dpo-家族的共同局限" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="dpo-家族的共同局限"><span class="header-section-number">8.1</span> DPO 家族的共同局限</h3>
+<p><strong>依赖偏好数据质量</strong>：所有直接对齐方法都假设偏好数据是”正确的”——偏好回答确实更好。但偏好数据可能有噪声（标注员之间不一致）、有偏见（标注员的系统性偏好）、有盲区（某些维度根本没有被评估）。</p>
+<p><strong>静态 vs 动态价值观</strong>：人类的价值观会随时间演变。一个在 2023 年被认为”有帮助”的回答，在 2025 年可能被认为”过时”或”不够谨慎”。当前的对齐方法都是用历史偏好数据训练，如何适应价值观的演变？</p>
+<p><strong>评估困难</strong>：如何衡量对齐的质量？人类评估昂贵且难以复现；自动评估（如用 GPT-4 当评委）有系统性偏差。没有可靠的评估，就很难比较不同对齐方法的优劣。</p>
+</section>
+<section id="这些局限导向了什么" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="这些局限导向了什么"><span class="header-section-number">8.2</span> 这些局限导向了什么？</h3>
+<p>对齐技术的演进揭示了一个深层模式：<strong>我们在不断简化工程复杂度的同时，也在不断逼近更根本的问题</strong>。</p>
+<p>从 RLHF 到 DPO，我们消除了奖励模型和 RL 训练的复杂性。从 DPO 到 ORPO/SimPO，我们消除了参考模型的依赖。从人类偏好到 RLAIF，我们探索了 AI 自我监督的可能性。</p>
+<p>但无论技术如何简化，核心问题始终存在：<strong>对齐到什么？谁来定义”对齐”？如何验证”已对齐”？</strong></p>
+<p>这些问题不仅是技术问题，也是哲学问题和社会问题。它们可能无法被任何单一的算法所”解决”，但需要在技术发展的同时被持续思考和讨论。</p>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">9</span> 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">9.1</span> 核心要点回顾</h3>
+<ol type="1">
+<li><p><strong>问题</strong>：RLHF 的三阶段流水线工程复杂度高，能否绕过强化学习直接优化偏好？</p></li>
+<li><p><strong>洞察</strong>：将 RLHF 的最优策略解析解代入 Bradley-Terry 模型，奖励函数可以被”消元”，得到只关于策略的损失函数——语言模型本身就是隐式的奖励模型</p></li>
+<li><p><strong>方法</strong>：DPO 将 RLHF 简化为一个分类损失 <span class="math inline">\(-\log \sigma(\beta(\log \frac{\pi_\theta(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\theta(y_l)}{\pi_{\text{ref}}(y_l)}))\)</span>；后续工作（ORPO、SimPO、KTO）进一步消除参考模型依赖或放松数据要求</p></li>
+<li><p><strong>意义</strong>：对齐技术的平民化——DPO 让偏好对齐变成了”加几行代码”的事情，大大降低了对齐技术的门槛</p></li>
+</ol>
+</section>
+<section id="关键公式速查" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="关键公式速查"><span class="header-section-number">9.2</span> 关键公式速查</h3>
+<ul>
+<li><strong>RLHF 最优策略</strong>：<span class="math inline">\(\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)\)</span></li>
+<li><strong>隐式奖励</strong>：<span class="math inline">\(r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)\)</span></li>
+<li><strong>DPO 损失</strong>：<span class="math inline">\(\mathcal{L}_{\text{DPO}} = -\mathbb{E}[\log \sigma(\beta(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}))]\)</span></li>
+<li><strong>SimPO 奖励</strong>：<span class="math inline">\(r(x,y) = \frac{\beta}{|y|} \log \pi_\theta(y|x)\)</span>（长度归一化）</li>
+</ul>
+</section>
+<section id="思考题" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="思考题"><span class="header-section-number">9.3</span> 思考题</h3>
+<ol type="1">
+<li><p><strong>[概念理解]</strong> DPO 损失函数中，为什么需要参考模型 <span class="math inline">\(\pi_{\text{ref}}\)</span>？如果去掉参考模型（即设 <span class="math inline">\(\pi_{\text{ref}}\)</span> 为均匀分布），DPO 会退化为什么？这种退化有什么问题？</p></li>
+<li><p><strong>[数学推导]</strong> 从 DPO 损失函数出发，推导其对策略参数 <span class="math inline">\(\theta\)</span> 的梯度。解释梯度中的”自适应权重”项 <span class="math inline">\(\sigma(\hat{r}(y_l) - \hat{r}(y_w))\)</span> 为什么能让算法更多关注”困难样本”。</p></li>
+<li><p><strong><a href="#工程实践">工程实践</a></strong> 使用 TRL 库在 Anthropic HH-RLHF 数据集上分别实现 DPO 和 SimPO。比较两者的训练稳定性、最终效果和生成文本的长度分布。<span class="math inline">\(\beta\)</span> 值如何影响结果？</p></li>
+<li><p><strong>[开放思考]</strong> Constitutional AI 用 AI 自己来生成偏好信号（RLAIF）。这种方法的哲学困境是什么？如果 AI 评估 AI，我们实际上是在对齐到什么？这与”超级对齐”问题有什么关系？</p></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">10</span> 延伸阅读</h2>
+<section id="核心论文必读" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="核心论文必读"><span class="header-section-number">10.1</span> 核心论文（必读）</h3>
+<ul>
+<li><strong>Direct Preference Optimization (Rafailov et al., 2023)</strong>：DPO 原始论文
+<ul>
+<li>重点读：Section 4（推导）、Section 5（理论分析）</li>
+<li>可跳过：Appendix 的数学证明细节</li>
+</ul></li>
+<li><strong>KTO: Model Alignment as Prospect Theoretic Optimization (Ethayarajh et al., 2024)</strong>：从行为经济学视角重新理解对齐
+<ul>
+<li>重点读：Section 3（Kahneman-Tversky 效用模型）</li>
+</ul></li>
+</ul>
+</section>
+<section id="重要变体" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="重要变体"><span class="header-section-number">10.2</span> 重要变体</h3>
+<ul>
+<li><strong>ORPO (Hong et al., 2024)</strong>：无参考模型的一步对齐</li>
+<li><strong>SimPO (Meng et al., 2024)</strong>：长度归一化 + 无参考模型</li>
+</ul>
+</section>
+<section id="对齐理论" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="对齐理论"><span class="header-section-number">10.3</span> 对齐理论</h3>
+<ul>
+<li><strong>Constitutional AI (Bai et al., 2022)</strong>：RLAIF 框架的开创</li>
+<li><strong>Weak-to-strong generalization (OpenAI, 2024)</strong>：超级对齐的实验基础</li>
+</ul>
+</section>
+<section id="综述与教程" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="综述与教程"><span class="header-section-number">10.4</span> 综述与教程</h3>
+<ul>
+<li><strong>SLP3 Chapter 9</strong>：Jurafsky &amp; Martin 对 RLHF/DPO 的教材级对比</li>
+<li><strong>A General Theoretical Paradigm to Understand Learning from Human Preferences (Azar et al., 2024)</strong>：偏好学习的统一理论框架</li>
+<li><strong>Direct Alignment Algorithms (RLHF Book)</strong>：Nathan Lambert 的深度教程</li>
+</ul>
+</section>
+<section id="代码资源" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="代码资源"><span class="header-section-number">10.5</span> 代码资源</h3>
+<ul>
+<li>Hugging Face TRL 库：<a href="https://github.com/huggingface/trl">github.com/huggingface/trl</a></li>
+<li>Princeton SimPO：<a href="https://github.com/princeton-nlp/SimPO">github.com/princeton-nlp/SimPO</a></li>
+<li>Stanford DPO 参考实现：<a href="https://github.com/eric-mitchell/direct-preference-optimization">github.com/eric-mitchell/direct-preference-optimization</a></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="历史注脚" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="历史注脚"><span class="header-section-number">11</span> 历史注脚</h2>
+<p>DPO 的故事是一个”理论之美”的典范。Rafailov 等人并没有引入新的模型架构或训练技巧——他们只是仔细分析了 RLHF 的数学结构，发现了一个被忽视的简化路径。这种”从已有组件中发现更简洁形式”的工作，在深度学习时代尤为珍贵。</p>
+<p>有趣的是，DPO 论文的标题——“Your Language Model is Secretly a Reward Model”——并不是一个营销口号，而是论文的核心技术洞察。这种”用标题概括核心贡献”的风格，值得所有研究者学习。</p>
+<p>DPO 的成功也反映了 ML 研究的一个规律：<strong>复杂的系统往往可以被更简单的替代方案所取代，只要我们足够深入地理解原系统在做什么</strong>。RLHF 的三阶段流水线看起来不可简化，但 DPO 证明了核心的数学结构可以被压缩为一个损失函数。这提醒我们，面对复杂系统时，不要被表面的工程复杂度所吓倒——本质可能比看起来简单得多。</p>
+<p>从更宏观的视角看，从 RLHF 到 DPO 到 ORPO/SimPO 的演进，展示了对齐技术正在经历”平民化”的过程。三年前，偏好对齐是 OpenAI/Anthropic 级别公司的专属技术；今天，一个研究生用一张消费级 GPU 就能在几小时内完成。这种技术的民主化既是机遇（更多人可以参与对齐研究），也是风险（对齐技术可能被滥用）。如何在开放与安全之间取得平衡，是 AI 社区面临的持续挑战。</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "第25章：对齐技术的演进"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "The Evolution of Alignment: From RLHF to Direct Preference Optimization"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ying Zha"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2026-01-28"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [NLP, Deep Learning, LLM, Alignment, DPO]</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="an">tags:</span><span class="co"> [DPO, ORPO, SimPO, KTO, Constitutional AI, Preference Optimization, RLHF, Direct Alignment, Superalignment]</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "RLHF 的三阶段流水线让 ChatGPT 成为可能，但它的工程复杂度也让许多研究者望而却步。本章讲述对齐技术的演进：从 DPO 发现 RLHF 可以被等价地简化为一个分类损失，到 ORPO/SimPO/KTO 等变体进一步消除参考模型依赖，再到 Constitutional AI 用 AI 自己来提供反馈。我们将追问对齐的本质——什么是'对齐'？对齐到谁的价值观？——并展望可扩展监督和超级对齐的前沿问题。"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> "figures/chapter-25/original/fig1-dpo-vs-rlhf.png"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc-depth:</span><span class="co"> 3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="an">code-fold:</span><span class="co"> true</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="an">code-tools:</span><span class="co"> true</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-cap-location: bottom</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> references.bib</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **核心问题**：能否绕过强化学习的复杂性，直接用偏好数据优化语言模型？对齐的本质是什么？</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **历史坐标**：2023–2024 </span><span class="pp">|</span><span class="at"> DPO → ORPO/SimPO/KTO → Constitutional AI </span><span class="pp">|</span><span class="at"> 从 RL-based 到 RL-free alignment</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章参考来源</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">### 论文</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Rafailov et al. (2023)** "Direct Preference Optimization: Your Language Model is Secretly a Reward Model" (<span class="co">[</span><span class="ot">arXiv:2305.18290</span><span class="co">](https://arxiv.org/abs/2305.18290)</span>) — 参考了 Section 4（DPO 推导）、Section 5（理论分析）；核心推导改编为算法框</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Hong et al. (2024)** "ORPO: Monolithic Preference Optimization without Reference Model" (<span class="co">[</span><span class="ot">arXiv:2403.07691</span><span class="co">](https://arxiv.org/abs/2403.07691)</span>) — 参考了 Section 3（Odds Ratio 推导）</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Meng et al. (2024)** "SimPO: Simple Preference Optimization with a Reference-Free Reward" (<span class="co">[</span><span class="ot">arXiv:2405.14734</span><span class="co">](https://arxiv.org/abs/2405.14734)</span>) — 参考了 Section 3（长度归一化奖励）</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ethayarajh et al. (2024)** "KTO: Model Alignment as Prospect Theoretic Optimization" (<span class="co">[</span><span class="ot">arXiv:2402.01306</span><span class="co">](https://arxiv.org/abs/2402.01306)</span>) — 参考了 Section 3（Kahneman-Tversky 效用模型）</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Bai et al. (2022)** "Constitutional AI: Harmlessness from AI Feedback" (<span class="co">[</span><span class="ot">arXiv:2212.08073</span><span class="co">](https://arxiv.org/abs/2212.08073)</span>) — 参考了 Section 3（RLAIF 流程）</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Burns et al. (2023)** "Weak-to-strong generalization" (<span class="co">[</span><span class="ot">OpenAI</span><span class="co">](https://openai.com/index/weak-to-strong-generalization/)</span>) — 参考了超级对齐与可扩展监督的讨论</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="fu">### 教材</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SLP3 Chapter 9: "Post-training: Instruction Tuning, Alignment, and Test-Time Compute" — 参考了 DPO 与 RLHF 的对比讲解</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">### 课程</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stanford CS224N Lecture 10 (Winter 2025): "Instruction Finetuning, and RLHF" — 参考了 DPO 简化 RLHF 的教学思路</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>University of Toronto MScAC (2024): "Direct Preference Optimization" — 参考了 DPO 推导的课程讲义</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## 从上一章说起</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>上一章我们深入探讨了 RLHF 的三阶段流水线——SFT 建立指令遵循基线，奖励模型学习人类偏好，PPO 优化策略以最大化奖励。这个框架造就了 InstructGPT 和 ChatGPT，将大语言模型从"文本补全器"转变为真正有用的 AI 助手。1.3B 参数的 InstructGPT 击败了 175B 的 GPT-3，有力地证明了"对齐"与"规模"同样重要。</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>然而，RLHF 的成功背后隐藏着巨大的工程复杂度。三阶段流水线意味着三次独立的训练过程，每个阶段都有自己的超参数、数据需求和失效模式。PPO 阶段需要同时在 GPU 上维护四个大模型——策略模型、参考模型、奖励模型、价值模型——对于一个 7B 模型，这意味着至少需要 2-4 张 A100 (80GB) 才能勉强跑起来。更令人头疼的是调试：如果最终模型表现不好，问题可能出在 SFT 数据质量、偏好标注一致性、奖励模型泛化能力、PPO 超参数中的任何一个环节。</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>这种复杂度让 RLHF 在很长一段时间内只是大公司的专属技术。学术界和开源社区虽然对对齐技术充满兴趣，但面对 RLHF 的工程门槛往往望而却步。一个自然的问题浮现出来：**RLHF 的三阶段流水线是必要的吗？能否绕过强化学习，直接用偏好数据优化语言模型？**</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>2023 年，Stanford 的 Rafailov 等人给出了一个令人惊喜的回答：可以。他们发现 RLHF 的目标函数可以被等价地转化为一个简单的分类损失——不需要单独训练奖励模型，不需要 PPO 的复杂训练循环。这个方法被命名为 **DPO（Direct Preference Optimization）**，它将三阶段流水线简化为一阶段的直接优化，大大降低了对齐技术的门槛。</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 💡 **本章核心洞察**：通过将 RLHF 的最优策略解析解代入 Bradley-Terry 偏好模型，可以将奖励模型"消元"掉，得到一个直接关于策略模型的损失函数。这意味着偏好对齐不需要强化学习——它本质上可以是一个分类问题。</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="al">![DPO 与 RLHF 的核心区别：RLHF 需要先训练奖励模型，再用 RL 优化策略；DPO 直接在偏好数据上用最大似然优化策略。](figures/chapter-25/original/fig1-dpo-vs-rlhf.png)</span>{#fig-dpo-vs-rlhf width=95%}</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>*Source: Rafailov et al. (2023) "Direct Preference Optimization: Your Language Model is Secretly a Reward Model", Figure 1*</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题的本质是什么？</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### RLHF 的核心瓶颈</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>让我们从更本质的角度重新审视 RLHF 的设计。在 RLHF 中，奖励模型扮演着"人类偏好代理"的角色——它将人类的成对比较判断转化为一个标量奖励信号，供 PPO 使用。这个设计的初衷是合理的：人类不可能评审模型的每一个输出，所以需要一个自动化的代理。</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>但仔细想想，奖励模型真的是必要的中间环节吗？我们有偏好数据（"A 比 B 好"），我们想要优化策略模型。奖励模型只是偏好数据和策略优化之间的一个桥梁——一个**间接**的桥梁。能否建立一条从偏好数据到策略优化的**直接**通路？</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>这个问题的答案隐藏在上一章推导的 RLHF 最优策略解中。回忆一下，RLHF 的目标是最大化期望奖励同时约束 KL 散度：</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>\max_{\pi} \; \mathbb{E}_{x, y \sim \pi} [r(x, y)] - \beta \, D_{\text{KL}}[\pi \| \pi_{\text{ref}}]</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>这个约束优化问题的闭式最优解是：</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp<span class="sc">\!</span>\left(\frac{r(x,y)}{\beta}\right)</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>其中 $Z(x)$ 是归一化常数。这个公式告诉我们：**最优策略与奖励函数之间存在一个解析的映射关系**。如果我们将这个关系反过来，可以用最优策略来表达奖励函数——而一旦奖励函数可以用策略来表达，奖励模型作为独立组件就变得多余了。</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### 变换视角：从奖励到策略</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>让我们把上面的最优策略公式重新排列。对 $\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{r(x,y)}{\beta}\right)$ 两边取对数：</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>\log \pi^*(y|x) = \log \pi_{\text{ref}}(y|x) + \frac{r(x,y)}{\beta} - \log Z(x)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>整理得到奖励函数的表达式：</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>这个公式的意义极为深远：**奖励函数可以完全用策略的对数概率比来表达**（加上一个只依赖于 $x$ 的常数项 $\beta \log Z(x)$）。换句话说，如果我们知道最优策略 $\pi^*$，我们就隐含地知道了奖励函数——不需要单独训练一个奖励模型。</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>更妙的是，当我们将这个"隐式奖励"代入 Bradley-Terry 偏好模型时，由于偏好概率只取决于两个回答的奖励**差值**，$\beta \log Z(x)$ 项会被抵消掉！</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### 我们需要什么样的解决方案？</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>综合以上分析，理想的"直接对齐"方法应该满足三个条件。第一，它应该**直接从偏好数据到策略优化**，跳过奖励模型这个中间环节。第二，它应该**只需要监督学习**，不需要 PPO 那样的强化学习训练循环。第三，它的优化目标应该与 RLHF **理论上等价**——不是近似，不是启发式，而是在适当假设下数学上等价。</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>DPO 正是这样的解决方案。它利用了"奖励可以用策略表达"这一洞察，将 RLHF 的三阶段流水线压缩为一个简洁的分类损失。</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a><span class="fu">## 核心思想与直觉</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### 关键洞察：语言模型就是奖励模型</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>DPO 的核心洞察可以用论文标题来概括："Your Language Model is Secretly a Reward Model"（你的语言模型偷偷就是一个奖励模型）。</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>这句话的意思是：一旦语言模型被优化为 RLHF 目标的最优解，它的对数概率本身就编码了奖励信息。具体来说，给定最优策略 $\pi^*$，我们可以定义一个"隐式奖励"：</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>r_{\text{implicit}}(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)}</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>这个隐式奖励与 RLHF 中训练出的显式奖励在数学上是等价的（差一个只依赖于 $x$ 的常数）。所以，**训练一个对齐良好的策略模型，等价于训练一个奖励模型**——我们不需要两个独立的模型。</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### 从偏好到损失函数</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>有了隐式奖励的概念，我们可以把它代入 Bradley-Terry 偏好模型。回忆 Bradley-Terry 模型假设人类偏好 $y_w$ 胜过 $y_l$ 的概率是：</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>将隐式奖励代入：</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>P(y_w \succ y_l | x) &amp;= \sigma<span class="sc">\!</span>\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) <span class="sc">\\</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>&amp;= \sigma<span class="sc">\!</span>\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} \cdot \frac{\pi_{\text{ref}}(y_l|x)}{\pi^*(y_l|x)}\right)</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>注意 $Z(x)$ 项确实被抵消了！现在偏好概率完全用策略模型的概率比来表达，不再需要单独的奖励模型。</span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>当然，我们不知道真正的最优策略 $\pi^*$ 是什么——那正是我们想要学习的。但我们可以把 $\pi^*$ 替换为我们正在训练的策略 $\pi_\theta$，然后通过最大化偏好数据的似然来优化 $\pi_\theta$：</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma\!\left(\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \right]</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>这就是 **DPO 损失函数**——一个惊人简洁的公式。它说的是：调整策略 $\pi_\theta$，使得偏好回答 $y_w$ 相对于参考模型的"提升幅度"大于不偏好回答 $y_l$ 的提升幅度。</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO vs RLHF：直观对比</span></span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>让我用一个类比来解释 DPO 和 RLHF 的区别。</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>想象你是一位烹饪学校的校长，想教学生做出美味的菜品。</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>**RLHF 的做法**（三阶段）：</span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>先让资深厨师示范一些标准菜谱（SFT）</span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>找一批美食评论家，让他们品尝学生做的菜并打分，然后训练一个"AI 评分系统"来模仿评论家的判断（RM）</span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>让学生不断做菜，AI 评分系统给反馈，学生根据反馈调整烹饪技巧（PPO）</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>**DPO 的做法**（一阶段）：</span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>收集美食评论家的成对评判：这道菜 A 比菜 B 更好吃</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>直接告诉学生：调整你的烹饪方式，使得做出 A 这类菜品的概率提高、做出 B 这类菜品的概率降低</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>DPO 跳过了训练"AI 评分系统"这一步——它直接把评论家的成对判断转化为烹饪指导。这之所以可行，是因为 Rafailov 等人证明了这两种方法在数学上是等价的。</span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a><span class="fu">## 技术细节</span></span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 的完整推导</span></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>让我们完整地走一遍 DPO 的数学推导，这是理解其精妙之处的关键。</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>**Step 1: RLHF 目标函数**</span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>RLHF 的目标是最大化期望奖励同时约束 KL 散度：</span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D}} \left[ \mathbb{E}_{y \sim \pi(\cdot|x)} [r(x, y)] - \beta \, D_{\text{KL}}[\pi(\cdot|x) \| \pi_{\text{ref}}(\cdot|x)] \right]</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>**Step 2: 推导最优策略**</span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>这是一个带 KL 约束的期望最大化问题，可以用变分推断或 Lagrange 乘子法求解。结果是：</span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>\pi^*(y|x) = \frac{\pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)}{Z(x)}</span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a>其中归一化常数 $Z(x) = \sum_y \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)$。</span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a>**Step 3: 反解奖励函数**</span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>对上式取对数并整理：</span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a>**Step 4: 代入 Bradley-Terry 模型**</span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>将隐式奖励代入偏好概率公式：</span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a>P(y_w \succ y_l | x) &amp;= \sigma(r(x, y_w) - r(x, y_l)) <span class="sc">\\</span></span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a>&amp;= \sigma<span class="sc">\!</span>\left(\beta \log \frac{\pi^*(y_w|x)}{\pi_{\text{ref}}(y_w|x)} + \cancel{\beta \log Z(x)} - \beta \log \frac{\pi^*(y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \cancel{\beta \log Z(x)}\right)</span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>$Z(x)$ 项抵消！</span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a>**Step 5: 定义 DPO 损失**</span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>既然 $\pi^*$ 是我们想要找到的目标，我们用可学习的 $\pi_\theta$ 来近似它，并最大化偏好数据的似然：</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a>\boxed{\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x, y_w, y_l)} \left[ \log \sigma\!\left(\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right) \right]}</span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## Algorithm 1: Direct Preference Optimization (DPO)</span></span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a><span class="co"># DPO Training Algorithm</span></span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a><span class="co"># Rafailov et al. (2023), Section 4</span></span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a>Input: Reference policy π_ref, preference dataset D <span class="op">=</span> {(x, y_w, y_l)}</span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a>Output: Aligned policy π_θ</span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a>Hyperparameter: β (temperature, typically <span class="fl">0.1</span><span class="op">-</span><span class="fl">0.5</span>)</span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> Initialize π_θ <span class="im">from</span> π_ref (<span class="kw">or</span> <span class="im">from</span> SFT model)</span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a><span class="fl">2.</span> For each batch of (x, y_w, y_l) <span class="kw">in</span> D:</span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Compute log probabilities</span></span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>   log_π_θ_w <span class="op">=</span> log π_θ(y_w <span class="op">|</span> x)    <span class="co"># policy on preferred</span></span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>   log_π_θ_l <span class="op">=</span> log π_θ(y_l <span class="op">|</span> x)    <span class="co"># policy on dispreferred</span></span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a>   log_π_ref_w <span class="op">=</span> log π_ref(y_w <span class="op">|</span> x)  <span class="co"># reference on preferred</span></span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a>   log_π_ref_l <span class="op">=</span> log π_ref(y_l <span class="op">|</span> x)  <span class="co"># reference on dispreferred</span></span>
+<span id="cb3-239"><a href="#cb3-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-240"><a href="#cb3-240" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Compute log ratios</span></span>
+<span id="cb3-241"><a href="#cb3-241" aria-hidden="true" tabindex="-1"></a>   log_ratio_w <span class="op">=</span> log_π_θ_w <span class="op">-</span> log_π_ref_w</span>
+<span id="cb3-242"><a href="#cb3-242" aria-hidden="true" tabindex="-1"></a>   log_ratio_l <span class="op">=</span> log_π_θ_l <span class="op">-</span> log_π_ref_l</span>
+<span id="cb3-243"><a href="#cb3-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-244"><a href="#cb3-244" aria-hidden="true" tabindex="-1"></a>   <span class="co"># DPO loss (negative log-likelihood of preference)</span></span>
+<span id="cb3-245"><a href="#cb3-245" aria-hidden="true" tabindex="-1"></a>   loss <span class="op">=</span> <span class="op">-</span>log σ(β · (log_ratio_w <span class="op">-</span> log_ratio_l))</span>
+<span id="cb3-246"><a href="#cb3-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-247"><a href="#cb3-247" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Update θ using gradient descent</span></span>
+<span id="cb3-248"><a href="#cb3-248" aria-hidden="true" tabindex="-1"></a>   θ ← θ <span class="op">-</span> α · ∇_θ loss</span>
+<span id="cb3-249"><a href="#cb3-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-250"><a href="#cb3-250" aria-hidden="true" tabindex="-1"></a><span class="fl">3.</span> Return π_θ</span>
+<span id="cb3-251"><a href="#cb3-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-252"><a href="#cb3-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-253"><a href="#cb3-253" aria-hidden="true" tabindex="-1"></a>*Source: Rafailov et al. (2023) "Direct Preference Optimization", Algorithm 1. [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)*</span>
+<span id="cb3-254"><a href="#cb3-254" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-255"><a href="#cb3-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-256"><a href="#cb3-256" aria-hidden="true" tabindex="-1"></a><span class="fu">### 完整数值示例：从偏好数据到梯度更新</span></span>
+<span id="cb3-257"><a href="#cb3-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-258"><a href="#cb3-258" aria-hidden="true" tabindex="-1"></a>让我们用一个具体的数值示例来走一遍 DPO 的计算流程。</span>
+<span id="cb3-259"><a href="#cb3-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-260"><a href="#cb3-260" aria-hidden="true" tabindex="-1"></a>**设定**：假设有 prompt $x$ = "写一个关于春天的短诗"，模型生成了两个回答：</span>
+<span id="cb3-261"><a href="#cb3-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-262"><a href="#cb3-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$y_w$（偏好）："春风拂面暖，花开满园香。燕子归来日，万物竞生长。"</span>
+<span id="cb3-263"><a href="#cb3-263" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$y_l$（不偏好）："春天来了，天气变暖。"</span>
+<span id="cb3-264"><a href="#cb3-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-265"><a href="#cb3-265" aria-hidden="true" tabindex="-1"></a>假设 $\beta = 0.5$，我们来计算 DPO 损失和梯度方向。</span>
+<span id="cb3-266"><a href="#cb3-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-267"><a href="#cb3-267" aria-hidden="true" tabindex="-1"></a>**Step 1: 计算对数概率**</span>
+<span id="cb3-268"><a href="#cb3-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-269"><a href="#cb3-269" aria-hidden="true" tabindex="-1"></a>假设当前策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 给出的对数概率为：</span>
+<span id="cb3-270"><a href="#cb3-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-271"><a href="#cb3-271" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-272"><a href="#cb3-272" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb3-273"><a href="#cb3-273" aria-hidden="true" tabindex="-1"></a>\log \pi_\theta(y_w|x) &amp;= -15.2 <span class="sc">\\</span></span>
+<span id="cb3-274"><a href="#cb3-274" aria-hidden="true" tabindex="-1"></a>\log \pi_\theta(y_l|x) &amp;= -8.3 <span class="sc">\\</span></span>
+<span id="cb3-275"><a href="#cb3-275" aria-hidden="true" tabindex="-1"></a>\log \pi_{\text{ref}}(y_w|x) &amp;= -18.0 <span class="sc">\\</span></span>
+<span id="cb3-276"><a href="#cb3-276" aria-hidden="true" tabindex="-1"></a>\log \pi_{\text{ref}}(y_l|x) &amp;= -7.5</span>
+<span id="cb3-277"><a href="#cb3-277" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb3-278"><a href="#cb3-278" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-279"><a href="#cb3-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-280"><a href="#cb3-280" aria-hidden="true" tabindex="-1"></a>注意：$y_w$ 更长更复杂，所以绝对概率更低（对数概率更负）。</span>
+<span id="cb3-281"><a href="#cb3-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-282"><a href="#cb3-282" aria-hidden="true" tabindex="-1"></a>**Step 2: 计算对数比值**</span>
+<span id="cb3-283"><a href="#cb3-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-284"><a href="#cb3-284" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-285"><a href="#cb3-285" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb3-286"><a href="#cb3-286" aria-hidden="true" tabindex="-1"></a>\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} &amp;= -15.2 - (-18.0) = 2.8 <span class="sc">\\</span></span>
+<span id="cb3-287"><a href="#cb3-287" aria-hidden="true" tabindex="-1"></a>\log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} &amp;= -8.3 - (-7.5) = -0.8</span>
+<span id="cb3-288"><a href="#cb3-288" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb3-289"><a href="#cb3-289" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-290"><a href="#cb3-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-291"><a href="#cb3-291" aria-hidden="true" tabindex="-1"></a>**解读**：当前策略相比参考策略，将 $y_w$ 的概率提升了（对数比值为正），将 $y_l$ 的概率降低了（对数比值为负）。这是我们希望的方向！</span>
+<span id="cb3-292"><a href="#cb3-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-293"><a href="#cb3-293" aria-hidden="true" tabindex="-1"></a>**Step 3: 计算隐式奖励差**</span>
+<span id="cb3-294"><a href="#cb3-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-295"><a href="#cb3-295" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-296"><a href="#cb3-296" aria-hidden="true" tabindex="-1"></a>\beta \left(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) = 0.5 \times (2.8 - (-0.8)) = 0.5 \times 3.6 = 1.8</span>
+<span id="cb3-297"><a href="#cb3-297" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-298"><a href="#cb3-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-299"><a href="#cb3-299" aria-hidden="true" tabindex="-1"></a>**Step 4: 计算偏好概率和损失**</span>
+<span id="cb3-300"><a href="#cb3-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-301"><a href="#cb3-301" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-302"><a href="#cb3-302" aria-hidden="true" tabindex="-1"></a>P(y_w \succ y_l | x) = \sigma(1.8) = \frac{e^{1.8}}{e^{1.8} + 1} = \frac{6.05}{7.05} \approx 0.858</span>
+<span id="cb3-303"><a href="#cb3-303" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-304"><a href="#cb3-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-305"><a href="#cb3-305" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-306"><a href="#cb3-306" aria-hidden="true" tabindex="-1"></a>\mathcal{L}_{\text{DPO}} = -\log(0.858) \approx 0.153</span>
+<span id="cb3-307"><a href="#cb3-307" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-308"><a href="#cb3-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-309"><a href="#cb3-309" aria-hidden="true" tabindex="-1"></a>**Step 5: 梯度方向分析**</span>
+<span id="cb3-310"><a href="#cb3-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-311"><a href="#cb3-311" aria-hidden="true" tabindex="-1"></a>DPO 损失对策略参数 $\theta$ 的梯度是：</span>
+<span id="cb3-312"><a href="#cb3-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-313"><a href="#cb3-313" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-314"><a href="#cb3-314" aria-hidden="true" tabindex="-1"></a>\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta (1 - \sigma(\cdot)) \left[ \nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x) \right]</span>
+<span id="cb3-315"><a href="#cb3-315" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-316"><a href="#cb3-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-317"><a href="#cb3-317" aria-hidden="true" tabindex="-1"></a>其中 $1 - \sigma(1.8) \approx 0.142$ 是误差信号。梯度更新会：</span>
+<span id="cb3-318"><a href="#cb3-318" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>增加 $\log \pi_\theta(y_w|x)$（提高偏好回答的概率）</span>
+<span id="cb3-319"><a href="#cb3-319" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>减少 $\log \pi_\theta(y_l|x)$（降低不偏好回答的概率）</span>
+<span id="cb3-320"><a href="#cb3-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-321"><a href="#cb3-321" aria-hidden="true" tabindex="-1"></a>当 $\sigma(\cdot) \to 1$ 时，误差信号趋近于 0，说明模型已经正确区分了偏好顺序。</span>
+<span id="cb3-322"><a href="#cb3-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-323"><a href="#cb3-323" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 与 RLHF 的理论等价性</span></span>
+<span id="cb3-324"><a href="#cb3-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-325"><a href="#cb3-325" aria-hidden="true" tabindex="-1"></a>Rafailov et al. (2023) 证明了在两个条件下，DPO 和 RLHF 的全局最优解是相同的：</span>
+<span id="cb3-326"><a href="#cb3-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-327"><a href="#cb3-327" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Bradley-Terry 模型完美拟合偏好数据**：即真实的人类偏好确实可以用某个奖励函数通过 $P(y_w \succ y_l) = \sigma(r(y_w) - r(y_l))$ 来表达。</span>
+<span id="cb3-328"><a href="#cb3-328" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**RLHF 学到了最优奖励函数**：即奖励模型训练没有欠拟合或过拟合。</span>
+<span id="cb3-329"><a href="#cb3-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-330"><a href="#cb3-330" aria-hidden="true" tabindex="-1"></a>在这两个假设下，DPO 的全局最优解 $\pi^*_{\text{DPO}}$ 与 RLHF 的全局最优解 $\pi^*_{\text{RLHF}}$ 完全一致。</span>
+<span id="cb3-331"><a href="#cb3-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-332"><a href="#cb3-332" aria-hidden="true" tabindex="-1"></a>然而，这只是理论结果。在实践中，由于优化的路径不同（DPO 是离线的、RLHF 是在线的），两者可能收敛到不同的局部最优。这个问题我们会在"深入理解"部分讨论。</span>
+<span id="cb3-333"><a href="#cb3-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-334"><a href="#cb3-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 的梯度解析：隐式奖励的视角</span></span>
+<span id="cb3-335"><a href="#cb3-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-336"><a href="#cb3-336" aria-hidden="true" tabindex="-1"></a>DPO 损失的梯度有一个非常直观的解释。经过推导，可以写成：</span>
+<span id="cb3-337"><a href="#cb3-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-338"><a href="#cb3-338" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-339"><a href="#cb3-339" aria-hidden="true" tabindex="-1"></a>\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta \, \mathbb{E} \left[ \underbrace{\sigma\!\left(\hat{r}_\theta(x, y_l) - \hat{r}_\theta(x, y_w)\right)}_{\text{权重：当前排序有多"错"}} \cdot \left[\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)\right] \right]</span>
+<span id="cb3-340"><a href="#cb3-340" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-341"><a href="#cb3-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-342"><a href="#cb3-342" aria-hidden="true" tabindex="-1"></a>其中 $\hat{r}_\theta(x, y) = \beta \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)}$ 是隐式奖励。</span>
+<span id="cb3-343"><a href="#cb3-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-344"><a href="#cb3-344" aria-hidden="true" tabindex="-1"></a>这个梯度公式有两个部分：</span>
+<span id="cb3-345"><a href="#cb3-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-346"><a href="#cb3-346" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**权重项** $\sigma(\hat{r}_\theta(y_l) - \hat{r}_\theta(y_w))$：衡量当前模型对这对样本的排序有多"错"。如果模型已经正确地给 $y_w$ 更高的隐式奖励，这个权重接近 0，几乎不更新；如果模型错误地给 $y_l$ 更高的奖励，这个权重接近 1，强力更新。这是一种**自适应加权**——困难样本（排序错误的）获得更大的梯度。</span>
+<span id="cb3-347"><a href="#cb3-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-348"><a href="#cb3-348" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**方向项** $\nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x)$：增加偏好回答的概率，减少不偏好回答的概率。</span>
+<span id="cb3-349"><a href="#cb3-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-350"><a href="#cb3-350" aria-hidden="true" tabindex="-1"></a><span class="fu">### 关键设计决策</span></span>
+<span id="cb3-351"><a href="#cb3-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-352"><a href="#cb3-352" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 决策1：$\beta$ 的选择</span></span>
+<span id="cb3-353"><a href="#cb3-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-354"><a href="#cb3-354" aria-hidden="true" tabindex="-1"></a>**决策**：DPO 引入了温度参数 $\beta$，它直接继承自 RLHF 目标中的 KL 系数。</span>
+<span id="cb3-355"><a href="#cb3-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-356"><a href="#cb3-356" aria-hidden="true" tabindex="-1"></a>**原因**：$\beta$ 控制了偏好信号的"尖锐程度"。$\beta$ 越大，对偏好差异越敏感，模型会更激进地调整概率分布；$\beta$ 越小，模型更保守地偏离参考模型。</span>
+<span id="cb3-357"><a href="#cb3-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-358"><a href="#cb3-358" aria-hidden="true" tabindex="-1"></a>**实践经验**：</span>
+<span id="cb3-359"><a href="#cb3-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>太大（如 $\beta &gt; 1$）：模型可能过度拟合偏好数据中的噪声</span>
+<span id="cb3-360"><a href="#cb3-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>太小（如 $\beta &lt; 0.05$）：偏好信号太弱，模型几乎不改变行为</span>
+<span id="cb3-361"><a href="#cb3-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>推荐范围：$\beta \in <span class="co">[</span><span class="ot">0.1, 0.5</span><span class="co">]</span>$，通常从 0.1 开始调</span>
+<span id="cb3-362"><a href="#cb3-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-363"><a href="#cb3-363" aria-hidden="true" tabindex="-1"></a>**替代方案**：一些后续工作（如 IPO）探索了不同的 $\beta$ 调度策略，如从小到大逐渐增加。</span>
+<span id="cb3-364"><a href="#cb3-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-365"><a href="#cb3-365" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 决策2：参考模型的角色</span></span>
+<span id="cb3-366"><a href="#cb3-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-367"><a href="#cb3-367" aria-hidden="true" tabindex="-1"></a>**决策**：DPO 需要一个固定的参考模型 $\pi_{\text{ref}}$，通常就是 SFT 模型。</span>
+<span id="cb3-368"><a href="#cb3-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-369"><a href="#cb3-369" aria-hidden="true" tabindex="-1"></a>**原因**：参考模型提供了"锚点"——隐式奖励是策略相对于参考模型的提升幅度。没有参考模型，DPO 会退化为直接最大化偏好回答的似然、最小化不偏好回答的似然，这容易导致模型分布崩溃。</span>
+<span id="cb3-370"><a href="#cb3-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-371"><a href="#cb3-371" aria-hidden="true" tabindex="-1"></a>**工程注意**：参考模型在训练过程中必须保持固定（不更新梯度）。这意味着需要同时加载两个模型（策略模型和参考模型），显存开销是 SFT 的两倍。</span>
+<span id="cb3-372"><a href="#cb3-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-373"><a href="#cb3-373" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 决策3：离线 vs 在线</span></span>
+<span id="cb3-374"><a href="#cb3-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-375"><a href="#cb3-375" aria-hidden="true" tabindex="-1"></a>**决策**：原始 DPO 是**离线**算法——在固定的偏好数据集上训练，训练过程中不生成新的回答。</span>
+<span id="cb3-376"><a href="#cb3-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-377"><a href="#cb3-377" aria-hidden="true" tabindex="-1"></a>**原因**：离线训练大大简化了实现——不需要采样、不需要实时评估、一次前向传播就能计算损失。这是 DPO 比 RLHF 简单的主要原因之一。</span>
+<span id="cb3-378"><a href="#cb3-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-379"><a href="#cb3-379" aria-hidden="true" tabindex="-1"></a>**代价**：离线训练意味着策略模型只能从固定数据中学习。如果策略模型的分布与生成偏好数据时的模型分布差距太大（distribution shift），DPO 的效果可能下降。后续的 Online DPO / Iterative DPO 试图解决这个问题。</span>
+<span id="cb3-380"><a href="#cb3-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-381"><a href="#cb3-381" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 的实验效果</span></span>
+<span id="cb3-382"><a href="#cb3-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-383"><a href="#cb3-383" aria-hidden="true" tabindex="-1"></a>Rafailov et al. (2023) 在多个任务上验证了 DPO 的效果。</span>
+<span id="cb3-384"><a href="#cb3-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-385"><a href="#cb3-385" aria-hidden="true" tabindex="-1"></a>**对话任务**（Anthropic HH）：DPO 与 RLHF (PPO) 达到了相似的人类偏好胜率，同时训练更加稳定、超参数更少。</span>
+<span id="cb3-386"><a href="#cb3-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-387"><a href="#cb3-387" aria-hidden="true" tabindex="-1"></a>**摘要任务**（TL;DR）：DPO 在 GPT-4 评估和人类评估中都达到了与 PPO 相当的性能。</span>
+<span id="cb3-388"><a href="#cb3-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-389"><a href="#cb3-389" aria-hidden="true" tabindex="-1"></a>**情感控制**（IMDb）：DPO 在控制生成文本情感方面略优于 PPO。</span>
+<span id="cb3-390"><a href="#cb3-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-391"><a href="#cb3-391" aria-hidden="true" tabindex="-1"></a>最重要的是，DPO 的训练过程**更加稳定**。PPO 经常出现的奖励崩溃（reward collapse）、KL 散度失控等问题在 DPO 中很少发生，因为 DPO 本质上是监督学习。</span>
+<span id="cb3-392"><a href="#cb3-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-393"><a href="#cb3-393" aria-hidden="true" tabindex="-1"></a><span class="fu">## 工程实践</span></span>
+<span id="cb3-394"><a href="#cb3-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-395"><a href="#cb3-395" aria-hidden="true" tabindex="-1"></a><span class="fu">### 用 TRL 库实现 DPO</span></span>
+<span id="cb3-396"><a href="#cb3-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-397"><a href="#cb3-397" aria-hidden="true" tabindex="-1"></a>Hugging Face 的 TRL 库提供了 DPO 的开箱即用实现：</span>
+<span id="cb3-398"><a href="#cb3-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-399"><a href="#cb3-399" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb3-400"><a href="#cb3-400" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> trl <span class="im">import</span> DPOTrainer, DPOConfig</span>
+<span id="cb3-401"><a href="#cb3-401" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+<span id="cb3-402"><a href="#cb3-402" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
+<span id="cb3-403"><a href="#cb3-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-404"><a href="#cb3-404" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 加载模型（既作为策略模型也作为参考模型）</span></span>
+<span id="cb3-405"><a href="#cb3-405" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb3-406"><a href="#cb3-406" aria-hidden="true" tabindex="-1"></a>ref_model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb3-407"><a href="#cb3-407" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">"your-sft-model"</span>)</span>
+<span id="cb3-408"><a href="#cb3-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-409"><a href="#cb3-409" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 准备偏好数据</span></span>
+<span id="cb3-410"><a href="#cb3-410" aria-hidden="true" tabindex="-1"></a><span class="co"># 格式：每条数据包含 (prompt, chosen, rejected)</span></span>
+<span id="cb3-411"><a href="#cb3-411" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="st">"Anthropic/hh-rlhf"</span>)</span>
+<span id="cb3-412"><a href="#cb3-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-413"><a href="#cb3-413" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 配置 DPO</span></span>
+<span id="cb3-414"><a href="#cb3-414" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> DPOConfig(</span>
+<span id="cb3-415"><a href="#cb3-415" aria-hidden="true" tabindex="-1"></a>    output_dir<span class="op">=</span><span class="st">"dpo-model"</span>,</span>
+<span id="cb3-416"><a href="#cb3-416" aria-hidden="true" tabindex="-1"></a>    per_device_train_batch_size<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb3-417"><a href="#cb3-417" aria-hidden="true" tabindex="-1"></a>    gradient_accumulation_steps<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb3-418"><a href="#cb3-418" aria-hidden="true" tabindex="-1"></a>    learning_rate<span class="op">=</span><span class="fl">5e-7</span>,        <span class="co"># DPO 通常用较小的学习率</span></span>
+<span id="cb3-419"><a href="#cb3-419" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.1</span>,                   <span class="co"># KL 系数 β</span></span>
+<span id="cb3-420"><a href="#cb3-420" aria-hidden="true" tabindex="-1"></a>    max_length<span class="op">=</span><span class="dv">512</span>,</span>
+<span id="cb3-421"><a href="#cb3-421" aria-hidden="true" tabindex="-1"></a>    max_prompt_length<span class="op">=</span><span class="dv">256</span>,</span>
+<span id="cb3-422"><a href="#cb3-422" aria-hidden="true" tabindex="-1"></a>    num_train_epochs<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb3-423"><a href="#cb3-423" aria-hidden="true" tabindex="-1"></a>    bf16<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-424"><a href="#cb3-424" aria-hidden="true" tabindex="-1"></a>    logging_steps<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb3-425"><a href="#cb3-425" aria-hidden="true" tabindex="-1"></a>    save_strategy<span class="op">=</span><span class="st">"epoch"</span>,</span>
+<span id="cb3-426"><a href="#cb3-426" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-427"><a href="#cb3-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-428"><a href="#cb3-428" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 创建 DPO Trainer</span></span>
+<span id="cb3-429"><a href="#cb3-429" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> DPOTrainer(</span>
+<span id="cb3-430"><a href="#cb3-430" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb3-431"><a href="#cb3-431" aria-hidden="true" tabindex="-1"></a>    ref_model<span class="op">=</span>ref_model,       <span class="co"># 参考模型（训练时冻结）</span></span>
+<span id="cb3-432"><a href="#cb3-432" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>config,</span>
+<span id="cb3-433"><a href="#cb3-433" aria-hidden="true" tabindex="-1"></a>    train_dataset<span class="op">=</span>dataset[<span class="st">"train"</span>],</span>
+<span id="cb3-434"><a href="#cb3-434" aria-hidden="true" tabindex="-1"></a>    tokenizer<span class="op">=</span>tokenizer,</span>
+<span id="cb3-435"><a href="#cb3-435" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-436"><a href="#cb3-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-437"><a href="#cb3-437" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 训练！</span></span>
+<span id="cb3-438"><a href="#cb3-438" aria-hidden="true" tabindex="-1"></a>trainer.train()</span>
+<span id="cb3-439"><a href="#cb3-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-440"><a href="#cb3-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-441"><a href="#cb3-441" aria-hidden="true" tabindex="-1"></a>与 RLHF 相比，DPO 的实现要简洁得多——没有奖励模型、没有 PPO 循环、没有 GAE 计算。一次 <span class="in">`trainer.train()`</span> 就完成了整个对齐过程。</span>
+<span id="cb3-442"><a href="#cb3-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-443"><a href="#cb3-443" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO vs RLHF：工程对比</span></span>
+<span id="cb3-444"><a href="#cb3-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-445"><a href="#cb3-445" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 维度 <span class="pp">|</span> RLHF (PPO) <span class="pp">|</span> DPO <span class="pp">|</span></span>
+<span id="cb3-446"><a href="#cb3-446" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|-----------|-----|</span></span>
+<span id="cb3-447"><a href="#cb3-447" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **训练阶段** <span class="pp">|</span> 3 阶段（SFT → RM → PPO） <span class="pp">|</span> 1 阶段（直接优化） <span class="pp">|</span></span>
+<span id="cb3-448"><a href="#cb3-448" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **GPU 模型数** <span class="pp">|</span> 4 个（策略、参考、奖励、价值） <span class="pp">|</span> 2 个（策略、参考） <span class="pp">|</span></span>
+<span id="cb3-449"><a href="#cb3-449" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **超参数** <span class="pp">|</span> 多（KL 系数、裁剪范围、GAE 参数...） <span class="pp">|</span> 少（主要就是 $\beta$） <span class="pp">|</span></span>
+<span id="cb3-450"><a href="#cb3-450" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **训练稳定性** <span class="pp">|</span> 较差（奖励崩溃、KL 失控常见） <span class="pp">|</span> 较好（本质是监督学习） <span class="pp">|</span></span>
+<span id="cb3-451"><a href="#cb3-451" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **采样需求** <span class="pp">|</span> 需要（PPO 需要在线生成） <span class="pp">|</span> 不需要（离线数据集即可） <span class="pp">|</span></span>
+<span id="cb3-452"><a href="#cb3-452" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **实现复杂度** <span class="pp">|</span> 高 <span class="pp">|</span> 低 <span class="pp">|</span></span>
+<span id="cb3-453"><a href="#cb3-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-454"><a href="#cb3-454" aria-hidden="true" tabindex="-1"></a><span class="fu">## DPO 的变体与发展</span></span>
+<span id="cb3-455"><a href="#cb3-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-456"><a href="#cb3-456" aria-hidden="true" tabindex="-1"></a>DPO 的成功激发了大量后续工作，每个都试图解决 DPO 的某个局限性或进一步简化算法。</span>
+<span id="cb3-457"><a href="#cb3-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-458"><a href="#cb3-458" aria-hidden="true" tabindex="-1"></a><span class="fu">### ORPO：去掉参考模型</span></span>
+<span id="cb3-459"><a href="#cb3-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-460"><a href="#cb3-460" aria-hidden="true" tabindex="-1"></a>**核心思想**：DPO 需要同时加载策略模型和参考模型，这在大模型上是显著的显存开销。Hong et al. (2024) 提出的 ORPO（Odds Ratio Preference Optimization）直接将 SFT 和偏好对齐合并为一步，不再需要单独的参考模型。</span>
+<span id="cb3-461"><a href="#cb3-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-462"><a href="#cb3-462" aria-hidden="true" tabindex="-1"></a>**数学形式**：ORPO 在标准语言建模损失的基础上，添加一个 Odds Ratio 惩罚项：</span>
+<span id="cb3-463"><a href="#cb3-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-464"><a href="#cb3-464" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-465"><a href="#cb3-465" aria-hidden="true" tabindex="-1"></a>\mathcal{L}_{\text{ORPO}} = \mathbb{E} \left<span class="co">[</span><span class="ot"> -\log P(y_w|x) - \lambda \cdot \log \sigma\!\left(\log \frac{\text{odds}(y_w|x)}{\text{odds}(y_l|x)}\right) \right</span><span class="co">]</span></span>
+<span id="cb3-466"><a href="#cb3-466" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-467"><a href="#cb3-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-468"><a href="#cb3-468" aria-hidden="true" tabindex="-1"></a>其中 $\text{odds}(y|x) = \frac{P(y|x)}{1 - P(y|x)}$。</span>
+<span id="cb3-469"><a href="#cb3-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-470"><a href="#cb3-470" aria-hidden="true" tabindex="-1"></a>**优势**：</span>
+<span id="cb3-471"><a href="#cb3-471" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>只需要一个模型，显存减半</span>
+<span id="cb3-472"><a href="#cb3-472" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>将 SFT 和对齐一步完成</span>
+<span id="cb3-473"><a href="#cb3-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-474"><a href="#cb3-474" aria-hidden="true" tabindex="-1"></a>**实验结果**：ORPO 在 Mistral-7B 上达到了 AlpacaEval 2.0 的 12.20%，超过了许多更大的模型。</span>
+<span id="cb3-475"><a href="#cb3-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-476"><a href="#cb3-476" aria-hidden="true" tabindex="-1"></a><span class="fu">### SimPO：长度归一化奖励</span></span>
+<span id="cb3-477"><a href="#cb3-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-478"><a href="#cb3-478" aria-hidden="true" tabindex="-1"></a>**核心思想**：DPO 的一个问题是它隐式地偏好更短的回答（短回答的对数概率绝对值更小，更容易被"提升"）。Meng et al. (2024) 提出的 SimPO 用**长度归一化的对数概率**作为隐式奖励，解决了长度偏见问题。</span>
+<span id="cb3-479"><a href="#cb3-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-480"><a href="#cb3-480" aria-hidden="true" tabindex="-1"></a>**数学形式**：</span>
+<span id="cb3-481"><a href="#cb3-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-482"><a href="#cb3-482" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-483"><a href="#cb3-483" aria-hidden="true" tabindex="-1"></a>r_{\text{SimPO}}(x, y) = \frac{1}{|y|} \sum_{t=1}^{|y|} \log \pi_\theta(y_t | x, y_{&lt;t})</span>
+<span id="cb3-484"><a href="#cb3-484" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-485"><a href="#cb3-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-486"><a href="#cb3-486" aria-hidden="true" tabindex="-1"></a>用平均对数概率代替总对数概率，消除了对回答长度的敏感性。</span>
+<span id="cb3-487"><a href="#cb3-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-488"><a href="#cb3-488" aria-hidden="true" tabindex="-1"></a>**额外改进**：SimPO 还引入了一个"目标奖励边界"（target reward margin）$\gamma$，确保偏好和不偏好回答的奖励差距足够大：</span>
+<span id="cb3-489"><a href="#cb3-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-490"><a href="#cb3-490" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-491"><a href="#cb3-491" aria-hidden="true" tabindex="-1"></a>\mathcal{L}_{\text{SimPO}} = -\log \sigma\!\left(\frac{\beta}{|y_w|} \log \pi_\theta(y_w|x) - \frac{\beta}{|y_l|} \log \pi_\theta(y_l|x) - \gamma\right)</span>
+<span id="cb3-492"><a href="#cb3-492" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-493"><a href="#cb3-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-494"><a href="#cb3-494" aria-hidden="true" tabindex="-1"></a>**优势**：</span>
+<span id="cb3-495"><a href="#cb3-495" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>不需要参考模型（像 ORPO）</span>
+<span id="cb3-496"><a href="#cb3-496" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>解决长度偏见</span>
+<span id="cb3-497"><a href="#cb3-497" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>在 AlpacaEval 2 和 Arena-Hard 上显著优于 DPO</span>
+<span id="cb3-498"><a href="#cb3-498" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-499"><a href="#cb3-499" aria-hidden="true" tabindex="-1"></a><span class="fu">### KTO：从配对偏好到二元信号</span></span>
+<span id="cb3-500"><a href="#cb3-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-501"><a href="#cb3-501" aria-hidden="true" tabindex="-1"></a>**核心思想**：DPO、ORPO、SimPO 都需要**成对偏好数据**（"A 比 B 好"）。但这样的数据收集成本较高。Ethayarajh et al. (2024) 提出的 KTO 只需要**二元信号**——这个回答是"好"还是"不好"——就能进行对齐。</span>
+<span id="cb3-502"><a href="#cb3-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-503"><a href="#cb3-503" aria-hidden="true" tabindex="-1"></a>**理论基础**：KTO 的名字来自 Kahneman-Tversky 的前景理论（Prospect Theory）。他们发现 DPO 隐式地编码了人类的许多认知偏见（如损失厌恶），并设计了一个直接最大化 Kahneman-Tversky 效用函数的目标。</span>
+<span id="cb3-504"><a href="#cb3-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-505"><a href="#cb3-505" aria-hidden="true" tabindex="-1"></a>**优势**：</span>
+<span id="cb3-506"><a href="#cb3-506" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>数据收集更简单（只需要"好/不好"标签，不需要成对比较）</span>
+<span id="cb3-507"><a href="#cb3-507" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>在 1B-30B 规模上与基于配对偏好的方法效果相当</span>
+<span id="cb3-508"><a href="#cb3-508" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-509"><a href="#cb3-509" aria-hidden="true" tabindex="-1"></a><span class="fu">### Constitutional AI：AI 自己当评委</span></span>
+<span id="cb3-510"><a href="#cb3-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-511"><a href="#cb3-511" aria-hidden="true" tabindex="-1"></a>**核心思想**：前面所有方法都依赖人类提供偏好信号。Bai et al. (2022) 的 Constitutional AI 提出了一个激进的想法：**让 AI 自己来评判**。</span>
+<span id="cb3-512"><a href="#cb3-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-513"><a href="#cb3-513" aria-hidden="true" tabindex="-1"></a><span class="al">![Constitutional AI 的两阶段流程：监督学习阶段（SL）通过自我批评和修正生成训练数据；强化学习阶段（RL）用 AI 生成的偏好替代人类偏好来训练奖励模型。](figures/chapter-25/original/fig3-constitutional-ai-pipeline.png)</span>{#fig-cai-pipeline width=90%}</span>
+<span id="cb3-514"><a href="#cb3-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-515"><a href="#cb3-515" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb3-516"><a href="#cb3-516" aria-hidden="true" tabindex="-1"></a>*Source: Bai et al. (2022) "Constitutional AI: Harmlessness from AI Feedback", Figure 1*</span>
+<span id="cb3-517"><a href="#cb3-517" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-518"><a href="#cb3-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-519"><a href="#cb3-519" aria-hidden="true" tabindex="-1"></a>**方法**：</span>
+<span id="cb3-520"><a href="#cb3-520" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>给模型一套"宪法原则"（如"回答应该无害"、"回答应该诚实"）</span>
+<span id="cb3-521"><a href="#cb3-521" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>让模型自我批评和修正：生成一个回答 → 根据宪法评价该回答 → 生成修正版本</span>
+<span id="cb3-522"><a href="#cb3-522" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>用 AI 生成的偏好（而非人类偏好）来训练奖励模型</span>
+<span id="cb3-523"><a href="#cb3-523" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-524"><a href="#cb3-524" aria-hidden="true" tabindex="-1"></a>这个框架被称为 **RLAIF**（RL from AI Feedback）。</span>
+<span id="cb3-525"><a href="#cb3-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-526"><a href="#cb3-526" aria-hidden="true" tabindex="-1"></a>**优势**：</span>
+<span id="cb3-527"><a href="#cb3-527" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>可扩展——不需要大量人类标注</span>
+<span id="cb3-528"><a href="#cb3-528" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>更加精确——可以指定非常详细的"宪法原则"</span>
+<span id="cb3-529"><a href="#cb3-529" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-530"><a href="#cb3-530" aria-hidden="true" tabindex="-1"></a>**风险**：</span>
+<span id="cb3-531"><a href="#cb3-531" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>模型的自我评价可能有系统性偏差</span>
+<span id="cb3-532"><a href="#cb3-532" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>可能放大模型已有的偏见</span>
+<span id="cb3-533"><a href="#cb3-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-534"><a href="#cb3-534" aria-hidden="true" tabindex="-1"></a><span class="fu">### 变体对比总结</span></span>
+<span id="cb3-535"><a href="#cb3-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-536"><a href="#cb3-536" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 方法 <span class="pp">|</span> 核心改进 <span class="pp">|</span> 需要参考模型？ <span class="pp">|</span> 数据要求 <span class="pp">|</span> 发表 <span class="pp">|</span></span>
+<span id="cb3-537"><a href="#cb3-537" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|---------|---------------|---------|------|</span></span>
+<span id="cb3-538"><a href="#cb3-538" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> DPO <span class="pp">|</span> RLHF → 分类损失 <span class="pp">|</span> 是 <span class="pp">|</span> 成对偏好 <span class="pp">|</span> NeurIPS 2023 <span class="pp">|</span></span>
+<span id="cb3-539"><a href="#cb3-539" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ORPO <span class="pp">|</span> 去掉参考模型 <span class="pp">|</span> 否 <span class="pp">|</span> 成对偏好 <span class="pp">|</span> EMNLP 2024 <span class="pp">|</span></span>
+<span id="cb3-540"><a href="#cb3-540" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> SimPO <span class="pp">|</span> 长度归一化 + 无参考模型 <span class="pp">|</span> 否 <span class="pp">|</span> 成对偏好 <span class="pp">|</span> NeurIPS 2024 <span class="pp">|</span></span>
+<span id="cb3-541"><a href="#cb3-541" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> KTO <span class="pp">|</span> 二元信号代替配对 <span class="pp">|</span> 是 <span class="pp">|</span> 二元（好/不好） <span class="pp">|</span> ICML 2024 <span class="pp">|</span></span>
+<span id="cb3-542"><a href="#cb3-542" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> CAI/RLAIF <span class="pp">|</span> AI 自生成偏好 <span class="pp">|</span> 是 <span class="pp">|</span> AI 生成的偏好 <span class="pp">|</span> 2022 <span class="pp">|</span></span>
+<span id="cb3-543"><a href="#cb3-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-544"><a href="#cb3-544" aria-hidden="true" tabindex="-1"></a><span class="fu">## 深入理解</span></span>
+<span id="cb3-545"><a href="#cb3-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-546"><a href="#cb3-546" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **研究者必读**：这一节探讨对齐技术的理论基础、边界条件和对齐的本质问题</span></span>
+<span id="cb3-547"><a href="#cb3-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-548"><a href="#cb3-548" aria-hidden="true" tabindex="-1"></a><span class="fu">### 离线 vs 在线：DPO 的根本局限</span></span>
+<span id="cb3-549"><a href="#cb3-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-550"><a href="#cb3-550" aria-hidden="true" tabindex="-1"></a>DPO 是一个**离线**算法——它在一个固定的偏好数据集上训练，不生成新样本。这与 RLHF (PPO) 的**在线**特性形成对比。</span>
+<span id="cb3-551"><a href="#cb3-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-552"><a href="#cb3-552" aria-hidden="true" tabindex="-1"></a>这个区别有深刻的影响。在线学习允许模型探索新的输出空间，并获得对这些新输出的反馈。离线学习只能从已有数据中提取信息。当策略模型的分布偏离数据收集时的分布时（这在训练过程中不可避免），离线算法的效果可能下降——这就是**分布偏移**（distribution shift）问题。</span>
+<span id="cb3-553"><a href="#cb3-553" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-554"><a href="#cb3-554" aria-hidden="true" tabindex="-1"></a>具体来说，假设偏好数据是用 $\pi_{\text{old}}$ 生成的，但我们正在训练 $\pi_\theta$。当 $\pi_\theta$ 与 $\pi_{\text{old}}$ 差距变大时，偏好数据中的"偏好回答"对 $\pi_\theta$ 来说可能不再是最优的——也许 $\pi_\theta$ 能生成更好的回答，但这些更好的回答不在训练数据中。</span>
+<span id="cb3-555"><a href="#cb3-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-556"><a href="#cb3-556" aria-hidden="true" tabindex="-1"></a>**缓解方法**：</span>
+<span id="cb3-557"><a href="#cb3-557" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Online DPO / Iterative DPO**：每隔一定步数，用当前策略重新生成回答并收集偏好，更新训练数据</span>
+<span id="cb3-558"><a href="#cb3-558" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**更大的初始数据集**：覆盖更广泛的输出分布</span>
+<span id="cb3-559"><a href="#cb3-559" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**正则化**：防止策略偏离参考模型太远</span>
+<span id="cb3-560"><a href="#cb3-560" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-561"><a href="#cb3-561" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 与 RLHF 在实践中的差异</span></span>
+<span id="cb3-562"><a href="#cb3-562" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-563"><a href="#cb3-563" aria-hidden="true" tabindex="-1"></a>虽然 DPO 和 RLHF 理论上等价，但在实践中它们有微妙的差异。</span>
+<span id="cb3-564"><a href="#cb3-564" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-565"><a href="#cb3-565" aria-hidden="true" tabindex="-1"></a>**优化路径不同**：RLHF 是在线优化，策略逐步改善并获得对改善后策略的反馈。DPO 是离线优化，一步到位地拟合偏好数据。这可能导致收敛到不同的局部最优。</span>
+<span id="cb3-566"><a href="#cb3-566" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-567"><a href="#cb3-567" aria-hidden="true" tabindex="-1"></a>**对数据质量的敏感度**：DPO 对偏好数据的质量更敏感。在 RLHF 中，奖励模型可以一定程度上"平滑"掉数据中的噪声；而 DPO 直接拟合偏好数据，噪声会直接影响策略。</span>
+<span id="cb3-568"><a href="#cb3-568" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-569"><a href="#cb3-569" aria-hidden="true" tabindex="-1"></a>**实验观察**：多项研究发现，在大规模、高质量偏好数据上，DPO 与 RLHF 效果接近甚至略优；但在小规模、嘈杂数据上，RLHF 有时更鲁棒。</span>
+<span id="cb3-570"><a href="#cb3-570" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-571"><a href="#cb3-571" aria-hidden="true" tabindex="-1"></a><span class="fu">### 对齐的本质是什么？</span></span>
+<span id="cb3-572"><a href="#cb3-572" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-573"><a href="#cb3-573" aria-hidden="true" tabindex="-1"></a>让我们退一步，思考一个更根本的问题：**什么是"对齐"？我们到底在优化什么？**</span>
+<span id="cb3-574"><a href="#cb3-574" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-575"><a href="#cb3-575" aria-hidden="true" tabindex="-1"></a>目前主流的对齐方法（无论 RLHF 还是 DPO）都隐含地假设存在一个"真实的人类偏好函数"，而我们的目标是学习并优化这个函数。Bradley-Terry 模型甚至给出了这个函数的数学形式：$P(A \succ B) = \sigma(r(A) - r(B))$。</span>
+<span id="cb3-576"><a href="#cb3-576" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-577"><a href="#cb3-577" aria-hidden="true" tabindex="-1"></a>但这个假设有多合理？</span>
+<span id="cb3-578"><a href="#cb3-578" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-579"><a href="#cb3-579" aria-hidden="true" tabindex="-1"></a>**多元偏好**：不同人有不同的偏好。有人喜欢详细的回答，有人喜欢简洁的；有人欣赏幽默，有人偏好严肃。用一个单一的标量奖励函数来表达所有人的偏好，必然是一种压缩和妥协。</span>
+<span id="cb3-580"><a href="#cb3-580" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-581"><a href="#cb3-581" aria-hidden="true" tabindex="-1"></a>**偏好的不一致性**：即使同一个人，在不同情境下偏好也可能不一致。Bradley-Terry 模型假设偏好是传递的（如果 A &gt; B 且 B &gt; C，则 A &gt; C），但人类的真实偏好经常违反传递性。</span>
+<span id="cb3-582"><a href="#cb3-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-583"><a href="#cb3-583" aria-hidden="true" tabindex="-1"></a>**代理问题**：我们收集的是标注员的偏好，但我们真正想对齐的是最终用户的偏好——甚至是某种"全人类的价值观"。标注员是全人类的有效代理吗？InstructGPT 的 40 人标注团队能代表世界上几十亿用户吗？</span>
+<span id="cb3-584"><a href="#cb3-584" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-585"><a href="#cb3-585" aria-hidden="true" tabindex="-1"></a>这些问题没有简单的答案，但它们提醒我们：当前的对齐方法是**工具**，而非**解决方案**。它们在当前阶段是有用的，但我们不应该把它们神化为"让 AI 与人类价值观对齐"的最终答案。</span>
+<span id="cb3-586"><a href="#cb3-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-587"><a href="#cb3-587" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 风险卡片</span></span>
+<span id="cb3-588"><a href="#cb3-588" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-589"><a href="#cb3-589" aria-hidden="true" tabindex="-1"></a><span class="fu">#### DPO 风险卡片</span></span>
+<span id="cb3-590"><a href="#cb3-590" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-591"><a href="#cb3-591" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 维度 <span class="pp">|</span> 内容 <span class="pp">|</span></span>
+<span id="cb3-592"><a href="#cb3-592" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|------|</span></span>
+<span id="cb3-593"><a href="#cb3-593" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **主要修复** <span class="pp">|</span> 简化 RLHF 流程，无需单独训练奖励模型，无需 RL 训练循环 <span class="pp">|</span></span>
+<span id="cb3-594"><a href="#cb3-594" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **典型副作用** <span class="pp">|</span> 对数据质量更敏感、可能过度优化配对偏好、长度偏见（原始 DPO） <span class="pp">|</span></span>
+<span id="cb3-595"><a href="#cb3-595" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **工程防护** <span class="pp">|</span> 高质量偏好数据、适当的 $\beta$ 值、early stopping、数据多样性 <span class="pp">|</span></span>
+<span id="cb3-596"><a href="#cb3-596" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **开放问题** <span class="pp">|</span> 离线 vs 在线优化的根本差异、分布偏移的处理、与 RLHF 在何种条件下等价 <span class="pp">|</span></span>
+<span id="cb3-597"><a href="#cb3-597" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-598"><a href="#cb3-598" aria-hidden="true" tabindex="-1"></a><span class="fu">### 开放研究问题</span></span>
+<span id="cb3-599"><a href="#cb3-599" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-600"><a href="#cb3-600" aria-hidden="true" tabindex="-1"></a>**可扩展监督（Scalable Oversight）**：当模型能力超过人类评审能力时，如何获得可靠的对齐信号？OpenAI 的"弱到强泛化"（Weak-to-Strong Generalization）研究表明，用弱模型监督强模型是可能的，但性能有明显损失。如何缩小这个差距是超级对齐的核心挑战。</span>
+<span id="cb3-601"><a href="#cb3-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-602"><a href="#cb3-602" aria-hidden="true" tabindex="-1"></a>**超级对齐（Superalignment）**：如何对齐比人类更聪明的 AI 系统？这个问题在当前看来还很遥远，但它迫使我们思考对齐方法的可扩展性边界。RLHF/DPO 假设人类能够可靠地判断输出质量——这个假设在超人类 AI 面前将不再成立。</span>
+<span id="cb3-603"><a href="#cb3-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-604"><a href="#cb3-604" aria-hidden="true" tabindex="-1"></a>**对齐的形式化**：目前没有一个被广泛接受的"对齐"的形式化定义。我们优化的是偏好数据的似然，但这与"真正的对齐"（如果存在的话）有什么关系？能否建立理论框架来分析对齐方法的保证和局限？</span>
+<span id="cb3-605"><a href="#cb3-605" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-606"><a href="#cb3-606" aria-hidden="true" tabindex="-1"></a><span class="fu">## 局限性与未解决的问题</span></span>
+<span id="cb3-607"><a href="#cb3-607" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-608"><a href="#cb3-608" aria-hidden="true" tabindex="-1"></a><span class="fu">### DPO 家族的共同局限</span></span>
+<span id="cb3-609"><a href="#cb3-609" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-610"><a href="#cb3-610" aria-hidden="true" tabindex="-1"></a>**依赖偏好数据质量**：所有直接对齐方法都假设偏好数据是"正确的"——偏好回答确实更好。但偏好数据可能有噪声（标注员之间不一致）、有偏见（标注员的系统性偏好）、有盲区（某些维度根本没有被评估）。</span>
+<span id="cb3-611"><a href="#cb3-611" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-612"><a href="#cb3-612" aria-hidden="true" tabindex="-1"></a>**静态 vs 动态价值观**：人类的价值观会随时间演变。一个在 2023 年被认为"有帮助"的回答，在 2025 年可能被认为"过时"或"不够谨慎"。当前的对齐方法都是用历史偏好数据训练，如何适应价值观的演变？</span>
+<span id="cb3-613"><a href="#cb3-613" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-614"><a href="#cb3-614" aria-hidden="true" tabindex="-1"></a>**评估困难**：如何衡量对齐的质量？人类评估昂贵且难以复现；自动评估（如用 GPT-4 当评委）有系统性偏差。没有可靠的评估，就很难比较不同对齐方法的优劣。</span>
+<span id="cb3-615"><a href="#cb3-615" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-616"><a href="#cb3-616" aria-hidden="true" tabindex="-1"></a><span class="fu">### 这些局限导向了什么？</span></span>
+<span id="cb3-617"><a href="#cb3-617" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-618"><a href="#cb3-618" aria-hidden="true" tabindex="-1"></a>对齐技术的演进揭示了一个深层模式：**我们在不断简化工程复杂度的同时，也在不断逼近更根本的问题**。</span>
+<span id="cb3-619"><a href="#cb3-619" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-620"><a href="#cb3-620" aria-hidden="true" tabindex="-1"></a>从 RLHF 到 DPO，我们消除了奖励模型和 RL 训练的复杂性。从 DPO 到 ORPO/SimPO，我们消除了参考模型的依赖。从人类偏好到 RLAIF，我们探索了 AI 自我监督的可能性。</span>
+<span id="cb3-621"><a href="#cb3-621" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-622"><a href="#cb3-622" aria-hidden="true" tabindex="-1"></a>但无论技术如何简化，核心问题始终存在：**对齐到什么？谁来定义"对齐"？如何验证"已对齐"？**</span>
+<span id="cb3-623"><a href="#cb3-623" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-624"><a href="#cb3-624" aria-hidden="true" tabindex="-1"></a>这些问题不仅是技术问题，也是哲学问题和社会问题。它们可能无法被任何单一的算法所"解决"，但需要在技术发展的同时被持续思考和讨论。</span>
+<span id="cb3-625"><a href="#cb3-625" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-626"><a href="#cb3-626" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章小结</span></span>
+<span id="cb3-627"><a href="#cb3-627" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-628"><a href="#cb3-628" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心要点回顾</span></span>
+<span id="cb3-629"><a href="#cb3-629" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-630"><a href="#cb3-630" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**问题**：RLHF 的三阶段流水线工程复杂度高，能否绕过强化学习直接优化偏好？</span>
+<span id="cb3-631"><a href="#cb3-631" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-632"><a href="#cb3-632" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**洞察**：将 RLHF 的最优策略解析解代入 Bradley-Terry 模型，奖励函数可以被"消元"，得到只关于策略的损失函数——语言模型本身就是隐式的奖励模型</span>
+<span id="cb3-633"><a href="#cb3-633" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-634"><a href="#cb3-634" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**方法**：DPO 将 RLHF 简化为一个分类损失 $-\log \sigma(\beta(\log \frac{\pi_\theta(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi_\theta(y_l)}{\pi_{\text{ref}}(y_l)}))$；后续工作（ORPO、SimPO、KTO）进一步消除参考模型依赖或放松数据要求</span>
+<span id="cb3-635"><a href="#cb3-635" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-636"><a href="#cb3-636" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**意义**：对齐技术的平民化——DPO 让偏好对齐变成了"加几行代码"的事情，大大降低了对齐技术的门槛</span>
+<span id="cb3-637"><a href="#cb3-637" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-638"><a href="#cb3-638" aria-hidden="true" tabindex="-1"></a><span class="fu">### 关键公式速查</span></span>
+<span id="cb3-639"><a href="#cb3-639" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-640"><a href="#cb3-640" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**RLHF 最优策略**：$\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp(r(x,y)/\beta)$</span>
+<span id="cb3-641"><a href="#cb3-641" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**隐式奖励**：$r(x,y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)$</span>
+<span id="cb3-642"><a href="#cb3-642" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**DPO 损失**：$\mathcal{L}_{\text{DPO}} = -\mathbb{E}[\log \sigma(\beta(\log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}))]$</span>
+<span id="cb3-643"><a href="#cb3-643" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SimPO 奖励**：$r(x,y) = \frac{\beta}{|y|} \log \pi_\theta(y|x)$（长度归一化）</span>
+<span id="cb3-644"><a href="#cb3-644" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-645"><a href="#cb3-645" aria-hidden="true" tabindex="-1"></a><span class="fu">### 思考题</span></span>
+<span id="cb3-646"><a href="#cb3-646" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-647"><a href="#cb3-647" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**[概念理解]** DPO 损失函数中，为什么需要参考模型 $\pi_{\text{ref}}$？如果去掉参考模型（即设 $\pi_{\text{ref}}$ 为均匀分布），DPO 会退化为什么？这种退化有什么问题？</span>
+<span id="cb3-648"><a href="#cb3-648" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-649"><a href="#cb3-649" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**[数学推导]** 从 DPO 损失函数出发，推导其对策略参数 $\theta$ 的梯度。解释梯度中的"自适应权重"项 $\sigma(\hat{r}(y_l) - \hat{r}(y_w))$ 为什么能让算法更多关注"困难样本"。</span>
+<span id="cb3-650"><a href="#cb3-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-651"><a href="#cb3-651" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**[工程实践]** 使用 TRL 库在 Anthropic HH-RLHF 数据集上分别实现 DPO 和 SimPO。比较两者的训练稳定性、最终效果和生成文本的长度分布。$\beta$ 值如何影响结果？</span>
+<span id="cb3-652"><a href="#cb3-652" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-653"><a href="#cb3-653" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**[开放思考]** Constitutional AI 用 AI 自己来生成偏好信号（RLAIF）。这种方法的哲学困境是什么？如果 AI 评估 AI，我们实际上是在对齐到什么？这与"超级对齐"问题有什么关系？</span>
+<span id="cb3-654"><a href="#cb3-654" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-655"><a href="#cb3-655" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-656"><a href="#cb3-656" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-657"><a href="#cb3-657" aria-hidden="true" tabindex="-1"></a><span class="fu">## 延伸阅读</span></span>
+<span id="cb3-658"><a href="#cb3-658" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-659"><a href="#cb3-659" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心论文（必读）</span></span>
+<span id="cb3-660"><a href="#cb3-660" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Direct Preference Optimization (Rafailov et al., 2023)**：DPO 原始论文</span>
+<span id="cb3-661"><a href="#cb3-661" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>重点读：Section 4（推导）、Section 5（理论分析）</span>
+<span id="cb3-662"><a href="#cb3-662" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>可跳过：Appendix 的数学证明细节</span>
+<span id="cb3-663"><a href="#cb3-663" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**KTO: Model Alignment as Prospect Theoretic Optimization (Ethayarajh et al., 2024)**：从行为经济学视角重新理解对齐</span>
+<span id="cb3-664"><a href="#cb3-664" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>重点读：Section 3（Kahneman-Tversky 效用模型）</span>
+<span id="cb3-665"><a href="#cb3-665" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-666"><a href="#cb3-666" aria-hidden="true" tabindex="-1"></a><span class="fu">### 重要变体</span></span>
+<span id="cb3-667"><a href="#cb3-667" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ORPO (Hong et al., 2024)**：无参考模型的一步对齐</span>
+<span id="cb3-668"><a href="#cb3-668" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SimPO (Meng et al., 2024)**：长度归一化 + 无参考模型</span>
+<span id="cb3-669"><a href="#cb3-669" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-670"><a href="#cb3-670" aria-hidden="true" tabindex="-1"></a><span class="fu">### 对齐理论</span></span>
+<span id="cb3-671"><a href="#cb3-671" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Constitutional AI (Bai et al., 2022)**：RLAIF 框架的开创</span>
+<span id="cb3-672"><a href="#cb3-672" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weak-to-strong generalization (OpenAI, 2024)**：超级对齐的实验基础</span>
+<span id="cb3-673"><a href="#cb3-673" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-674"><a href="#cb3-674" aria-hidden="true" tabindex="-1"></a><span class="fu">### 综述与教程</span></span>
+<span id="cb3-675"><a href="#cb3-675" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SLP3 Chapter 9**：Jurafsky &amp; Martin 对 RLHF/DPO 的教材级对比</span>
+<span id="cb3-676"><a href="#cb3-676" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A General Theoretical Paradigm to Understand Learning from Human Preferences (Azar et al., 2024)**：偏好学习的统一理论框架</span>
+<span id="cb3-677"><a href="#cb3-677" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Direct Alignment Algorithms (RLHF Book)**：Nathan Lambert 的深度教程</span>
+<span id="cb3-678"><a href="#cb3-678" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-679"><a href="#cb3-679" aria-hidden="true" tabindex="-1"></a><span class="fu">### 代码资源</span></span>
+<span id="cb3-680"><a href="#cb3-680" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hugging Face TRL 库：<span class="co">[</span><span class="ot">github.com/huggingface/trl</span><span class="co">](https://github.com/huggingface/trl)</span></span>
+<span id="cb3-681"><a href="#cb3-681" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Princeton SimPO：<span class="co">[</span><span class="ot">github.com/princeton-nlp/SimPO</span><span class="co">](https://github.com/princeton-nlp/SimPO)</span></span>
+<span id="cb3-682"><a href="#cb3-682" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stanford DPO 参考实现：<span class="co">[</span><span class="ot">github.com/eric-mitchell/direct-preference-optimization</span><span class="co">](https://github.com/eric-mitchell/direct-preference-optimization)</span></span>
+<span id="cb3-683"><a href="#cb3-683" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-684"><a href="#cb3-684" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-685"><a href="#cb3-685" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-686"><a href="#cb3-686" aria-hidden="true" tabindex="-1"></a><span class="fu">## 历史注脚</span></span>
+<span id="cb3-687"><a href="#cb3-687" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-688"><a href="#cb3-688" aria-hidden="true" tabindex="-1"></a>DPO 的故事是一个"理论之美"的典范。Rafailov 等人并没有引入新的模型架构或训练技巧——他们只是仔细分析了 RLHF 的数学结构，发现了一个被忽视的简化路径。这种"从已有组件中发现更简洁形式"的工作，在深度学习时代尤为珍贵。</span>
+<span id="cb3-689"><a href="#cb3-689" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-690"><a href="#cb3-690" aria-hidden="true" tabindex="-1"></a>有趣的是，DPO 论文的标题——"Your Language Model is Secretly a Reward Model"——并不是一个营销口号，而是论文的核心技术洞察。这种"用标题概括核心贡献"的风格，值得所有研究者学习。</span>
+<span id="cb3-691"><a href="#cb3-691" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-692"><a href="#cb3-692" aria-hidden="true" tabindex="-1"></a>DPO 的成功也反映了 ML 研究的一个规律：**复杂的系统往往可以被更简单的替代方案所取代，只要我们足够深入地理解原系统在做什么**。RLHF 的三阶段流水线看起来不可简化，但 DPO 证明了核心的数学结构可以被压缩为一个损失函数。这提醒我们，面对复杂系统时，不要被表面的工程复杂度所吓倒——本质可能比看起来简单得多。</span>
+<span id="cb3-693"><a href="#cb3-693" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-694"><a href="#cb3-694" aria-hidden="true" tabindex="-1"></a>从更宏观的视角看，从 RLHF 到 DPO 到 ORPO/SimPO 的演进，展示了对齐技术正在经历"平民化"的过程。三年前，偏好对齐是 OpenAI/Anthropic 级别公司的专属技术；今天，一个研究生用一张消费级 GPU 就能在几小时内完成。这种技术的民主化既是机遇（更多人可以参与对齐研究），也是风险（对齐技术可能被滥用）。如何在开放与安全之间取得平衡，是 AI 社区面临的持续挑战。</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

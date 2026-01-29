@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying Zha">
+<meta name="dcterms.date" content="2026-01-26">
+<meta name="description" content="预训练范式的思想起源：迁移学习的基本思想、Word2Vec作为预训练雏形、计算机视觉的ImageNet启示、以及从特征提取到模型微调的范式演进。">
+
+<title>第10章：预训练思想的起源 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从上一章说起" id="toc-从上一章说起" class="nav-link active" data-scroll-target="#从上一章说起"><span class="header-section-number">1</span> 从上一章说起</a></li>
+  <li><a href="#问题的本质是什么" id="toc-问题的本质是什么" class="nav-link" data-scroll-target="#问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</a>
+  <ul class="collapse">
+  <li><a href="#标注数据的瓶颈" id="toc-标注数据的瓶颈" class="nav-link" data-scroll-target="#标注数据的瓶颈"><span class="header-section-number">2.1</span> 标注数据的瓶颈</a></li>
+  <li><a href="#从特征工程到表示学习" id="toc-从特征工程到表示学习" class="nav-link" data-scroll-target="#从特征工程到表示学习"><span class="header-section-number">2.2</span> 从特征工程到表示学习</a></li>
+  <li><a href="#我们需要什么样的解决方案" id="toc-我们需要什么样的解决方案" class="nav-link" data-scroll-target="#我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</a></li>
+  </ul></li>
+  <li><a href="#核心思想与直觉" id="toc-核心思想与直觉" class="nav-link" data-scroll-target="#核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</a>
+  <ul class="collapse">
+  <li><a href="#迁移学习站在巨人的肩膀上" id="toc-迁移学习站在巨人的肩膀上" class="nav-link" data-scroll-target="#迁移学习站在巨人的肩膀上"><span class="header-section-number">3.1</span> 迁移学习：站在巨人的肩膀上</a></li>
+  <li><a href="#为什么迁移可以工作" id="toc-为什么迁移可以工作" class="nav-link" data-scroll-target="#为什么迁移可以工作"><span class="header-section-number">3.2</span> 为什么迁移可以工作？</a></li>
+  <li><a href="#预训练范式的演进脉络" id="toc-预训练范式的演进脉络" class="nav-link" data-scroll-target="#预训练范式的演进脉络"><span class="header-section-number">3.3</span> 预训练范式的演进脉络</a></li>
+  </ul></li>
+  <li><a href="#技术细节" id="toc-技术细节" class="nav-link" data-scroll-target="#技术细节"><span class="header-section-number">4</span> 技术细节</a>
+  <ul class="collapse">
+  <li><a href="#word2vec预训练的雏形" id="toc-word2vec预训练的雏形" class="nav-link" data-scroll-target="#word2vec预训练的雏形"><span class="header-section-number">4.1</span> Word2Vec：预训练的雏形</a></li>
+  <li><a href="#计算机视觉的启示imagenet预训练" id="toc-计算机视觉的启示imagenet预训练" class="nav-link" data-scroll-target="#计算机视觉的启示imagenet预训练"><span class="header-section-number">4.2</span> 计算机视觉的启示：ImageNet预训练</a></li>
+  <li><a href="#nlp预训练的早期探索" id="toc-nlp预训练的早期探索" class="nav-link" data-scroll-target="#nlp预训练的早期探索"><span class="header-section-number">4.3</span> NLP预训练的早期探索</a></li>
+  <li><a href="#预训练的三个关键要素" id="toc-预训练的三个关键要素" class="nav-link" data-scroll-target="#预训练的三个关键要素"><span class="header-section-number">4.4</span> 预训练的三个关键要素</a></li>
+  </ul></li>
+  <li><a href="#工程实践" id="toc-工程实践" class="nav-link" data-scroll-target="#工程实践"><span class="header-section-number">5</span> 工程实践</a>
+  <ul class="collapse">
+  <li><a href="#使用预训练词向量" id="toc-使用预训练词向量" class="nav-link" data-scroll-target="#使用预训练词向量"><span class="header-section-number">5.1</span> 使用预训练词向量</a></li>
+  <li><a href="#实验验证不同策略的效果对比" id="toc-实验验证不同策略的效果对比" class="nav-link" data-scroll-target="#实验验证不同策略的效果对比"><span class="header-section-number">5.2</span> 实验验证：不同策略的效果对比</a></li>
+  <li><a href="#实用建议" id="toc-实用建议" class="nav-link" data-scroll-target="#实用建议"><span class="header-section-number">5.3</span> 实用建议</a></li>
+  </ul></li>
+  <li><a href="#深入理解" id="toc-深入理解" class="nav-link" data-scroll-target="#深入理解"><span class="header-section-number">6</span> 深入理解</a>
+  <ul class="collapse">
+  <li><a href="#为什么迁移学习有效理论视角" id="toc-为什么迁移学习有效理论视角" class="nav-link" data-scroll-target="#为什么迁移学习有效理论视角"><span class="header-section-number">6.1</span> 为什么迁移学习有效？——理论视角</a></li>
+  <li><a href="#为什么nlp的预训练比cv更困难" id="toc-为什么nlp的预训练比cv更困难" class="nav-link" data-scroll-target="#为什么nlp的预训练比cv更困难"><span class="header-section-number">6.2</span> 为什么NLP的预训练比CV更困难？</a></li>
+  <li><a href="#开放研究问题2017年视角" id="toc-开放研究问题2017年视角" class="nav-link" data-scroll-target="#开放研究问题2017年视角"><span class="header-section-number">6.3</span> 开放研究问题（2017年视角）</a></li>
+  </ul></li>
+  <li><a href="#局限性与未解决的问题" id="toc-局限性与未解决的问题" class="nav-link" data-scroll-target="#局限性与未解决的问题"><span class="header-section-number">7</span> 局限性与未解决的问题</a>
+  <ul class="collapse">
+  <li><a href="#静态词向量的根本缺陷" id="toc-静态词向量的根本缺陷" class="nav-link" data-scroll-target="#静态词向量的根本缺陷"><span class="header-section-number">7.1</span> 静态词向量的根本缺陷</a></li>
+  <li><a href="#浅层迁移的局限" id="toc-浅层迁移的局限" class="nav-link" data-scroll-target="#浅层迁移的局限"><span class="header-section-number">7.2</span> 浅层迁移的局限</a></li>
+  <li><a href="#预训练与下游任务的脱节" id="toc-预训练与下游任务的脱节" class="nav-link" data-scroll-target="#预训练与下游任务的脱节"><span class="header-section-number">7.3</span> 预训练与下游任务的脱节</a></li>
+  <li><a href="#这些局限导向了什么" id="toc-这些局限导向了什么" class="nav-link" data-scroll-target="#这些局限导向了什么"><span class="header-section-number">7.4</span> 这些局限导向了什么？</a></li>
+  </ul></li>
+  <li><a href="#本章小结" id="toc-本章小结" class="nav-link" data-scroll-target="#本章小结"><span class="header-section-number">8</span> 本章小结</a>
+  <ul class="collapse">
+  <li><a href="#核心要点回顾" id="toc-核心要点回顾" class="nav-link" data-scroll-target="#核心要点回顾"><span class="header-section-number">8.1</span> 核心要点回顾</a></li>
+  <li><a href="#关键概念速查" id="toc-关键概念速查" class="nav-link" data-scroll-target="#关键概念速查"><span class="header-section-number">8.2</span> 关键概念速查</a></li>
+  <li><a href="#思考题" id="toc-思考题" class="nav-link" data-scroll-target="#思考题"><span class="header-section-number">8.3</span> 思考题</a></li>
+  </ul></li>
+  <li><a href="#延伸阅读" id="toc-延伸阅读" class="nav-link" data-scroll-target="#延伸阅读"><span class="header-section-number">9</span> 延伸阅读</a>
+  <ul class="collapse">
+  <li><a href="#核心论文必读" id="toc-核心论文必读" class="nav-link" data-scroll-target="#核心论文必读"><span class="header-section-number">9.1</span> 核心论文（必读）</a></li>
+  <li><a href="#理论基础" id="toc-理论基础" class="nav-link" data-scroll-target="#理论基础"><span class="header-section-number">9.2</span> 理论基础</a></li>
+  <li><a href="#先驱工作" id="toc-先驱工作" class="nav-link" data-scroll-target="#先驱工作"><span class="header-section-number">9.3</span> 先驱工作</a></li>
+  <li><a href="#后续发展" id="toc-后续发展" class="nav-link" data-scroll-target="#后续发展"><span class="header-section-number">9.4</span> 后续发展</a></li>
+  <li><a href="#综述与教程" id="toc-综述与教程" class="nav-link" data-scroll-target="#综述与教程"><span class="header-section-number">9.5</span> 综述与教程</a></li>
+  </ul></li>
+  <li><a href="#历史注脚" id="toc-历史注脚" class="nav-link" data-scroll-target="#历史注脚"><span class="header-section-number">10</span> 历史注脚</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">第10章：预训练思想的起源</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">从词向量到迁移学习：NLP如何借鉴CV的成功经验</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">NLP</div>
+    <div class="quarto-category">Deep Learning</div>
+    <div class="quarto-category">Pre-training</div>
+    <div class="quarto-category">Transfer Learning</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    预训练范式的思想起源：迁移学习的基本思想、Word2Vec作为预训练雏形、计算机视觉的ImageNet启示、以及从特征提取到模型微调的范式演进。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying Zha </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 26, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>本章参考来源
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="论文" class="level3" data-number="0.1">
+<h3 data-number="0.1" class="anchored" data-anchor-id="论文"><span class="header-section-number">0.1</span> 论文</h3>
+<ul>
+<li><strong>Mikolov et al.&nbsp;(2013)</strong> “Efficient Estimation of Word Representations in Vector Space” &amp; “Distributed Representations of Words and Phrases” — 参考了 Word2Vec 的 Skip-gram/CBOW 架构及预训练思想</li>
+<li><strong>Howard &amp; Ruder (2018)</strong> “Universal Language Model Fine-tuning for Text Classification” (ULMFiT) — 参考了三阶段框架（Section 3）、判别式微调与逐步解冻（Section 3.2-3.3）、消融实验（Section 4）</li>
+<li><strong>Dai &amp; Le (2015)</strong> “Semi-supervised Sequence Learning” — 参考了序列模型预训练的早期验证</li>
+<li><strong>Collobert &amp; Weston (2008/2011)</strong> “Natural Language Processing (Almost) from Scratch” — 参考了多任务共享表示的先驱思想</li>
+<li><strong>Ben-David et al.&nbsp;(2010)</strong> “A theory of learning from different domains” — 参考了域适应理论框架</li>
+<li><strong>Yosinski et al.&nbsp;(2014)</strong> “How transferable are features in deep neural networks?” — 参考了CNN特征可迁移性的实证分析</li>
+</ul>
+</section>
+<section id="教材" class="level3" data-number="0.2">
+<h3 data-number="0.2" class="anchored" data-anchor-id="教材"><span class="header-section-number">0.2</span> 教材</h3>
+<ul>
+<li><strong>D2L</strong> Section 15.1-15.6 (Word Embedding &amp; Pretraining) — 参考了词向量预训练的教学组织方式</li>
+<li><strong>SLP3</strong> Chapter 6 (Vector Semantics) &amp; Chapter 10 (Transformers and Pre-training) — 参考了迁移学习和预训练范式的讲解框架</li>
+</ul>
+</section>
+<section id="课程" class="level3" data-number="0.3">
+<h3 data-number="0.3" class="anchored" data-anchor-id="课程"><span class="header-section-number">0.3</span> 课程</h3>
+<ul>
+<li><strong>Stanford CS224N</strong> Lecture 9 (2025) “Pretraining” — 参考了从 Word2Vec 到 GPT/BERT 的演进脉络讲解</li>
+<li><strong>fast.ai</strong> Practical Deep Learning Course (2018) — 参考了 ULMFiT 的工程实践经验和教学视角</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>核心问题</strong>：如何让模型从海量无标注数据中学到通用的语言知识，然后迁移到标注稀缺的具体任务？</p>
+<p><strong>历史坐标</strong>：2013–2018 | Word2Vec → ImageNet预训练 → ULMFiT | 从”特征迁移”到”模型迁移”的范式演进</p>
+</blockquote>
+<hr>
+<section id="从上一章说起" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从上一章说起"><span class="header-section-number">1</span> 从上一章说起</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>第四部分开篇
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>本章是<strong>第四部分：预训练范式的演进</strong>的第一章。前面三个部分，我们沿着一条清晰的技术路线走来：从RNN的顺序建模（第4章），到注意力机制的诞生与演进（第5-7章），再到Transformer的横空出世（第8章）和高效注意力的优化尝试（第9章）。这条路线的主题是<strong>架构设计</strong>——如何设计更好的网络结构来处理序列数据。</p>
+<p>从本章开始，我们将进入一个全新的主题：<strong>训练范式</strong>。不再只问”用什么架构”，而要问一个更根本的问题——“如何更聪明地利用数据来训练模型”。</p>
+</div>
+</div>
+<p>回顾前面的旅程，到第8章结束时我们已经拥有了Transformer——一个强大的序列建模架构。它用纯注意力机制替代了循环结构，实现了完全并行的计算和<span class="math inline">\(O(1)\)</span>的最长路径。第9章进一步探讨了如何优化Transformer的<span class="math inline">\(O(n^2)\)</span>计算瓶颈。从架构的角度看，我们似乎已经有了足够好的工具。</p>
+<p>然而，一个尴尬的现实是：拥有好的架构，并不意味着拥有好的模型。</p>
+<p>考虑一个典型的NLP任务——医学文本情感分析。你手上有500条标注好的医学评论，希望训练一个分类器。如果你从头训练一个Transformer，会发生什么？大概率是过拟合。512维的Transformer Base有6500万参数，而你只有500个训练样本——参数比数据多了5个数量级。这就像用一张百万像素的画布去画一条直线，绝大多数像素都是噪声。</p>
+<p>这个困境在NLP中普遍存在。高质量的标注数据昂贵且稀缺：一个医学NER数据集可能需要领域专家逐字标注，每小时只能标注几十个句子；一个法律文本分类任务可能需要律师审核每条样本；即使是相对简单的情感分析，大规模标注也需要数百人时的众包工作。</p>
+<p>与此同时，互联网上有几乎无限的无标注文本——Wikipedia有超过40亿词，Common Crawl包含PB级别的网页数据。这些文本蕴含着丰富的语言知识：语法结构、语义关系、世界知识、推理模式。问题是，我们能否从这些无标注数据中提取出有用的”语言理解能力”，然后迁移到标注稀缺的具体任务？</p>
+<p>这正是<strong>预训练（Pre-training）</strong>要回答的问题。</p>
+<blockquote class="blockquote">
+<p>💡 <strong>本章核心洞察</strong>：与其为每个任务从零学习语言知识，不如先在大规模无标注数据上学习通用的语言表示（预训练），然后在少量标注数据上适配具体任务（微调）。这个看似简单的想法，将彻底改变NLP的研究范式。</p>
+</blockquote>
+<p>本章我们将追溯这个思想的起源：从迁移学习的基本框架出发，看Word2Vec如何成为预训练的雏形，再看计算机视觉领域的ImageNet预训练如何提供了关键启示，最后了解NLP社区如何在ULMFiT中找到了自己的预训练路径。这些探索为后面的ELMo（第11章）、GPT（第12章）和BERT（第13章）奠定了思想基础。</p>
+<div id="fig-pretraining-timeline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pretraining-timeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-10/fig-pretraining-timeline.png" class="img-fluid figure-img" style="width:95.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pretraining-timeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: NLP 预训练范式的演进：从2008年Collobert &amp; Weston的多任务共享表示，到2013年Word2Vec的词级别迁移，再到2018年ULMFiT/ELMo/GPT/BERT的深层模型迁移。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>作者绘制。时间线基于各论文的发表日期整理。</em></p>
+</div>
+<hr>
+</section>
+<section id="问题的本质是什么" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</h2>
+<section id="标注数据的瓶颈" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="标注数据的瓶颈"><span class="header-section-number">2.1</span> 标注数据的瓶颈</h3>
+<p>让我们用具体数字来感受这个问题的规模。</p>
+<p>下表列出了几个经典NLP任务的标注数据量和训练成本：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>任务</th>
+<th>数据集</th>
+<th>标注样本数</th>
+<th>标注成本估算</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>情感分析</td>
+<td>SST-2</td>
+<td>67,349</td>
+<td>~$5,000</td>
+</tr>
+<tr class="even">
+<td>自然语言推理</td>
+<td>MNLI</td>
+<td>392,702</td>
+<td>~$50,000</td>
+</tr>
+<tr class="odd">
+<td>命名实体识别</td>
+<td>CoNLL-2003</td>
+<td>20,744句</td>
+<td>~$15,000</td>
+</tr>
+<tr class="even">
+<td>机器翻译</td>
+<td>WMT14 En-De</td>
+<td>450万句对</td>
+<td>~$500,000</td>
+</tr>
+<tr class="odd">
+<td>阅读理解</td>
+<td>SQuAD 2.0</td>
+<td>150,000</td>
+<td>~$100,000</td>
+</tr>
+</tbody>
+</table>
+<p>这些数据集的构建动辄数万美元，而且只覆盖特定的领域和语言。如果你想做一个新的任务——比如中文医学文献的关系抽取——你需要从头开始标注，而领域专家的时间极其宝贵。</p>
+<p>更根本的问题在于：每个NLP任务都需要模型从零学习语言本身。训练情感分析模型时，模型需要学习什么是”好”什么是”坏”，但同时它也在学习英语的语法、词的语义、句子的结构——这些基础知识在所有NLP任务中都是共通的。当你训练命名实体识别模型时，它又要重新学习一遍这些基础知识。这种重复劳动既低效又浪费。</p>
+<p>一个自然的问题是：能不能先让模型学会”语言是什么”，然后再教它”这个任务怎么做”？</p>
+</section>
+<section id="从特征工程到表示学习" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="从特征工程到表示学习"><span class="header-section-number">2.2</span> 从特征工程到表示学习</h3>
+<p>在深度学习之前，NLP研究者面临的是另一个版本的同一问题：<strong>特征工程</strong>。</p>
+<p>传统机器学习方法需要人工设计特征。以情感分析为例，研究者需要手动定义哪些词是”积极的”，哪些搭配是”消极的”，是否出现了否定词，句子的语法结构是什么样的。这些特征的质量直接决定了模型的上限。一个经验丰富的NLP研究者可能会设计出几十种精心调校的特征，但这些特征很难迁移到其他任务——情感分析的特征对命名实体识别几乎没有用处。</p>
+<p>第2章我们已经看到，Word2Vec等词向量方法迈出了关键的一步：让机器自动从数据中学习词的表示。“king”不再是一个任意的符号，而是一个300维的向量，其中编码了语义信息。这种表示可以在不同任务间共享——无论是做分类还是做翻译，“king”的语义都是相似的。</p>
+<p>但词向量只是迁移了<strong>词级别</strong>的知识。一个自然的追问是：能否迁移<strong>更高层次</strong>的知识？比如句法结构、语义组合、篇章逻辑？</p>
+</section>
+<section id="我们需要什么样的解决方案" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</h3>
+<p>理想的解决方案应该满足几个关键条件。</p>
+<p>首先，它必须能利用<strong>无标注数据</strong>。无标注文本几乎无限，而标注数据昂贵稀缺，解决方案必须能够从前者中提取有用的知识。其次，学到的知识应该是<strong>通用的</strong>——不局限于某个特定任务，而是捕获语言的基本结构和语义。第三，这些知识必须<strong>可迁移</strong>，能够轻松适配到各种下游任务。最后，迁移后的效果应该<strong>优于从零训练</strong>，尤其是在标注数据很少的情况下。</p>
+<p>这套框架有一个名字：<strong>迁移学习（Transfer Learning）</strong>。</p>
+<hr>
+</section>
+</section>
+<section id="核心思想与直觉" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</h2>
+<section id="迁移学习站在巨人的肩膀上" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="迁移学习站在巨人的肩膀上"><span class="header-section-number">3.1</span> 迁移学习：站在巨人的肩膀上</h3>
+<p>迁移学习的核心思想可以用一个类比来理解。</p>
+<p>想象你是一个精通中文的作家，现在要学习写日语散文。你不需要从零学起——中文和日语共享大量汉字，你已经理解了”什么是好的叙事结构”，你知道如何运用修辞手法，你甚至对东亚文化有共通的感知。你需要学习的只是日语特有的语法、假名系统和一些文化差异。你的中文写作能力为学习日语写作提供了巨大的”先验知识”。</p>
+<p>迁移学习做的就是同样的事情，只不过”知识”被编码在神经网络的权重中。</p>
+<p>更正式地说，迁移学习的框架包含两个阶段。第一个阶段是<strong>预训练（Pre-training）</strong>：在一个数据丰富的<strong>源任务（source task）</strong>上训练模型，让它学习通用的知识表示。第二个阶段是<strong>适配（Adaptation）</strong>：将预训练模型的知识迁移到一个数据稀缺的<strong>目标任务（target task）</strong>上。</p>
+<p>适配的方式有两种主要路线。一种是<strong>特征提取（Feature Extraction）</strong>：冻结预训练模型的参数，用它的输出作为下游任务的输入特征。另一种是<strong>微调（Fine-tuning）</strong>：在下游任务的数据上继续训练整个模型（或部分参数），让模型适应新任务。</p>
+<p>这两种路线的区别可以类比为：特征提取就像用一台固定的望远镜去看不同的风景——望远镜本身不变，只是对准的方向不同；微调则像在已有望远镜基础上进行调焦和校准——望远镜本身也会做出微调来适应新的观测条件。</p>
+<div id="fig-transfer-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-transfer-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-10/fig-transfer-comparison.png" class="img-fluid figure-img" style="width:95.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-transfer-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: 从零训练、浅层迁移（词向量预训练）和深层预训练+微调三种范式的对比。注意每种方式中哪些层是预训练的、哪些是随机初始化的。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>作者绘制。三种范式的对比基于 Ruder (2019) 博士论文中的迁移学习分类框架。</em></p>
+</div>
+</section>
+<section id="为什么迁移可以工作" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="为什么迁移可以工作"><span class="header-section-number">3.2</span> 为什么迁移可以工作？</h3>
+<p>迁移学习能够成功的关键前提是：<strong>不同任务之间存在共享的知识结构</strong>。</p>
+<p>在自然语言处理中，这个前提是高度成立的。所有的英语NLP任务都需要理解英语的语法（“the”后面通常接名词），都需要理解词的语义（“happy”是正面的），都需要理解一定的世界知识（“水在100°C时会沸腾”）。这些共享的知识构成了一个”通用语言理解能力”的基础层，不同的下游任务只是在这个基础层之上添加了各自的任务特定知识。</p>
+<p>用神经网络的语言来说，低层的特征（如词的语义、常见短语）是通用的，可以跨任务共享；高层的特征（如情感极性、实体类型）是任务特定的，需要在目标任务上学习。迁移学习的效果取决于源任务和目标任务之间共享知识的比例——共享越多，迁移越有效。</p>
+</section>
+<section id="预训练范式的演进脉络" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="预训练范式的演进脉络"><span class="header-section-number">3.3</span> 预训练范式的演进脉络</h3>
+<p>预训练的思想并非一蹴而就，而是经历了几代演进。理解这个演进脉络对于把握后续章节（ELMo、GPT、BERT）的设计动机至关重要。</p>
+<p><strong>第一代：词向量预训练（2013–2017）</strong>。Word2Vec和GloVe在大规模无标注文本上训练词向量，然后用这些词向量初始化下游模型的Embedding层。这是最浅层的迁移——只迁移了词级别的语义知识，模型的其他层仍然从零训练。</p>
+<p><strong>第二代：浅层模型预训练（2015–2017）</strong>。Dai &amp; Le (2015) 尝试用语言模型预训练LSTM，然后微调整个模型。这比词向量更进一步，但效果还不够惊艳，没有引起广泛关注。</p>
+<p><strong>第三代：深层预训练 + 精细微调（2018）</strong>。ULMFiT提出了一套完整的预训练-微调框架，包含判别式微调和逐步解冻等技巧。ELMo用双向LSTM生成上下文相关的词表示。GPT用Transformer Decoder进行自回归预训练。BERT用Transformer Encoder进行双向预训练。这一代标志着预训练范式的真正成熟。</p>
+<p>本章聚焦第一代和第二代，为后续章节做铺垫。</p>
+<hr>
+</section>
+</section>
+<section id="技术细节" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="技术细节"><span class="header-section-number">4</span> 技术细节</h2>
+<section id="word2vec预训练的雏形" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="word2vec预训练的雏形"><span class="header-section-number">4.1</span> Word2Vec：预训练的雏形</h3>
+<section id="回顾与重新审视" class="level4" data-number="4.1.1">
+<h4 data-number="4.1.1" class="anchored" data-anchor-id="回顾与重新审视"><span class="header-section-number">4.1.1</span> 回顾与重新审视</h4>
+<p>第2章我们介绍了Word2Vec的技术细节——Skip-gram和CBOW模型如何从大规模文本中学习词向量。在这里，我们要从一个新的角度重新审视Word2Vec：它作为<strong>NLP预训练范式的原型</strong>，包含了哪些后来被验证为正确的设计思想？</p>
+<p>Word2Vec的训练过程可以看作一种无监督预训练：在大规模无标注文本上，通过预测上下文（Skip-gram）或由上下文预测中心词（CBOW）的方式，学习词的分布式表示。这个过程不需要任何人工标注，只需要原始文本本身。训练得到的词向量编码了丰富的语义和句法信息——著名的 <span class="math inline">\(\vec{king} - \vec{man} + \vec{woman} \approx \vec{queen}\)</span> 就是最好的例证。</p>
+<p>关键的创新在于如何使用这些词向量。2014年前后，NLP社区逐渐形成了一套标准做法：用Word2Vec/GloVe预训练的词向量来初始化模型的Embedding层，而不是使用随机初始化。这看起来是一个简单的工程技巧，但其背后蕴含着深刻的思想——<strong>从大规模无标注数据中学到的知识可以帮助小规模标注数据上的任务</strong>。</p>
+</section>
+<section id="数值示例预训练词向量的效果" class="level4" data-number="4.1.2">
+<h4 data-number="4.1.2" class="anchored" data-anchor-id="数值示例预训练词向量的效果"><span class="header-section-number">4.1.2</span> 数值示例：预训练词向量的效果</h4>
+<p>让我们通过一个具体的数值例子来感受预训练词向量的威力。</p>
+<p>假设我们要做情感分析，训练集中”fantastic”这个词只出现了2次（都是正面评论），而测试集中出现了”wonderful”。如果使用随机初始化的Embedding，模型对”wonderful”完全没有先验知识——它的向量是随机的，模型无法利用”wonderful”与”fantastic”的语义相似性。</p>
+<p>但如果使用预训练的GloVe词向量：</p>
+<p><span class="math display">\[
+\cos(\vec{\text{wonderful}}, \vec{\text{fantastic}}) = 0.78
+\]</span></p>
+<p><span class="math display">\[
+\cos(\vec{\text{wonderful}}, \vec{\text{terrible}}) = 0.23
+\]</span></p>
+<p>模型在看到”wonderful”时，即使从未在标注数据中见过这个词，也能通过它与”fantastic”的高相似度”推测”这可能是正面情感。预训练词向量充当了一个先验知识库，弥补了标注数据的不足。</p>
+<p>这个简单的例子揭示了预训练的核心价值：<strong>泛化</strong>。预训练让模型能够处理训练集中未见过的词和表达，因为它已经在更大的数据上学习了词与词之间的关系。</p>
+</section>
+<section id="word2vec预训练的具体用法" class="level4" data-number="4.1.3">
+<h4 data-number="4.1.3" class="anchored" data-anchor-id="word2vec预训练的具体用法"><span class="header-section-number">4.1.3</span> Word2Vec预训练的具体用法</h4>
+<p>在实践中，使用预训练词向量有两种常见策略。</p>
+<p><strong>策略一：冻结Embedding（Feature Extraction）</strong>。将预训练词向量加载到Embedding层，然后冻结其权重不更新。下游模型只训练Embedding之上的层。这种方式保留了预训练知识的完整性，但缺乏针对目标任务的适应性。</p>
+<p><strong>策略二：用预训练初始化 + 微调</strong>。用预训练词向量初始化Embedding层，然后在下游任务训练时允许Embedding层的权重继续更新。这种方式在保留先验知识的同时，允许模型针对具体任务做出调整。</p>
+<div id="d29cf81d" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SentimentClassifier(nn.Module):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""使用预训练词向量的情感分类器"""</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, pretrained_embeddings, hidden_dim<span class="op">=</span><span class="dv">128</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                 num_classes<span class="op">=</span><span class="dv">2</span>, freeze_embeddings<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        vocab_size, embed_dim <span class="op">=</span> pretrained_embeddings.shape</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 用预训练词向量初始化 Embedding 层</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding <span class="op">=</span> nn.Embedding(vocab_size, embed_dim)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding.weight <span class="op">=</span> nn.Parameter(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            torch.tensor(pretrained_embeddings, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 是否冻结 Embedding 层</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> freeze_embeddings:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.embedding.weight.requires_grad <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 下游分类头</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lstm <span class="op">=</span> nn.LSTM(embed_dim, hidden_dim, batch_first<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                            bidirectional<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.classifier <span class="op">=</span> nn.Linear(hidden_dim <span class="op">*</span> <span class="dv">2</span>, num_classes)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, input_ids):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        embeds <span class="op">=</span> <span class="va">self</span>.embedding(input_ids)    <span class="co"># [batch, seq_len, embed_dim]</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        lstm_out, (h_n, _) <span class="op">=</span> <span class="va">self</span>.lstm(embeds)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 拼接前向和后向最终隐状态</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        hidden <span class="op">=</span> torch.cat([h_n[<span class="dv">0</span>], h_n[<span class="dv">1</span>]], dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.classifier(hidden)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载预训练 GloVe 词向量（示例）</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># glove_embeddings = load_glove("glove.6B.300d.txt", vocab)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># model = SentimentClassifier(glove_embeddings, freeze_embeddings=False)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="效果有多大" class="level4" data-number="4.1.4">
+<h4 data-number="4.1.4" class="anchored" data-anchor-id="效果有多大"><span class="header-section-number">4.1.4</span> 效果有多大？</h4>
+<p>预训练词向量带来的提升是显著的。以文本分类任务为例，在小数据集（&lt; 5000样本）上，使用预训练GloVe初始化相比随机初始化通常能提升2-5个百分点的准确率。在命名实体识别等序列标注任务上，提升更加明显，因为稀有实体名往往在标注数据中出现次数很少，预训练词向量提供的语义信息尤为关键。</p>
+<p>但这种提升也有明显的上限。当标注数据足够多时（比如WMT翻译的450万句对），预训练词向量的边际收益会迅速递减——因为模型有足够的数据从零学习词的语义。这符合我们的直觉：先验知识在数据稀缺时最有价值。</p>
+</section>
+</section>
+<section id="计算机视觉的启示imagenet预训练" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="计算机视觉的启示imagenet预训练"><span class="header-section-number">4.2</span> 计算机视觉的启示：ImageNet预训练</h3>
+<section id="一个价值百亿的发现" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="一个价值百亿的发现"><span class="header-section-number">4.2.1</span> 一个价值百亿的发现</h4>
+<p>NLP的预训练革命在很大程度上受到了计算机视觉（CV）领域的启发。理解CV中的预训练历史，对于理解NLP的演进至关重要。</p>
+<p>2012年，AlexNet在ImageNet图像分类竞赛中取得了突破性的成绩，将top-5错误率从26%降到了16%。这个事件本身已经载入史册。但真正改变CV研究范式的，是随后的一个发现：<strong>在ImageNet上预训练的CNN，其学到的特征可以迁移到几乎所有视觉任务</strong>。</p>
+<p>2014年，Donahue等人发表了一篇影响深远的工作（DeCAF），他们做了一个简单但启发性的实验：将ImageNet上预训练的CNN的中间层特征提取出来，直接作为其他视觉任务（如物体检测、场景识别）的输入特征。结果令人惊讶——即使是这种最粗暴的迁移方式，效果也显著优于为每个任务单独训练的模型。</p>
+<p>几乎同时，Razavian等人(2014)更进一步证明了”CNN features off-the-shelf”的有效性——预训练CNN特征几乎可以作为通用的视觉特征，应用于任何视觉识别任务。</p>
+</section>
+<section id="为什么cv的迁移如此成功" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="为什么cv的迁移如此成功"><span class="header-section-number">4.2.2</span> 为什么CV的迁移如此成功？</h4>
+<p>CV中迁移学习成功的关键原因在于CNN学到的特征有清晰的<strong>层级结构</strong>。</p>
+<p>Yosinski等人(2014)发表了一篇经典的实证研究”How transferable are features in deep neural networks?“，系统地分析了CNN每一层特征的可迁移性。他们发现了一个优美的规律：CNN的低层（靠近输入）学习通用的视觉特征，如边缘检测器、颜色斑块、纹理模式。这些特征在所有视觉任务中都有用。中间层学习更抽象的组合特征，如角、轮廓、简单形状。这些特征仍然有较好的通用性。高层（靠近输出）学习任务特定的特征，如”是否是狗的耳朵”。这些特征的通用性最差。</p>
+<p>这个发现带来了一个实用的洞察：<strong>迁移时，低层特征可以直接复用，高层特征需要重新学习</strong>。这就是Fine-tuning的理论基础——冻结低层，微调高层。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>📖 推荐阅读原图
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Yosinski et al.&nbsp;(2014) 论文 “How transferable are features in deep neural networks?” 中的 Figure 2 展示了CNN每一层特征可迁移性的定量分析。图中清晰地显示了从低层（通用特征）到高层（任务特定特征）的梯度过渡，以及在不同层切断迁移时模型性能的变化曲线。建议读者参阅原论文以获得更直观的理解。</p>
+</div>
+</div>
+</div>
+</section>
+<section id="数值示例imagenet预训练的效果" class="level4" data-number="4.2.3">
+<h4 data-number="4.2.3" class="anchored" data-anchor-id="数值示例imagenet预训练的效果"><span class="header-section-number">4.2.3</span> 数值示例：ImageNet预训练的效果</h4>
+<p>下面的数据来自Yosinski et al.&nbsp;(2014)的实验，直观展示了预训练的巨大价值：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>设置</th>
+<th>准确率 (ImageNet子任务)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>从零训练 (baseline)</td>
+<td>63.3%</td>
+</tr>
+<tr class="even">
+<td>预训练前3层 + 微调高层</td>
+<td>64.1% (+0.8%)</td>
+</tr>
+<tr class="odd">
+<td>预训练前6层 + 微调高层</td>
+<td>67.7% (+4.4%)</td>
+</tr>
+<tr class="even">
+<td>预训练全部层 + 微调全部</td>
+<td><strong>68.2% (+4.9%)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>更令人印象深刻的是在<strong>小数据集</strong>上的表现：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>目标数据量</th>
+<th>从零训练</th>
+<th>ImageNet预训练+微调</th>
+<th>提升</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1000样本</td>
+<td>~40%</td>
+<td>~70%</td>
+<td><strong>+30%</strong></td>
+</tr>
+<tr class="even">
+<td>5000样本</td>
+<td>~55%</td>
+<td>~78%</td>
+<td><strong>+23%</strong></td>
+</tr>
+<tr class="odd">
+<td>全部数据</td>
+<td>~76%</td>
+<td>~82%</td>
+<td><strong>+6%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>规律非常清晰：<strong>数据越少，预训练的价值越大</strong>。这正是NLP最需要的——因为大多数NLP任务的标注数据都很有限。</p>
+</section>
+<section id="从cv到nlp的类比" class="level4" data-number="4.2.4">
+<h4 data-number="4.2.4" class="anchored" data-anchor-id="从cv到nlp的类比"><span class="header-section-number">4.2.4</span> 从CV到NLP的类比</h4>
+<p>CV的成功经验给NLP提供了一个清晰的蓝图：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>计算机视觉</th>
+<th>自然语言处理（理想情况）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>预训练数据</td>
+<td>ImageNet（120万张标注图片）</td>
+<td>大规模文本（Wikipedia等）</td>
+</tr>
+<tr class="even">
+<td>预训练任务</td>
+<td>图像分类（1000类）</td>
+<td>语言建模？完形填空？</td>
+</tr>
+<tr class="odd">
+<td>预训练模型</td>
+<td>CNN（AlexNet/VGG/ResNet）</td>
+<td>RNN/Transformer？</td>
+</tr>
+<tr class="even">
+<td>低层特征</td>
+<td>边缘、纹理、颜色</td>
+<td>词义、短语、语法</td>
+</tr>
+<tr class="odd">
+<td>高层特征</td>
+<td>物体部件、类别</td>
+<td>任务特定（情感、实体等）</td>
+</tr>
+<tr class="even">
+<td>迁移方式</td>
+<td>冻结低层 + 微调高层</td>
+<td>？</td>
+</tr>
+</tbody>
+</table>
+<p>这张表中有很多问号——2015年前后的NLP社区确实不知道该如何回答这些问题。预训练任务应该是什么？语言模型吗？翻译？预训练模型应该用什么架构？LSTM？CNN？如何做微调？这些问题的答案将在后续章节逐步揭晓。</p>
+</section>
+</section>
+<section id="nlp预训练的早期探索" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="nlp预训练的早期探索"><span class="header-section-number">4.3</span> NLP预训练的早期探索</h3>
+<section id="collobert-weston-2008-2011被低估的先驱" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="collobert-weston-2008-2011被低估的先驱"><span class="header-section-number">4.3.1</span> Collobert &amp; Weston (2008, 2011)：被低估的先驱</h4>
+<p>在Word2Vec之前，Ronan Collobert和Jason Weston就已经探索了NLP中的预训练思想。他们在2008年的工作中提出了一个”统一的NLP架构”：用一个共享的底层神经网络同时处理多个NLP任务（词性标注、命名实体识别、语义角色标注等），底层的词表示在所有任务间共享。</p>
+<p>2011年，他们发表了更完整的版本”Natural Language Processing (Almost) from Scratch”。这篇论文的核心贡献是证明了：<strong>用无监督方式预训练的词表示（通过语言模型目标），可以显著提升多个NLP任务的性能</strong>，从而大幅减少对手工特征工程的依赖。</p>
+<p>这个工作比Word2Vec早了两年，比ELMo早了七年，但当时并没有引起足够的重视。原因可能有几个：当时的硬件条件限制了模型规模，效果提升不够dramatic；深度学习在NLP中还不是主流；论文使用的CNN架构也不如后来的RNN/Transformer流行。但回顾来看，Collobert &amp; Weston的思想是高度前瞻性的。</p>
+</section>
+<section id="dai-le-2015序列模型的预训练" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="dai-le-2015序列模型的预训练"><span class="header-section-number">4.3.2</span> Dai &amp; Le (2015)：序列模型的预训练</h4>
+<p>2015年，Andrew Dai和Quoc Le发表了一篇看似不起眼却意义深远的论文”Semi-supervised Sequence Learning”。他们做了一件简单的事：先用语言模型目标（或自编码器目标）在无标注数据上预训练一个LSTM，然后在标注数据上微调进行文本分类。</p>
+<p>具体来说，他们尝试了两种预训练目标。第一种是<strong>语言模型预训练（LM pre-training）</strong>：训练LSTM预测下一个词，这与后来的GPT思想一脉相承。第二种是<strong>自编码器预训练（SA pre-training）</strong>：训练LSTM将输入序列编码再解码，类似于后来的降噪自编码器。</p>
+<p>实验结果表明，预训练LSTM在文本分类任务上相比随机初始化能提升1-3个百分点。虽然提升幅度不算惊人，但这是NLP中第一次系统性地验证了”在无标注文本上预训练整个序列模型”的有效性。更重要的是，这个工作建立了一个关键的概念：<strong>预训练不必局限于Embedding层，可以预训练整个模型</strong>。</p>
+<p>然而，这篇论文在当时并未引起广泛关注。可能的原因是提升幅度有限，而且当时NLP社区的注意力主要集中在注意力机制和Seq2Seq架构上（正是第三部分讨论的内容）。预训练的火种需要等到更强的架构（Transformer）和更大的规模才能真正燃烧起来。</p>
+</section>
+<section id="ulmfit-2018第一个完整的预训练-微调框架" class="level4" data-number="4.3.3">
+<h4 data-number="4.3.3" class="anchored" data-anchor-id="ulmfit-2018第一个完整的预训练-微调框架"><span class="header-section-number">4.3.3</span> ULMFiT (2018)：第一个完整的预训练-微调框架</h4>
+<p>预训练思想在NLP中的真正突破来自Jeremy Howard和Sebastian Ruder在2018年提出的ULMFiT（Universal Language Model Fine-tuning）。这个工作的重要性不在于某个单一的技术创新，而在于它提出了一套<strong>完整的、可操作的预训练-微调流程</strong>。</p>
+<p>ULMFiT的框架分为三个阶段：</p>
+<p><strong>第一阶段：通用语言模型预训练</strong>。在大规模通用语料（如Wikitext-103）上训练一个语言模型。这一步学习通用的语言知识——语法、语义、常识。</p>
+<p><strong>第二阶段：目标领域语言模型微调</strong>。在目标任务的无标注数据上继续训练语言模型。例如，如果目标任务是IMDB影评分类，就在IMDB影评（包括未标注的部分）上继续训练语言模型。这一步让模型适应目标领域的词汇和表达习惯。</p>
+<p><strong>第三阶段：目标任务分类器微调</strong>。添加分类头，在标注数据上微调整个模型。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>📖 推荐阅读原图
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Howard &amp; Ruder (2018) 论文 “Universal Language Model Fine-tuning for Text Classification” 的 Figure 1 完整展示了ULMFiT的三阶段流程图：通用LM预训练 → 领域LM微调 → 任务分类器微调。图中还标注了判别式微调和逐步解冻的具体操作方式。建议读者参阅原论文 (arXiv:1801.06146) 以获得完整的视觉理解。</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>算法框：ULMFiT 三阶段预训练-微调流程
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>输入</strong>：通用语料 <span class="math inline">\(\mathcal{D}_{\text{general}}\)</span>（如 Wikitext-103），目标领域无标注数据 <span class="math inline">\(\mathcal{D}_{\text{domain}}\)</span>，目标任务标注数据 <span class="math inline">\(\mathcal{D}_{\text{task}} = \{(x_i, y_i)\}\)</span>，<span class="math inline">\(L\)</span> 层 LSTM 语言模型</p>
+<p><strong>Stage 1 — 通用语言模型预训练</strong>：在 <span class="math inline">\(\mathcal{D}_{\text{general}}\)</span> 上训练语言模型，最小化 <span class="math display">\[\mathcal{L}_{\text{LM}} = -\sum_{t=1}^{T} \log P(w_t \mid w_1, \ldots, w_{t-1}; \theta)\]</span> 得到预训练参数 <span class="math inline">\(\theta_{\text{pre}}\)</span>（学习通用语法、语义、常识）</p>
+<p><strong>Stage 2 — 目标领域语言模型微调</strong>：以 <span class="math inline">\(\theta_{\text{pre}}\)</span> 为初始化，在 <span class="math inline">\(\mathcal{D}_{\text{domain}}\)</span> 上继续训练语言模型，使用<strong>判别式学习率</strong>： <span class="math display">\[\theta_l^{(t+1)} = \theta_l^{(t)} - \eta_l \cdot \nabla_{\theta_l} \mathcal{L}_{\text{LM}}, \quad \eta_l = \frac{\eta_L}{2.6^{L-l}}\]</span> 其中 <span class="math inline">\(\eta_L\)</span> 为最高层学习率，低层学习率逐层衰减（适应领域词汇和表达）</p>
+<p><strong>Stage 3 — 目标任务分类器微调</strong>：添加分类头 <span class="math inline">\(f_{\text{cls}}\)</span>，使用<strong>逐步解冻</strong>策略：</p>
+<ul>
+<li>Epoch 1：仅训练分类头 <span class="math inline">\(f_{\text{cls}}\)</span>（其余层冻结）</li>
+<li>Epoch 2：解冻第 <span class="math inline">\(L\)</span> 层，训练 <span class="math inline">\(f_{\text{cls}}\)</span> + 第 <span class="math inline">\(L\)</span> 层</li>
+<li>Epoch 3：解冻第 <span class="math inline">\(L-1\)</span> 层，训练 <span class="math inline">\(f_{\text{cls}}\)</span> + 第 <span class="math inline">\(L\)</span> 层 + 第 <span class="math inline">\(L-1\)</span> 层</li>
+<li>……依次解冻直到所有层参与训练</li>
+</ul>
+<p><strong>输出</strong>：适配目标任务的完整模型 <span class="math inline">\(\theta_{\text{task}}\)</span></p>
+<p><strong>数值示例</strong>：假设 3 层 LSTM，<span class="math inline">\(\eta_L = 0.01\)</span>。Stage 2 的各层学习率为：</p>
+<ul>
+<li>第 3 层（最高层）：<span class="math inline">\(\eta_3 = 0.01\)</span></li>
+<li>第 2 层：<span class="math inline">\(\eta_2 = 0.01 / 2.6 \approx 0.00385\)</span></li>
+<li>第 1 层（最底层）：<span class="math inline">\(\eta_1 = 0.01 / 2.6^2 \approx 0.00148\)</span></li>
+</ul>
+<p>最高层的学习率是最底层的 <span class="math inline">\(2.6^2 \approx 6.76\)</span> 倍——底层通用知识受到更强的保护。</p>
+</div>
+</div>
+<p>ULMFiT的关键技术贡献在于微调策略的设计。Howard和Ruder发现，粗暴的微调（所有层用相同学习率）效果并不好——底层学到的通用知识可能被破坏。他们提出了两个重要技巧。</p>
+<p>第一个是<strong>判别式微调（Discriminative Fine-tuning）</strong>：不同层使用不同的学习率。底层（通用特征）使用较小的学习率以保护已学到的知识，高层（任务特定特征）使用较大的学习率以快速适应新任务。具体地，如果第<span class="math inline">\(L\)</span>层的学习率是<span class="math inline">\(\eta_L\)</span>，那么第<span class="math inline">\(l\)</span>层的学习率是：</p>
+<p><span class="math display">\[
+\eta_l = \frac{\eta_L}{2.6^{L-l}}
+\]</span></p>
+<p>也就是说，每低一层，学习率缩小2.6倍。</p>
+<p>第二个是<strong>逐步解冻（Gradual Unfreezing）</strong>：不是一开始就微调所有层，而是从最高层开始逐步解冻。第一个epoch只微调最高层，第二个epoch解冻并微调前两层，以此类推。这进一步保护了底层的通用知识。</p>
+<p>ULMFiT的效果是显著的。在6个文本分类基准上，它达到了与从零训练的模型相当甚至更好的性能，但<strong>只需要原来1/10到1/100的标注数据</strong>。在仅有100个标注样本的极端情况下，ULMFiT的性能远超从零训练的基线。</p>
+<p>这个工作的意义在于它证明了一个重要的命题：<strong>NLP也可以像CV一样，通过预训练-微调的范式来大幅提升小数据场景下的性能</strong>。它为同年出现的ELMo、GPT和BERT铺平了道路。</p>
+</section>
+</section>
+<section id="预训练的三个关键要素" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="预训练的三个关键要素"><span class="header-section-number">4.4</span> 预训练的三个关键要素</h3>
+<p>回顾上述发展，我们可以提炼出预训练范式的三个关键要素：</p>
+<p><strong>要素一：预训练任务的设计</strong>。预训练任务决定了模型能学到什么样的知识。Word2Vec学的是词的共现关系，CV用的是图像分类，NLP语言模型学的是序列的概率分布。一个好的预训练任务应该迫使模型理解数据的深层结构，而不只是表面的统计模式。</p>
+<p><strong>要素二：预训练数据的规模与质量</strong>。更多的数据通常意味着更好的预训练效果。ImageNet的120万张标注图片在当时已经是”大规模”了，而NLP使用的Wikipedia、BookCorpus等无标注文本更是几个数量级的飞跃。但数据质量同样重要——噪声过大的数据可能导致预训练模型学到错误的模式。</p>
+<p><strong>要素三：微调策略的设计</strong>。如何在保留预训练知识的同时适应新任务是一个微妙的平衡。学习率太大会”遗忘”预训练知识（灾难性遗忘），学习率太小则适应太慢。ULMFiT的判别式微调和逐步解冻就是在这个平衡上做出的精细调整。</p>
+<hr>
+</section>
+</section>
+<section id="工程实践" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="工程实践"><span class="header-section-number">5</span> 工程实践</h2>
+<section id="使用预训练词向量" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="使用预训练词向量"><span class="header-section-number">5.1</span> 使用预训练词向量</h3>
+<p>在2018年之前（BERT出现之前），使用预训练词向量是NLP中最普遍的迁移学习方式。以下是一个完整的工作流：</p>
+<div id="45770c4c" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_glove_embeddings(glove_path, word2idx, embed_dim<span class="op">=</span><span class="dv">300</span>):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">    加载预训练 GloVe 词向量</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">        glove_path: GloVe文件路径 (如 'glove.6B.300d.txt')</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">        word2idx: 词到索引的映射</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">        embed_dim: 词向量维度</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">        embedding_matrix: [vocab_size, embed_dim] 的numpy数组</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> <span class="bu">len</span>(word2idx)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    embedding_matrix <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (vocab_size, embed_dim))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    found <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(glove_path, <span class="st">'r'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>) <span class="im">as</span> f:</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            parts <span class="op">=</span> line.strip().split()</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            word <span class="op">=</span> parts[<span class="dv">0</span>]</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> word <span class="kw">in</span> word2idx:</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>                idx <span class="op">=</span> word2idx[word]</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                vector <span class="op">=</span> np.array(parts[<span class="dv">1</span>:], dtype<span class="op">=</span>np.float32)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                embedding_matrix[idx] <span class="op">=</span> vector</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>                found <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    coverage <span class="op">=</span> found <span class="op">/</span> vocab_size <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"词向量覆盖率: </span><span class="sc">{</span>found<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>vocab_size<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>coverage<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 典型结果: 覆盖率约 85-95%（取决于词汇表大小和领域）</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> embedding_matrix</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_init_strategies(train_data, test_data, word2idx, glove_path):</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""对比随机初始化 vs 预训练初始化的效果"""</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略1: 随机初始化</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    model_random <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (<span class="bu">len</span>(word2idx), <span class="dv">300</span>)),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">False</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略2: GloVe初始化 + 冻结</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    glove_embeds <span class="op">=</span> load_glove_embeddings(glove_path, word2idx)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    model_frozen <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>glove_embeds,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">True</span>  <span class="co"># 冻结 Embedding 层</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略3: GloVe初始化 + 微调 (通常效果最好)</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    model_finetune <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>glove_embeds,</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">False</span>  <span class="co"># 允许 Embedding 层更新</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 训练并对比...</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 典型结果 (SST-2, 5000样本):</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   随机初始化:      ~78%</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   GloVe + 冻结:    ~82%</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   GloVe + 微调:    ~85%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="实验验证不同策略的效果对比" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="实验验证不同策略的效果对比"><span class="header-section-number">5.2</span> 实验验证：不同策略的效果对比</h3>
+<p>在典型的文本分类任务上，三种策略的表现如下（以SST-2情感分析为例）：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>初始化策略</th>
+<th>1000样本</th>
+<th>5000样本</th>
+<th>全部数据(67K)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>随机初始化</td>
+<td>68.2%</td>
+<td>78.3%</td>
+<td>85.1%</td>
+</tr>
+<tr class="even">
+<td>GloVe + 冻结</td>
+<td>74.5%</td>
+<td>82.1%</td>
+<td>85.8%</td>
+</tr>
+<tr class="odd">
+<td>GloVe + 微调</td>
+<td><strong>76.8%</strong></td>
+<td><strong>84.7%</strong></td>
+<td><strong>86.3%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>值得注意的规律：标注数据越少，预训练词向量的优势越明显。在1000样本时提升近9个百分点，在全部数据时仅提升约1个百分点。</p>
+</section>
+<section id="实用建议" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="实用建议"><span class="header-section-number">5.3</span> 实用建议</h3>
+<p>基于当时（2014-2017年）的最佳实践，以下几条经验法则在使用预训练词向量时非常有用：</p>
+<p><strong>选择词向量</strong>：GloVe(840B)通常优于Word2Vec，因为它在更大的语料上训练且同时考虑了全局和局部统计。维度选择300维是一个好的默认值。</p>
+<p><strong>处理OOV词</strong>：对于预训练词向量未覆盖的词（out-of-vocabulary），不要用零向量——用所有已知词向量的均值加上小噪声来初始化效果更好。</p>
+<p><strong>冻结还是微调</strong>：如果标注数据很少（&lt; 1000样本），建议冻结Embedding层以避免过拟合；如果标注数据充足（&gt; 10000样本），微调通常更好。</p>
+<hr>
+</section>
+</section>
+<section id="深入理解" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="深入理解"><span class="header-section-number">6</span> 深入理解</h2>
+<blockquote class="blockquote">
+<p><strong>研究者必读</strong>：这一节探讨迁移学习和预训练的理论基础与开放问题</p>
+</blockquote>
+<section id="为什么迁移学习有效理论视角" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="为什么迁移学习有效理论视角"><span class="header-section-number">6.1</span> 为什么迁移学习有效？——理论视角</h3>
+<p>迁移学习的理论基础可以从几个角度来理解。</p>
+<section id="域适应理论" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="域适应理论"><span class="header-section-number">6.1.1</span> 域适应理论</h4>
+<p>Ben-David等人(2010)提出了一个形式化的域适应理论框架。给定源域分布<span class="math inline">\(\mathcal{D}_S\)</span>和目标域分布<span class="math inline">\(\mathcal{D}_T\)</span>，在目标域上的误差<span class="math inline">\(\epsilon_T(h)\)</span>可以被以下不等式约束：</p>
+<p><span class="math display">\[
+\epsilon_T(h) \leq \epsilon_S(h) + d_{\mathcal{H}\Delta\mathcal{H}}(\mathcal{D}_S, \mathcal{D}_T) + \lambda
+\]</span></p>
+<p>其中<span class="math inline">\(\epsilon_S(h)\)</span>是在源域上的误差，<span class="math inline">\(d_{\mathcal{H}\Delta\mathcal{H}}\)</span>是两个域之间的”<span class="math inline">\(\mathcal{H}\)</span>-散度”（衡量两个分布有多不同），<span class="math inline">\(\lambda\)</span>是一个与最优联合假设相关的不可约误差。</p>
+<p>这个不等式揭示了迁移学习成功的三个条件：源域表现好（<span class="math inline">\(\epsilon_S(h)\)</span>小）、源域和目标域足够接近（<span class="math inline">\(d\)</span>小）、存在一个在两个域上都表现好的假设（<span class="math inline">\(\lambda\)</span>小）。</p>
+<p>对于NLP预训练来说，源任务是语言建模（在大规模文本上），目标任务是具体的NLP任务（如情感分析）。两者共享同一种语言的基本结构，因此<span class="math inline">\(d\)</span>相对较小；而<span class="math inline">\(\lambda\)</span>取决于语言理解能力与具体任务之间的关联程度——对于大多数NLP任务，语言理解是基础，所以<span class="math inline">\(\lambda\)</span>也较小。</p>
+</section>
+<section id="特征层级假说" class="level4" data-number="6.1.2">
+<h4 data-number="6.1.2" class="anchored" data-anchor-id="特征层级假说"><span class="header-section-number">6.1.2</span> 特征层级假说</h4>
+<p>Yosinski等人(2014)的实验为迁移学习提供了一个实证理论：神经网络的特征呈层级结构，从低层的通用特征逐渐过渡到高层的任务特定特征。这个”特征层级假说”在CV中已经得到充分验证，在NLP中也有类似的证据。</p>
+<p>对于语言模型来说，低层可能学习词的语义和常见短语模式，中层可能学习句法结构和语义组合，高层可能学习更抽象的语篇结构和推理模式。预训练相当于为这些层级提供了一个好的初始化点，微调只需要在这个基础上做微调即可。</p>
+</section>
+</section>
+<section id="为什么nlp的预训练比cv更困难" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="为什么nlp的预训练比cv更困难"><span class="header-section-number">6.2</span> 为什么NLP的预训练比CV更困难？</h3>
+<p>虽然CV的成功给NLP提供了巨大的启发，但NLP的预训练面临着几个独特的挑战。</p>
+<p><strong>第一，缺少像ImageNet那样的”黄金标注数据集”</strong>。ImageNet有120万张人工标注的图片，提供了强监督信号。NLP没有这样的资源——我们只有无标注的原始文本。这意味着NLP的预训练必须是<strong>自监督的</strong>（self-supervised），从文本本身构造训练信号。</p>
+<p><strong>第二，语言的离散性增加了建模难度</strong>。图像是连续的——像素值的微小变化不会改变语义。但语言是离散的——“cat”变成”bat”只差一个字母，语义却完全不同。这意味着语言的表示空间更加复杂，需要模型学习更精细的特征。</p>
+<p><strong>第三，语言的组合性要求更深的理解</strong>。图像中的物体相对独立——识别一只猫不需要理解图片的全局结构。但语言高度依赖上下文——“bank”可以是银行也可以是河岸，取决于上下文。这要求NLP的预训练模型必须捕获上下文依赖，而不仅仅是词级别的统计。</p>
+<p>这些挑战解释了为什么NLP的预训练革命比CV晚了几年，也解释了为什么最终成功的方案（ELMo、GPT、BERT）都采用了上下文相关的模型，而非简单的词向量。</p>
+</section>
+<section id="开放研究问题2017年视角" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="开放研究问题2017年视角"><span class="header-section-number">6.3</span> 开放研究问题（2017年视角）</h3>
+<p>站在2017年的时间节点——Transformer刚刚发表，ELMo和BERT还未出现——NLP预训练面临着几个核心的开放问题。</p>
+<p><strong>预训练任务的最优选择是什么？</strong> 语言建模（预测下一个词）是一个自然的选择，但它是最好的吗？有没有其他自监督任务能让模型学到更好的语言知识？这个问题在BERT的MLM目标和后续的对比学习中得到了进一步探索。</p>
+<p><strong>预训练模型的最优架构是什么？</strong> LSTM？CNN？Transformer？2017年时还不清楚哪种架构最适合做NLP预训练的”骨架”。后来的事实证明，Transformer凭借其强大的表达能力和可扩展性成为了胜出者。</p>
+<p><strong>微调策略如何优化？</strong> ULMFiT的判别式微调和逐步解冻是一个好的开始，但还有没有更好的方法？如何避免灾难性遗忘？如何在保留通用知识和适应新任务之间取得最优平衡？</p>
+<p>这些问题将在后续章节中逐步得到解答。</p>
+<hr>
+</section>
+</section>
+<section id="局限性与未解决的问题" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="局限性与未解决的问题"><span class="header-section-number">7</span> 局限性与未解决的问题</h2>
+<section id="静态词向量的根本缺陷" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="静态词向量的根本缺陷"><span class="header-section-number">7.1</span> 静态词向量的根本缺陷</h3>
+<p>Word2Vec和GloVe预训练的词向量有一个致命的问题：<strong>每个词只有一个固定的向量表示，无论它出现在什么上下文中</strong>。</p>
+<p>考虑以下两个句子：</p>
+<ul>
+<li>“I went to the <strong>bank</strong> to deposit money.”（银行）</li>
+<li>“I sat on the <strong>bank</strong> of the river.”（河岸）</li>
+</ul>
+<p>在Word2Vec/GloVe中，这两个”bank”共享同一个向量。这意味着模型无法区分”bank”在不同语境中的不同含义。这个问题被称为<strong>一词多义（polysemy）问题</strong>。</p>
+<p>这不是一个罕见的边缘情况。英语中最常用的1000个词中，绝大多数都有多个含义。“run”可以是跑步、运行、竞选、流淌……，“set”的含义更是多达数百个。静态词向量将所有含义压缩成一个向量，不可避免地损失了信息。</p>
+<div id="fig-static-vs-contextual" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-static-vs-contextual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-10/fig-static-vs-contextual.png" class="img-fluid figure-img" style="width:95.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-static-vs-contextual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: 静态词向量（左）vs 上下文词向量（右）：“bank”一词在不同语境中的表示方式。静态词向量中，无论上下文如何，“bank”只有唯一的向量；上下文词向量则根据语境生成不同的表示。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>作者绘制。概念示意图，展示 Word2Vec/GloVe 的静态表示与 ELMo/BERT 的上下文表示之间的区别。</em></p>
+</div>
+</section>
+<section id="浅层迁移的局限" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="浅层迁移的局限"><span class="header-section-number">7.2</span> 浅层迁移的局限</h3>
+<p>使用预训练词向量本质上是一种<strong>浅层迁移</strong>——只迁移了Embedding层（模型的第一层），而模型的其他层（LSTM、注意力层、分类头等）仍然从零训练。</p>
+<p>这意味着预训练只提供了<strong>词级别</strong>的知识，而更高层次的知识——句法结构、语义组合、篇章逻辑——完全依赖于下游任务的标注数据来学习。在数据稀缺的场景下，这些高层知识往往学不好。</p>
+<p>一个直观的类比是：使用预训练词向量就像给学生发了一本词典，然后让他直接参加阅读理解考试。词典确实有帮助——至少他认识了大部分词。但”认识词”和”理解文章”之间还有巨大的鸿沟。我们真正需要的不是一本更好的词典，而是一个”读过大量文章”的学生，他已经内化了阅读理解的各种技能。</p>
+</section>
+<section id="预训练与下游任务的脱节" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="预训练与下游任务的脱节"><span class="header-section-number">7.3</span> 预训练与下游任务的脱节</h3>
+<p>Word2Vec/GloVe的预训练目标（预测共现词）和下游任务的目标（如情感分类）之间存在明显的gap。预训练学到的是”哪些词经常一起出现”，但这不等于”哪些词表达了正面情感”。虽然两者有关联——“excellent”和”amazing”经常出现在相似的上下文中，所以它们的向量会相似——但这种关联是间接的、不完美的。</p>
+</section>
+<section id="这些局限导向了什么" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="这些局限导向了什么"><span class="header-section-number">7.4</span> 这些局限导向了什么？</h3>
+<p>上述三个局限指向了一个共同的方向：<strong>我们需要能够生成上下文相关的、深层的语言表示的预训练方法</strong>。</p>
+<p>静态词向量的问题呼唤<strong>上下文词向量</strong>——同一个词在不同上下文中应该有不同的表示。这正是第11章ELMo要解决的问题。</p>
+<p>浅层迁移的问题呼唤<strong>整个模型的预训练</strong>——不仅预训练Embedding层，还要预训练所有的隐藏层，让模型在预训练阶段就学习句法、语义、推理等高层知识。这是第12章GPT和第13章BERT的核心思想。</p>
+<p>预训练-下游任务脱节的问题呼唤<strong>更强的预训练目标</strong>——预训练任务应该迫使模型理解语言的深层结构，而不仅仅是词的共现统计。掩码语言模型（BERT的MLM）和因果语言模型（GPT的CLM）就是在这个方向上的重大突破。</p>
+<blockquote class="blockquote">
+<p>下一章预告：第11章将介绍ELMo——第一个生成上下文相关词向量的预训练模型。ELMo用双向LSTM在大规模文本上训练语言模型，为每个词生成依赖上下文的动态表示，标志着”深层预训练”时代的开端。</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">8</span> 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">8.1</span> 核心要点回顾</h3>
+<p>这一章我们追溯了预训练思想的起源，建立了理解后续章节（ELMo、GPT、BERT）所需的概念基础。</p>
+<p>核心问题是如何克服NLP中标注数据稀缺的瓶颈——每个任务都从零学习语言知识既低效又浪费。核心洞察是迁移学习：先在大规模无标注数据上学习通用的语言知识（预训练），然后在少量标注数据上适配具体任务（微调）。</p>
+<p>我们看到了这个思想的三个演进阶段：Word2Vec的词向量预训练是最浅层的迁移，只提供词级别的语义知识；CV领域的ImageNet预训练证明了深层模型迁移的巨大潜力，为NLP提供了蓝图；ULMFiT提出了第一个完整的预训练-微调框架，证明NLP也可以像CV一样从预训练中获得巨大收益。</p>
+<p>最终，Word2Vec预训练的三大局限——静态表示、浅层迁移、任务脱节——指向了一个共同的方向：我们需要上下文相关的、深层的、端到端的预训练方法。这正是后续章节的主题。</p>
+</section>
+<section id="关键概念速查" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="关键概念速查"><span class="header-section-number">8.2</span> 关键概念速查</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>迁移学习</td>
+<td>在源任务上学到的知识应用到目标任务</td>
+</tr>
+<tr class="even">
+<td>预训练</td>
+<td>在大规模数据上训练模型的第一阶段</td>
+</tr>
+<tr class="odd">
+<td>微调</td>
+<td>在目标任务数据上适配预训练模型的第二阶段</td>
+</tr>
+<tr class="even">
+<td>特征提取</td>
+<td>冻结预训练模型，用其输出作为下游特征</td>
+</tr>
+<tr class="odd">
+<td>判别式微调</td>
+<td>不同层使用不同学习率（ULMFiT）</td>
+</tr>
+<tr class="even">
+<td>逐步解冻</td>
+<td>从高层到低层逐步开放训练（ULMFiT）</td>
+</tr>
+<tr class="odd">
+<td>灾难性遗忘</td>
+<td>微调时丢失预训练学到的知识</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="思考题" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8.3</span> 思考题</h3>
+<ol type="1">
+<li><p><strong>[概念理解]</strong> 为什么说Word2Vec是”浅层”的预训练？如果模型有10层，Word2Vec只预训练了哪一层？其他层的知识来自哪里？</p></li>
+<li><p><strong>[对比分析]</strong> 比较NLP和CV中的预训练条件。为什么CV的ImageNet预训练使用的是有监督学习（图像分类），而NLP的预训练必须走自监督路线？如果NLP也有一个像ImageNet一样的大规模标注数据集，情况会不同吗？</p></li>
+<li><p><strong>[数学推导]</strong> ULMFiT的判别式微调中，如果最高层学习率为<span class="math inline">\(\eta_L = 0.01\)</span>，衰减因子为2.6，模型有6层，计算每一层的学习率。最底层和最高层的学习率相差多少倍？</p></li>
+<li><p><strong><a href="#工程实践">工程实践</a></strong> 在一个只有500条标注样本的文本分类任务上，分别使用(a)随机初始化、(b)GloVe冻结、(c)GloVe微调三种策略训练模型，对比效果。尝试改变标注样本数量（100, 500, 2000, 10000），观察预训练优势如何随数据量变化。</p></li>
+<li><p><strong>[研究思考]</strong> Dai &amp; Le (2015) 的语言模型预训练在2015年效果平平，但同样的思想到了2018年（GPT）就大获成功。你认为这其中的关键差异是什么？是架构（LSTM vs Transformer）？是规模（数据和模型大小）？还是微调策略？</p></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">9</span> 延伸阅读</h2>
+<section id="核心论文必读" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="核心论文必读"><span class="header-section-number">9.1</span> 核心论文（必读）</h3>
+<p><strong>Mikolov et al.&nbsp;(2013). “Efficient Estimation of Word Representations in Vector Space”</strong> 和 <strong>“Distributed Representations of Words and Phrases and their Compositionality”</strong>。Word2Vec的两篇原始论文，虽然第2章已经介绍过技术细节，但从预训练的角度重新阅读会有新的收获。重点关注Skip-gram的训练目标如何从无标注数据中提取语义信息。</p>
+<p><strong>Howard &amp; Ruder (2018). “Universal Language Model Fine-tuning for Text Classification” (ULMFiT)</strong>。第一个完整的NLP预训练-微调框架。重点阅读Section 3的判别式微调和逐步解冻技巧，以及Section 4的消融实验。arXiv:1801.06146。</p>
+</section>
+<section id="理论基础" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="理论基础"><span class="header-section-number">9.2</span> 理论基础</h3>
+<p><strong>Ben-David et al.&nbsp;(2010). “A theory of learning from different domains”</strong>。域适应的理论框架，是理解迁移学习”为什么有效”的数学基础。重点阅读<span class="math inline">\(\mathcal{H}\)</span>-散度的定义和上界定理。</p>
+<p><strong>Yosinski et al.&nbsp;(2014). “How transferable are features in deep neural networks?”</strong>。CV中特征可迁移性的经典实证研究。虽然是CV论文，但其发现的”低层通用、高层特定”的规律对NLP同样有启发。</p>
+</section>
+<section id="先驱工作" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="先驱工作"><span class="header-section-number">9.3</span> 先驱工作</h3>
+<p><strong>Collobert &amp; Weston (2008/2011). “A Unified Architecture for Natural Language Processing” / “Natural Language Processing (Almost) from Scratch”</strong>。NLP预训练的最早探索者之一。虽然效果不如后来的方法，但思想高度前瞻。</p>
+<p><strong>Dai &amp; Le (2015). “Semi-supervised Sequence Learning”</strong>。第一篇系统性验证”预训练整个序列模型”的论文。arXiv:1511.01432。重点关注语言模型预训练 vs 自编码器预训练的对比。</p>
+</section>
+<section id="后续发展" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="后续发展"><span class="header-section-number">9.4</span> 后续发展</h3>
+<p><strong>Peters et al.&nbsp;(2018). “Deep contextualized word representations” (ELMo)</strong>。解决静态词向量问题的第一个重要突破——下一章的主题。</p>
+<p><strong>Radford et al.&nbsp;(2018). “Improving Language Understanding by Generative Pre-Training” (GPT)</strong>。用Transformer Decoder进行自回归预训练——第12章的主题。</p>
+<p><strong>Devlin et al.&nbsp;(2019). “BERT: Pre-training of Deep Bidirectional Transformers” (BERT)</strong>。用Transformer Encoder进行双向预训练——第13章的主题。</p>
+</section>
+<section id="综述与教程" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="综述与教程"><span class="header-section-number">9.5</span> 综述与教程</h3>
+<p><strong>Ruder (2019). “Neural Transfer Learning for Natural Language Processing”</strong>。Sebastian Ruder的博士论文，是NLP迁移学习最全面的综述，覆盖了从Word2Vec到BERT的完整演进。</p>
+<hr>
+</section>
+</section>
+<section id="历史注脚" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="历史注脚"><span class="header-section-number">10</span> 历史注脚</h2>
+<p>NLP预训练的历史有一个有趣的”错过”。Dai &amp; Le在2015年就已经验证了语言模型预训练的有效性，但当时的效果不够惊艳。如果他们使用Transformer（2017年才发明）而非LSTM，或者在更大的数据上训练，结果可能会大不相同。这提醒我们：好的想法需要在合适的时机、配合合适的技术条件才能发挥最大价值。</p>
+<p>另一个值得思考的历史细节是：CV的迁移学习用的是有监督预训练（ImageNet的120万张标注图片），而NLP最终走向了自监督预训练（无标注文本）。这不是NLP社区主动的选择，而是被迫的——NLP没有ImageNet那样规模的标注数据集。但这个”被迫”的选择最终被证明是更好的路线：自监督预训练可以利用几乎无限的无标注数据，规模化的潜力远超有监督预训练。到了2020年代，CV社区反过来开始学习NLP的自监督预训练方式（如MAE、DINO等）。</p>
+<p>ULMFiT的作者Jeremy Howard是一个非常有趣的人物。他不是传统的学术界人士，而是来自竞赛和应用背景（Kaggle冠军、fast.ai创始人）。他和Sebastian Ruder的这篇论文用相对简单的LSTM架构，通过精心设计的微调策略，取得了与同期的ELMo和OpenAI GPT相当的效果。这个故事告诉我们：有时候，工程上的精细调整和研究上的概念创新一样重要。</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "第10章：预训练思想的起源"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "从词向量到迁移学习：NLP如何借鉴CV的成功经验"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ying Zha"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2026-01-26"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [NLP, Deep Learning, Pre-training, Transfer Learning]</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="an">tags:</span><span class="co"> [Word2Vec, ImageNet, 迁移学习, ULMFiT, 预训练, Fine-tuning]</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "预训练范式的思想起源：迁移学习的基本思想、Word2Vec作为预训练雏形、计算机视觉的ImageNet启示、以及从特征提取到模型微调的范式演进。"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> "figures/pretraining-origins-banner.png"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc-depth:</span><span class="co"> 3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="an">code-fold:</span><span class="co"> true</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="an">code-tools:</span><span class="co"> true</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-cap-location: bottom</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> references.bib</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章参考来源</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### 论文</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Mikolov et al. (2013)** "Efficient Estimation of Word Representations in Vector Space" &amp; "Distributed Representations of Words and Phrases" — 参考了 Word2Vec 的 Skip-gram/CBOW 架构及预训练思想</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Howard &amp; Ruder (2018)** "Universal Language Model Fine-tuning for Text Classification" (ULMFiT) — 参考了三阶段框架（Section 3）、判别式微调与逐步解冻（Section 3.2-3.3）、消融实验（Section 4）</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Dai &amp; Le (2015)** "Semi-supervised Sequence Learning" — 参考了序列模型预训练的早期验证</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Collobert &amp; Weston (2008/2011)** "Natural Language Processing (Almost) from Scratch" — 参考了多任务共享表示的先驱思想</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ben-David et al. (2010)** "A theory of learning from different domains" — 参考了域适应理论框架</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Yosinski et al. (2014)** "How transferable are features in deep neural networks?" — 参考了CNN特征可迁移性的实证分析</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">### 教材</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**D2L** Section 15.1-15.6 (Word Embedding &amp; Pretraining) — 参考了词向量预训练的教学组织方式</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SLP3** Chapter 6 (Vector Semantics) &amp; Chapter 10 (Transformers and Pre-training) — 参考了迁移学习和预训练范式的讲解框架</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="fu">### 课程</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Stanford CS224N** Lecture 9 (2025) "Pretraining" — 参考了从 Word2Vec 到 GPT/BERT 的演进脉络讲解</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**fast.ai** Practical Deep Learning Course (2018) — 参考了 ULMFiT 的工程实践经验和教学视角</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **核心问题**：如何让模型从海量无标注数据中学到通用的语言知识，然后迁移到标注稀缺的具体任务？</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **历史坐标**：2013–2018 </span><span class="pp">|</span><span class="at"> Word2Vec → ImageNet预训练 → ULMFiT </span><span class="pp">|</span><span class="at"> 从"特征迁移"到"模型迁移"的范式演进</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## 从上一章说起</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="fu">## 第四部分开篇</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>本章是**第四部分：预训练范式的演进**的第一章。前面三个部分，我们沿着一条清晰的技术路线走来：从RNN的顺序建模（第4章），到注意力机制的诞生与演进（第5-7章），再到Transformer的横空出世（第8章）和高效注意力的优化尝试（第9章）。这条路线的主题是**架构设计**——如何设计更好的网络结构来处理序列数据。</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>从本章开始，我们将进入一个全新的主题：**训练范式**。不再只问"用什么架构"，而要问一个更根本的问题——"如何更聪明地利用数据来训练模型"。</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>回顾前面的旅程，到第8章结束时我们已经拥有了Transformer——一个强大的序列建模架构。它用纯注意力机制替代了循环结构，实现了完全并行的计算和$O(1)$的最长路径。第9章进一步探讨了如何优化Transformer的$O(n^2)$计算瓶颈。从架构的角度看，我们似乎已经有了足够好的工具。</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>然而，一个尴尬的现实是：拥有好的架构，并不意味着拥有好的模型。</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>考虑一个典型的NLP任务——医学文本情感分析。你手上有500条标注好的医学评论，希望训练一个分类器。如果你从头训练一个Transformer，会发生什么？大概率是过拟合。512维的Transformer Base有6500万参数，而你只有500个训练样本——参数比数据多了5个数量级。这就像用一张百万像素的画布去画一条直线，绝大多数像素都是噪声。</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>这个困境在NLP中普遍存在。高质量的标注数据昂贵且稀缺：一个医学NER数据集可能需要领域专家逐字标注，每小时只能标注几十个句子；一个法律文本分类任务可能需要律师审核每条样本；即使是相对简单的情感分析，大规模标注也需要数百人时的众包工作。</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>与此同时，互联网上有几乎无限的无标注文本——Wikipedia有超过40亿词，Common Crawl包含PB级别的网页数据。这些文本蕴含着丰富的语言知识：语法结构、语义关系、世界知识、推理模式。问题是，我们能否从这些无标注数据中提取出有用的"语言理解能力"，然后迁移到标注稀缺的具体任务？</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>这正是**预训练（Pre-training）**要回答的问题。</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 💡 **本章核心洞察**：与其为每个任务从零学习语言知识，不如先在大规模无标注数据上学习通用的语言表示（预训练），然后在少量标注数据上适配具体任务（微调）。这个看似简单的想法，将彻底改变NLP的研究范式。</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>本章我们将追溯这个思想的起源：从迁移学习的基本框架出发，看Word2Vec如何成为预训练的雏形，再看计算机视觉领域的ImageNet预训练如何提供了关键启示，最后了解NLP社区如何在ULMFiT中找到了自己的预训练路径。这些探索为后面的ELMo（第11章）、GPT（第12章）和BERT（第13章）奠定了思想基础。</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="al">![NLP 预训练范式的演进：从2008年Collobert &amp; Weston的多任务共享表示，到2013年Word2Vec的词级别迁移，再到2018年ULMFiT/ELMo/GPT/BERT的深层模型迁移。](figures/chapter-10/fig-pretraining-timeline.png)</span>{#fig-pretraining-timeline width=95%}</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>*作者绘制。时间线基于各论文的发表日期整理。*</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题的本质是什么？</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="fu">### 标注数据的瓶颈</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>让我们用具体数字来感受这个问题的规模。</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>下表列出了几个经典NLP任务的标注数据量和训练成本：</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 任务 <span class="pp">|</span> 数据集 <span class="pp">|</span> 标注样本数 <span class="pp">|</span> 标注成本估算 <span class="pp">|</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|--------|-----------|-------------|</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 情感分析 <span class="pp">|</span> SST-2 <span class="pp">|</span> 67,349 <span class="pp">|</span> ~$5,000 <span class="pp">|</span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 自然语言推理 <span class="pp">|</span> MNLI <span class="pp">|</span> 392,702 <span class="pp">|</span> ~$50,000 <span class="pp">|</span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 命名实体识别 <span class="pp">|</span> CoNLL-2003 <span class="pp">|</span> 20,744句 <span class="pp">|</span> ~$15,000 <span class="pp">|</span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 机器翻译 <span class="pp">|</span> WMT14 En-De <span class="pp">|</span> 450万句对 <span class="pp">|</span> ~$500,000 <span class="pp">|</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 阅读理解 <span class="pp">|</span> SQuAD 2.0 <span class="pp">|</span> 150,000 <span class="pp">|</span> ~$100,000 <span class="pp">|</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>这些数据集的构建动辄数万美元，而且只覆盖特定的领域和语言。如果你想做一个新的任务——比如中文医学文献的关系抽取——你需要从头开始标注，而领域专家的时间极其宝贵。</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>更根本的问题在于：每个NLP任务都需要模型从零学习语言本身。训练情感分析模型时，模型需要学习什么是"好"什么是"坏"，但同时它也在学习英语的语法、词的语义、句子的结构——这些基础知识在所有NLP任务中都是共通的。当你训练命名实体识别模型时，它又要重新学习一遍这些基础知识。这种重复劳动既低效又浪费。</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>一个自然的问题是：能不能先让模型学会"语言是什么"，然后再教它"这个任务怎么做"？</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="fu">### 从特征工程到表示学习</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>在深度学习之前，NLP研究者面临的是另一个版本的同一问题：**特征工程**。</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>传统机器学习方法需要人工设计特征。以情感分析为例，研究者需要手动定义哪些词是"积极的"，哪些搭配是"消极的"，是否出现了否定词，句子的语法结构是什么样的。这些特征的质量直接决定了模型的上限。一个经验丰富的NLP研究者可能会设计出几十种精心调校的特征，但这些特征很难迁移到其他任务——情感分析的特征对命名实体识别几乎没有用处。</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>第2章我们已经看到，Word2Vec等词向量方法迈出了关键的一步：让机器自动从数据中学习词的表示。"king"不再是一个任意的符号，而是一个300维的向量，其中编码了语义信息。这种表示可以在不同任务间共享——无论是做分类还是做翻译，"king"的语义都是相似的。</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>但词向量只是迁移了**词级别**的知识。一个自然的追问是：能否迁移**更高层次**的知识？比如句法结构、语义组合、篇章逻辑？</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a><span class="fu">### 我们需要什么样的解决方案？</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>理想的解决方案应该满足几个关键条件。</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>首先，它必须能利用**无标注数据**。无标注文本几乎无限，而标注数据昂贵稀缺，解决方案必须能够从前者中提取有用的知识。其次，学到的知识应该是**通用的**——不局限于某个特定任务，而是捕获语言的基本结构和语义。第三，这些知识必须**可迁移**，能够轻松适配到各种下游任务。最后，迁移后的效果应该**优于从零训练**，尤其是在标注数据很少的情况下。</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>这套框架有一个名字：**迁移学习（Transfer Learning）**。</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="fu">## 核心思想与直觉</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a><span class="fu">### 迁移学习：站在巨人的肩膀上</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>迁移学习的核心思想可以用一个类比来理解。</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>想象你是一个精通中文的作家，现在要学习写日语散文。你不需要从零学起——中文和日语共享大量汉字，你已经理解了"什么是好的叙事结构"，你知道如何运用修辞手法，你甚至对东亚文化有共通的感知。你需要学习的只是日语特有的语法、假名系统和一些文化差异。你的中文写作能力为学习日语写作提供了巨大的"先验知识"。</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>迁移学习做的就是同样的事情，只不过"知识"被编码在神经网络的权重中。</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>更正式地说，迁移学习的框架包含两个阶段。第一个阶段是**预训练（Pre-training）**：在一个数据丰富的**源任务（source task）**上训练模型，让它学习通用的知识表示。第二个阶段是**适配（Adaptation）**：将预训练模型的知识迁移到一个数据稀缺的**目标任务（target task）**上。</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>适配的方式有两种主要路线。一种是**特征提取（Feature Extraction）**：冻结预训练模型的参数，用它的输出作为下游任务的输入特征。另一种是**微调（Fine-tuning）**：在下游任务的数据上继续训练整个模型（或部分参数），让模型适应新任务。</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>这两种路线的区别可以类比为：特征提取就像用一台固定的望远镜去看不同的风景——望远镜本身不变，只是对准的方向不同；微调则像在已有望远镜基础上进行调焦和校准——望远镜本身也会做出微调来适应新的观测条件。</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a><span class="al">![从零训练、浅层迁移（词向量预训练）和深层预训练+微调三种范式的对比。注意每种方式中哪些层是预训练的、哪些是随机初始化的。](figures/chapter-10/fig-transfer-comparison.png)</span>{#fig-transfer-comparison width=95%}</span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>*作者绘制。三种范式的对比基于 Ruder (2019) 博士论文中的迁移学习分类框架。*</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么迁移可以工作？</span></span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>迁移学习能够成功的关键前提是：**不同任务之间存在共享的知识结构**。</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>在自然语言处理中，这个前提是高度成立的。所有的英语NLP任务都需要理解英语的语法（"the"后面通常接名词），都需要理解词的语义（"happy"是正面的），都需要理解一定的世界知识（"水在100°C时会沸腾"）。这些共享的知识构成了一个"通用语言理解能力"的基础层，不同的下游任务只是在这个基础层之上添加了各自的任务特定知识。</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>用神经网络的语言来说，低层的特征（如词的语义、常见短语）是通用的，可以跨任务共享；高层的特征（如情感极性、实体类型）是任务特定的，需要在目标任务上学习。迁移学习的效果取决于源任务和目标任务之间共享知识的比例——共享越多，迁移越有效。</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a><span class="fu">### 预训练范式的演进脉络</span></span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>预训练的思想并非一蹴而就，而是经历了几代演进。理解这个演进脉络对于把握后续章节（ELMo、GPT、BERT）的设计动机至关重要。</span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>**第一代：词向量预训练（2013–2017）**。Word2Vec和GloVe在大规模无标注文本上训练词向量，然后用这些词向量初始化下游模型的Embedding层。这是最浅层的迁移——只迁移了词级别的语义知识，模型的其他层仍然从零训练。</span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>**第二代：浅层模型预训练（2015–2017）**。Dai &amp; Le (2015) 尝试用语言模型预训练LSTM，然后微调整个模型。这比词向量更进一步，但效果还不够惊艳，没有引起广泛关注。</span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>**第三代：深层预训练 + 精细微调（2018）**。ULMFiT提出了一套完整的预训练-微调框架，包含判别式微调和逐步解冻等技巧。ELMo用双向LSTM生成上下文相关的词表示。GPT用Transformer Decoder进行自回归预训练。BERT用Transformer Encoder进行双向预训练。这一代标志着预训练范式的真正成熟。</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>本章聚焦第一代和第二代，为后续章节做铺垫。</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a><span class="fu">## 技术细节</span></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a><span class="fu">### Word2Vec：预训练的雏形</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 回顾与重新审视</span></span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a>第2章我们介绍了Word2Vec的技术细节——Skip-gram和CBOW模型如何从大规模文本中学习词向量。在这里，我们要从一个新的角度重新审视Word2Vec：它作为**NLP预训练范式的原型**，包含了哪些后来被验证为正确的设计思想？</span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>Word2Vec的训练过程可以看作一种无监督预训练：在大规模无标注文本上，通过预测上下文（Skip-gram）或由上下文预测中心词（CBOW）的方式，学习词的分布式表示。这个过程不需要任何人工标注，只需要原始文本本身。训练得到的词向量编码了丰富的语义和句法信息——著名的 $\vec{king} - \vec{man} + \vec{woman} \approx \vec{queen}$ 就是最好的例证。</span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>关键的创新在于如何使用这些词向量。2014年前后，NLP社区逐渐形成了一套标准做法：用Word2Vec/GloVe预训练的词向量来初始化模型的Embedding层，而不是使用随机初始化。这看起来是一个简单的工程技巧，但其背后蕴含着深刻的思想——**从大规模无标注数据中学到的知识可以帮助小规模标注数据上的任务**。</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 数值示例：预训练词向量的效果</span></span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>让我们通过一个具体的数值例子来感受预训练词向量的威力。</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>假设我们要做情感分析，训练集中"fantastic"这个词只出现了2次（都是正面评论），而测试集中出现了"wonderful"。如果使用随机初始化的Embedding，模型对"wonderful"完全没有先验知识——它的向量是随机的，模型无法利用"wonderful"与"fantastic"的语义相似性。</span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>但如果使用预训练的GloVe词向量：</span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a>\cos(\vec{\text{wonderful}}, \vec{\text{fantastic}}) = 0.78</span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>\cos(\vec{\text{wonderful}}, \vec{\text{terrible}}) = 0.23</span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>模型在看到"wonderful"时，即使从未在标注数据中见过这个词，也能通过它与"fantastic"的高相似度"推测"这可能是正面情感。预训练词向量充当了一个先验知识库，弥补了标注数据的不足。</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a>这个简单的例子揭示了预训练的核心价值：**泛化**。预训练让模型能够处理训练集中未见过的词和表达，因为它已经在更大的数据上学习了词与词之间的关系。</span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Word2Vec预训练的具体用法</span></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>在实践中，使用预训练词向量有两种常见策略。</span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>**策略一：冻结Embedding（Feature Extraction）**。将预训练词向量加载到Embedding层，然后冻结其权重不更新。下游模型只训练Embedding之上的层。这种方式保留了预训练知识的完整性，但缺乏针对目标任务的适应性。</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a>**策略二：用预训练初始化 + 微调**。用预训练词向量初始化Embedding层，然后在下游任务训练时允许Embedding层的权重继续更新。这种方式在保留先验知识的同时，允许模型针对具体任务做出调整。</span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: false</span></span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SentimentClassifier(nn.Module):</span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""使用预训练词向量的情感分类器"""</span></span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, pretrained_embeddings, hidden_dim<span class="op">=</span><span class="dv">128</span>,</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a>                 num_classes<span class="op">=</span><span class="dv">2</span>, freeze_embeddings<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a>        vocab_size, embed_dim <span class="op">=</span> pretrained_embeddings.shape</span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 用预训练词向量初始化 Embedding 层</span></span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding <span class="op">=</span> nn.Embedding(vocab_size, embed_dim)</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.embedding.weight <span class="op">=</span> nn.Parameter(</span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a>            torch.tensor(pretrained_embeddings, dtype<span class="op">=</span>torch.float32)</span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 是否冻结 Embedding 层</span></span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> freeze_embeddings:</span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.embedding.weight.requires_grad <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 下游分类头</span></span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lstm <span class="op">=</span> nn.LSTM(embed_dim, hidden_dim, batch_first<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>                            bidirectional<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.classifier <span class="op">=</span> nn.Linear(hidden_dim <span class="op">*</span> <span class="dv">2</span>, num_classes)</span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-239"><a href="#cb3-239" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, input_ids):</span>
+<span id="cb3-240"><a href="#cb3-240" aria-hidden="true" tabindex="-1"></a>        embeds <span class="op">=</span> <span class="va">self</span>.embedding(input_ids)    <span class="co"># [batch, seq_len, embed_dim]</span></span>
+<span id="cb3-241"><a href="#cb3-241" aria-hidden="true" tabindex="-1"></a>        lstm_out, (h_n, _) <span class="op">=</span> <span class="va">self</span>.lstm(embeds)</span>
+<span id="cb3-242"><a href="#cb3-242" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 拼接前向和后向最终隐状态</span></span>
+<span id="cb3-243"><a href="#cb3-243" aria-hidden="true" tabindex="-1"></a>        hidden <span class="op">=</span> torch.cat([h_n[<span class="dv">0</span>], h_n[<span class="dv">1</span>]], dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb3-244"><a href="#cb3-244" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.classifier(hidden)</span>
+<span id="cb3-245"><a href="#cb3-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-246"><a href="#cb3-246" aria-hidden="true" tabindex="-1"></a><span class="co"># 加载预训练 GloVe 词向量（示例）</span></span>
+<span id="cb3-247"><a href="#cb3-247" aria-hidden="true" tabindex="-1"></a><span class="co"># glove_embeddings = load_glove("glove.6B.300d.txt", vocab)</span></span>
+<span id="cb3-248"><a href="#cb3-248" aria-hidden="true" tabindex="-1"></a><span class="co"># model = SentimentClassifier(glove_embeddings, freeze_embeddings=False)</span></span>
+<span id="cb3-249"><a href="#cb3-249" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-250"><a href="#cb3-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-251"><a href="#cb3-251" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 效果有多大？</span></span>
+<span id="cb3-252"><a href="#cb3-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-253"><a href="#cb3-253" aria-hidden="true" tabindex="-1"></a>预训练词向量带来的提升是显著的。以文本分类任务为例，在小数据集（&lt; 5000样本）上，使用预训练GloVe初始化相比随机初始化通常能提升2-5个百分点的准确率。在命名实体识别等序列标注任务上，提升更加明显，因为稀有实体名往往在标注数据中出现次数很少，预训练词向量提供的语义信息尤为关键。</span>
+<span id="cb3-254"><a href="#cb3-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-255"><a href="#cb3-255" aria-hidden="true" tabindex="-1"></a>但这种提升也有明显的上限。当标注数据足够多时（比如WMT翻译的450万句对），预训练词向量的边际收益会迅速递减——因为模型有足够的数据从零学习词的语义。这符合我们的直觉：先验知识在数据稀缺时最有价值。</span>
+<span id="cb3-256"><a href="#cb3-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-257"><a href="#cb3-257" aria-hidden="true" tabindex="-1"></a><span class="fu">### 计算机视觉的启示：ImageNet预训练</span></span>
+<span id="cb3-258"><a href="#cb3-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-259"><a href="#cb3-259" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 一个价值百亿的发现</span></span>
+<span id="cb3-260"><a href="#cb3-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-261"><a href="#cb3-261" aria-hidden="true" tabindex="-1"></a>NLP的预训练革命在很大程度上受到了计算机视觉（CV）领域的启发。理解CV中的预训练历史，对于理解NLP的演进至关重要。</span>
+<span id="cb3-262"><a href="#cb3-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-263"><a href="#cb3-263" aria-hidden="true" tabindex="-1"></a>2012年，AlexNet在ImageNet图像分类竞赛中取得了突破性的成绩，将top-5错误率从26%降到了16%。这个事件本身已经载入史册。但真正改变CV研究范式的，是随后的一个发现：**在ImageNet上预训练的CNN，其学到的特征可以迁移到几乎所有视觉任务**。</span>
+<span id="cb3-264"><a href="#cb3-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-265"><a href="#cb3-265" aria-hidden="true" tabindex="-1"></a>2014年，Donahue等人发表了一篇影响深远的工作（DeCAF），他们做了一个简单但启发性的实验：将ImageNet上预训练的CNN的中间层特征提取出来，直接作为其他视觉任务（如物体检测、场景识别）的输入特征。结果令人惊讶——即使是这种最粗暴的迁移方式，效果也显著优于为每个任务单独训练的模型。</span>
+<span id="cb3-266"><a href="#cb3-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-267"><a href="#cb3-267" aria-hidden="true" tabindex="-1"></a>几乎同时，Razavian等人(2014)更进一步证明了"CNN features off-the-shelf"的有效性——预训练CNN特征几乎可以作为通用的视觉特征，应用于任何视觉识别任务。</span>
+<span id="cb3-268"><a href="#cb3-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-269"><a href="#cb3-269" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 为什么CV的迁移如此成功？</span></span>
+<span id="cb3-270"><a href="#cb3-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-271"><a href="#cb3-271" aria-hidden="true" tabindex="-1"></a>CV中迁移学习成功的关键原因在于CNN学到的特征有清晰的**层级结构**。</span>
+<span id="cb3-272"><a href="#cb3-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-273"><a href="#cb3-273" aria-hidden="true" tabindex="-1"></a>Yosinski等人(2014)发表了一篇经典的实证研究"How transferable are features in deep neural networks?"，系统地分析了CNN每一层特征的可迁移性。他们发现了一个优美的规律：CNN的低层（靠近输入）学习通用的视觉特征，如边缘检测器、颜色斑块、纹理模式。这些特征在所有视觉任务中都有用。中间层学习更抽象的组合特征，如角、轮廓、简单形状。这些特征仍然有较好的通用性。高层（靠近输出）学习任务特定的特征，如"是否是狗的耳朵"。这些特征的通用性最差。</span>
+<span id="cb3-274"><a href="#cb3-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-275"><a href="#cb3-275" aria-hidden="true" tabindex="-1"></a>这个发现带来了一个实用的洞察：**迁移时，低层特征可以直接复用，高层特征需要重新学习**。这就是Fine-tuning的理论基础——冻结低层，微调高层。</span>
+<span id="cb3-276"><a href="#cb3-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-277"><a href="#cb3-277" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb3-278"><a href="#cb3-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📖 推荐阅读原图</span></span>
+<span id="cb3-279"><a href="#cb3-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-280"><a href="#cb3-280" aria-hidden="true" tabindex="-1"></a>Yosinski et al. (2014) 论文 "How transferable are features in deep neural networks?" 中的 Figure 2 展示了CNN每一层特征可迁移性的定量分析。图中清晰地显示了从低层（通用特征）到高层（任务特定特征）的梯度过渡，以及在不同层切断迁移时模型性能的变化曲线。建议读者参阅原论文以获得更直观的理解。</span>
+<span id="cb3-281"><a href="#cb3-281" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-282"><a href="#cb3-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-283"><a href="#cb3-283" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 数值示例：ImageNet预训练的效果</span></span>
+<span id="cb3-284"><a href="#cb3-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-285"><a href="#cb3-285" aria-hidden="true" tabindex="-1"></a>下面的数据来自Yosinski et al. (2014)的实验，直观展示了预训练的巨大价值：</span>
+<span id="cb3-286"><a href="#cb3-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-287"><a href="#cb3-287" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 设置 <span class="pp">|</span> 准确率 (ImageNet子任务) <span class="pp">|</span></span>
+<span id="cb3-288"><a href="#cb3-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|----------------------|</span></span>
+<span id="cb3-289"><a href="#cb3-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 从零训练 (baseline) <span class="pp">|</span> 63.3% <span class="pp">|</span></span>
+<span id="cb3-290"><a href="#cb3-290" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练前3层 + 微调高层 <span class="pp">|</span> 64.1% (+0.8%) <span class="pp">|</span></span>
+<span id="cb3-291"><a href="#cb3-291" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练前6层 + 微调高层 <span class="pp">|</span> 67.7% (+4.4%) <span class="pp">|</span></span>
+<span id="cb3-292"><a href="#cb3-292" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练全部层 + 微调全部 <span class="pp">|</span> **68.2% (+4.9%)** <span class="pp">|</span></span>
+<span id="cb3-293"><a href="#cb3-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-294"><a href="#cb3-294" aria-hidden="true" tabindex="-1"></a>更令人印象深刻的是在**小数据集**上的表现：</span>
+<span id="cb3-295"><a href="#cb3-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-296"><a href="#cb3-296" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 目标数据量 <span class="pp">|</span> 从零训练 <span class="pp">|</span> ImageNet预训练+微调 <span class="pp">|</span> 提升 <span class="pp">|</span></span>
+<span id="cb3-297"><a href="#cb3-297" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|---------|-------------------|------|</span></span>
+<span id="cb3-298"><a href="#cb3-298" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1000样本 <span class="pp">|</span> ~40% <span class="pp">|</span> ~70% <span class="pp">|</span> **+30%** <span class="pp">|</span></span>
+<span id="cb3-299"><a href="#cb3-299" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5000样本 <span class="pp">|</span> ~55% <span class="pp">|</span> ~78% <span class="pp">|</span> **+23%** <span class="pp">|</span></span>
+<span id="cb3-300"><a href="#cb3-300" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 全部数据 <span class="pp">|</span> ~76% <span class="pp">|</span> ~82% <span class="pp">|</span> **+6%** <span class="pp">|</span></span>
+<span id="cb3-301"><a href="#cb3-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-302"><a href="#cb3-302" aria-hidden="true" tabindex="-1"></a>规律非常清晰：**数据越少，预训练的价值越大**。这正是NLP最需要的——因为大多数NLP任务的标注数据都很有限。</span>
+<span id="cb3-303"><a href="#cb3-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-304"><a href="#cb3-304" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 从CV到NLP的类比</span></span>
+<span id="cb3-305"><a href="#cb3-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-306"><a href="#cb3-306" aria-hidden="true" tabindex="-1"></a>CV的成功经验给NLP提供了一个清晰的蓝图：</span>
+<span id="cb3-307"><a href="#cb3-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-308"><a href="#cb3-308" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 维度 <span class="pp">|</span> 计算机视觉 <span class="pp">|</span> 自然语言处理（理想情况） <span class="pp">|</span></span>
+<span id="cb3-309"><a href="#cb3-309" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|-----------|----------------------|</span></span>
+<span id="cb3-310"><a href="#cb3-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练数据 <span class="pp">|</span> ImageNet（120万张标注图片） <span class="pp">|</span> 大规模文本（Wikipedia等） <span class="pp">|</span></span>
+<span id="cb3-311"><a href="#cb3-311" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练任务 <span class="pp">|</span> 图像分类（1000类） <span class="pp">|</span> 语言建模？完形填空？ <span class="pp">|</span></span>
+<span id="cb3-312"><a href="#cb3-312" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练模型 <span class="pp">|</span> CNN（AlexNet/VGG/ResNet） <span class="pp">|</span> RNN/Transformer？ <span class="pp">|</span></span>
+<span id="cb3-313"><a href="#cb3-313" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 低层特征 <span class="pp">|</span> 边缘、纹理、颜色 <span class="pp">|</span> 词义、短语、语法 <span class="pp">|</span></span>
+<span id="cb3-314"><a href="#cb3-314" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 高层特征 <span class="pp">|</span> 物体部件、类别 <span class="pp">|</span> 任务特定（情感、实体等） <span class="pp">|</span></span>
+<span id="cb3-315"><a href="#cb3-315" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 迁移方式 <span class="pp">|</span> 冻结低层 + 微调高层 <span class="pp">|</span> ？ <span class="pp">|</span></span>
+<span id="cb3-316"><a href="#cb3-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-317"><a href="#cb3-317" aria-hidden="true" tabindex="-1"></a>这张表中有很多问号——2015年前后的NLP社区确实不知道该如何回答这些问题。预训练任务应该是什么？语言模型吗？翻译？预训练模型应该用什么架构？LSTM？CNN？如何做微调？这些问题的答案将在后续章节逐步揭晓。</span>
+<span id="cb3-318"><a href="#cb3-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-319"><a href="#cb3-319" aria-hidden="true" tabindex="-1"></a><span class="fu">### NLP预训练的早期探索</span></span>
+<span id="cb3-320"><a href="#cb3-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-321"><a href="#cb3-321" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Collobert &amp; Weston (2008, 2011)：被低估的先驱</span></span>
+<span id="cb3-322"><a href="#cb3-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-323"><a href="#cb3-323" aria-hidden="true" tabindex="-1"></a>在Word2Vec之前，Ronan Collobert和Jason Weston就已经探索了NLP中的预训练思想。他们在2008年的工作中提出了一个"统一的NLP架构"：用一个共享的底层神经网络同时处理多个NLP任务（词性标注、命名实体识别、语义角色标注等），底层的词表示在所有任务间共享。</span>
+<span id="cb3-324"><a href="#cb3-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-325"><a href="#cb3-325" aria-hidden="true" tabindex="-1"></a>2011年，他们发表了更完整的版本"Natural Language Processing (Almost) from Scratch"。这篇论文的核心贡献是证明了：**用无监督方式预训练的词表示（通过语言模型目标），可以显著提升多个NLP任务的性能**，从而大幅减少对手工特征工程的依赖。</span>
+<span id="cb3-326"><a href="#cb3-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-327"><a href="#cb3-327" aria-hidden="true" tabindex="-1"></a>这个工作比Word2Vec早了两年，比ELMo早了七年，但当时并没有引起足够的重视。原因可能有几个：当时的硬件条件限制了模型规模，效果提升不够dramatic；深度学习在NLP中还不是主流；论文使用的CNN架构也不如后来的RNN/Transformer流行。但回顾来看，Collobert &amp; Weston的思想是高度前瞻性的。</span>
+<span id="cb3-328"><a href="#cb3-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-329"><a href="#cb3-329" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Dai &amp; Le (2015)：序列模型的预训练</span></span>
+<span id="cb3-330"><a href="#cb3-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-331"><a href="#cb3-331" aria-hidden="true" tabindex="-1"></a>2015年，Andrew Dai和Quoc Le发表了一篇看似不起眼却意义深远的论文"Semi-supervised Sequence Learning"。他们做了一件简单的事：先用语言模型目标（或自编码器目标）在无标注数据上预训练一个LSTM，然后在标注数据上微调进行文本分类。</span>
+<span id="cb3-332"><a href="#cb3-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-333"><a href="#cb3-333" aria-hidden="true" tabindex="-1"></a>具体来说，他们尝试了两种预训练目标。第一种是**语言模型预训练（LM pre-training）**：训练LSTM预测下一个词，这与后来的GPT思想一脉相承。第二种是**自编码器预训练（SA pre-training）**：训练LSTM将输入序列编码再解码，类似于后来的降噪自编码器。</span>
+<span id="cb3-334"><a href="#cb3-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-335"><a href="#cb3-335" aria-hidden="true" tabindex="-1"></a>实验结果表明，预训练LSTM在文本分类任务上相比随机初始化能提升1-3个百分点。虽然提升幅度不算惊人，但这是NLP中第一次系统性地验证了"在无标注文本上预训练整个序列模型"的有效性。更重要的是，这个工作建立了一个关键的概念：**预训练不必局限于Embedding层，可以预训练整个模型**。</span>
+<span id="cb3-336"><a href="#cb3-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-337"><a href="#cb3-337" aria-hidden="true" tabindex="-1"></a>然而，这篇论文在当时并未引起广泛关注。可能的原因是提升幅度有限，而且当时NLP社区的注意力主要集中在注意力机制和Seq2Seq架构上（正是第三部分讨论的内容）。预训练的火种需要等到更强的架构（Transformer）和更大的规模才能真正燃烧起来。</span>
+<span id="cb3-338"><a href="#cb3-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-339"><a href="#cb3-339" aria-hidden="true" tabindex="-1"></a><span class="fu">#### ULMFiT (2018)：第一个完整的预训练-微调框架</span></span>
+<span id="cb3-340"><a href="#cb3-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-341"><a href="#cb3-341" aria-hidden="true" tabindex="-1"></a>预训练思想在NLP中的真正突破来自Jeremy Howard和Sebastian Ruder在2018年提出的ULMFiT（Universal Language Model Fine-tuning）。这个工作的重要性不在于某个单一的技术创新，而在于它提出了一套**完整的、可操作的预训练-微调流程**。</span>
+<span id="cb3-342"><a href="#cb3-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-343"><a href="#cb3-343" aria-hidden="true" tabindex="-1"></a>ULMFiT的框架分为三个阶段：</span>
+<span id="cb3-344"><a href="#cb3-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-345"><a href="#cb3-345" aria-hidden="true" tabindex="-1"></a>**第一阶段：通用语言模型预训练**。在大规模通用语料（如Wikitext-103）上训练一个语言模型。这一步学习通用的语言知识——语法、语义、常识。</span>
+<span id="cb3-346"><a href="#cb3-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-347"><a href="#cb3-347" aria-hidden="true" tabindex="-1"></a>**第二阶段：目标领域语言模型微调**。在目标任务的无标注数据上继续训练语言模型。例如，如果目标任务是IMDB影评分类，就在IMDB影评（包括未标注的部分）上继续训练语言模型。这一步让模型适应目标领域的词汇和表达习惯。</span>
+<span id="cb3-348"><a href="#cb3-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-349"><a href="#cb3-349" aria-hidden="true" tabindex="-1"></a>**第三阶段：目标任务分类器微调**。添加分类头，在标注数据上微调整个模型。</span>
+<span id="cb3-350"><a href="#cb3-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-351"><a href="#cb3-351" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb3-352"><a href="#cb3-352" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📖 推荐阅读原图</span></span>
+<span id="cb3-353"><a href="#cb3-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-354"><a href="#cb3-354" aria-hidden="true" tabindex="-1"></a>Howard &amp; Ruder (2018) 论文 "Universal Language Model Fine-tuning for Text Classification" 的 Figure 1 完整展示了ULMFiT的三阶段流程图：通用LM预训练 → 领域LM微调 → 任务分类器微调。图中还标注了判别式微调和逐步解冻的具体操作方式。建议读者参阅原论文 (arXiv:1801.06146) 以获得完整的视觉理解。</span>
+<span id="cb3-355"><a href="#cb3-355" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-356"><a href="#cb3-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-357"><a href="#cb3-357" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb3-358"><a href="#cb3-358" aria-hidden="true" tabindex="-1"></a><span class="fu">## 算法框：ULMFiT 三阶段预训练-微调流程</span></span>
+<span id="cb3-359"><a href="#cb3-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-360"><a href="#cb3-360" aria-hidden="true" tabindex="-1"></a>**输入**：通用语料 $\mathcal{D}_{\text{general}}$（如 Wikitext-103），目标领域无标注数据 $\mathcal{D}_{\text{domain}}$，目标任务标注数据 $\mathcal{D}_{\text{task}} = <span class="sc">\{</span>(x_i, y_i)<span class="sc">\}</span>$，$L$ 层 LSTM 语言模型</span>
+<span id="cb3-361"><a href="#cb3-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-362"><a href="#cb3-362" aria-hidden="true" tabindex="-1"></a>**Stage 1 — 通用语言模型预训练**：在 $\mathcal{D}_{\text{general}}$ 上训练语言模型，最小化</span>
+<span id="cb3-363"><a href="#cb3-363" aria-hidden="true" tabindex="-1"></a>$$\mathcal{L}_{\text{LM}} = -\sum_{t=1}^{T} \log P(w_t \mid w_1, \ldots, w_{t-1}; \theta)$$</span>
+<span id="cb3-364"><a href="#cb3-364" aria-hidden="true" tabindex="-1"></a>得到预训练参数 $\theta_{\text{pre}}$（学习通用语法、语义、常识）</span>
+<span id="cb3-365"><a href="#cb3-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-366"><a href="#cb3-366" aria-hidden="true" tabindex="-1"></a>**Stage 2 — 目标领域语言模型微调**：以 $\theta_{\text{pre}}$ 为初始化，在 $\mathcal{D}_{\text{domain}}$ 上继续训练语言模型，使用**判别式学习率**：</span>
+<span id="cb3-367"><a href="#cb3-367" aria-hidden="true" tabindex="-1"></a>$$\theta_l^{(t+1)} = \theta_l^{(t)} - \eta_l \cdot \nabla_{\theta_l} \mathcal{L}_{\text{LM}}, \quad \eta_l = \frac{\eta_L}{2.6^{L-l}}$$</span>
+<span id="cb3-368"><a href="#cb3-368" aria-hidden="true" tabindex="-1"></a>其中 $\eta_L$ 为最高层学习率，低层学习率逐层衰减（适应领域词汇和表达）</span>
+<span id="cb3-369"><a href="#cb3-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-370"><a href="#cb3-370" aria-hidden="true" tabindex="-1"></a>**Stage 3 — 目标任务分类器微调**：添加分类头 $f_{\text{cls}}$，使用**逐步解冻**策略：</span>
+<span id="cb3-371"><a href="#cb3-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-372"><a href="#cb3-372" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Epoch 1：仅训练分类头 $f_{\text{cls}}$（其余层冻结）</span>
+<span id="cb3-373"><a href="#cb3-373" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Epoch 2：解冻第 $L$ 层，训练 $f_{\text{cls}}$ + 第 $L$ 层</span>
+<span id="cb3-374"><a href="#cb3-374" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Epoch 3：解冻第 $L-1$ 层，训练 $f_{\text{cls}}$ + 第 $L$ 层 + 第 $L-1$ 层</span>
+<span id="cb3-375"><a href="#cb3-375" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>……依次解冻直到所有层参与训练</span>
+<span id="cb3-376"><a href="#cb3-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-377"><a href="#cb3-377" aria-hidden="true" tabindex="-1"></a>**输出**：适配目标任务的完整模型 $\theta_{\text{task}}$</span>
+<span id="cb3-378"><a href="#cb3-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-379"><a href="#cb3-379" aria-hidden="true" tabindex="-1"></a>**数值示例**：假设 3 层 LSTM，$\eta_L = 0.01$。Stage 2 的各层学习率为：</span>
+<span id="cb3-380"><a href="#cb3-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-381"><a href="#cb3-381" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第 3 层（最高层）：$\eta_3 = 0.01$</span>
+<span id="cb3-382"><a href="#cb3-382" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第 2 层：$\eta_2 = 0.01 / 2.6 \approx 0.00385$</span>
+<span id="cb3-383"><a href="#cb3-383" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>第 1 层（最底层）：$\eta_1 = 0.01 / 2.6^2 \approx 0.00148$</span>
+<span id="cb3-384"><a href="#cb3-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-385"><a href="#cb3-385" aria-hidden="true" tabindex="-1"></a>最高层的学习率是最底层的 $2.6^2 \approx 6.76$ 倍——底层通用知识受到更强的保护。</span>
+<span id="cb3-386"><a href="#cb3-386" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-387"><a href="#cb3-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-388"><a href="#cb3-388" aria-hidden="true" tabindex="-1"></a>ULMFiT的关键技术贡献在于微调策略的设计。Howard和Ruder发现，粗暴的微调（所有层用相同学习率）效果并不好——底层学到的通用知识可能被破坏。他们提出了两个重要技巧。</span>
+<span id="cb3-389"><a href="#cb3-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-390"><a href="#cb3-390" aria-hidden="true" tabindex="-1"></a>第一个是**判别式微调（Discriminative Fine-tuning）**：不同层使用不同的学习率。底层（通用特征）使用较小的学习率以保护已学到的知识，高层（任务特定特征）使用较大的学习率以快速适应新任务。具体地，如果第$L$层的学习率是$\eta_L$，那么第$l$层的学习率是：</span>
+<span id="cb3-391"><a href="#cb3-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-392"><a href="#cb3-392" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-393"><a href="#cb3-393" aria-hidden="true" tabindex="-1"></a>\eta_l = \frac{\eta_L}{2.6^{L-l}}</span>
+<span id="cb3-394"><a href="#cb3-394" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-395"><a href="#cb3-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-396"><a href="#cb3-396" aria-hidden="true" tabindex="-1"></a>也就是说，每低一层，学习率缩小2.6倍。</span>
+<span id="cb3-397"><a href="#cb3-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-398"><a href="#cb3-398" aria-hidden="true" tabindex="-1"></a>第二个是**逐步解冻（Gradual Unfreezing）**：不是一开始就微调所有层，而是从最高层开始逐步解冻。第一个epoch只微调最高层，第二个epoch解冻并微调前两层，以此类推。这进一步保护了底层的通用知识。</span>
+<span id="cb3-399"><a href="#cb3-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-400"><a href="#cb3-400" aria-hidden="true" tabindex="-1"></a>ULMFiT的效果是显著的。在6个文本分类基准上，它达到了与从零训练的模型相当甚至更好的性能，但**只需要原来1/10到1/100的标注数据**。在仅有100个标注样本的极端情况下，ULMFiT的性能远超从零训练的基线。</span>
+<span id="cb3-401"><a href="#cb3-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-402"><a href="#cb3-402" aria-hidden="true" tabindex="-1"></a>这个工作的意义在于它证明了一个重要的命题：**NLP也可以像CV一样，通过预训练-微调的范式来大幅提升小数据场景下的性能**。它为同年出现的ELMo、GPT和BERT铺平了道路。</span>
+<span id="cb3-403"><a href="#cb3-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-404"><a href="#cb3-404" aria-hidden="true" tabindex="-1"></a><span class="fu">### 预训练的三个关键要素</span></span>
+<span id="cb3-405"><a href="#cb3-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-406"><a href="#cb3-406" aria-hidden="true" tabindex="-1"></a>回顾上述发展，我们可以提炼出预训练范式的三个关键要素：</span>
+<span id="cb3-407"><a href="#cb3-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-408"><a href="#cb3-408" aria-hidden="true" tabindex="-1"></a>**要素一：预训练任务的设计**。预训练任务决定了模型能学到什么样的知识。Word2Vec学的是词的共现关系，CV用的是图像分类，NLP语言模型学的是序列的概率分布。一个好的预训练任务应该迫使模型理解数据的深层结构，而不只是表面的统计模式。</span>
+<span id="cb3-409"><a href="#cb3-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-410"><a href="#cb3-410" aria-hidden="true" tabindex="-1"></a>**要素二：预训练数据的规模与质量**。更多的数据通常意味着更好的预训练效果。ImageNet的120万张标注图片在当时已经是"大规模"了，而NLP使用的Wikipedia、BookCorpus等无标注文本更是几个数量级的飞跃。但数据质量同样重要——噪声过大的数据可能导致预训练模型学到错误的模式。</span>
+<span id="cb3-411"><a href="#cb3-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-412"><a href="#cb3-412" aria-hidden="true" tabindex="-1"></a>**要素三：微调策略的设计**。如何在保留预训练知识的同时适应新任务是一个微妙的平衡。学习率太大会"遗忘"预训练知识（灾难性遗忘），学习率太小则适应太慢。ULMFiT的判别式微调和逐步解冻就是在这个平衡上做出的精细调整。</span>
+<span id="cb3-413"><a href="#cb3-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-414"><a href="#cb3-414" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-415"><a href="#cb3-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-416"><a href="#cb3-416" aria-hidden="true" tabindex="-1"></a><span class="fu">## 工程实践</span></span>
+<span id="cb3-417"><a href="#cb3-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-418"><a href="#cb3-418" aria-hidden="true" tabindex="-1"></a><span class="fu">### 使用预训练词向量</span></span>
+<span id="cb3-419"><a href="#cb3-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-420"><a href="#cb3-420" aria-hidden="true" tabindex="-1"></a>在2018年之前（BERT出现之前），使用预训练词向量是NLP中最普遍的迁移学习方式。以下是一个完整的工作流：</span>
+<span id="cb3-421"><a href="#cb3-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-424"><a href="#cb3-424" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb3-425"><a href="#cb3-425" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: false</span></span>
+<span id="cb3-426"><a href="#cb3-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb3-427"><a href="#cb3-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-428"><a href="#cb3-428" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-429"><a href="#cb3-429" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-430"><a href="#cb3-430" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb3-431"><a href="#cb3-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-432"><a href="#cb3-432" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_glove_embeddings(glove_path, word2idx, embed_dim<span class="op">=</span><span class="dv">300</span>):</span>
+<span id="cb3-433"><a href="#cb3-433" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-434"><a href="#cb3-434" aria-hidden="true" tabindex="-1"></a><span class="co">    加载预训练 GloVe 词向量</span></span>
+<span id="cb3-435"><a href="#cb3-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-436"><a href="#cb3-436" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb3-437"><a href="#cb3-437" aria-hidden="true" tabindex="-1"></a><span class="co">        glove_path: GloVe文件路径 (如 'glove.6B.300d.txt')</span></span>
+<span id="cb3-438"><a href="#cb3-438" aria-hidden="true" tabindex="-1"></a><span class="co">        word2idx: 词到索引的映射</span></span>
+<span id="cb3-439"><a href="#cb3-439" aria-hidden="true" tabindex="-1"></a><span class="co">        embed_dim: 词向量维度</span></span>
+<span id="cb3-440"><a href="#cb3-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-441"><a href="#cb3-441" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb3-442"><a href="#cb3-442" aria-hidden="true" tabindex="-1"></a><span class="co">        embedding_matrix: [vocab_size, embed_dim] 的numpy数组</span></span>
+<span id="cb3-443"><a href="#cb3-443" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-444"><a href="#cb3-444" aria-hidden="true" tabindex="-1"></a>    vocab_size <span class="op">=</span> <span class="bu">len</span>(word2idx)</span>
+<span id="cb3-445"><a href="#cb3-445" aria-hidden="true" tabindex="-1"></a>    embedding_matrix <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (vocab_size, embed_dim))</span>
+<span id="cb3-446"><a href="#cb3-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-447"><a href="#cb3-447" aria-hidden="true" tabindex="-1"></a>    found <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-448"><a href="#cb3-448" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(glove_path, <span class="st">'r'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>) <span class="im">as</span> f:</span>
+<span id="cb3-449"><a href="#cb3-449" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb3-450"><a href="#cb3-450" aria-hidden="true" tabindex="-1"></a>            parts <span class="op">=</span> line.strip().split()</span>
+<span id="cb3-451"><a href="#cb3-451" aria-hidden="true" tabindex="-1"></a>            word <span class="op">=</span> parts[<span class="dv">0</span>]</span>
+<span id="cb3-452"><a href="#cb3-452" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> word <span class="kw">in</span> word2idx:</span>
+<span id="cb3-453"><a href="#cb3-453" aria-hidden="true" tabindex="-1"></a>                idx <span class="op">=</span> word2idx[word]</span>
+<span id="cb3-454"><a href="#cb3-454" aria-hidden="true" tabindex="-1"></a>                vector <span class="op">=</span> np.array(parts[<span class="dv">1</span>:], dtype<span class="op">=</span>np.float32)</span>
+<span id="cb3-455"><a href="#cb3-455" aria-hidden="true" tabindex="-1"></a>                embedding_matrix[idx] <span class="op">=</span> vector</span>
+<span id="cb3-456"><a href="#cb3-456" aria-hidden="true" tabindex="-1"></a>                found <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-457"><a href="#cb3-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-458"><a href="#cb3-458" aria-hidden="true" tabindex="-1"></a>    coverage <span class="op">=</span> found <span class="op">/</span> vocab_size <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb3-459"><a href="#cb3-459" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"词向量覆盖率: </span><span class="sc">{</span>found<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>vocab_size<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>coverage<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span>
+<span id="cb3-460"><a href="#cb3-460" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 典型结果: 覆盖率约 85-95%（取决于词汇表大小和领域）</span></span>
+<span id="cb3-461"><a href="#cb3-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-462"><a href="#cb3-462" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> embedding_matrix</span>
+<span id="cb3-463"><a href="#cb3-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-464"><a href="#cb3-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-465"><a href="#cb3-465" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_init_strategies(train_data, test_data, word2idx, glove_path):</span>
+<span id="cb3-466"><a href="#cb3-466" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""对比随机初始化 vs 预训练初始化的效果"""</span></span>
+<span id="cb3-467"><a href="#cb3-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-468"><a href="#cb3-468" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略1: 随机初始化</span></span>
+<span id="cb3-469"><a href="#cb3-469" aria-hidden="true" tabindex="-1"></a>    model_random <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb3-470"><a href="#cb3-470" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (<span class="bu">len</span>(word2idx), <span class="dv">300</span>)),</span>
+<span id="cb3-471"><a href="#cb3-471" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">False</span></span>
+<span id="cb3-472"><a href="#cb3-472" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-473"><a href="#cb3-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-474"><a href="#cb3-474" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略2: GloVe初始化 + 冻结</span></span>
+<span id="cb3-475"><a href="#cb3-475" aria-hidden="true" tabindex="-1"></a>    glove_embeds <span class="op">=</span> load_glove_embeddings(glove_path, word2idx)</span>
+<span id="cb3-476"><a href="#cb3-476" aria-hidden="true" tabindex="-1"></a>    model_frozen <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb3-477"><a href="#cb3-477" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>glove_embeds,</span>
+<span id="cb3-478"><a href="#cb3-478" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">True</span>  <span class="co"># 冻结 Embedding 层</span></span>
+<span id="cb3-479"><a href="#cb3-479" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-480"><a href="#cb3-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-481"><a href="#cb3-481" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 策略3: GloVe初始化 + 微调 (通常效果最好)</span></span>
+<span id="cb3-482"><a href="#cb3-482" aria-hidden="true" tabindex="-1"></a>    model_finetune <span class="op">=</span> SentimentClassifier(</span>
+<span id="cb3-483"><a href="#cb3-483" aria-hidden="true" tabindex="-1"></a>        pretrained_embeddings<span class="op">=</span>glove_embeds,</span>
+<span id="cb3-484"><a href="#cb3-484" aria-hidden="true" tabindex="-1"></a>        freeze_embeddings<span class="op">=</span><span class="va">False</span>  <span class="co"># 允许 Embedding 层更新</span></span>
+<span id="cb3-485"><a href="#cb3-485" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-486"><a href="#cb3-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-487"><a href="#cb3-487" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 训练并对比...</span></span>
+<span id="cb3-488"><a href="#cb3-488" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 典型结果 (SST-2, 5000样本):</span></span>
+<span id="cb3-489"><a href="#cb3-489" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   随机初始化:      ~78%</span></span>
+<span id="cb3-490"><a href="#cb3-490" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   GloVe + 冻结:    ~82%</span></span>
+<span id="cb3-491"><a href="#cb3-491" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   GloVe + 微调:    ~85%</span></span>
+<span id="cb3-492"><a href="#cb3-492" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-493"><a href="#cb3-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-494"><a href="#cb3-494" aria-hidden="true" tabindex="-1"></a><span class="fu">### 实验验证：不同策略的效果对比</span></span>
+<span id="cb3-495"><a href="#cb3-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-496"><a href="#cb3-496" aria-hidden="true" tabindex="-1"></a>在典型的文本分类任务上，三种策略的表现如下（以SST-2情感分析为例）：</span>
+<span id="cb3-497"><a href="#cb3-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-498"><a href="#cb3-498" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 初始化策略 <span class="pp">|</span> 1000样本 <span class="pp">|</span> 5000样本 <span class="pp">|</span> 全部数据(67K) <span class="pp">|</span></span>
+<span id="cb3-499"><a href="#cb3-499" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|---------|---------|-------------|</span></span>
+<span id="cb3-500"><a href="#cb3-500" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 随机初始化 <span class="pp">|</span> 68.2% <span class="pp">|</span> 78.3% <span class="pp">|</span> 85.1% <span class="pp">|</span></span>
+<span id="cb3-501"><a href="#cb3-501" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> GloVe + 冻结 <span class="pp">|</span> 74.5% <span class="pp">|</span> 82.1% <span class="pp">|</span> 85.8% <span class="pp">|</span></span>
+<span id="cb3-502"><a href="#cb3-502" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> GloVe + 微调 <span class="pp">|</span> **76.8%** | **84.7%** | **86.3%** <span class="pp">|</span></span>
+<span id="cb3-503"><a href="#cb3-503" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-504"><a href="#cb3-504" aria-hidden="true" tabindex="-1"></a>值得注意的规律：标注数据越少，预训练词向量的优势越明显。在1000样本时提升近9个百分点，在全部数据时仅提升约1个百分点。</span>
+<span id="cb3-505"><a href="#cb3-505" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-506"><a href="#cb3-506" aria-hidden="true" tabindex="-1"></a><span class="fu">### 实用建议</span></span>
+<span id="cb3-507"><a href="#cb3-507" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-508"><a href="#cb3-508" aria-hidden="true" tabindex="-1"></a>基于当时（2014-2017年）的最佳实践，以下几条经验法则在使用预训练词向量时非常有用：</span>
+<span id="cb3-509"><a href="#cb3-509" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-510"><a href="#cb3-510" aria-hidden="true" tabindex="-1"></a>**选择词向量**：GloVe(840B)通常优于Word2Vec，因为它在更大的语料上训练且同时考虑了全局和局部统计。维度选择300维是一个好的默认值。</span>
+<span id="cb3-511"><a href="#cb3-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-512"><a href="#cb3-512" aria-hidden="true" tabindex="-1"></a>**处理OOV词**：对于预训练词向量未覆盖的词（out-of-vocabulary），不要用零向量——用所有已知词向量的均值加上小噪声来初始化效果更好。</span>
+<span id="cb3-513"><a href="#cb3-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-514"><a href="#cb3-514" aria-hidden="true" tabindex="-1"></a>**冻结还是微调**：如果标注数据很少（&lt; 1000样本），建议冻结Embedding层以避免过拟合；如果标注数据充足（&gt; 10000样本），微调通常更好。</span>
+<span id="cb3-515"><a href="#cb3-515" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-516"><a href="#cb3-516" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-517"><a href="#cb3-517" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-518"><a href="#cb3-518" aria-hidden="true" tabindex="-1"></a><span class="fu">## 深入理解</span></span>
+<span id="cb3-519"><a href="#cb3-519" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-520"><a href="#cb3-520" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **研究者必读**：这一节探讨迁移学习和预训练的理论基础与开放问题</span></span>
+<span id="cb3-521"><a href="#cb3-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-522"><a href="#cb3-522" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么迁移学习有效？——理论视角</span></span>
+<span id="cb3-523"><a href="#cb3-523" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-524"><a href="#cb3-524" aria-hidden="true" tabindex="-1"></a>迁移学习的理论基础可以从几个角度来理解。</span>
+<span id="cb3-525"><a href="#cb3-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-526"><a href="#cb3-526" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 域适应理论</span></span>
+<span id="cb3-527"><a href="#cb3-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-528"><a href="#cb3-528" aria-hidden="true" tabindex="-1"></a>Ben-David等人(2010)提出了一个形式化的域适应理论框架。给定源域分布$\mathcal{D}_S$和目标域分布$\mathcal{D}_T$，在目标域上的误差$\epsilon_T(h)$可以被以下不等式约束：</span>
+<span id="cb3-529"><a href="#cb3-529" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-530"><a href="#cb3-530" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-531"><a href="#cb3-531" aria-hidden="true" tabindex="-1"></a>\epsilon_T(h) \leq \epsilon_S(h) + d_{\mathcal{H}\Delta\mathcal{H}}(\mathcal{D}_S, \mathcal{D}_T) + \lambda</span>
+<span id="cb3-532"><a href="#cb3-532" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb3-533"><a href="#cb3-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-534"><a href="#cb3-534" aria-hidden="true" tabindex="-1"></a>其中$\epsilon_S(h)$是在源域上的误差，$d_{\mathcal{H}\Delta\mathcal{H}}$是两个域之间的"$\mathcal{H}$-散度"（衡量两个分布有多不同），$\lambda$是一个与最优联合假设相关的不可约误差。</span>
+<span id="cb3-535"><a href="#cb3-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-536"><a href="#cb3-536" aria-hidden="true" tabindex="-1"></a>这个不等式揭示了迁移学习成功的三个条件：源域表现好（$\epsilon_S(h)$小）、源域和目标域足够接近（$d$小）、存在一个在两个域上都表现好的假设（$\lambda$小）。</span>
+<span id="cb3-537"><a href="#cb3-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-538"><a href="#cb3-538" aria-hidden="true" tabindex="-1"></a>对于NLP预训练来说，源任务是语言建模（在大规模文本上），目标任务是具体的NLP任务（如情感分析）。两者共享同一种语言的基本结构，因此$d$相对较小；而$\lambda$取决于语言理解能力与具体任务之间的关联程度——对于大多数NLP任务，语言理解是基础，所以$\lambda$也较小。</span>
+<span id="cb3-539"><a href="#cb3-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-540"><a href="#cb3-540" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 特征层级假说</span></span>
+<span id="cb3-541"><a href="#cb3-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-542"><a href="#cb3-542" aria-hidden="true" tabindex="-1"></a>Yosinski等人(2014)的实验为迁移学习提供了一个实证理论：神经网络的特征呈层级结构，从低层的通用特征逐渐过渡到高层的任务特定特征。这个"特征层级假说"在CV中已经得到充分验证，在NLP中也有类似的证据。</span>
+<span id="cb3-543"><a href="#cb3-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-544"><a href="#cb3-544" aria-hidden="true" tabindex="-1"></a>对于语言模型来说，低层可能学习词的语义和常见短语模式，中层可能学习句法结构和语义组合，高层可能学习更抽象的语篇结构和推理模式。预训练相当于为这些层级提供了一个好的初始化点，微调只需要在这个基础上做微调即可。</span>
+<span id="cb3-545"><a href="#cb3-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-546"><a href="#cb3-546" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么NLP的预训练比CV更困难？</span></span>
+<span id="cb3-547"><a href="#cb3-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-548"><a href="#cb3-548" aria-hidden="true" tabindex="-1"></a>虽然CV的成功给NLP提供了巨大的启发，但NLP的预训练面临着几个独特的挑战。</span>
+<span id="cb3-549"><a href="#cb3-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-550"><a href="#cb3-550" aria-hidden="true" tabindex="-1"></a>**第一，缺少像ImageNet那样的"黄金标注数据集"**。ImageNet有120万张人工标注的图片，提供了强监督信号。NLP没有这样的资源——我们只有无标注的原始文本。这意味着NLP的预训练必须是**自监督的**（self-supervised），从文本本身构造训练信号。</span>
+<span id="cb3-551"><a href="#cb3-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-552"><a href="#cb3-552" aria-hidden="true" tabindex="-1"></a>**第二，语言的离散性增加了建模难度**。图像是连续的——像素值的微小变化不会改变语义。但语言是离散的——"cat"变成"bat"只差一个字母，语义却完全不同。这意味着语言的表示空间更加复杂，需要模型学习更精细的特征。</span>
+<span id="cb3-553"><a href="#cb3-553" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-554"><a href="#cb3-554" aria-hidden="true" tabindex="-1"></a>**第三，语言的组合性要求更深的理解**。图像中的物体相对独立——识别一只猫不需要理解图片的全局结构。但语言高度依赖上下文——"bank"可以是银行也可以是河岸，取决于上下文。这要求NLP的预训练模型必须捕获上下文依赖，而不仅仅是词级别的统计。</span>
+<span id="cb3-555"><a href="#cb3-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-556"><a href="#cb3-556" aria-hidden="true" tabindex="-1"></a>这些挑战解释了为什么NLP的预训练革命比CV晚了几年，也解释了为什么最终成功的方案（ELMo、GPT、BERT）都采用了上下文相关的模型，而非简单的词向量。</span>
+<span id="cb3-557"><a href="#cb3-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-558"><a href="#cb3-558" aria-hidden="true" tabindex="-1"></a><span class="fu">### 开放研究问题（2017年视角）</span></span>
+<span id="cb3-559"><a href="#cb3-559" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-560"><a href="#cb3-560" aria-hidden="true" tabindex="-1"></a>站在2017年的时间节点——Transformer刚刚发表，ELMo和BERT还未出现——NLP预训练面临着几个核心的开放问题。</span>
+<span id="cb3-561"><a href="#cb3-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-562"><a href="#cb3-562" aria-hidden="true" tabindex="-1"></a>**预训练任务的最优选择是什么？** 语言建模（预测下一个词）是一个自然的选择，但它是最好的吗？有没有其他自监督任务能让模型学到更好的语言知识？这个问题在BERT的MLM目标和后续的对比学习中得到了进一步探索。</span>
+<span id="cb3-563"><a href="#cb3-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-564"><a href="#cb3-564" aria-hidden="true" tabindex="-1"></a>**预训练模型的最优架构是什么？** LSTM？CNN？Transformer？2017年时还不清楚哪种架构最适合做NLP预训练的"骨架"。后来的事实证明，Transformer凭借其强大的表达能力和可扩展性成为了胜出者。</span>
+<span id="cb3-565"><a href="#cb3-565" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-566"><a href="#cb3-566" aria-hidden="true" tabindex="-1"></a>**微调策略如何优化？** ULMFiT的判别式微调和逐步解冻是一个好的开始，但还有没有更好的方法？如何避免灾难性遗忘？如何在保留通用知识和适应新任务之间取得最优平衡？</span>
+<span id="cb3-567"><a href="#cb3-567" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-568"><a href="#cb3-568" aria-hidden="true" tabindex="-1"></a>这些问题将在后续章节中逐步得到解答。</span>
+<span id="cb3-569"><a href="#cb3-569" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-570"><a href="#cb3-570" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-571"><a href="#cb3-571" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-572"><a href="#cb3-572" aria-hidden="true" tabindex="-1"></a><span class="fu">## 局限性与未解决的问题</span></span>
+<span id="cb3-573"><a href="#cb3-573" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-574"><a href="#cb3-574" aria-hidden="true" tabindex="-1"></a><span class="fu">### 静态词向量的根本缺陷</span></span>
+<span id="cb3-575"><a href="#cb3-575" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-576"><a href="#cb3-576" aria-hidden="true" tabindex="-1"></a>Word2Vec和GloVe预训练的词向量有一个致命的问题：**每个词只有一个固定的向量表示，无论它出现在什么上下文中**。</span>
+<span id="cb3-577"><a href="#cb3-577" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-578"><a href="#cb3-578" aria-hidden="true" tabindex="-1"></a>考虑以下两个句子：</span>
+<span id="cb3-579"><a href="#cb3-579" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-580"><a href="#cb3-580" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>"I went to the **bank** to deposit money."（银行）</span>
+<span id="cb3-581"><a href="#cb3-581" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>"I sat on the **bank** of the river."（河岸）</span>
+<span id="cb3-582"><a href="#cb3-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-583"><a href="#cb3-583" aria-hidden="true" tabindex="-1"></a>在Word2Vec/GloVe中，这两个"bank"共享同一个向量。这意味着模型无法区分"bank"在不同语境中的不同含义。这个问题被称为**一词多义（polysemy）问题**。</span>
+<span id="cb3-584"><a href="#cb3-584" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-585"><a href="#cb3-585" aria-hidden="true" tabindex="-1"></a>这不是一个罕见的边缘情况。英语中最常用的1000个词中，绝大多数都有多个含义。"run"可以是跑步、运行、竞选、流淌……，"set"的含义更是多达数百个。静态词向量将所有含义压缩成一个向量，不可避免地损失了信息。</span>
+<span id="cb3-586"><a href="#cb3-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-587"><a href="#cb3-587" aria-hidden="true" tabindex="-1"></a><span class="al">![静态词向量（左）vs 上下文词向量（右）："bank"一词在不同语境中的表示方式。静态词向量中，无论上下文如何，"bank"只有唯一的向量；上下文词向量则根据语境生成不同的表示。](figures/chapter-10/fig-static-vs-contextual.png)</span>{#fig-static-vs-contextual width=95%}</span>
+<span id="cb3-588"><a href="#cb3-588" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-589"><a href="#cb3-589" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb3-590"><a href="#cb3-590" aria-hidden="true" tabindex="-1"></a>*作者绘制。概念示意图，展示 Word2Vec/GloVe 的静态表示与 ELMo/BERT 的上下文表示之间的区别。*</span>
+<span id="cb3-591"><a href="#cb3-591" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-592"><a href="#cb3-592" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-593"><a href="#cb3-593" aria-hidden="true" tabindex="-1"></a><span class="fu">### 浅层迁移的局限</span></span>
+<span id="cb3-594"><a href="#cb3-594" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-595"><a href="#cb3-595" aria-hidden="true" tabindex="-1"></a>使用预训练词向量本质上是一种**浅层迁移**——只迁移了Embedding层（模型的第一层），而模型的其他层（LSTM、注意力层、分类头等）仍然从零训练。</span>
+<span id="cb3-596"><a href="#cb3-596" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-597"><a href="#cb3-597" aria-hidden="true" tabindex="-1"></a>这意味着预训练只提供了**词级别**的知识，而更高层次的知识——句法结构、语义组合、篇章逻辑——完全依赖于下游任务的标注数据来学习。在数据稀缺的场景下，这些高层知识往往学不好。</span>
+<span id="cb3-598"><a href="#cb3-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-599"><a href="#cb3-599" aria-hidden="true" tabindex="-1"></a>一个直观的类比是：使用预训练词向量就像给学生发了一本词典，然后让他直接参加阅读理解考试。词典确实有帮助——至少他认识了大部分词。但"认识词"和"理解文章"之间还有巨大的鸿沟。我们真正需要的不是一本更好的词典，而是一个"读过大量文章"的学生，他已经内化了阅读理解的各种技能。</span>
+<span id="cb3-600"><a href="#cb3-600" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-601"><a href="#cb3-601" aria-hidden="true" tabindex="-1"></a><span class="fu">### 预训练与下游任务的脱节</span></span>
+<span id="cb3-602"><a href="#cb3-602" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-603"><a href="#cb3-603" aria-hidden="true" tabindex="-1"></a>Word2Vec/GloVe的预训练目标（预测共现词）和下游任务的目标（如情感分类）之间存在明显的gap。预训练学到的是"哪些词经常一起出现"，但这不等于"哪些词表达了正面情感"。虽然两者有关联——"excellent"和"amazing"经常出现在相似的上下文中，所以它们的向量会相似——但这种关联是间接的、不完美的。</span>
+<span id="cb3-604"><a href="#cb3-604" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-605"><a href="#cb3-605" aria-hidden="true" tabindex="-1"></a><span class="fu">### 这些局限导向了什么？</span></span>
+<span id="cb3-606"><a href="#cb3-606" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-607"><a href="#cb3-607" aria-hidden="true" tabindex="-1"></a>上述三个局限指向了一个共同的方向：**我们需要能够生成上下文相关的、深层的语言表示的预训练方法**。</span>
+<span id="cb3-608"><a href="#cb3-608" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-609"><a href="#cb3-609" aria-hidden="true" tabindex="-1"></a>静态词向量的问题呼唤**上下文词向量**——同一个词在不同上下文中应该有不同的表示。这正是第11章ELMo要解决的问题。</span>
+<span id="cb3-610"><a href="#cb3-610" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-611"><a href="#cb3-611" aria-hidden="true" tabindex="-1"></a>浅层迁移的问题呼唤**整个模型的预训练**——不仅预训练Embedding层，还要预训练所有的隐藏层，让模型在预训练阶段就学习句法、语义、推理等高层知识。这是第12章GPT和第13章BERT的核心思想。</span>
+<span id="cb3-612"><a href="#cb3-612" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-613"><a href="#cb3-613" aria-hidden="true" tabindex="-1"></a>预训练-下游任务脱节的问题呼唤**更强的预训练目标**——预训练任务应该迫使模型理解语言的深层结构，而不仅仅是词的共现统计。掩码语言模型（BERT的MLM）和因果语言模型（GPT的CLM）就是在这个方向上的重大突破。</span>
+<span id="cb3-614"><a href="#cb3-614" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-615"><a href="#cb3-615" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 下一章预告：第11章将介绍ELMo——第一个生成上下文相关词向量的预训练模型。ELMo用双向LSTM在大规模文本上训练语言模型，为每个词生成依赖上下文的动态表示，标志着"深层预训练"时代的开端。</span></span>
+<span id="cb3-616"><a href="#cb3-616" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-617"><a href="#cb3-617" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-618"><a href="#cb3-618" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-619"><a href="#cb3-619" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章小结</span></span>
+<span id="cb3-620"><a href="#cb3-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-621"><a href="#cb3-621" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心要点回顾</span></span>
+<span id="cb3-622"><a href="#cb3-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-623"><a href="#cb3-623" aria-hidden="true" tabindex="-1"></a>这一章我们追溯了预训练思想的起源，建立了理解后续章节（ELMo、GPT、BERT）所需的概念基础。</span>
+<span id="cb3-624"><a href="#cb3-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-625"><a href="#cb3-625" aria-hidden="true" tabindex="-1"></a>核心问题是如何克服NLP中标注数据稀缺的瓶颈——每个任务都从零学习语言知识既低效又浪费。核心洞察是迁移学习：先在大规模无标注数据上学习通用的语言知识（预训练），然后在少量标注数据上适配具体任务（微调）。</span>
+<span id="cb3-626"><a href="#cb3-626" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-627"><a href="#cb3-627" aria-hidden="true" tabindex="-1"></a>我们看到了这个思想的三个演进阶段：Word2Vec的词向量预训练是最浅层的迁移，只提供词级别的语义知识；CV领域的ImageNet预训练证明了深层模型迁移的巨大潜力，为NLP提供了蓝图；ULMFiT提出了第一个完整的预训练-微调框架，证明NLP也可以像CV一样从预训练中获得巨大收益。</span>
+<span id="cb3-628"><a href="#cb3-628" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-629"><a href="#cb3-629" aria-hidden="true" tabindex="-1"></a>最终，Word2Vec预训练的三大局限——静态表示、浅层迁移、任务脱节——指向了一个共同的方向：我们需要上下文相关的、深层的、端到端的预训练方法。这正是后续章节的主题。</span>
+<span id="cb3-630"><a href="#cb3-630" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-631"><a href="#cb3-631" aria-hidden="true" tabindex="-1"></a><span class="fu">### 关键概念速查</span></span>
+<span id="cb3-632"><a href="#cb3-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-633"><a href="#cb3-633" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 概念 <span class="pp">|</span> 定义 <span class="pp">|</span></span>
+<span id="cb3-634"><a href="#cb3-634" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|------|</span></span>
+<span id="cb3-635"><a href="#cb3-635" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 迁移学习 <span class="pp">|</span> 在源任务上学到的知识应用到目标任务 <span class="pp">|</span></span>
+<span id="cb3-636"><a href="#cb3-636" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 预训练 <span class="pp">|</span> 在大规模数据上训练模型的第一阶段 <span class="pp">|</span></span>
+<span id="cb3-637"><a href="#cb3-637" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 微调 <span class="pp">|</span> 在目标任务数据上适配预训练模型的第二阶段 <span class="pp">|</span></span>
+<span id="cb3-638"><a href="#cb3-638" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 特征提取 <span class="pp">|</span> 冻结预训练模型，用其输出作为下游特征 <span class="pp">|</span></span>
+<span id="cb3-639"><a href="#cb3-639" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 判别式微调 <span class="pp">|</span> 不同层使用不同学习率（ULMFiT） <span class="pp">|</span></span>
+<span id="cb3-640"><a href="#cb3-640" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 逐步解冻 <span class="pp">|</span> 从高层到低层逐步开放训练（ULMFiT） <span class="pp">|</span></span>
+<span id="cb3-641"><a href="#cb3-641" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 灾难性遗忘 <span class="pp">|</span> 微调时丢失预训练学到的知识 <span class="pp">|</span></span>
+<span id="cb3-642"><a href="#cb3-642" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-643"><a href="#cb3-643" aria-hidden="true" tabindex="-1"></a><span class="fu">### 思考题</span></span>
+<span id="cb3-644"><a href="#cb3-644" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-645"><a href="#cb3-645" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**[概念理解]** 为什么说Word2Vec是"浅层"的预训练？如果模型有10层，Word2Vec只预训练了哪一层？其他层的知识来自哪里？</span>
+<span id="cb3-646"><a href="#cb3-646" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-647"><a href="#cb3-647" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**[对比分析]** 比较NLP和CV中的预训练条件。为什么CV的ImageNet预训练使用的是有监督学习（图像分类），而NLP的预训练必须走自监督路线？如果NLP也有一个像ImageNet一样的大规模标注数据集，情况会不同吗？</span>
+<span id="cb3-648"><a href="#cb3-648" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-649"><a href="#cb3-649" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**[数学推导]** ULMFiT的判别式微调中，如果最高层学习率为$\eta_L = 0.01$，衰减因子为2.6，模型有6层，计算每一层的学习率。最底层和最高层的学习率相差多少倍？</span>
+<span id="cb3-650"><a href="#cb3-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-651"><a href="#cb3-651" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**[工程实践]** 在一个只有500条标注样本的文本分类任务上，分别使用(a)随机初始化、(b)GloVe冻结、(c)GloVe微调三种策略训练模型，对比效果。尝试改变标注样本数量（100, 500, 2000, 10000），观察预训练优势如何随数据量变化。</span>
+<span id="cb3-652"><a href="#cb3-652" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-653"><a href="#cb3-653" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**[研究思考]** Dai &amp; Le (2015) 的语言模型预训练在2015年效果平平，但同样的思想到了2018年（GPT）就大获成功。你认为这其中的关键差异是什么？是架构（LSTM vs Transformer）？是规模（数据和模型大小）？还是微调策略？</span>
+<span id="cb3-654"><a href="#cb3-654" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-655"><a href="#cb3-655" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-656"><a href="#cb3-656" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-657"><a href="#cb3-657" aria-hidden="true" tabindex="-1"></a><span class="fu">## 延伸阅读</span></span>
+<span id="cb3-658"><a href="#cb3-658" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-659"><a href="#cb3-659" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心论文（必读）</span></span>
+<span id="cb3-660"><a href="#cb3-660" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-661"><a href="#cb3-661" aria-hidden="true" tabindex="-1"></a>**Mikolov et al. (2013). "Efficient Estimation of Word Representations in Vector Space"** 和 **"Distributed Representations of Words and Phrases and their Compositionality"**。Word2Vec的两篇原始论文，虽然第2章已经介绍过技术细节，但从预训练的角度重新阅读会有新的收获。重点关注Skip-gram的训练目标如何从无标注数据中提取语义信息。</span>
+<span id="cb3-662"><a href="#cb3-662" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-663"><a href="#cb3-663" aria-hidden="true" tabindex="-1"></a>**Howard &amp; Ruder (2018). "Universal Language Model Fine-tuning for Text Classification" (ULMFiT)**。第一个完整的NLP预训练-微调框架。重点阅读Section 3的判别式微调和逐步解冻技巧，以及Section 4的消融实验。arXiv:1801.06146。</span>
+<span id="cb3-664"><a href="#cb3-664" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-665"><a href="#cb3-665" aria-hidden="true" tabindex="-1"></a><span class="fu">### 理论基础</span></span>
+<span id="cb3-666"><a href="#cb3-666" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-667"><a href="#cb3-667" aria-hidden="true" tabindex="-1"></a>**Ben-David et al. (2010). "A theory of learning from different domains"**。域适应的理论框架，是理解迁移学习"为什么有效"的数学基础。重点阅读$\mathcal{H}$-散度的定义和上界定理。</span>
+<span id="cb3-668"><a href="#cb3-668" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-669"><a href="#cb3-669" aria-hidden="true" tabindex="-1"></a>**Yosinski et al. (2014). "How transferable are features in deep neural networks?"**。CV中特征可迁移性的经典实证研究。虽然是CV论文，但其发现的"低层通用、高层特定"的规律对NLP同样有启发。</span>
+<span id="cb3-670"><a href="#cb3-670" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-671"><a href="#cb3-671" aria-hidden="true" tabindex="-1"></a><span class="fu">### 先驱工作</span></span>
+<span id="cb3-672"><a href="#cb3-672" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-673"><a href="#cb3-673" aria-hidden="true" tabindex="-1"></a>**Collobert &amp; Weston (2008/2011). "A Unified Architecture for Natural Language Processing" / "Natural Language Processing (Almost) from Scratch"**。NLP预训练的最早探索者之一。虽然效果不如后来的方法，但思想高度前瞻。</span>
+<span id="cb3-674"><a href="#cb3-674" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-675"><a href="#cb3-675" aria-hidden="true" tabindex="-1"></a>**Dai &amp; Le (2015). "Semi-supervised Sequence Learning"**。第一篇系统性验证"预训练整个序列模型"的论文。arXiv:1511.01432。重点关注语言模型预训练 vs 自编码器预训练的对比。</span>
+<span id="cb3-676"><a href="#cb3-676" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-677"><a href="#cb3-677" aria-hidden="true" tabindex="-1"></a><span class="fu">### 后续发展</span></span>
+<span id="cb3-678"><a href="#cb3-678" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-679"><a href="#cb3-679" aria-hidden="true" tabindex="-1"></a>**Peters et al. (2018). "Deep contextualized word representations" (ELMo)**。解决静态词向量问题的第一个重要突破——下一章的主题。</span>
+<span id="cb3-680"><a href="#cb3-680" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-681"><a href="#cb3-681" aria-hidden="true" tabindex="-1"></a>**Radford et al. (2018). "Improving Language Understanding by Generative Pre-Training" (GPT)**。用Transformer Decoder进行自回归预训练——第12章的主题。</span>
+<span id="cb3-682"><a href="#cb3-682" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-683"><a href="#cb3-683" aria-hidden="true" tabindex="-1"></a>**Devlin et al. (2019). "BERT: Pre-training of Deep Bidirectional Transformers" (BERT)**。用Transformer Encoder进行双向预训练——第13章的主题。</span>
+<span id="cb3-684"><a href="#cb3-684" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-685"><a href="#cb3-685" aria-hidden="true" tabindex="-1"></a><span class="fu">### 综述与教程</span></span>
+<span id="cb3-686"><a href="#cb3-686" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-687"><a href="#cb3-687" aria-hidden="true" tabindex="-1"></a>**Ruder (2019). "Neural Transfer Learning for Natural Language Processing"**。Sebastian Ruder的博士论文，是NLP迁移学习最全面的综述，覆盖了从Word2Vec到BERT的完整演进。</span>
+<span id="cb3-688"><a href="#cb3-688" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-689"><a href="#cb3-689" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb3-690"><a href="#cb3-690" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-691"><a href="#cb3-691" aria-hidden="true" tabindex="-1"></a><span class="fu">## 历史注脚</span></span>
+<span id="cb3-692"><a href="#cb3-692" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-693"><a href="#cb3-693" aria-hidden="true" tabindex="-1"></a>NLP预训练的历史有一个有趣的"错过"。Dai &amp; Le在2015年就已经验证了语言模型预训练的有效性，但当时的效果不够惊艳。如果他们使用Transformer（2017年才发明）而非LSTM，或者在更大的数据上训练，结果可能会大不相同。这提醒我们：好的想法需要在合适的时机、配合合适的技术条件才能发挥最大价值。</span>
+<span id="cb3-694"><a href="#cb3-694" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-695"><a href="#cb3-695" aria-hidden="true" tabindex="-1"></a>另一个值得思考的历史细节是：CV的迁移学习用的是有监督预训练（ImageNet的120万张标注图片），而NLP最终走向了自监督预训练（无标注文本）。这不是NLP社区主动的选择，而是被迫的——NLP没有ImageNet那样规模的标注数据集。但这个"被迫"的选择最终被证明是更好的路线：自监督预训练可以利用几乎无限的无标注数据，规模化的潜力远超有监督预训练。到了2020年代，CV社区反过来开始学习NLP的自监督预训练方式（如MAE、DINO等）。</span>
+<span id="cb3-696"><a href="#cb3-696" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-697"><a href="#cb3-697" aria-hidden="true" tabindex="-1"></a>ULMFiT的作者Jeremy Howard是一个非常有趣的人物。他不是传统的学术界人士，而是来自竞赛和应用背景（Kaggle冠军、fast.ai创始人）。他和Sebastian Ruder的这篇论文用相对简单的LSTM架构，通过精心设计的微调策略，取得了与同期的ELMo和OpenAI GPT相当的效果。这个故事告诉我们：有时候，工程上的精细调整和研究上的概念创新一样重要。</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

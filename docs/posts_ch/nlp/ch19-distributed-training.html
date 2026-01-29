@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ying Zha">
+<meta name="dcterms.date" content="2026-01-28">
+<meta name="description" content="上一章解决了单卡训练的稳定性问题，但一个残酷的现实是：70B 参数的模型仅参数就需要 140GB 显存（BF16），加上优化器状态总计 840GB——没有任何单张 GPU 能装得下。本章系统讲述如何通过数据并行、张量并行、流水线并行和 ZeRO 内存优化，将大模型训练分布到成百上千张 GPU 上。">
+
+<title>第19章：分布式训练系统 – Tech Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-6ee47bd5d569ce80d002539aadcc850f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ea2c01f27a86cd888be845a75ab84aaf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Force refresh if cache is stale -->
+
+<script>
+
+(function() {
+
+  var SITE_VERSION = '2025-11-14-v2'; // Update this to force all users to refresh
+
+  var stored = localStorage.getItem('site_version');
+
+  if (stored !== SITE_VERSION) {
+
+    localStorage.setItem('site_version', SITE_VERSION);
+
+    if (stored !== null) {
+
+      // Not first visit, force reload from server
+
+      window.location.reload(true);
+
+    }
+
+  }
+
+})();
+
+</script>
+
+<script>
+
+// Default to dark scheme on first visit (no prior preference stored)
+
+try {
+
+  var key = 'quarto-color-scheme';
+
+  if (window && window.localStorage && window.localStorage.getItem(key) === null) {
+
+    window.localStorage.setItem(key, 'alternate');
+
+  }
+
+} catch (e) {
+
+  // ignore storage errors (privacy mode, etc.)
+
+}
+
+</script>
+
+<!-- Aggressive cache prevention for HTML pages -->
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<meta name="revisit-after" content="1 days">
+
+<meta name="robots" content="noarchive">
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Tech Notes</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../home.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts_en.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tags.html"> 
+<span class="menu-text">Tags</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#从上一章说起" id="toc-从上一章说起" class="nav-link active" data-scroll-target="#从上一章说起"><span class="header-section-number">1</span> 从上一章说起</a></li>
+  <li><a href="#问题的本质是什么" id="toc-问题的本质是什么" class="nav-link" data-scroll-target="#问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</a>
+  <ul class="collapse">
+  <li><a href="#gpu-显存中到底装了什么" id="toc-gpu-显存中到底装了什么" class="nav-link" data-scroll-target="#gpu-显存中到底装了什么"><span class="header-section-number">2.1</span> GPU 显存中到底装了什么？</a></li>
+  <li><a href="#为什么单纯的数据并行不够" id="toc-为什么单纯的数据并行不够" class="nav-link" data-scroll-target="#为什么单纯的数据并行不够"><span class="header-section-number">2.2</span> 为什么单纯的数据并行不够？</a></li>
+  <li><a href="#我们需要什么样的解决方案" id="toc-我们需要什么样的解决方案" class="nav-link" data-scroll-target="#我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</a></li>
+  </ul></li>
+  <li><a href="#核心思想与直觉" id="toc-核心思想与直觉" class="nav-link" data-scroll-target="#核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</a></li>
+  <li><a href="#技术细节" id="toc-技术细节" class="nav-link" data-scroll-target="#技术细节"><span class="header-section-number">4</span> 技术细节</a>
+  <ul class="collapse">
+  <li><a href="#数据并行最基础的分布式策略" id="toc-数据并行最基础的分布式策略" class="nav-link" data-scroll-target="#数据并行最基础的分布式策略"><span class="header-section-number">4.1</span> 数据并行：最基础的分布式策略</a></li>
+  <li><a href="#张量并行切分矩阵运算" id="toc-张量并行切分矩阵运算" class="nav-link" data-scroll-target="#张量并行切分矩阵运算"><span class="header-section-number">4.2</span> 张量并行：切分矩阵运算</a></li>
+  <li><a href="#流水线并行切分模型层" id="toc-流水线并行切分模型层" class="nav-link" data-scroll-target="#流水线并行切分模型层"><span class="header-section-number">4.3</span> 流水线并行：切分模型层</a></li>
+  <li><a href="#zero内存优化的革命" id="toc-zero内存优化的革命" class="nav-link" data-scroll-target="#zero内存优化的革命"><span class="header-section-number">4.4</span> ZeRO：内存优化的革命</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">第19章：分布式训练系统</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">From One GPU to Ten Thousand: The Engineering of Large-Scale Model Training</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">NLP</div>
+    <div class="quarto-category">Deep Learning</div>
+    <div class="quarto-category">LLM</div>
+    <div class="quarto-category">分布式训练</div>
+    <div class="quarto-category">并行计算</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    上一章解决了单卡训练的稳定性问题，但一个残酷的现实是：70B 参数的模型仅参数就需要 140GB 显存（BF16），加上优化器状态总计 840GB——没有任何单张 GPU 能装得下。本章系统讲述如何通过数据并行、张量并行、流水线并行和 ZeRO 内存优化，将大模型训练分布到成百上千张 GPU 上。
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ying Zha </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 28, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>本章参考来源
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="论文" class="level3" data-number="0.1">
+<h3 data-number="0.1" class="anchored" data-anchor-id="论文"><span class="header-section-number">0.1</span> 论文</h3>
+<ul>
+<li><strong>ZeRO: Memory Optimizations Toward Training Trillion Parameter Models</strong> (arXiv:1910.02054, Rajbhandari et al., 2020) — 参考了 Section 3-5 的 ZeRO 三阶段设计、Figure 1 的内存对比图；提取了 1 张原图（Figure 1）</li>
+<li><strong>Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism</strong> (arXiv:1909.08053, Shoeybi et al., 2019) — 参考了 Section 3 的张量并行设计、Figure 3 的 MLP/Attention 切分图、Figure 8 的混合并行图；提取了 4 张原图（Figure 3a, 3b, 8）</li>
+<li><strong>Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM</strong> (arXiv:2104.04473, Narayanan et al., 2021) — 参考了 3D 并行策略设计和交错流水线调度</li>
+<li><strong>GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism</strong> (arXiv:1811.06965, Huang et al., 2019) — 参考了 Section 2-3 的流水线设计、Figure 2 的朴素并行 vs GPipe 对比图；提取了 2 张原图（Figure 2 的两个子图）</li>
+<li><strong>PipeDream: Fast and Efficient Pipeline Parallel DNN Training</strong> (arXiv:1806.03377, Harlap et al., 2018) — 参考了 1F1B 调度策略</li>
+</ul>
+</section>
+<section id="教材" class="level3" data-number="0.2">
+<h3 data-number="0.2" class="anchored" data-anchor-id="教材"><span class="header-section-number">0.2</span> 教材</h3>
+<ul>
+<li>D2L Chapter 13.5-13.7 — 参考了数据并行的教学组织方式、AllReduce 和 Ring 同步的讲解</li>
+</ul>
+</section>
+<section id="课程" class="level3" data-number="0.3">
+<h3 data-number="0.3" class="anchored" data-anchor-id="课程"><span class="header-section-number">0.3</span> 课程</h3>
+<ul>
+<li>CMU 11-868 LLM Systems (Spring 2024) — 参考了分布式训练的系统化讲解思路（Lectures 11, 12, 18）</li>
+<li>Stanford CS336: Language Modeling from Scratch (Spring 2025) — 参考了并行训练的教学组织（Lectures 7-8）</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<section id="从上一章说起" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="从上一章说起"><span class="header-section-number">1</span> 从上一章说起</h2>
+<p>上一章我们系统地讨论了如何在训练过程中保持数值稳定：从优化器的选择（Adam 到 AdamW），到学习率策略（warmup + cosine decay），再到混合精度训练（BF16 的优势），最后到训练诊断与梯度裁剪。这些技术共同构成了大模型训练的”安全网”，让 PaLM 540B 和 OPT-175B 这样的庞然大物能够在数月的训练中保持稳定。</p>
+<p>然而，上一章结尾留下了一个绕不过去的问题：<strong>一个 70B 参数的模型，仅参数本身就需要 140GB 显存（BF16 精度），加上 Adam 优化器的两组动量状态（FP32，共 560GB），总计需要约 840GB 的显存</strong>。2024 年最顶级的单张 GPU——NVIDIA H100——也只有 80GB 显存。换句话说，即使你掌握了所有的训练稳定性技巧，面对一个足够大的模型，你甚至无法开始训练，因为模型根本装不进一张 GPU。</p>
+<p>这就是本章要解决的核心问题：<strong>当一张 GPU 不够用时，如何将训练工作分配到多张 GPU 上？</strong></p>
+<p>这个问题比表面看起来复杂得多。简单地把数据分到不同 GPU 上（数据并行）只能加速计算，并不能解决单卡装不下模型的问题。把模型切分到不同 GPU 上（模型并行）可以突破内存限制，但会带来严重的 GPU 空闲和通信开销。如何在”内存限制”、“计算效率”和”通信开销”之间找到最优平衡，是过去五年间 ZeRO、Megatron-LM、GPipe 等一系列里程碑工作所回答的核心问题。</p>
+<blockquote class="blockquote">
+<p>💡 <strong>本章核心洞察</strong>：分布式训练的本质是在三个维度上做切分——沿数据维度（数据并行）、沿模型层内维度（张量并行）、沿模型层间维度（流水线并行），再通过 ZeRO 的内存优化将优化器状态、梯度和参数分散到各 GPU 上。三者组合形成”3D 并行”，让万亿参数模型的训练成为可能。</p>
+</blockquote>
+</section>
+<section id="问题的本质是什么" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="问题的本质是什么"><span class="header-section-number">2</span> 问题的本质是什么？</h2>
+<section id="gpu-显存中到底装了什么" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="gpu-显存中到底装了什么"><span class="header-section-number">2.1</span> GPU 显存中到底装了什么？</h3>
+<p>要理解分布式训练为什么必要，首先需要清楚一个事实：训练一个模型时，GPU 显存中存放的远不只是模型参数。让我们以一个具体的 GPT-3 规模模型（<span class="math inline">\(\Psi = 175\text{B}\)</span> 参数）为例，逐项分析显存占用。</p>
+<p><strong>模型状态（Model States）</strong>——训练过程中必须常驻显存的数据，包含三个部分。第一部分是模型参数本身，在混合精度训练下需要保存一份 FP16/BF16 参数（<span class="math inline">\(2\Psi\)</span> 字节）和一份 FP32 主参数（<span class="math inline">\(4\Psi\)</span> 字节）。第二部分是梯度，与参数同维度（<span class="math inline">\(2\Psi\)</span> 字节，FP16）。第三部分是优化器状态，Adam 需要保存一阶动量和二阶动量（各 <span class="math inline">\(4\Psi\)</span> 字节，FP32），共 <span class="math inline">\(8\Psi\)</span> 字节。三项合计，每个参数平均需要 <span class="math inline">\(2 + 4 + 2 + 8 = 16\)</span> 字节。</p>
+<p><strong>残差状态（Residual States）</strong>——激活值、临时缓冲区和碎片内存。激活值是反向传播所需的中间计算结果，其占用与 batch size 和序列长度成正比，对于大模型可以达到数十 GB。临时缓冲区用于通信和梯度归约。碎片内存则来自于显存分配器的碎片化。</p>
+<p>让我们把数字算清楚。</p>
+<section id="完整数值示例gpt-3-175b-的显存需求" class="level4" data-number="2.1.1">
+<h4 data-number="2.1.1" class="anchored" data-anchor-id="完整数值示例gpt-3-175b-的显存需求"><span class="header-section-number">2.1.1</span> 完整数值示例：GPT-3 175B 的显存需求</h4>
+<p><strong>设定</strong>：<span class="math inline">\(\Psi = 175 \times 10^9\)</span>（175B 参数），使用 Adam 优化器 + 混合精度训练。</p>
+<p><strong>Step 1：模型参数</strong></p>
+<p><span class="math display">\[
+\text{FP16 参数} = 2 \times 175 \times 10^9 = 350 \text{ GB}
+\]</span></p>
+<p><span class="math display">\[
+\text{FP32 主参数} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+\]</span></p>
+<p><strong>Step 2：梯度</strong></p>
+<p><span class="math display">\[
+\text{FP16 梯度} = 2 \times 175 \times 10^9 = 350 \text{ GB}
+\]</span></p>
+<p><strong>Step 3：Adam 优化器状态</strong></p>
+<p><span class="math display">\[
+\text{一阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+\]</span></p>
+<p><span class="math display">\[
+\text{二阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}
+\]</span></p>
+<p><strong>Step 4：合计</strong></p>
+<p><span class="math display">\[
+\text{模型状态总计} = 350 + 700 + 350 + 700 + 700 = 2800 \text{ GB} = 2.8 \text{ TB}
+\]</span></p>
+<p><strong>解读</strong>：仅模型状态就需要 2.8 TB 显存，这是 35 张 H100（80GB）的总显存容量。还没有算激活值——以序列长度 2048、micro-batch size 1、96 层 Transformer 为例，激活值还需要额外数百 GB。</p>
+<p>这个计算揭示了一个关键洞察：<strong>优化器状态占据了显存的绝大部分</strong>（1400GB / 2800GB = 50%），而非模型参数本身（350GB / 2800GB = 12.5%）。这正是 ZeRO 优化的切入点——如果能让每张 GPU 只保存优化器状态的一小部分，就能大幅降低显存需求。</p>
+</section>
+</section>
+<section id="为什么单纯的数据并行不够" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="为什么单纯的数据并行不够"><span class="header-section-number">2.2</span> 为什么单纯的数据并行不够？</h3>
+<p>数据并行（Data Parallelism, DP）是最简单、最常用的分布式训练策略：每张 GPU 都持有完整的模型副本，但处理不同的数据子集。训练步骤是这样的：将一个 mini-batch 均分到 <span class="math inline">\(N\)</span> 张 GPU 上，每张 GPU 独立做前向和反向传播计算梯度，然后通过 AllReduce 操作汇总所有 GPU 的梯度，最后每张 GPU 用汇总后的梯度更新自己的模型副本。</p>
+<p>数据并行的优势是实现简单、通信开销可控（每步只需一次 AllReduce），而且随着 GPU 数量增加，吞吐量近似线性增长。但它有一个致命限制：<strong>每张 GPU 都需要能装下完整的模型</strong>。回到 GPT-3 的例子，每张 GPU 都需要 2.8 TB 来存放模型状态——显然不可能。</p>
+<p>这意味着我们需要一种方式来”切分”模型本身，让每张 GPU 只负责模型的一部分。</p>
+</section>
+<section id="我们需要什么样的解决方案" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="我们需要什么样的解决方案"><span class="header-section-number">2.3</span> 我们需要什么样的解决方案？</h3>
+<p>理想的分布式训练方案应该满足以下几个条件。首先是<strong>内存可扩展</strong>：模型的内存需求应该随 GPU 数量近乎线性下降，这样 100 张 GPU 就能训练 100 倍大的模型。其次是<strong>计算高效</strong>：GPU 的利用率应该尽可能高，避免出现大量空闲等待。第三是<strong>通信高效</strong>：GPU 之间的数据传输应该尽量少，并且能被计算所掩盖。最后是<strong>对用户透明</strong>：理想情况下，用户的模型代码不需要大幅修改。</p>
+<p>我们将看到，没有一种单一的并行策略能同时满足所有条件。数据并行计算高效但不解决内存问题；模型并行解决内存问题但计算效率低。这正是为什么现代大模型训练需要组合多种并行策略——“3D 并行”——的根本原因。</p>
+</section>
+</section>
+<section id="核心思想与直觉" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="核心思想与直觉"><span class="header-section-number">3</span> 核心思想与直觉</h2>
+<p>在深入技术细节之前，让我们用一个日常的类比来建立直觉。想象你要抄写一本 1000 页的书，但你一个人抄太慢了。你可以采用三种不同的策略来让多人协作完成。</p>
+<p><strong>策略一：每人抄不同的页</strong>。你把 1000 页分成 10 份，每人负责 100 页。每个人都需要看到全书（因为可能需要前后文参考），但各自处理不同的内容。这就是<strong>数据并行</strong>的思想——每个 GPU 持有完整的模型，但处理不同的训练数据。</p>
+<p><strong>策略二：每人负责书的不同章节</strong>。第一个人只抄第 1-10 章，第二个人只抄第 11-20 章，以此类推。每个人只需要记住自己负责的那几章内容，但必须等前一个人完成才能继续（因为章节有顺序依赖）。这就是<strong>流水线并行</strong>的思想——每个 GPU 只负责模型的若干层。</p>
+<p><strong>策略三：每个字由多人合作写不同笔画</strong>。一个人写左半部分，另一个人写右半部分，然后拼起来。这个类比虽然有些奇怪，但它准确描述了<strong>张量并行</strong>的思想——将单个矩阵运算切分到多个 GPU 上同时计算。</p>
+<p>这三种策略各有优劣。策略一最简单，但每个人都需要整本书的记忆容量。策略二节省了每个人的记忆量，但存在”等待”的问题。策略三最精细，但需要频繁的协调和拼合。实际中，最有效的做法是<strong>三种策略同时使用</strong>——这就是”3D 并行”。</p>
+<p>而 ZeRO 则提供了一种正交的优化思路：它不改变计算的分配方式，而是<strong>消除数据并行中的内存冗余</strong>。回到抄书的类比，这相当于说”每个人不需要随身带全本书的参考资料，大家共享一套就行，需要哪页就临时借来看”。</p>
+</section>
+<section id="技术细节" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="技术细节"><span class="header-section-number">4</span> 技术细节</h2>
+<section id="数据并行最基础的分布式策略" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="数据并行最基础的分布式策略"><span class="header-section-number">4.1</span> 数据并行：最基础的分布式策略</h3>
+<p>数据并行的核心思想在概念上非常简单：<span class="math inline">\(N\)</span> 张 GPU 各自持有完整的模型副本，每张 GPU 处理 mini-batch 的 <span class="math inline">\(1/N\)</span>，然后通过梯度同步确保所有 GPU 的模型保持一致。</p>
+<p>在数学上，假设总 mini-batch 的损失函数为：</p>
+<p><span class="math display">\[
+\mathcal{L} = \frac{1}{B} \sum_{i=1}^{B} \ell(x_i, \theta)
+\]</span></p>
+<p>将 <span class="math inline">\(B\)</span> 个样本均分到 <span class="math inline">\(N\)</span> 张 GPU 上，每张 GPU 计算局部梯度：</p>
+<p><span class="math display">\[
+g_k = \frac{1}{B/N} \sum_{i \in \mathcal{D}_k} \nabla_\theta \ell(x_i, \theta), \quad k = 1, \ldots, N
+\]</span></p>
+<p>然后通过 AllReduce 得到全局梯度：</p>
+<p><span class="math display">\[
+g = \frac{1}{N} \sum_{k=1}^{N} g_k
+\]</span></p>
+<p>这个全局梯度与单 GPU 使用完整 mini-batch 计算的梯度在数学上完全等价（忽略浮点精度差异）。</p>
+<section id="allreduce梯度同步的核心" class="level4" data-number="4.1.1">
+<h4 data-number="4.1.1" class="anchored" data-anchor-id="allreduce梯度同步的核心"><span class="header-section-number">4.1.1</span> AllReduce：梯度同步的核心</h4>
+<p>AllReduce 是数据并行的通信核心。它的目标是让每张 GPU 都得到所有 GPU 梯度的总和。朴素的实现是每张 GPU 把梯度发给一个中心节点汇总，但这会造成通信瓶颈。现代实践使用 <strong>Ring AllReduce</strong> 算法：将 <span class="math inline">\(N\)</span> 张 GPU 排列成一个环，数据在环上逐步传递和累加。</p>
+<p>Ring AllReduce 的通信量分析如下。假设每张 GPU 的梯度大小为 <span class="math inline">\(D\)</span> 字节。整个 AllReduce 过程分为两个阶段：Reduce-Scatter 阶段将梯度分成 <span class="math inline">\(N\)</span> 份在环上累加（<span class="math inline">\(N-1\)</span> 步，每步传输 <span class="math inline">\(D/N\)</span> 字节），All-Gather 阶段将累加结果广播到所有 GPU（<span class="math inline">\(N-1\)</span> 步，每步 <span class="math inline">\(D/N\)</span> 字节）。总通信量为：</p>
+<p><span class="math display">\[
+\text{每张 GPU 的通信量} = 2 \cdot (N-1) \cdot \frac{D}{N} \approx 2D \quad (\text{当 } N \gg 1)
+\]</span></p>
+<p>一个关键的洞察是：<strong>这个通信量与 GPU 数量 <span class="math inline">\(N\)</span> 无关</strong>。无论是 8 张 GPU 还是 1024 张 GPU，每张 GPU 的通信量都约为 <span class="math inline">\(2D\)</span>。这意味着数据并行在通信上具有近乎理想的可扩展性——前提是网络带宽足够。</p>
+</section>
+<section id="数据并行的局限" class="level4" data-number="4.1.2">
+<h4 data-number="4.1.2" class="anchored" data-anchor-id="数据并行的局限"><span class="header-section-number">4.1.2</span> 数据并行的局限</h4>
+<p>数据并行有一个根本性的限制：<strong>每张 GPU 必须能装下完整的模型状态</strong>。对于 GPT-3 级别的模型，这意味着每张 GPU 需要 2.8 TB 显存——显然不现实。此外，当 GPU 数量过多时，每张 GPU 分到的 batch size 会变得很小，导致计算效率下降（GPU 无法充分利用并行计算能力）。</p>
+</section>
+</section>
+<section id="张量并行切分矩阵运算" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="张量并行切分矩阵运算"><span class="header-section-number">4.2</span> 张量并行：切分矩阵运算</h3>
+<p>张量并行（Tensor Parallelism, TP）的核心思想是将 Transformer 层内的矩阵运算切分到多个 GPU 上。2019 年 NVIDIA 的 Megatron-LM 论文给出了一种优雅的切分方案，巧妙地利用了矩阵乘法的数学性质来最小化通信。</p>
+<section id="mlp-的切分" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="mlp-的切分"><span class="header-section-number">4.2.1</span> MLP 的切分</h4>
+<p>Transformer 中的 FFN（前馈网络）层由两个线性变换组成：</p>
+<p><span class="math display">\[
+Y = \text{GeLU}(XA) \cdot B
+\]</span></p>
+<p>其中 <span class="math inline">\(X \in \mathbb{R}^{b \times d}\)</span>，<span class="math inline">\(A \in \mathbb{R}^{d \times 4d}\)</span>，<span class="math inline">\(B \in \mathbb{R}^{4d \times d}\)</span>。</p>
+<p>Megatron-LM 的做法是：<strong>沿列切分第一个矩阵 <span class="math inline">\(A\)</span>，沿行切分第二个矩阵 <span class="math inline">\(B\)</span></strong>。</p>
+<p>具体地，将 <span class="math inline">\(A\)</span> 按列分成两半 <span class="math inline">\(A = [A_1, A_2]\)</span>，分别放在 GPU 1 和 GPU 2 上：</p>
+<p><span class="math display">\[
+[Y_1, Y_2] = [\text{GeLU}(XA_1), \text{GeLU}(XA_2)]
+\]</span></p>
+<p>注意这里有一个精妙之处：GeLU 是逐元素操作，所以可以先切分再激活，结果与先激活再切分完全一致。如果激活函数不是逐元素的（比如 Softmax），这种切分就不成立。</p>
+<p>然后将 <span class="math inline">\(B\)</span> 按行分成 <span class="math inline">\(B_1, B_2\)</span>：</p>
+<p><span class="math display">\[
+Y = Y_1 B_1 + Y_2 B_2
+\]</span></p>
+<p>每张 GPU 计算 <span class="math inline">\(Y_k B_k\)</span>，然后通过一次 AllReduce 求和得到最终结果。</p>
+<div id="fig-megatron-mlp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-megatron-mlp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig3a-megatron-mlp-parallelism.png" class="img-fluid figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-megatron-mlp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Megatron-LM MLP 块的张量并行切分。第一个矩阵 <span class="math inline">\(A\)</span> 按列切分，第二个矩阵 <span class="math inline">\(B\)</span> 按行切分，只需一次 AllReduce。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Shoeybi et al.&nbsp;(2019) “Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism”, Figure 3a. <a href="https://arxiv.org/abs/1909.08053">arXiv:1909.08053</a></em></p>
+</div>
+<p>图中的 <span class="math inline">\(f\)</span> 和 <span class="math inline">\(g\)</span> 是一对共轭算子：<span class="math inline">\(f\)</span> 在前向传播中是恒等操作（identity），在反向传播中是 AllReduce；<span class="math inline">\(g\)</span> 则反过来，前向是 AllReduce，反向是恒等。通过这种设计，前向和反向传播各只需要一次 AllReduce，实现了优雅的对称性。</p>
+</section>
+<section id="self-attention-的切分" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="self-attention-的切分"><span class="header-section-number">4.2.2</span> Self-Attention 的切分</h4>
+<p>Multi-Head Attention 的切分更加自然，因为多个注意力头本身就是独立计算的。将 <span class="math inline">\(h\)</span> 个头均分到 <span class="math inline">\(N\)</span> 张 GPU 上，每张 GPU 负责 <span class="math inline">\(h/N\)</span> 个头。每个头的 <span class="math inline">\(Q_i, K_i, V_i\)</span> 投影矩阵沿列切分（等价于分配不同的头），输出投影矩阵 <span class="math inline">\(W^O\)</span> 沿行切分，最后通过 AllReduce 汇总。</p>
+<div id="fig-megatron-attention" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-megatron-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig3b-megatron-attention-parallelism.png" class="img-fluid figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-megatron-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Megatron-LM Self-Attention 块的张量并行切分。多头注意力按头分配到不同 GPU，每个 GPU 独立计算自己负责的注意力头。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Shoeybi et al.&nbsp;(2019) “Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism”, Figure 3b. <a href="https://arxiv.org/abs/1909.08053">arXiv:1909.08053</a></em></p>
+</div>
+</section>
+<section id="张量并行的通信分析" class="level4" data-number="4.2.3">
+<h4 data-number="4.2.3" class="anchored" data-anchor-id="张量并行的通信分析"><span class="header-section-number">4.2.3</span> 张量并行的通信分析</h4>
+<p>整个 Transformer 层中，MLP 块需要 2 次 AllReduce（前向 + 反向各 1 次），Self-Attention 块也需要 2 次 AllReduce，总计每层 4 次 AllReduce。</p>
+<p>通信量方面，每次 AllReduce 传输的数据量为 <span class="math inline">\(O(b \cdot s \cdot d)\)</span>（batch size × 序列长度 × 隐藏维度），与 TP 的并行度 <span class="math inline">\(N\)</span> 无关。但是 AllReduce 的延迟（latency）会随着参与的 GPU 数量增加而增加。因此，<strong>张量并行最适合在单个节点内的高带宽互连（如 NVLink）上使用</strong>，通常 TP 度为 4 或 8（对应一个 DGX 节点内的 GPU 数量）。</p>
+</section>
+</section>
+<section id="流水线并行切分模型层" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="流水线并行切分模型层"><span class="header-section-number">4.3</span> 流水线并行：切分模型层</h3>
+<p>流水线并行（Pipeline Parallelism, PP）的思想更加直观：将 Transformer 的 <span class="math inline">\(L\)</span> 层均分到 <span class="math inline">\(K\)</span> 个 GPU 上，每个 GPU（称为一个”阶段”）负责连续的 <span class="math inline">\(L/K\)</span> 层。GPU 1 处理第 1 到第 <span class="math inline">\(L/K\)</span> 层，GPU 2 处理第 <span class="math inline">\(L/K + 1\)</span> 到第 <span class="math inline">\(2L/K\)</span> 层，以此类推。</p>
+<section id="朴素流水线的问题" class="level4" data-number="4.3.1">
+<h4 data-number="4.3.1" class="anchored" data-anchor-id="朴素流水线的问题"><span class="header-section-number">4.3.1</span> 朴素流水线的问题</h4>
+<p>最简单的实现方式是：一个 mini-batch 从第一个阶段开始，经过所有阶段完成前向传播，然后再从最后一个阶段反向传播回来。问题在于，在任意时刻，<strong>只有一个阶段在工作，其他阶段都在空闲等待</strong>。这意味着 <span class="math inline">\(K\)</span> 个 GPU 中有 <span class="math inline">\(K-1\)</span> 个在闲置——GPU 利用率仅为 <span class="math inline">\(1/K\)</span>。</p>
+<div id="fig-naive-pp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-naive-pp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig2-gpipe-naive-parallelism.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-naive-pp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: 朴素模型并行：4 个 GPU 分别处理模型的不同层，但在任意时刻只有一个 GPU 在工作（蓝色），其余都在空闲等待（白色）。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Huang et al.&nbsp;(2019) “GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism”, Figure 2(b). <a href="https://arxiv.org/abs/1811.06965">arXiv:1811.06965</a></em></p>
+</div>
+</section>
+<section id="gpipe微批次流水线" class="level4" data-number="4.3.2">
+<h4 data-number="4.3.2" class="anchored" data-anchor-id="gpipe微批次流水线"><span class="header-section-number">4.3.2</span> GPipe：微批次流水线</h4>
+<p>2019 年 Google 提出的 GPipe 用一个简单的思想解决了这个问题：<strong>将 mini-batch 进一步切分成 <span class="math inline">\(M\)</span> 个 micro-batch</strong>，让这些 micro-batch 像流水线上的产品一样在各阶段间流转。当 GPU 1 处理完 micro-batch 1 并将结果传给 GPU 2 时，GPU 1 可以立即开始处理 micro-batch 2，而不是闲等。</p>
+<div id="fig-gpipe-pp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gpipe-pp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig2-gpipe-pipeline-parallelism.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gpipe-pp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: GPipe 的微批次流水线并行。将 mini-batch 切分成多个 micro-batch 后，不同 GPU 可以同时处理不同的 micro-batch，大幅提高利用率。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Huang et al.&nbsp;(2019) “GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism”, Figure 2(c). <a href="https://arxiv.org/abs/1811.06965">arXiv:1811.06965</a></em></p>
+</div>
+<p>GPipe 的调度方式是：先让所有 <span class="math inline">\(M\)</span> 个 micro-batch 依次完成前向传播，然后再反向依次完成反向传播，最后同步更新参数。这保证了梯度的数学等价性——与在单 GPU 上用完整 mini-batch 训练的结果一致。</p>
+</section>
+<section id="气泡分析" class="level4" data-number="4.3.3">
+<h4 data-number="4.3.3" class="anchored" data-anchor-id="气泡分析"><span class="header-section-number">4.3.3</span> 气泡分析</h4>
+<p>即使使用了微批次，流水线中仍然存在不可避免的空闲时间，称为”气泡”（bubble）。在 GPipe 的调度中，第一个 micro-batch 需要 <span class="math inline">\(K-1\)</span> 步才能到达最后一个阶段，最后一个 micro-batch 的反向传播结果需要 <span class="math inline">\(K-1\)</span> 步才能传回第一个阶段。总的气泡时间正比于 <span class="math inline">\(K-1\)</span>，而有效计算时间正比于 <span class="math inline">\(M\)</span>。因此：</p>
+<p><span class="math display">\[
+\text{气泡比例} = \frac{K - 1}{M + K - 1} \approx \frac{K - 1}{M} \quad (\text{当 } M \gg K)
+\]</span></p>
+<p><strong>关键洞察</strong>：当 <span class="math inline">\(M \geq 4K\)</span> 时，气泡比例低于 20%，GPU 利用率达到 80% 以上。实践中通常取 <span class="math inline">\(M\)</span> 为 <span class="math inline">\(K\)</span> 的 4-8 倍。</p>
+</section>
+<section id="f1b-调度" class="level4" data-number="4.3.4">
+<h4 data-number="4.3.4" class="anchored" data-anchor-id="f1b-调度"><span class="header-section-number">4.3.4</span> 1F1B 调度</h4>
+<p>PipeDream 提出了一种更优的调度策略——<strong>1F1B（One Forward, One Backward）</strong>。不同于 GPipe 先完成所有前向再做反向，1F1B 让每个阶段在完成一个 micro-batch 的前向后立即做一个 micro-batch 的反向，交替执行。这样做的好处是：反向传播产生的梯度可以尽早释放激活值，从而<strong>减少约 50% 的峰值激活值内存</strong>。</p>
+<p>1F1B 分为两个阶段。在”热身”（warmup）阶段，每个 GPU 先做若干个前向传播填满流水线。进入”稳定”（steady state）阶段后，每个 GPU 交替做一个前向和一个反向——此时所有 GPU 都在满负荷工作。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Algorithm 1: GPipe 流水线调度（改编自 Huang et al., 2019）
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>输入：mini-batch B，K 个流水线阶段，M 个 micro-batch
+输出：更新后的模型参数
+
+# Step 1: 将 mini-batch 切分为 M 个 micro-batch
+B_1, B_2, ..., B_M = split(B, M)
+
+# Step 2: 前向传播阶段（所有 micro-batch 依次通过所有阶段）
+for m = 1 to M:
+    for k = 1 to K:
+        # 阶段 k 处理 micro-batch m
+        output[m][k] = forward(stage_k, input[m][k])
+        # 保存激活值供反向传播使用
+        save_activation(m, k)
+
+# Step 3: 反向传播阶段（反序）
+for m = M to 1:
+    for k = K to 1:
+        grad[m][k] = backward(stage_k, grad[m][k+1])
+
+# Step 4: 同步更新（所有 micro-batch 的梯度求和）
+for k = 1 to K:
+    gradient_k = sum(grad[1..M][k]) / M
+    update(stage_k.parameters, gradient_k)</code></pre>
+<p><em>改编自 Huang et al.&nbsp;(2019) “GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism”, Section 2. <a href="https://arxiv.org/abs/1811.06965">arXiv:1811.06965</a></em></p>
+</div>
+</div>
+</section>
+</section>
+<section id="zero内存优化的革命" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored"><span class="header-section-number">4.4</span> ZeRO：内存优化的革命</h3>
+<p>到目前为止，我们介绍了三种切分计算的并行策略。然而，微软在 2020 年提出的 ZeRO（Zero Redundancy Optimizer）采取了一种完全不同的思路：<strong>它不改变计算方式，而是消除数据并行中的内存冗余</strong>。</p>
+<p>回想一下，在标准数据并行中，每张 GPU 都持有完整的模型参数、梯度和优化器状态的副本。但仔细想想——如果有 64 张 GPU 做数据并行，那么优化器状态被重复存储了 64 份。这是巨大的浪费。ZeRO 的核心洞察很简单：<strong>让每张 GPU 只保存 <span class="math inline">\(1/N\)</span> 的状态，需要时再从其他 GPU 获取</strong>。</p>
+<p>ZeRO 分为三个递进的阶段，每个阶段分区更多类型的数据。</p>
+<div id="fig-zero-stages" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-zero-stages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig1-zero-memory-comparison.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-zero-stages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: ZeRO 的三个阶段逐步减少每张 GPU 的内存需求。以 7.5B 参数模型、64 路数据并行为例，从基线的 120GB 逐步降低到 1.9GB。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Rajbhandari et al.&nbsp;(2020) “ZeRO: Memory Optimizations Toward Training Trillion Parameter Models”, Figure 1. <a href="https://arxiv.org/abs/1910.02054">arXiv:1910.02054</a></em></p>
+</div>
+<section id="完整数值示例zero-各阶段的内存节省" class="level4" data-number="4.4.1">
+<h4 data-number="4.4.1" class="anchored"><span class="header-section-number">4.4.1</span> 完整数值示例：ZeRO 各阶段的内存节省</h4>
+<p><strong>设定</strong>：模型参数 <span class="math inline">\(\Psi = 7.5 \text{B}\)</span>，混合精度训练（FP16 参数 + FP32 主参数 + Adam），数据并行度 <span class="math inline">\(N_d = 64\)</span>。</p>
+<p><strong>基线——标准数据并行（无 ZeRO）</strong></p>
+<p>每张 GPU 存储全部状态：</p>
+<p><span class="math display">\[
+\text{FP16 参数} = 2\Psi = 15 \text{ GB}, \quad \text{FP16 梯度} = 2\Psi = 15 \text{ GB}
+\]</span></p>
+<p><span class="math display">\[
+\text{FP32 主参数} = 4\Psi = 30 \text{ GB}, \quad \text{Adam 状态} = 8\Psi = 60 \text{ GB}
+\]</span></p>
+<p><span class="math display">\[
+\text{每张 GPU 总计} = 16\Psi = 120 \text{ GB}
+\]</span></p>
+<p><strong>ZeRO Stage 1（<span class="math inline">\(P_{os}\)</span>）：分区优化器状态</strong></p>
+<p>只将 Adam 的两组动量和 FP32 主参数分区到 <span class="math inline">\(N_d\)</span> 张 GPU 上，参数和梯度仍然每张 GPU 完整保留：</p>
+<p><span class="math display">\[
+\text{每张 GPU} = 2\Psi + 2\Psi + \frac{12\Psi}{N_d} = 4\Psi + \frac{12\Psi}{64}
+\]</span></p>
+<p><span class="math display">\[
+= 30 + 1.41 = 31.4 \text{ GB}
+\]</span></p>
+<p>内存降低到原来的约 <span class="math inline">\(1/4\)</span>。通信量与标准数据并行完全相同（每步一次 AllReduce），因为只有梯度和参数的同步不受影响。</p>
+<p><strong>ZeRO Stage 2（<span class="math inline">\(P_{os+g}\)</span>）：分区优化器状态 + 梯度</strong></p>
+<p>进一步将梯度也分区：</p>
+<p><span class="math display">\[
+\text{每张 GPU} = 2\Psi + \frac{2\Psi + 12\Psi}{N_d} = 2\Psi + \frac{14\Psi}{64}
+\]</span></p>
+<p><span class="math display">\[
+= 15 + 1.64 = 16.6 \text{ GB}
+\]</span></p>
+<p>内存降低到原来的约 <span class="math inline">\(1/8\)</span>。通信模式从 AllReduce 变为 Reduce-Scatter（每个 GPU 只需要接收自己负责的那部分梯度的归约结果），通信量与数据并行基本持平。</p>
+<p><strong>ZeRO Stage 3（<span class="math inline">\(P_{os+g+p}\)</span>）：分区一切</strong></p>
+<p>连模型参数也分区，每张 GPU 只保存 <span class="math inline">\(1/N_d\)</span> 的参数：</p>
+<p><span class="math display">\[
+\text{每张 GPU} = \frac{16\Psi}{N_d} = \frac{16 \times 7.5}{64} = 1.875 \text{ GB}
+\]</span></p>
+<p>内存降低到原来的 <span class="math inline">\(1/N_d\)</span>——理论上可以无限扩展。代价是在前向和反向传播时，每一层的计算都需要先从其他 GPU 获取（All-Gather）当前层的完整参数，用完后丢弃。这引入了额外的通信，约为数据并行的 1.5 倍。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>ZeRO 阶段</th>
+<th>每张 GPU 内存</th>
+<th>相对基线</th>
+<th>额外通信</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>基线（标准 DP）</td>
+<td>120 GB</td>
+<td>1×</td>
+<td>1×</td>
+</tr>
+<tr class="even">
+<td>Stage 1 (<span class="math inline">\(P_{os}\)</span>)</td>
+<td>31.4 GB</td>
+<td>0.26×</td>
+<td>1×</td>
+</tr>
+<tr class="odd">
+<td>Stage 2 (<span class="math inline">\(P_{os+g}\)</span>)</td>
+<td>16.6 GB</td>
+<td>0.14×</td>
+<td>1×</td>
+</tr>
+<tr class="even">
+<td>Stage 3 (<span class="math inline">\(P_{os+g+p}\)</span>)</td>
+<td>1.9 GB</td>
+<td>0.016×</td>
+<td>1.5×</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Algorithm 2: ZeRO Stage 3 Training Loop
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Input</strong>: 模型分为 <span class="math inline">\(L\)</span> 层，<span class="math inline">\(N_d\)</span> 张 GPU，每张 GPU 持有 <span class="math inline">\(1/N_d\)</span> 的参数/梯度/优化器状态</p>
+<p><strong>Notation</strong>: GPU <span class="math inline">\(i\)</span> 持有参数分片 <span class="math inline">\(\theta^{(i)}\)</span>，对应梯度 <span class="math inline">\(g^{(i)}\)</span>，对应优化器状态 <span class="math inline">\(s^{(i)}\)</span></p>
+<pre><code>for each training step:
+    # ===== Forward Pass =====
+    for layer l = 1 to L:
+        θ_l ← AllGather(θ_l^(i))      # 收集当前层完整参数
+        a_l ← forward(a_{l-1}, θ_l)    # 计算激活
+        discard θ_l                     # 丢弃非本地参数
+
+    # ===== Backward Pass =====
+    for layer l = L to 1:
+        θ_l ← AllGather(θ_l^(i))       # 再次收集完整参数
+        g_l ← backward(∂L/∂a_l, θ_l)   # 计算当前层梯度
+        g_l^(i) ← ReduceScatter(g_l)   # 归约并分发梯度分片
+        discard θ_l
+
+    # ===== Optimizer Step =====
+    for each local shard i:
+        s^(i) ← update_optimizer(s^(i), g^(i))  # 更新本地优化器状态
+        θ^(i) ← s^(i).param                      # 更新本地参数分片</code></pre>
+<p><strong>通信量分析</strong>: 每层参数在前向和反向各做一次 AllGather，反向还需一次 ReduceScatter。总通信量约为数据并行的 1.5 倍。</p>
+<hr>
+<p><em>改编自 Rajbhandari et al.&nbsp;(2020) “ZeRO: Memory Optimizations Toward Training Trillion Parameter Models”, Section 3.3. <a href="https://arxiv.org/abs/1910.02054">arXiv:1910.02054</a></em></p>
+<p>:::</p>
+<section id="zero-offload-与-zero-infinity" class="level4" data-number="4.4.2">
+<h4 data-number="4.4.2" class="anchored" data-anchor-id="zero-offload-与-zero-infinity"><span class="header-section-number">4.4.2</span> ZeRO-Offload 与 ZeRO-Infinity</h4>
+<p>ZeRO 的思路可以进一步延伸到 CPU 甚至 NVMe 存储上。<strong>ZeRO-Offload</strong> 将优化器状态卸载到 CPU 内存中，让 GPU 只负责前向和反向计算。<strong>ZeRO-Infinity</strong> 更进一步，利用 NVMe SSD 作为额外的存储层。这使得在单张 GPU 上也能微调数十亿参数的模型——代价是速度会因为 CPU-GPU 或 SSD-GPU 的数据传输而变慢。</p>
+</section>
+<section id="fsdppytorch-的原生-zero" class="level4" data-number="4.4.3">
+<h4 data-number="4.4.3" class="anchored" data-anchor-id="fsdppytorch-的原生-zero"><span class="header-section-number">4.4.3</span> FSDP：PyTorch 的原生 ZeRO</h4>
+<p>PyTorch 的 <strong>Fully Sharded Data Parallel（FSDP）</strong> 本质上是 ZeRO Stage 3 的原生实现。FSDP2（PyTorch 2.x 的当前版本）提供了 <code>fully_shard()</code> API，基于 DTensor 实现按参数的 dim-0 分片。用户只需在模型的每个 Transformer 层上调用 <code>fully_shard()</code>，FSDP 就会自动处理参数的分片、通信和重组。</p>
+</section>
+<section id="d-并行三种策略的组合" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="d-并行三种策略的组合"><span class="header-section-number">4.5</span> 3D 并行：三种策略的组合</h3>
+<p>在实际的大模型训练中，单一的并行策略都有局限：数据并行不解决内存问题，张量并行受限于节点内带宽，流水线并行有气泡开销。解决方案是<strong>将三种并行策略组合使用</strong>。</p>
+<p>Narayanan et al.&nbsp;(2021) 在 Megatron-LM 的后续工作中系统地研究了如何组合这三种并行。他们的关键发现是：<strong>张量并行应该在节点内使用，流水线并行在节点间使用，数据并行在最外层使用</strong>。</p>
+<div id="fig-hybrid-parallelism" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hybrid-parallelism-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/chapter-19/original/fig8-megatron-hybrid-parallelism.png" class="img-fluid figure-img" style="width:60.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hybrid-parallelism-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: 混合模型并行与数据并行的 GPU 分组示意。内层是 8 路张量并行（节点内），外层是数据并行。
+</figcaption>
+</figure>
+</div>
+<div class="figure-caption">
+<p><em>Source: Shoeybi et al.&nbsp;(2019) “Megatron-LM”, Figure 8. <a href="https://arxiv.org/abs/1909.08053">arXiv:1909.08053</a></em></p>
+</div>
+<p>这种分层设计的原因与硬件拓扑直接相关。节点内的 GPU 通过 NVLink 互连，带宽高达 900 GB/s（H100），适合通信密集的张量并行（每层 4 次 AllReduce）。节点间通过 InfiniBand 互连，带宽约为 50-400 Gb/s，适合通信量较小的流水线并行（每个 micro-batch 只需传递层间的激活值和梯度）。数据并行的 AllReduce 通信量与 GPU 数量无关，可以跨越整个集群。</p>
+<section id="完整数值示例1024-gpu-的-3d-并行配置" class="level4" data-number="4.5.1">
+<h4 data-number="4.5.1" class="anchored" data-anchor-id="完整数值示例1024-gpu-的-3d-并行配置"><span class="header-section-number">4.5.1</span> 完整数值示例：1024 GPU 的 3D 并行配置</h4>
+<p><strong>设定</strong>：训练一个 175B 参数的模型，共 1024 张 H100 GPU（128 个节点，每节点 8 张 GPU）。</p>
+<p><strong>Step 1：确定张量并行度</strong> <span class="math inline">\(T = 8\)</span></p>
+<p>在每个节点内使用 8 路张量并行，充分利用 NVLink 带宽。每张 GPU 只需存储每层参数的 <span class="math inline">\(1/8\)</span>。</p>
+<p><strong>Step 2：确定流水线并行度</strong> <span class="math inline">\(P = 16\)</span></p>
+<p>模型有 96 层 Transformer，分成 16 个阶段，每阶段 6 层。每个阶段需要 8 张 GPU（张量并行），所以每个阶段占据 1 个完整节点。</p>
+<p><strong>Step 3：确定数据并行度</strong> <span class="math inline">\(D = 1024 / (T \times P) = 1024 / 128 = 8\)</span></p>
+<p>剩余的 GPU 用于 8 路数据并行。总 GPU 数等于 <span class="math inline">\(D \times T \times P = 8 \times 8 \times 16 = 1024\)</span>。</p>
+<p><strong>Step 4：分析内存</strong></p>
+<p>每张 GPU 的模型参数内存 = <span class="math inline">\(\frac{175\text{B}}{T \times P} = \frac{175\text{B}}{128} \approx 1.37\text{B}\)</span> 参数 = 2.7 GB（BF16）。加上优化器状态（约 16 GB）、激活值（通过激活检查点控制在 10-20 GB），总计约 40 GB，可以舒适地放入 H100 的 80GB 显存。</p>
+<p><strong>Step 5：分析通信</strong></p>
+<ul>
+<li>张量并行：每层 4 次 AllReduce，在 NVLink 上完成，延迟约 10-50 μs</li>
+<li>流水线并行：每个 micro-batch 传递 <span class="math inline">\(b \times s \times d\)</span> 的激活值，跨节点 InfiniBand</li>
+<li>数据并行：每步一次 AllReduce 同步梯度，梯度大小 = 参数量 / (<span class="math inline">\(T \times P\)</span>)</li>
+</ul>
+</section>
+</section>
+<section id="序列并行" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="序列并行"><span class="header-section-number">4.6</span> 序列并行</h3>
+<p>当序列长度变得很长（如 100K+ tokens）时，即使使用了上述三种并行策略，单个 GPU 上的激活值内存仍然可能成为瓶颈。序列并行（Sequence Parallelism, SP）将序列维度切分到不同 GPU 上：每张 GPU 只处理序列的一段。</p>
+<p>Megatron-LM 的序列并行与张量并行协同工作：在非张量并行的操作（如 LayerNorm 和 Dropout）上，沿序列维度切分计算。这样可以将这些操作的激活值内存分散到多张 GPU 上，进一步降低峰值内存。</p>
+</section>
+<section id="工程实践" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="工程实践"><span class="header-section-number">5</span> 工程实践</h2>
+<section id="使用-deepspeed-zero-训练模型" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="使用-deepspeed-zero-训练模型"><span class="header-section-number">5.1</span> 使用 DeepSpeed ZeRO 训练模型</h3>
+<p>DeepSpeed 是微软开源的分布式训练框架，内置了 ZeRO 的完整实现。使用 DeepSpeed 只需要少量代码修改。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> deepspeed</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: 定义 DeepSpeed 配置</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ds_config <span class="op">=</span> {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"train_batch_size"</span>: <span class="dv">32</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gradient_accumulation_steps"</span>: <span class="dv">4</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fp16"</span>: {<span class="st">"enabled"</span>: <span class="va">True</span>},</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"zero_optimization"</span>: {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"stage"</span>: <span class="dv">2</span>,               <span class="co"># ZeRO Stage 2</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"offload_optimizer"</span>: {     <span class="co"># 可选：卸载优化器到 CPU</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"device"</span>: <span class="st">"cpu"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">"pin_memory"</span>: <span class="va">True</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"allgather_partitions"</span>: <span class="va">True</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"allgather_bucket_size"</span>: <span class="fl">2e8</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reduce_scatter"</span>: <span class="va">True</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reduce_bucket_size"</span>: <span class="fl">2e8</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: 初始化模型</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"gpt2-large"</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: 用 DeepSpeed 包装模型和优化器</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>model_engine, optimizer, _, _ <span class="op">=</span> deepspeed.initialize(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    config<span class="op">=</span>ds_config,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    model_parameters<span class="op">=</span>model.parameters(),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: 训练循环——和单 GPU 几乎一样！</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch <span class="kw">in</span> dataloader:</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> model_engine(batch[<span class="st">"input_ids"</span>], labels<span class="op">=</span>batch[<span class="st">"labels"</span>]).loss</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    model_engine.backward(loss)       <span class="co"># 替代 loss.backward()</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    model_engine.step()               <span class="co"># 替代 optimizer.step()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="使用-pytorch-fsdp-训练模型" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="使用-pytorch-fsdp-训练模型"><span class="header-section-number">5.2</span> 使用 PyTorch FSDP 训练模型</h3>
+<p>PyTorch 原生的 FSDP 提供了更加 Pythonic 的 API：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.fsdp <span class="im">import</span> fully_shard</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: 加载模型</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"meta-llama/Llama-2-7b-hf"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: 对每个 Transformer 层应用 FSDP 分片</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.model.layers:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    fully_shard(layer)       <span class="co"># 每层独立分片</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>fully_shard(model)           <span class="co"># 整体模型也分片</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: 标准 PyTorch 训练循环</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch <span class="kw">in</span> dataloader:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> model(<span class="op">**</span>batch).loss</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    optimizer.step()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    optimizer.zero_grad()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="如何选择并行策略" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="如何选择并行策略"><span class="header-section-number">5.3</span> 如何选择并行策略？</h3>
+<p>选择并行策略取决于模型大小、GPU 数量和硬件拓扑。以下是一个决策流程：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 45%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐策略</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>模型 &lt; 10B, GPU 1-8</td>
+<td>数据并行（DDP）</td>
+<td>模型单卡装得下，DP 最简单</td>
+</tr>
+<tr class="even">
+<td>模型 &lt; 10B, GPU 8-64</td>
+<td>ZeRO Stage 2 + DP</td>
+<td>节省优化器内存，通信无增加</td>
+</tr>
+<tr class="odd">
+<td>模型 10-70B, GPU 8-64</td>
+<td>ZeRO Stage 3 / FSDP</td>
+<td>模型单卡装不下，需要分片</td>
+</tr>
+<tr class="even">
+<td>模型 70B+, GPU 64+</td>
+<td>3D 并行（TP + PP + DP）</td>
+<td>充分利用硬件拓扑</td>
+</tr>
+<tr class="odd">
+<td>资源有限, 微调</td>
+<td>ZeRO-Offload + QLoRA</td>
+<td>卸载到 CPU，最低显存要求</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="复现论文的关键细节" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="复现论文的关键细节"><span class="header-section-number">5.4</span> 复现论文的关键细节</h3>
+<p>复现大模型分布式训练时，有几个经常被忽略但至关重要的细节。第一是<strong>梯度累积与有效 batch size 的计算</strong>：有效 batch size = micro-batch size × 梯度累积步数 × 数据并行度。许多论文报告的 batch size 是有效 batch size，直接使用会导致 GPU OOM。</p>
+<p>第二是<strong>通信与计算的重叠</strong>。高效的实现应该在 GPU 计算当前层的同时，预取下一层的参数（ZeRO Stage 3）或传输上一层的梯度。这种重叠对吞吐量的影响可达 20-30%。</p>
+<p>第三是<strong>激活检查点（Activation Checkpointing）</strong> 的使用。大模型训练几乎必须使用激活检查点来减少激活值的内存占用，代价是前向传播需要重新计算一次（约增加 33% 的计算量）。</p>
+</section>
+</section>
+<section id="深入理解" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="深入理解"><span class="header-section-number">6</span> 深入理解</h2>
+<section id="为什么有效通信复杂度的视角" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="为什么有效通信复杂度的视角"><span class="header-section-number">6.1</span> 为什么有效？——通信复杂度的视角</h3>
+<p>分布式训练的效率最终取决于”计算-通信比”。当 GPU 花在通信上的时间远小于计算时间时，系统的扩展效率就接近理想值。让我们定量分析不同并行策略的通信复杂度。</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 31%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>策略</th>
+<th>每步通信量</th>
+<th>通信类型</th>
+<th>适用互连</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>数据并行</td>
+<td><span class="math inline">\(O(2 \times |\theta|)\)</span></td>
+<td>AllReduce</td>
+<td>任意（带宽够即可）</td>
+</tr>
+<tr class="even">
+<td>张量并行</td>
+<td><span class="math inline">\(O(4 \times b \times s \times d)\)</span> per layer</td>
+<td>AllReduce</td>
+<td>NVLink（低延迟）</td>
+</tr>
+<tr class="odd">
+<td>流水线并行</td>
+<td><span class="math inline">\(O(b \times s \times d)\)</span> per micro-batch</td>
+<td>点对点</td>
+<td>InfiniBand</td>
+</tr>
+<tr class="even">
+<td>ZeRO-3</td>
+<td><span class="math inline">\(O(3 \times |\theta|)\)</span></td>
+<td>AllGather + ReduceScatter</td>
+<td>任意</td>
+</tr>
+</tbody>
+</table>
+<p>一个关键的理论结果是：<strong>数据并行的通信量与 GPU 数量 <span class="math inline">\(N\)</span> 无关</strong>（Ring AllReduce 的性质），而张量并行的通信延迟与 <span class="math inline">\(N\)</span> 线性相关（AllReduce 的 latency 瓶颈）。这就是为什么数据并行可以扩展到数千张 GPU，而张量并行通常限制在 4-8 张。</p>
+</section>
+<section id="方法的边界条件" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="方法的边界条件"><span class="header-section-number">6.2</span> 方法的边界条件</h3>
+<section id="张量并行的限制" class="level4" data-number="6.2.1">
+<h4 data-number="6.2.1" class="anchored" data-anchor-id="张量并行的限制"><span class="header-section-number">6.2.1</span> 张量并行的限制</h4>
+<p>张量并行对 GPU 之间的通信延迟非常敏感。Megatron-LM 的实验表明，8 路 NVLink 张量并行的效率约为 85-90%，但在跨节点（InfiniBand）上使用 8 路张量并行时效率会降至 50% 以下。这是因为 Transformer 每层有 4 次 AllReduce，它们位于计算的关键路径上，无法被掩盖。</p>
+</section>
+<section id="流水线气泡的不可消除性" class="level4" data-number="6.2.2">
+<h4 data-number="6.2.2" class="anchored" data-anchor-id="流水线气泡的不可消除性"><span class="header-section-number">6.2.2</span> 流水线气泡的不可消除性</h4>
+<p>GPipe 和 1F1B 的气泡比例 <span class="math inline">\((K-1)/M\)</span> 是一个理论下界——它假设所有阶段的计算时间完全相同。实际中，由于 embedding 层和输出层的参数量不同于中间 Transformer 层，各阶段的计算时间很难完美均衡，实际气泡会更大。Narayanan et al.&nbsp;(2021) 提出了交错流水线调度（Interleaved Pipeline Schedule），通过让每个 GPU 负责多个不连续的层来缓解负载不均衡，但代价是更复杂的实现和更多的通信。</p>
+</section>
+<section id="zero-3-的通信开销" class="level4" data-number="6.2.3">
+<h4 data-number="6.2.3" class="anchored" data-anchor-id="zero-3-的通信开销"><span class="header-section-number">6.2.3</span> ZeRO-3 的通信开销</h4>
+<p>ZeRO-3 在每层的前向和反向传播中都需要 All-Gather 完整参数，总通信量约为标准数据并行的 1.5 倍。当网络带宽有限时，这会成为瓶颈。ZeRO++ 通过量化通信（INT4/INT8）和分层通信来缓解这一问题。</p>
+</section>
+</section>
+<section id="隐含假设与失效条件" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="隐含假设与失效条件"><span class="header-section-number">6.3</span> 隐含假设与失效条件</h3>
+<p>所有并行策略都隐含地假设了<strong>同步训练</strong>——每一步所有 GPU 必须完成计算并同步梯度后才能进入下一步。这意味着最慢的 GPU 决定了整个系统的速度（“straggler 问题”）。异步训练可以避免等待，但会引入”陈旧梯度”（stale gradients），可能影响收敛。在实践中，大模型训练几乎都使用同步策略，因为异步策略在超大规模下的收敛行为难以预测。</p>
+<p>另一个隐含假设是<strong>网络的可靠性</strong>。在数千张 GPU 的集群上，单个 GPU 或网络链路的故障概率不可忽略。现代训练框架需要支持故障恢复（从最近的 checkpoint 重启），以及 elastic training（GPU 数量动态变化）。</p>
+</section>
+<section id="开放研究问题" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="开放研究问题"><span class="header-section-number">6.4</span> 开放研究问题</h3>
+<p><strong>异步与半同步并行</strong>仍然是一个活跃的研究方向。Local SGD（每几步才同步一次）可以大幅减少通信，但其理论收敛保证和实际效果仍有争议。</p>
+<p><strong>自动并行策略搜索</strong>也是一个重要问题。手动选择 TP/PP/DP 的组合需要丰富的经验。AlPA（Zheng et al., 2022）尝试用 ILP（整数线性规划）自动搜索最优并行策略，但搜索空间随模型和集群规模指数增长。</p>
+<p><strong>通信压缩</strong>的理论基础也尚不完善。梯度量化、稀疏化通信在实践中效果显著，但它们对收敛速度的影响缺乏紧致的理论界。</p>
+</section>
+</section>
+<section id="局限性与未解决的问题" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="局限性与未解决的问题"><span class="header-section-number">7</span> 局限性与未解决的问题</h2>
+<section id="工程复杂度的爆炸" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="工程复杂度的爆炸"><span class="header-section-number">7.1</span> 工程复杂度的爆炸</h3>
+<p>3D 并行的配置涉及大量的超参数——TP 度、PP 度、DP 度、micro-batch 数量、激活检查点策略、通信 bucket 大小等。这些超参数之间存在复杂的交互关系，最优配置依赖于具体的模型架构、硬件拓扑和网络带宽。目前还没有通用的自动化工具能可靠地找到最优配置。</p>
+</section>
+<section id="硬件异构性" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="硬件异构性"><span class="header-section-number">7.2</span> 硬件异构性</h3>
+<p>真实的 GPU 集群很少是完全均质的。不同节点之间的网络带宽可能不同，GPU 的型号可能混合。现有的并行策略大多假设同构环境，在异构环境中的效率和正确性需要更多研究。</p>
+</section>
+<section id="故障容错的代价" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="故障容错的代价"><span class="header-section-number">7.3</span> 故障容错的代价</h3>
+<p>万卡集群上的训练不可避免地会遇到硬件故障。每次故障都意味着从最近的 checkpoint 重新加载和恢复，这可能浪费数小时的训练进度。如何设计更高效的故障恢复机制——比如冗余计算、在线替换故障 GPU——仍然是一个活跃的工程挑战。</p>
+</section>
+<section id="从能训练到能用" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="从能训练到能用"><span class="header-section-number">7.4</span> 从”能训练”到”能用”</h3>
+<p>分布式训练解决了”如何训练一个超大模型”的工程问题，但训练出来的模型是否真的比小模型好？规模的增长是否带来了质变而非只是量变？这正是下一章的主题——GPT-3 的 175B 参数不仅带来了更低的困惑度，还涌现出了一种全新的能力：In-Context Learning。</p>
+</section>
+</section>
+<section id="本章小结" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="本章小结"><span class="header-section-number">8</span> 本章小结</h2>
+<section id="核心要点回顾" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="核心要点回顾"><span class="header-section-number">8.1</span> 核心要点回顾</h3>
+<p>本章系统讲述了大模型分布式训练的四种核心策略及其组合。</p>
+<p><strong>第一，数据并行</strong>是最基础的策略——每张 GPU 持有完整模型，处理不同数据，通过 Ring AllReduce 同步梯度。它实现简单、计算高效，但无法突破单卡内存限制。</p>
+<p><strong>第二，张量并行</strong>将单个 Transformer 层内的矩阵运算切分到多个 GPU 上。Megatron-LM 的列切分-行切分方案巧妙地将通信最小化为每层 4 次 AllReduce，但受限于节点内高带宽互连。</p>
+<p><strong>第三，流水线并行</strong>将模型的不同层分配到不同 GPU 上，通过微批次流水线化来提高利用率。GPipe 和 1F1B 调度将气泡比例控制在 <span class="math inline">\((K-1)/M\)</span>，在 <span class="math inline">\(M \geq 4K\)</span> 时可达 80%+ 利用率。</p>
+<p><strong>第四，ZeRO</strong> 消除数据并行中的内存冗余，通过分区优化器状态（Stage 1）、梯度（Stage 2）和参数（Stage 3），将内存需求从 <span class="math inline">\(16\Psi\)</span> 降低到 <span class="math inline">\(16\Psi / N_d\)</span>，同时通信增加有限。</p>
+<p>将三种并行组合为 3D 并行——节点内张量并行、节点间流水线并行、最外层数据并行——再配合 ZeRO 的内存优化，使得万亿参数模型的训练成为可能。</p>
+</section>
+<section id="关键公式速查" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="关键公式速查"><span class="header-section-number">8.2</span> 关键公式速查</h3>
+<ul>
+<li><strong>Ring AllReduce 通信量</strong>：<span class="math inline">\(2 \cdot (N-1)/N \cdot D \approx 2D\)</span></li>
+<li><strong>ZeRO 每张 GPU 内存</strong>：Stage 1 = <span class="math inline">\(4\Psi + 12\Psi/N_d\)</span>，Stage 2 = <span class="math inline">\(2\Psi + 14\Psi/N_d\)</span>，Stage 3 = <span class="math inline">\(16\Psi/N_d\)</span></li>
+<li><strong>流水线气泡比例</strong>：<span class="math inline">\((K-1)/(M+K-1)\)</span></li>
+<li><strong>3D 并行 GPU 总数</strong>：<span class="math inline">\(N = D \times T \times P\)</span></li>
+<li><strong>有效 batch size</strong>：<span class="math inline">\(B_{\text{eff}} = b_{\text{micro}} \times M \times D\)</span></li>
+</ul>
+</section>
+<section id="思考题" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="思考题"><span class="header-section-number">8.3</span> 思考题</h3>
+<ol type="1">
+<li><p><strong>[概念理解]</strong> 为什么张量并行通常限制在 4-8 张 GPU，而数据并行可以扩展到数千张？从通信模式的角度解释两者的根本区别。</p></li>
+<li><p><strong>[数学推导]</strong> 推导 ZeRO Stage 2 的精确内存公式。假设模型参数量为 <span class="math inline">\(\Psi\)</span>，使用 Adam 优化器 + 混合精度训练，数据并行度为 <span class="math inline">\(N_d\)</span>。考虑 FP16 参数、FP16 梯度（分区）、FP32 主参数（分区）和 Adam 状态（分区）四部分。</p></li>
+<li><p><strong><a href="#工程实践">工程实践</a></strong> 使用 PyTorch FSDP 在多 GPU 环境下微调一个 7B 模型（如 Llama-2-7B）。比较不同分片策略（FULL_SHARD vs SHARD_GRAD_OP）对显存占用和训练速度的影响。</p></li>
+<li><p><strong>[开放思考]</strong> 如果要在一个 1024 张 H100 的集群上训练一个 500B 参数的模型，你会如何选择 TP/PP/DP 的配置？需要考虑哪些因素？如果集群中有 10% 的节点网络带宽只有其余节点的一半，你的策略会如何调整？</p></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="延伸阅读" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="延伸阅读"><span class="header-section-number">9</span> 延伸阅读</h2>
+<section id="核心论文必读" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="核心论文必读"><span class="header-section-number">9.1</span> 核心论文（必读）</h3>
+<ul>
+<li><strong>ZeRO: Memory Optimizations Toward Training Trillion Parameter Models (Rajbhandari et al., 2020)</strong>：ZeRO 三阶段设计的原始论文
+<ul>
+<li>重点读：Section 3（ZeRO-DP 设计）、Section 5（实验）</li>
+<li>可跳过：Section 4（ZeRO-R，关于激活值和碎片优化）</li>
+</ul></li>
+<li><strong>Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism (Shoeybi et al., 2019)</strong>：张量并行的经典设计
+<ul>
+<li>重点读：Section 3（张量并行方案）、Figure 3（MLP/Attention 切分）</li>
+<li>可跳过：Section 4 的部分实验细节</li>
+</ul></li>
+<li><strong>GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism (Huang et al., 2019)</strong>：流水线并行的里程碑
+<ul>
+<li>重点读：Section 2（流水线设计）、Figure 2（气泡分析）</li>
+<li>可跳过：Section 4 的 AmoebaNet 实验</li>
+</ul></li>
+</ul>
+</section>
+<section id="理论基础" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="理论基础"><span class="header-section-number">9.2</span> 理论基础</h3>
+<ul>
+<li><strong>Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM (Narayanan et al., 2021)</strong>：3D 并行的系统化研究，交错流水线调度</li>
+<li><strong>PipeDream: Fast and Efficient Pipeline Parallel DNN Training (Harlap et al., 2018)</strong>：1F1B 调度的提出者</li>
+</ul>
+</section>
+<section id="后续发展" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="后续发展"><span class="header-section-number">9.3</span> 后续发展</h3>
+<ul>
+<li><strong>ZeRO++ (Wang et al., 2023)</strong>：通过量化通信和分层通信减少 ZeRO 的通信开销</li>
+<li><strong>PyTorch FSDP (Zhao et al., 2023)</strong>：ZeRO Stage 3 的 PyTorch 原生工业级实现</li>
+</ul>
+</section>
+<section id="综述与教程" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="综述与教程"><span class="header-section-number">9.4</span> 综述与教程</h3>
+<ul>
+<li><strong>DeepSpeed 官方教程</strong>：<a href="https://www.deepspeed.ai/tutorials/">deepspeed.ai/tutorials</a></li>
+<li><strong>PyTorch FSDP2 教程</strong>：<a href="https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html">docs.pytorch.org/tutorials/intermediate/FSDP_tutorial</a></li>
+<li><strong>CMU 11-868 LLM Systems 课程</strong>：系统化的分布式训练教学，slides 公开</li>
+</ul>
+</section>
+<section id="代码资源" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="代码资源"><span class="header-section-number">9.5</span> 代码资源</h3>
+<ul>
+<li><a href="https://github.com/microsoft/DeepSpeed">DeepSpeed GitHub</a>：ZeRO 的参考实现</li>
+<li><a href="https://github.com/NVIDIA/Megatron-LM">Megatron-LM GitHub</a>：张量并行 + 流水线并行</li>
+<li><a href="https://docs.pytorch.org/docs/stable/distributed.fsdp.fully_shard.html">PyTorch FSDP</a>：原生分片数据并行</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="历史注脚" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="历史注脚"><span class="header-section-number">10</span> 历史注脚</h2>
+<p>分布式训练的历史远比深度学习更悠久。早在 2012 年，Jeff Dean 和 Andrew Ng 的 Google Brain 团队就用 16,000 个 CPU 核心训练了一个能识别猫的神经网络——这或许是深度学习领域第一次真正意义上的大规模分布式训练。但那时的分布式训练主要使用参数服务器（Parameter Server）架构，一个中心节点负责汇总所有 worker 的梯度。这种架构的带宽瓶颈在 AllReduce 被广泛采用后才得到解决。</p>
+<p>一个有趣的细节是，ZeRO 论文的标题提到了”Trillion Parameter Models”——2020 年时万亿参数还只是一个理论目标。仅仅两年后，Switch Transformer（1.6 万亿参数，虽然是稀疏激活）就让这个目标变成了现实。ZeRO 的核心思想如此简单——“别在每张卡上重复存储一样的东西”——但它的影响是深远的：DeepSpeed 成为了开源大模型训练的事实标准，FSDP 则将这种思想融入了 PyTorch 的核心。</p>
+<p>Megatron-LM 的名字来自变形金刚（Transformers）系列中的反派角色——考虑到它训练的正是 Transformer 模型，这个命名颇有几分黑色幽默。</p>
+
+
+<!-- -->
+
+</section>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+﻿<script>
+
+// Simple EN / 中文 language toggle for posts; robust via meta[quarto:offset]
+
+(function() {
+
+  const KEY = 'siteLang'; // 'en' | 'zh'
+
+  const defaultLang = 'en';
+
+  const POSTS_EN = 'posts_en.html';
+
+  const POSTS_ZH = 'posts_zh.html';
+
+  const TAGS = 'tags.html';
+
+
+
+  function currentLang() { try { return localStorage.getItem(KEY) || defaultLang; } catch(e) { return defaultLang; } }
+
+  function setLang(v) { try { localStorage.setItem(KEY, v); } catch(e) {} }
+
+  function offset() {
+
+    const meta = document.querySelector('meta[name="quarto:offset"]');
+
+    const off = meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+    return off;
+
+  }
+
+  function targetFor(lang) { return lang === 'zh' ? POSTS_ZH : POSTS_EN; }
+
+  function goToLang(lang) {
+
+    const off = offset();
+
+    const path = window.location.pathname;
+
+    setLang(lang);
+
+    if (path.endsWith('/' + TAGS) || path.endsWith(TAGS)) {
+
+      window.location.href = off + TAGS;
+
+    } else {
+
+      window.location.href = off + targetFor(lang);
+
+    }
+
+  }
+
+  function updateNavbarPostsLink() {
+
+    const off = offset();
+
+    const href = off + targetFor(currentLang());
+
+    const links = document.querySelectorAll('header .navbar a.nav-link');
+
+    links.forEach((a) => {
+
+      const h = a.getAttribute('href') || '';
+
+      if (h.endsWith(POSTS_EN) || h.endsWith(POSTS_ZH)) a.setAttribute('href', href);
+
+    });
+
+  }
+
+  function mountToggle() {
+
+    const tools = document.querySelector('.quarto-navbar-tools');
+
+    if (!tools) return;
+
+    const wrapper = document.createElement('div');
+
+    wrapper.style.display = 'inline-flex';
+
+    wrapper.style.alignItems = 'center';
+
+    wrapper.style.gap = '0.35rem';
+
+    wrapper.style.marginLeft = '0.35rem';
+
+
+
+    const en = document.createElement('a');
+
+    en.href = '';
+
+    en.textContent = 'EN';
+
+    en.className = 'quarto-navigation-tool px-1';
+
+    en.onclick = function(){ goToLang('en'); return false; };
+
+
+
+    const sep = document.createElement('span');
+
+    sep.textContent = '|';
+
+    sep.style.opacity = '0.6';
+
+
+
+    const zh = document.createElement('a');
+
+    zh.href = '';
+
+    zh.textContent = '中文';
+
+    zh.className = 'quarto-navigation-tool px-1';
+
+    zh.onclick = function(){ goToLang('zh'); return false; };
+
+
+
+    const lang = currentLang();
+
+    (lang === 'en' ? en : zh).style.fontWeight = '700';
+
+
+
+    wrapper.appendChild(en);
+
+    wrapper.appendChild(sep);
+
+    wrapper.appendChild(zh);
+
+    tools.appendChild(wrapper);
+
+    updateNavbarPostsLink();
+
+  }
+
+  document.addEventListener('DOMContentLoaded', mountToggle);
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+  function offset(){
+
+    var meta = document.querySelector('meta[name="quarto:offset"]');
+
+    return meta && meta.getAttribute('content') ? meta.getAttribute('content') : './';
+
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    var brand = document.querySelector('header .navbar a.navbar-brand');
+
+    if (brand) {
+
+      brand.setAttribute('href', offset() + 'home.html');
+
+    }
+
+  });
+
+})();
+
+</script>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "第19章：分布式训练系统"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From One GPU to Ten Thousand: The Engineering of Large-Scale Model Training"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ying Zha"</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2026-01-28"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [NLP, Deep Learning, LLM, 分布式训练, 并行计算]</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="an">tags:</span><span class="co"> [数据并行, 张量并行, 流水线并行, ZeRO, FSDP, DeepSpeed, Megatron-LM, GPipe, AllReduce, 3D 并行, 序列并行]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "上一章解决了单卡训练的稳定性问题，但一个残酷的现实是：70B 参数的模型仅参数就需要 140GB 显存（BF16），加上优化器状态总计 840GB——没有任何单张 GPU 能装得下。本章系统讲述如何通过数据并行、张量并行、流水线并行和 ZeRO 内存优化，将大模型训练分布到成百上千张 GPU 上。"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> "figures/chapter-19/original/fig1-zero-memory-comparison.png"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="an">toc-depth:</span><span class="co"> 3</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="an">code-fold:</span><span class="co"> true</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="an">code-tools:</span><span class="co"> true</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章参考来源</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">### 论文</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ZeRO: Memory Optimizations Toward Training Trillion Parameter Models** (arXiv:1910.02054, Rajbhandari et al., 2020) — 参考了 Section 3-5 的 ZeRO 三阶段设计、Figure 1 的内存对比图；提取了 1 张原图（Figure 1）</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism** (arXiv:1909.08053, Shoeybi et al., 2019) — 参考了 Section 3 的张量并行设计、Figure 3 的 MLP/Attention 切分图、Figure 8 的混合并行图；提取了 4 张原图（Figure 3a, 3b, 8）</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM** (arXiv:2104.04473, Narayanan et al., 2021) — 参考了 3D 并行策略设计和交错流水线调度</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism** (arXiv:1811.06965, Huang et al., 2019) — 参考了 Section 2-3 的流水线设计、Figure 2 的朴素并行 vs GPipe 对比图；提取了 2 张原图（Figure 2 的两个子图）</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PipeDream: Fast and Efficient Pipeline Parallel DNN Training** (arXiv:1806.03377, Harlap et al., 2018) — 参考了 1F1B 调度策略</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">### 教材</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>D2L Chapter 13.5-13.7 — 参考了数据并行的教学组织方式、AllReduce 和 Ring 同步的讲解</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="fu">### 课程</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>CMU 11-868 LLM Systems (Spring 2024) — 参考了分布式训练的系统化讲解思路（Lectures 11, 12, 18）</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stanford CS336: Language Modeling from Scratch (Spring 2025) — 参考了并行训练的教学组织（Lectures 7-8）</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## 从上一章说起</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>上一章我们系统地讨论了如何在训练过程中保持数值稳定：从优化器的选择（Adam 到 AdamW），到学习率策略（warmup + cosine decay），再到混合精度训练（BF16 的优势），最后到训练诊断与梯度裁剪。这些技术共同构成了大模型训练的"安全网"，让 PaLM 540B 和 OPT-175B 这样的庞然大物能够在数月的训练中保持稳定。</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>然而，上一章结尾留下了一个绕不过去的问题：**一个 70B 参数的模型，仅参数本身就需要 140GB 显存（BF16 精度），加上 Adam 优化器的两组动量状态（FP32，共 560GB），总计需要约 840GB 的显存**。2024 年最顶级的单张 GPU——NVIDIA H100——也只有 80GB 显存。换句话说，即使你掌握了所有的训练稳定性技巧，面对一个足够大的模型，你甚至无法开始训练，因为模型根本装不进一张 GPU。</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>这就是本章要解决的核心问题：**当一张 GPU 不够用时，如何将训练工作分配到多张 GPU 上？**</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>这个问题比表面看起来复杂得多。简单地把数据分到不同 GPU 上（数据并行）只能加速计算，并不能解决单卡装不下模型的问题。把模型切分到不同 GPU 上（模型并行）可以突破内存限制，但会带来严重的 GPU 空闲和通信开销。如何在"内存限制"、"计算效率"和"通信开销"之间找到最优平衡，是过去五年间 ZeRO、Megatron-LM、GPipe 等一系列里程碑工作所回答的核心问题。</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; 💡 **本章核心洞察**：分布式训练的本质是在三个维度上做切分——沿数据维度（数据并行）、沿模型层内维度（张量并行）、沿模型层间维度（流水线并行），再通过 ZeRO 的内存优化将优化器状态、梯度和参数分散到各 GPU 上。三者组合形成"3D 并行"，让万亿参数模型的训练成为可能。</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## 问题的本质是什么？</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### GPU 显存中到底装了什么？</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>要理解分布式训练为什么必要，首先需要清楚一个事实：训练一个模型时，GPU 显存中存放的远不只是模型参数。让我们以一个具体的 GPT-3 规模模型（$\Psi = 175\text{B}$ 参数）为例，逐项分析显存占用。</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>**模型状态（Model States）**——训练过程中必须常驻显存的数据，包含三个部分。第一部分是模型参数本身，在混合精度训练下需要保存一份 FP16/BF16 参数（$2\Psi$ 字节）和一份 FP32 主参数（$4\Psi$ 字节）。第二部分是梯度，与参数同维度（$2\Psi$ 字节，FP16）。第三部分是优化器状态，Adam 需要保存一阶动量和二阶动量（各 $4\Psi$ 字节，FP32），共 $8\Psi$ 字节。三项合计，每个参数平均需要 $2 + 4 + 2 + 8 = 16$ 字节。</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>**残差状态（Residual States）**——激活值、临时缓冲区和碎片内存。激活值是反向传播所需的中间计算结果，其占用与 batch size 和序列长度成正比，对于大模型可以达到数十 GB。临时缓冲区用于通信和梯度归约。碎片内存则来自于显存分配器的碎片化。</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>让我们把数字算清楚。</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 完整数值示例：GPT-3 175B 的显存需求</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>**设定**：$\Psi = 175 \times 10^9$（175B 参数），使用 Adam 优化器 + 混合精度训练。</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>**Step 1：模型参数**</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>\text{FP16 参数} = 2 \times 175 \times 10^9 = 350 \text{ GB}</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>\text{FP32 主参数} = 4 \times 175 \times 10^9 = 700 \text{ GB}</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>**Step 2：梯度**</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>\text{FP16 梯度} = 2 \times 175 \times 10^9 = 350 \text{ GB}</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>**Step 3：Adam 优化器状态**</span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>\text{一阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>\text{二阶动量（FP32）} = 4 \times 175 \times 10^9 = 700 \text{ GB}</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>**Step 4：合计**</span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>\text{模型状态总计} = 350 + 700 + 350 + 700 + 700 = 2800 \text{ GB} = 2.8 \text{ TB}</span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>**解读**：仅模型状态就需要 2.8 TB 显存，这是 35 张 H100（80GB）的总显存容量。还没有算激活值——以序列长度 2048、micro-batch size 1、96 层 Transformer 为例，激活值还需要额外数百 GB。</span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>这个计算揭示了一个关键洞察：**优化器状态占据了显存的绝大部分**（1400GB / 2800GB = 50%），而非模型参数本身（350GB / 2800GB = 12.5%）。这正是 ZeRO 优化的切入点——如果能让每张 GPU 只保存优化器状态的一小部分，就能大幅降低显存需求。</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么单纯的数据并行不够？</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>数据并行（Data Parallelism, DP）是最简单、最常用的分布式训练策略：每张 GPU 都持有完整的模型副本，但处理不同的数据子集。训练步骤是这样的：将一个 mini-batch 均分到 $N$ 张 GPU 上，每张 GPU 独立做前向和反向传播计算梯度，然后通过 AllReduce 操作汇总所有 GPU 的梯度，最后每张 GPU 用汇总后的梯度更新自己的模型副本。</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>数据并行的优势是实现简单、通信开销可控（每步只需一次 AllReduce），而且随着 GPU 数量增加，吞吐量近似线性增长。但它有一个致命限制：**每张 GPU 都需要能装下完整的模型**。回到 GPT-3 的例子，每张 GPU 都需要 2.8 TB 来存放模型状态——显然不可能。</span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>这意味着我们需要一种方式来"切分"模型本身，让每张 GPU 只负责模型的一部分。</span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### 我们需要什么样的解决方案？</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>理想的分布式训练方案应该满足以下几个条件。首先是**内存可扩展**：模型的内存需求应该随 GPU 数量近乎线性下降，这样 100 张 GPU 就能训练 100 倍大的模型。其次是**计算高效**：GPU 的利用率应该尽可能高，避免出现大量空闲等待。第三是**通信高效**：GPU 之间的数据传输应该尽量少，并且能被计算所掩盖。最后是**对用户透明**：理想情况下，用户的模型代码不需要大幅修改。</span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>我们将看到，没有一种单一的并行策略能同时满足所有条件。数据并行计算高效但不解决内存问题；模型并行解决内存问题但计算效率低。这正是为什么现代大模型训练需要组合多种并行策略——"3D 并行"——的根本原因。</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a><span class="fu">## 核心思想与直觉</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>在深入技术细节之前，让我们用一个日常的类比来建立直觉。想象你要抄写一本 1000 页的书，但你一个人抄太慢了。你可以采用三种不同的策略来让多人协作完成。</span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>**策略一：每人抄不同的页**。你把 1000 页分成 10 份，每人负责 100 页。每个人都需要看到全书（因为可能需要前后文参考），但各自处理不同的内容。这就是**数据并行**的思想——每个 GPU 持有完整的模型，但处理不同的训练数据。</span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>**策略二：每人负责书的不同章节**。第一个人只抄第 1-10 章，第二个人只抄第 11-20 章，以此类推。每个人只需要记住自己负责的那几章内容，但必须等前一个人完成才能继续（因为章节有顺序依赖）。这就是**流水线并行**的思想——每个 GPU 只负责模型的若干层。</span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>**策略三：每个字由多人合作写不同笔画**。一个人写左半部分，另一个人写右半部分，然后拼起来。这个类比虽然有些奇怪，但它准确描述了**张量并行**的思想——将单个矩阵运算切分到多个 GPU 上同时计算。</span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>这三种策略各有优劣。策略一最简单，但每个人都需要整本书的记忆容量。策略二节省了每个人的记忆量，但存在"等待"的问题。策略三最精细，但需要频繁的协调和拼合。实际中，最有效的做法是**三种策略同时使用**——这就是"3D 并行"。</span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>而 ZeRO 则提供了一种正交的优化思路：它不改变计算的分配方式，而是**消除数据并行中的内存冗余**。回到抄书的类比，这相当于说"每个人不需要随身带全本书的参考资料，大家共享一套就行，需要哪页就临时借来看"。</span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="fu">## 技术细节</span></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a><span class="fu">### 数据并行：最基础的分布式策略</span></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>数据并行的核心思想在概念上非常简单：$N$ 张 GPU 各自持有完整的模型副本，每张 GPU 处理 mini-batch 的 $1/N$，然后通过梯度同步确保所有 GPU 的模型保持一致。</span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>在数学上，假设总 mini-batch 的损失函数为：</span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>\mathcal{L} = \frac{1}{B} \sum_{i=1}^{B} \ell(x_i, \theta)</span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>将 $B$ 个样本均分到 $N$ 张 GPU 上，每张 GPU 计算局部梯度：</span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>g_k = \frac{1}{B/N} \sum_{i \in \mathcal{D}_k} \nabla_\theta \ell(x_i, \theta), \quad k = 1, \ldots, N</span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>然后通过 AllReduce 得到全局梯度：</span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>g = \frac{1}{N} \sum_{k=1}^{N} g_k</span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>这个全局梯度与单 GPU 使用完整 mini-batch 计算的梯度在数学上完全等价（忽略浮点精度差异）。</span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a><span class="fu">#### AllReduce：梯度同步的核心</span></span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>AllReduce 是数据并行的通信核心。它的目标是让每张 GPU 都得到所有 GPU 梯度的总和。朴素的实现是每张 GPU 把梯度发给一个中心节点汇总，但这会造成通信瓶颈。现代实践使用 **Ring AllReduce** 算法：将 $N$ 张 GPU 排列成一个环，数据在环上逐步传递和累加。</span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>Ring AllReduce 的通信量分析如下。假设每张 GPU 的梯度大小为 $D$ 字节。整个 AllReduce 过程分为两个阶段：Reduce-Scatter 阶段将梯度分成 $N$ 份在环上累加（$N-1$ 步，每步传输 $D/N$ 字节），All-Gather 阶段将累加结果广播到所有 GPU（$N-1$ 步，每步 $D/N$ 字节）。总通信量为：</span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>\text{每张 GPU 的通信量} = 2 \cdot (N-1) \cdot \frac{D}{N} \approx 2D \quad (\text{当 } N \gg 1)</span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>一个关键的洞察是：**这个通信量与 GPU 数量 $N$ 无关**。无论是 8 张 GPU 还是 1024 张 GPU，每张 GPU 的通信量都约为 $2D$。这意味着数据并行在通信上具有近乎理想的可扩展性——前提是网络带宽足够。</span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 数据并行的局限</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>数据并行有一个根本性的限制：**每张 GPU 必须能装下完整的模型状态**。对于 GPT-3 级别的模型，这意味着每张 GPU 需要 2.8 TB 显存——显然不现实。此外，当 GPU 数量过多时，每张 GPU 分到的 batch size 会变得很小，导致计算效率下降（GPU 无法充分利用并行计算能力）。</span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a><span class="fu">### 张量并行：切分矩阵运算</span></span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>张量并行（Tensor Parallelism, TP）的核心思想是将 Transformer 层内的矩阵运算切分到多个 GPU 上。2019 年 NVIDIA 的 Megatron-LM 论文给出了一种优雅的切分方案，巧妙地利用了矩阵乘法的数学性质来最小化通信。</span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a><span class="fu">#### MLP 的切分</span></span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a>Transformer 中的 FFN（前馈网络）层由两个线性变换组成：</span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a>Y = \text{GeLU}(XA) \cdot B</span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a>其中 $X \in \mathbb{R}^{b \times d}$，$A \in \mathbb{R}^{d \times 4d}$，$B \in \mathbb{R}^{4d \times d}$。</span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a>Megatron-LM 的做法是：**沿列切分第一个矩阵 $A$，沿行切分第二个矩阵 $B$**。</span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a>具体地，将 $A$ 按列分成两半 $A = <span class="co">[</span><span class="ot">A_1, A_2</span><span class="co">]</span>$，分别放在 GPU 1 和 GPU 2 上：</span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Y_1, Y_2</span><span class="co">]</span> = <span class="co">[</span><span class="ot">\text{GeLU}(XA_1), \text{GeLU}(XA_2)</span><span class="co">]</span></span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a>注意这里有一个精妙之处：GeLU 是逐元素操作，所以可以先切分再激活，结果与先激活再切分完全一致。如果激活函数不是逐元素的（比如 Softmax），这种切分就不成立。</span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a>然后将 $B$ 按行分成 $B_1, B_2$：</span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a>Y = Y_1 B_1 + Y_2 B_2</span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a>每张 GPU 计算 $Y_k B_k$，然后通过一次 AllReduce 求和得到最终结果。</span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a><span class="al">![Megatron-LM MLP 块的张量并行切分。第一个矩阵 $A$ 按列切分，第二个矩阵 $B$ 按行切分，只需一次 AllReduce。](figures/chapter-19/original/fig3a-megatron-mlp-parallelism.png)</span>{#fig-megatron-mlp width=70%}</span>
+<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a>*Source: Shoeybi et al. (2019) "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", Figure 3a. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*</span>
+<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a>图中的 $f$ 和 $g$ 是一对共轭算子：$f$ 在前向传播中是恒等操作（identity），在反向传播中是 AllReduce；$g$ 则反过来，前向是 AllReduce，反向是恒等。通过这种设计，前向和反向传播各只需要一次 AllReduce，实现了优雅的对称性。</span>
+<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Self-Attention 的切分</span></span>
+<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a>Multi-Head Attention 的切分更加自然，因为多个注意力头本身就是独立计算的。将 $h$ 个头均分到 $N$ 张 GPU 上，每张 GPU 负责 $h/N$ 个头。每个头的 $Q_i, K_i, V_i$ 投影矩阵沿列切分（等价于分配不同的头），输出投影矩阵 $W^O$ 沿行切分，最后通过 AllReduce 汇总。</span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="al">![Megatron-LM Self-Attention 块的张量并行切分。多头注意力按头分配到不同 GPU，每个 GPU 独立计算自己负责的注意力头。](figures/chapter-19/original/fig3b-megatron-attention-parallelism.png)</span>{#fig-megatron-attention width=70%}</span>
+<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a>*Source: Shoeybi et al. (2019) "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", Figure 3b. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*</span>
+<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 张量并行的通信分析</span></span>
+<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a>整个 Transformer 层中，MLP 块需要 2 次 AllReduce（前向 + 反向各 1 次），Self-Attention 块也需要 2 次 AllReduce，总计每层 4 次 AllReduce。</span>
+<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a>通信量方面，每次 AllReduce 传输的数据量为 $O(b \cdot s \cdot d)$（batch size × 序列长度 × 隐藏维度），与 TP 的并行度 $N$ 无关。但是 AllReduce 的延迟（latency）会随着参与的 GPU 数量增加而增加。因此，**张量并行最适合在单个节点内的高带宽互连（如 NVLink）上使用**，通常 TP 度为 4 或 8（对应一个 DGX 节点内的 GPU 数量）。</span>
+<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a><span class="fu">### 流水线并行：切分模型层</span></span>
+<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a>流水线并行（Pipeline Parallelism, PP）的思想更加直观：将 Transformer 的 $L$ 层均分到 $K$ 个 GPU 上，每个 GPU（称为一个"阶段"）负责连续的 $L/K$ 层。GPU 1 处理第 1 到第 $L/K$ 层，GPU 2 处理第 $L/K + 1$ 到第 $2L/K$ 层，以此类推。</span>
+<span id="cb5-228"><a href="#cb5-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 朴素流水线的问题</span></span>
+<span id="cb5-230"><a href="#cb5-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a>最简单的实现方式是：一个 mini-batch 从第一个阶段开始，经过所有阶段完成前向传播，然后再从最后一个阶段反向传播回来。问题在于，在任意时刻，**只有一个阶段在工作，其他阶段都在空闲等待**。这意味着 $K$ 个 GPU 中有 $K-1$ 个在闲置——GPU 利用率仅为 $1/K$。</span>
+<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a><span class="al">![朴素模型并行：4 个 GPU 分别处理模型的不同层，但在任意时刻只有一个 GPU 在工作（蓝色），其余都在空闲等待（白色）。](figures/chapter-19/original/fig2-gpipe-naive-parallelism.png)</span>{#fig-naive-pp width=85%}</span>
+<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a>*Source: Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Figure 2(b). [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*</span>
+<span id="cb5-237"><a href="#cb5-237" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-239"><a href="#cb5-239" aria-hidden="true" tabindex="-1"></a><span class="fu">#### GPipe：微批次流水线</span></span>
+<span id="cb5-240"><a href="#cb5-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-241"><a href="#cb5-241" aria-hidden="true" tabindex="-1"></a>2019 年 Google 提出的 GPipe 用一个简单的思想解决了这个问题：**将 mini-batch 进一步切分成 $M$ 个 micro-batch**，让这些 micro-batch 像流水线上的产品一样在各阶段间流转。当 GPU 1 处理完 micro-batch 1 并将结果传给 GPU 2 时，GPU 1 可以立即开始处理 micro-batch 2，而不是闲等。</span>
+<span id="cb5-242"><a href="#cb5-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-243"><a href="#cb5-243" aria-hidden="true" tabindex="-1"></a><span class="al">![GPipe 的微批次流水线并行。将 mini-batch 切分成多个 micro-batch 后，不同 GPU 可以同时处理不同的 micro-batch，大幅提高利用率。](figures/chapter-19/original/fig2-gpipe-pipeline-parallelism.png)</span>{#fig-gpipe-pp width=85%}</span>
+<span id="cb5-244"><a href="#cb5-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-245"><a href="#cb5-245" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-246"><a href="#cb5-246" aria-hidden="true" tabindex="-1"></a>*Source: Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Figure 2(c). [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*</span>
+<span id="cb5-247"><a href="#cb5-247" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-248"><a href="#cb5-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-249"><a href="#cb5-249" aria-hidden="true" tabindex="-1"></a>GPipe 的调度方式是：先让所有 $M$ 个 micro-batch 依次完成前向传播，然后再反向依次完成反向传播，最后同步更新参数。这保证了梯度的数学等价性——与在单 GPU 上用完整 mini-batch 训练的结果一致。</span>
+<span id="cb5-250"><a href="#cb5-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-251"><a href="#cb5-251" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 气泡分析</span></span>
+<span id="cb5-252"><a href="#cb5-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-253"><a href="#cb5-253" aria-hidden="true" tabindex="-1"></a>即使使用了微批次，流水线中仍然存在不可避免的空闲时间，称为"气泡"（bubble）。在 GPipe 的调度中，第一个 micro-batch 需要 $K-1$ 步才能到达最后一个阶段，最后一个 micro-batch 的反向传播结果需要 $K-1$ 步才能传回第一个阶段。总的气泡时间正比于 $K-1$，而有效计算时间正比于 $M$。因此：</span>
+<span id="cb5-254"><a href="#cb5-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-255"><a href="#cb5-255" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-256"><a href="#cb5-256" aria-hidden="true" tabindex="-1"></a>\text{气泡比例} = \frac{K - 1}{M + K - 1} \approx \frac{K - 1}{M} \quad (\text{当 } M \gg K)</span>
+<span id="cb5-257"><a href="#cb5-257" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-258"><a href="#cb5-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-259"><a href="#cb5-259" aria-hidden="true" tabindex="-1"></a>**关键洞察**：当 $M \geq 4K$ 时，气泡比例低于 20%，GPU 利用率达到 80% 以上。实践中通常取 $M$ 为 $K$ 的 4-8 倍。</span>
+<span id="cb5-260"><a href="#cb5-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-261"><a href="#cb5-261" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 1F1B 调度</span></span>
+<span id="cb5-262"><a href="#cb5-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-263"><a href="#cb5-263" aria-hidden="true" tabindex="-1"></a>PipeDream 提出了一种更优的调度策略——**1F1B（One Forward, One Backward）**。不同于 GPipe 先完成所有前向再做反向，1F1B 让每个阶段在完成一个 micro-batch 的前向后立即做一个 micro-batch 的反向，交替执行。这样做的好处是：反向传播产生的梯度可以尽早释放激活值，从而**减少约 50% 的峰值激活值内存**。</span>
+<span id="cb5-264"><a href="#cb5-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-265"><a href="#cb5-265" aria-hidden="true" tabindex="-1"></a>1F1B 分为两个阶段。在"热身"（warmup）阶段，每个 GPU 先做若干个前向传播填满流水线。进入"稳定"（steady state）阶段后，每个 GPU 交替做一个前向和一个反向——此时所有 GPU 都在满负荷工作。</span>
+<span id="cb5-266"><a href="#cb5-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-267"><a href="#cb5-267" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb5-268"><a href="#cb5-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## Algorithm 1: GPipe 流水线调度（改编自 Huang et al., 2019）</span></span>
+<span id="cb5-269"><a href="#cb5-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-270"><a href="#cb5-270" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-271"><a href="#cb5-271" aria-hidden="true" tabindex="-1"></a><span class="in">输入：mini-batch B，K 个流水线阶段，M 个 micro-batch</span></span>
+<span id="cb5-272"><a href="#cb5-272" aria-hidden="true" tabindex="-1"></a><span class="in">输出：更新后的模型参数</span></span>
+<span id="cb5-273"><a href="#cb5-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-274"><a href="#cb5-274" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 1: 将 mini-batch 切分为 M 个 micro-batch</span></span>
+<span id="cb5-275"><a href="#cb5-275" aria-hidden="true" tabindex="-1"></a><span class="in">B_1, B_2, ..., B_M = split(B, M)</span></span>
+<span id="cb5-276"><a href="#cb5-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-277"><a href="#cb5-277" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 2: 前向传播阶段（所有 micro-batch 依次通过所有阶段）</span></span>
+<span id="cb5-278"><a href="#cb5-278" aria-hidden="true" tabindex="-1"></a><span class="in">for m = 1 to M:</span></span>
+<span id="cb5-279"><a href="#cb5-279" aria-hidden="true" tabindex="-1"></a><span class="in">    for k = 1 to K:</span></span>
+<span id="cb5-280"><a href="#cb5-280" aria-hidden="true" tabindex="-1"></a><span class="in">        # 阶段 k 处理 micro-batch m</span></span>
+<span id="cb5-281"><a href="#cb5-281" aria-hidden="true" tabindex="-1"></a><span class="in">        output[m][k] = forward(stage_k, input[m][k])</span></span>
+<span id="cb5-282"><a href="#cb5-282" aria-hidden="true" tabindex="-1"></a><span class="in">        # 保存激活值供反向传播使用</span></span>
+<span id="cb5-283"><a href="#cb5-283" aria-hidden="true" tabindex="-1"></a><span class="in">        save_activation(m, k)</span></span>
+<span id="cb5-284"><a href="#cb5-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-285"><a href="#cb5-285" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 3: 反向传播阶段（反序）</span></span>
+<span id="cb5-286"><a href="#cb5-286" aria-hidden="true" tabindex="-1"></a><span class="in">for m = M to 1:</span></span>
+<span id="cb5-287"><a href="#cb5-287" aria-hidden="true" tabindex="-1"></a><span class="in">    for k = K to 1:</span></span>
+<span id="cb5-288"><a href="#cb5-288" aria-hidden="true" tabindex="-1"></a><span class="in">        grad[m][k] = backward(stage_k, grad[m][k+1])</span></span>
+<span id="cb5-289"><a href="#cb5-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-290"><a href="#cb5-290" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 4: 同步更新（所有 micro-batch 的梯度求和）</span></span>
+<span id="cb5-291"><a href="#cb5-291" aria-hidden="true" tabindex="-1"></a><span class="in">for k = 1 to K:</span></span>
+<span id="cb5-292"><a href="#cb5-292" aria-hidden="true" tabindex="-1"></a><span class="in">    gradient_k = sum(grad[1..M][k]) / M</span></span>
+<span id="cb5-293"><a href="#cb5-293" aria-hidden="true" tabindex="-1"></a><span class="in">    update(stage_k.parameters, gradient_k)</span></span>
+<span id="cb5-294"><a href="#cb5-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-295"><a href="#cb5-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-296"><a href="#cb5-296" aria-hidden="true" tabindex="-1"></a>*改编自 Huang et al. (2019) "GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism", Section 2. [arXiv:1811.06965](https://arxiv.org/abs/1811.06965)*</span>
+<span id="cb5-297"><a href="#cb5-297" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-298"><a href="#cb5-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-299"><a href="#cb5-299" aria-hidden="true" tabindex="-1"></a><span class="fu">### ZeRO：内存优化的革命</span></span>
+<span id="cb5-300"><a href="#cb5-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-301"><a href="#cb5-301" aria-hidden="true" tabindex="-1"></a>到目前为止，我们介绍了三种切分计算的并行策略。然而，微软在 2020 年提出的 ZeRO（Zero Redundancy Optimizer）采取了一种完全不同的思路：**它不改变计算方式，而是消除数据并行中的内存冗余**。</span>
+<span id="cb5-302"><a href="#cb5-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-303"><a href="#cb5-303" aria-hidden="true" tabindex="-1"></a>回想一下，在标准数据并行中，每张 GPU 都持有完整的模型参数、梯度和优化器状态的副本。但仔细想想——如果有 64 张 GPU 做数据并行，那么优化器状态被重复存储了 64 份。这是巨大的浪费。ZeRO 的核心洞察很简单：**让每张 GPU 只保存 $1/N$ 的状态，需要时再从其他 GPU 获取**。</span>
+<span id="cb5-304"><a href="#cb5-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-305"><a href="#cb5-305" aria-hidden="true" tabindex="-1"></a>ZeRO 分为三个递进的阶段，每个阶段分区更多类型的数据。</span>
+<span id="cb5-306"><a href="#cb5-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-307"><a href="#cb5-307" aria-hidden="true" tabindex="-1"></a><span class="al">![ZeRO 的三个阶段逐步减少每张 GPU 的内存需求。以 7.5B 参数模型、64 路数据并行为例，从基线的 120GB 逐步降低到 1.9GB。](figures/chapter-19/original/fig1-zero-memory-comparison.png)</span>{#fig-zero-stages width=85%}</span>
+<span id="cb5-308"><a href="#cb5-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-309"><a href="#cb5-309" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-310"><a href="#cb5-310" aria-hidden="true" tabindex="-1"></a>*Source: Rajbhandari et al. (2020) "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models", Figure 1. [arXiv:1910.02054](https://arxiv.org/abs/1910.02054)*</span>
+<span id="cb5-311"><a href="#cb5-311" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-312"><a href="#cb5-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-313"><a href="#cb5-313" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 完整数值示例：ZeRO 各阶段的内存节省</span></span>
+<span id="cb5-314"><a href="#cb5-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-315"><a href="#cb5-315" aria-hidden="true" tabindex="-1"></a>**设定**：模型参数 $\Psi = 7.5 \text{B}$，混合精度训练（FP16 参数 + FP32 主参数 + Adam），数据并行度 $N_d = 64$。</span>
+<span id="cb5-316"><a href="#cb5-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-317"><a href="#cb5-317" aria-hidden="true" tabindex="-1"></a>**基线——标准数据并行（无 ZeRO）**</span>
+<span id="cb5-318"><a href="#cb5-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-319"><a href="#cb5-319" aria-hidden="true" tabindex="-1"></a>每张 GPU 存储全部状态：</span>
+<span id="cb5-320"><a href="#cb5-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-321"><a href="#cb5-321" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-322"><a href="#cb5-322" aria-hidden="true" tabindex="-1"></a>\text{FP16 参数} = 2\Psi = 15 \text{ GB}, \quad \text{FP16 梯度} = 2\Psi = 15 \text{ GB}</span>
+<span id="cb5-323"><a href="#cb5-323" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-324"><a href="#cb5-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-325"><a href="#cb5-325" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-326"><a href="#cb5-326" aria-hidden="true" tabindex="-1"></a>\text{FP32 主参数} = 4\Psi = 30 \text{ GB}, \quad \text{Adam 状态} = 8\Psi = 60 \text{ GB}</span>
+<span id="cb5-327"><a href="#cb5-327" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-328"><a href="#cb5-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-329"><a href="#cb5-329" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-330"><a href="#cb5-330" aria-hidden="true" tabindex="-1"></a>\text{每张 GPU 总计} = 16\Psi = 120 \text{ GB}</span>
+<span id="cb5-331"><a href="#cb5-331" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-332"><a href="#cb5-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-333"><a href="#cb5-333" aria-hidden="true" tabindex="-1"></a>**ZeRO Stage 1（$P_{os}$）：分区优化器状态**</span>
+<span id="cb5-334"><a href="#cb5-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-335"><a href="#cb5-335" aria-hidden="true" tabindex="-1"></a>只将 Adam 的两组动量和 FP32 主参数分区到 $N_d$ 张 GPU 上，参数和梯度仍然每张 GPU 完整保留：</span>
+<span id="cb5-336"><a href="#cb5-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-337"><a href="#cb5-337" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-338"><a href="#cb5-338" aria-hidden="true" tabindex="-1"></a>\text{每张 GPU} = 2\Psi + 2\Psi + \frac{12\Psi}{N_d} = 4\Psi + \frac{12\Psi}{64}</span>
+<span id="cb5-339"><a href="#cb5-339" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-340"><a href="#cb5-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-341"><a href="#cb5-341" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-342"><a href="#cb5-342" aria-hidden="true" tabindex="-1"></a>= 30 + 1.41 = 31.4 \text{ GB}</span>
+<span id="cb5-343"><a href="#cb5-343" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-344"><a href="#cb5-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-345"><a href="#cb5-345" aria-hidden="true" tabindex="-1"></a>内存降低到原来的约 $1/4$。通信量与标准数据并行完全相同（每步一次 AllReduce），因为只有梯度和参数的同步不受影响。</span>
+<span id="cb5-346"><a href="#cb5-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-347"><a href="#cb5-347" aria-hidden="true" tabindex="-1"></a>**ZeRO Stage 2（$P_{os+g}$）：分区优化器状态 + 梯度**</span>
+<span id="cb5-348"><a href="#cb5-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-349"><a href="#cb5-349" aria-hidden="true" tabindex="-1"></a>进一步将梯度也分区：</span>
+<span id="cb5-350"><a href="#cb5-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-351"><a href="#cb5-351" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-352"><a href="#cb5-352" aria-hidden="true" tabindex="-1"></a>\text{每张 GPU} = 2\Psi + \frac{2\Psi + 12\Psi}{N_d} = 2\Psi + \frac{14\Psi}{64}</span>
+<span id="cb5-353"><a href="#cb5-353" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-354"><a href="#cb5-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-355"><a href="#cb5-355" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-356"><a href="#cb5-356" aria-hidden="true" tabindex="-1"></a>= 15 + 1.64 = 16.6 \text{ GB}</span>
+<span id="cb5-357"><a href="#cb5-357" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-358"><a href="#cb5-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-359"><a href="#cb5-359" aria-hidden="true" tabindex="-1"></a>内存降低到原来的约 $1/8$。通信模式从 AllReduce 变为 Reduce-Scatter（每个 GPU 只需要接收自己负责的那部分梯度的归约结果），通信量与数据并行基本持平。</span>
+<span id="cb5-360"><a href="#cb5-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-361"><a href="#cb5-361" aria-hidden="true" tabindex="-1"></a>**ZeRO Stage 3（$P_{os+g+p}$）：分区一切**</span>
+<span id="cb5-362"><a href="#cb5-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-363"><a href="#cb5-363" aria-hidden="true" tabindex="-1"></a>连模型参数也分区，每张 GPU 只保存 $1/N_d$ 的参数：</span>
+<span id="cb5-364"><a href="#cb5-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-365"><a href="#cb5-365" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-366"><a href="#cb5-366" aria-hidden="true" tabindex="-1"></a>\text{每张 GPU} = \frac{16\Psi}{N_d} = \frac{16 \times 7.5}{64} = 1.875 \text{ GB}</span>
+<span id="cb5-367"><a href="#cb5-367" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-368"><a href="#cb5-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-369"><a href="#cb5-369" aria-hidden="true" tabindex="-1"></a>内存降低到原来的 $1/N_d$——理论上可以无限扩展。代价是在前向和反向传播时，每一层的计算都需要先从其他 GPU 获取（All-Gather）当前层的完整参数，用完后丢弃。这引入了额外的通信，约为数据并行的 1.5 倍。</span>
+<span id="cb5-370"><a href="#cb5-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-371"><a href="#cb5-371" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ZeRO 阶段 <span class="pp">|</span> 每张 GPU 内存 <span class="pp">|</span> 相对基线 <span class="pp">|</span> 额外通信 <span class="pp">|</span></span>
+<span id="cb5-372"><a href="#cb5-372" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|--------------|---------|---------|</span></span>
+<span id="cb5-373"><a href="#cb5-373" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 基线（标准 DP） <span class="pp">|</span> 120 GB <span class="pp">|</span> 1× <span class="pp">|</span> 1× <span class="pp">|</span></span>
+<span id="cb5-374"><a href="#cb5-374" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Stage 1 ($P_{os}$) <span class="pp">|</span> 31.4 GB <span class="pp">|</span> 0.26× <span class="pp">|</span> 1× <span class="pp">|</span></span>
+<span id="cb5-375"><a href="#cb5-375" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Stage 2 ($P_{os+g}$) <span class="pp">|</span> 16.6 GB <span class="pp">|</span> 0.14× <span class="pp">|</span> 1× <span class="pp">|</span></span>
+<span id="cb5-376"><a href="#cb5-376" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Stage 3 ($P_{os+g+p}$) <span class="pp">|</span> 1.9 GB <span class="pp">|</span> 0.016× <span class="pp">|</span> 1.5× <span class="pp">|</span></span>
+<span id="cb5-377"><a href="#cb5-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-378"><a href="#cb5-378" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="minimal"}</span>
+<span id="cb5-379"><a href="#cb5-379" aria-hidden="true" tabindex="-1"></a><span class="fu">## Algorithm 2: ZeRO Stage 3 Training Loop</span></span>
+<span id="cb5-380"><a href="#cb5-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-381"><a href="#cb5-381" aria-hidden="true" tabindex="-1"></a>**Input**: 模型分为 $L$ 层，$N_d$ 张 GPU，每张 GPU 持有 $1/N_d$ 的参数/梯度/优化器状态</span>
+<span id="cb5-382"><a href="#cb5-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-383"><a href="#cb5-383" aria-hidden="true" tabindex="-1"></a>**Notation**: GPU $i$ 持有参数分片 $\theta^{(i)}$，对应梯度 $g^{(i)}$，对应优化器状态 $s^{(i)}$</span>
+<span id="cb5-384"><a href="#cb5-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-385"><a href="#cb5-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-386"><a href="#cb5-386" aria-hidden="true" tabindex="-1"></a><span class="in">for each training step:</span></span>
+<span id="cb5-387"><a href="#cb5-387" aria-hidden="true" tabindex="-1"></a><span class="in">    # ===== Forward Pass =====</span></span>
+<span id="cb5-388"><a href="#cb5-388" aria-hidden="true" tabindex="-1"></a><span class="in">    for layer l = 1 to L:</span></span>
+<span id="cb5-389"><a href="#cb5-389" aria-hidden="true" tabindex="-1"></a><span class="in">        θ_l ← AllGather(θ_l^(i))      # 收集当前层完整参数</span></span>
+<span id="cb5-390"><a href="#cb5-390" aria-hidden="true" tabindex="-1"></a><span class="in">        a_l ← forward(a_{l-1}, θ_l)    # 计算激活</span></span>
+<span id="cb5-391"><a href="#cb5-391" aria-hidden="true" tabindex="-1"></a><span class="in">        discard θ_l                     # 丢弃非本地参数</span></span>
+<span id="cb5-392"><a href="#cb5-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-393"><a href="#cb5-393" aria-hidden="true" tabindex="-1"></a><span class="in">    # ===== Backward Pass =====</span></span>
+<span id="cb5-394"><a href="#cb5-394" aria-hidden="true" tabindex="-1"></a><span class="in">    for layer l = L to 1:</span></span>
+<span id="cb5-395"><a href="#cb5-395" aria-hidden="true" tabindex="-1"></a><span class="in">        θ_l ← AllGather(θ_l^(i))       # 再次收集完整参数</span></span>
+<span id="cb5-396"><a href="#cb5-396" aria-hidden="true" tabindex="-1"></a><span class="in">        g_l ← backward(∂L/∂a_l, θ_l)   # 计算当前层梯度</span></span>
+<span id="cb5-397"><a href="#cb5-397" aria-hidden="true" tabindex="-1"></a><span class="in">        g_l^(i) ← ReduceScatter(g_l)   # 归约并分发梯度分片</span></span>
+<span id="cb5-398"><a href="#cb5-398" aria-hidden="true" tabindex="-1"></a><span class="in">        discard θ_l</span></span>
+<span id="cb5-399"><a href="#cb5-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-400"><a href="#cb5-400" aria-hidden="true" tabindex="-1"></a><span class="in">    # ===== Optimizer Step =====</span></span>
+<span id="cb5-401"><a href="#cb5-401" aria-hidden="true" tabindex="-1"></a><span class="in">    for each local shard i:</span></span>
+<span id="cb5-402"><a href="#cb5-402" aria-hidden="true" tabindex="-1"></a><span class="in">        s^(i) ← update_optimizer(s^(i), g^(i))  # 更新本地优化器状态</span></span>
+<span id="cb5-403"><a href="#cb5-403" aria-hidden="true" tabindex="-1"></a><span class="in">        θ^(i) ← s^(i).param                      # 更新本地参数分片</span></span>
+<span id="cb5-404"><a href="#cb5-404" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-405"><a href="#cb5-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-406"><a href="#cb5-406" aria-hidden="true" tabindex="-1"></a>**通信量分析**: 每层参数在前向和反向各做一次 AllGather，反向还需一次 ReduceScatter。总通信量约为数据并行的 1.5 倍。</span>
+<span id="cb5-407"><a href="#cb5-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-408"><a href="#cb5-408" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">hr</span><span class="dt">&gt;</span></span>
+<span id="cb5-409"><a href="#cb5-409" aria-hidden="true" tabindex="-1"></a>*改编自 Rajbhandari et al. (2020) "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models", Section 3.3. [arXiv:1910.02054](https://arxiv.org/abs/1910.02054)*</span>
+<span id="cb5-410"><a href="#cb5-410" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-411"><a href="#cb5-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-412"><a href="#cb5-412" aria-hidden="true" tabindex="-1"></a><span class="fu">#### ZeRO-Offload 与 ZeRO-Infinity</span></span>
+<span id="cb5-413"><a href="#cb5-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-414"><a href="#cb5-414" aria-hidden="true" tabindex="-1"></a>ZeRO 的思路可以进一步延伸到 CPU 甚至 NVMe 存储上。**ZeRO-Offload** 将优化器状态卸载到 CPU 内存中，让 GPU 只负责前向和反向计算。**ZeRO-Infinity** 更进一步，利用 NVMe SSD 作为额外的存储层。这使得在单张 GPU 上也能微调数十亿参数的模型——代价是速度会因为 CPU-GPU 或 SSD-GPU 的数据传输而变慢。</span>
+<span id="cb5-415"><a href="#cb5-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-416"><a href="#cb5-416" aria-hidden="true" tabindex="-1"></a><span class="fu">#### FSDP：PyTorch 的原生 ZeRO</span></span>
+<span id="cb5-417"><a href="#cb5-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-418"><a href="#cb5-418" aria-hidden="true" tabindex="-1"></a>PyTorch 的 **Fully Sharded Data Parallel（FSDP）** 本质上是 ZeRO Stage 3 的原生实现。FSDP2（PyTorch 2.x 的当前版本）提供了 <span class="in">`fully_shard()`</span> API，基于 DTensor 实现按参数的 dim-0 分片。用户只需在模型的每个 Transformer 层上调用 <span class="in">`fully_shard()`</span>，FSDP 就会自动处理参数的分片、通信和重组。</span>
+<span id="cb5-419"><a href="#cb5-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-420"><a href="#cb5-420" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3D 并行：三种策略的组合</span></span>
+<span id="cb5-421"><a href="#cb5-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-422"><a href="#cb5-422" aria-hidden="true" tabindex="-1"></a>在实际的大模型训练中，单一的并行策略都有局限：数据并行不解决内存问题，张量并行受限于节点内带宽，流水线并行有气泡开销。解决方案是**将三种并行策略组合使用**。</span>
+<span id="cb5-423"><a href="#cb5-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-424"><a href="#cb5-424" aria-hidden="true" tabindex="-1"></a>Narayanan et al. (2021) 在 Megatron-LM 的后续工作中系统地研究了如何组合这三种并行。他们的关键发现是：**张量并行应该在节点内使用，流水线并行在节点间使用，数据并行在最外层使用**。</span>
+<span id="cb5-425"><a href="#cb5-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-426"><a href="#cb5-426" aria-hidden="true" tabindex="-1"></a><span class="al">![混合模型并行与数据并行的 GPU 分组示意。内层是 8 路张量并行（节点内），外层是数据并行。](figures/chapter-19/original/fig8-megatron-hybrid-parallelism.png)</span>{#fig-hybrid-parallelism width=60%}</span>
+<span id="cb5-427"><a href="#cb5-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-428"><a href="#cb5-428" aria-hidden="true" tabindex="-1"></a>::: {.figure-caption}</span>
+<span id="cb5-429"><a href="#cb5-429" aria-hidden="true" tabindex="-1"></a>*Source: Shoeybi et al. (2019) "Megatron-LM", Figure 8. [arXiv:1909.08053](https://arxiv.org/abs/1909.08053)*</span>
+<span id="cb5-430"><a href="#cb5-430" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb5-431"><a href="#cb5-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-432"><a href="#cb5-432" aria-hidden="true" tabindex="-1"></a>这种分层设计的原因与硬件拓扑直接相关。节点内的 GPU 通过 NVLink 互连，带宽高达 900 GB/s（H100），适合通信密集的张量并行（每层 4 次 AllReduce）。节点间通过 InfiniBand 互连，带宽约为 50-400 Gb/s，适合通信量较小的流水线并行（每个 micro-batch 只需传递层间的激活值和梯度）。数据并行的 AllReduce 通信量与 GPU 数量无关，可以跨越整个集群。</span>
+<span id="cb5-433"><a href="#cb5-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-434"><a href="#cb5-434" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 完整数值示例：1024 GPU 的 3D 并行配置</span></span>
+<span id="cb5-435"><a href="#cb5-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-436"><a href="#cb5-436" aria-hidden="true" tabindex="-1"></a>**设定**：训练一个 175B 参数的模型，共 1024 张 H100 GPU（128 个节点，每节点 8 张 GPU）。</span>
+<span id="cb5-437"><a href="#cb5-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-438"><a href="#cb5-438" aria-hidden="true" tabindex="-1"></a>**Step 1：确定张量并行度** $T = 8$</span>
+<span id="cb5-439"><a href="#cb5-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-440"><a href="#cb5-440" aria-hidden="true" tabindex="-1"></a>在每个节点内使用 8 路张量并行，充分利用 NVLink 带宽。每张 GPU 只需存储每层参数的 $1/8$。</span>
+<span id="cb5-441"><a href="#cb5-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-442"><a href="#cb5-442" aria-hidden="true" tabindex="-1"></a>**Step 2：确定流水线并行度** $P = 16$</span>
+<span id="cb5-443"><a href="#cb5-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-444"><a href="#cb5-444" aria-hidden="true" tabindex="-1"></a>模型有 96 层 Transformer，分成 16 个阶段，每阶段 6 层。每个阶段需要 8 张 GPU（张量并行），所以每个阶段占据 1 个完整节点。</span>
+<span id="cb5-445"><a href="#cb5-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-446"><a href="#cb5-446" aria-hidden="true" tabindex="-1"></a>**Step 3：确定数据并行度** $D = 1024 / (T \times P) = 1024 / 128 = 8$</span>
+<span id="cb5-447"><a href="#cb5-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-448"><a href="#cb5-448" aria-hidden="true" tabindex="-1"></a>剩余的 GPU 用于 8 路数据并行。总 GPU 数等于 $D \times T \times P = 8 \times 8 \times 16 = 1024$。</span>
+<span id="cb5-449"><a href="#cb5-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-450"><a href="#cb5-450" aria-hidden="true" tabindex="-1"></a>**Step 4：分析内存**</span>
+<span id="cb5-451"><a href="#cb5-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-452"><a href="#cb5-452" aria-hidden="true" tabindex="-1"></a>每张 GPU 的模型参数内存 = $\frac{175\text{B}}{T \times P} = \frac{175\text{B}}{128} \approx 1.37\text{B}$ 参数 = 2.7 GB（BF16）。加上优化器状态（约 16 GB）、激活值（通过激活检查点控制在 10-20 GB），总计约 40 GB，可以舒适地放入 H100 的 80GB 显存。</span>
+<span id="cb5-453"><a href="#cb5-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-454"><a href="#cb5-454" aria-hidden="true" tabindex="-1"></a>**Step 5：分析通信**</span>
+<span id="cb5-455"><a href="#cb5-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-456"><a href="#cb5-456" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>张量并行：每层 4 次 AllReduce，在 NVLink 上完成，延迟约 10-50 μs</span>
+<span id="cb5-457"><a href="#cb5-457" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>流水线并行：每个 micro-batch 传递 $b \times s \times d$ 的激活值，跨节点 InfiniBand</span>
+<span id="cb5-458"><a href="#cb5-458" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>数据并行：每步一次 AllReduce 同步梯度，梯度大小 = 参数量 / ($T \times P$)</span>
+<span id="cb5-459"><a href="#cb5-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-460"><a href="#cb5-460" aria-hidden="true" tabindex="-1"></a><span class="fu">### 序列并行</span></span>
+<span id="cb5-461"><a href="#cb5-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-462"><a href="#cb5-462" aria-hidden="true" tabindex="-1"></a>当序列长度变得很长（如 100K+ tokens）时，即使使用了上述三种并行策略，单个 GPU 上的激活值内存仍然可能成为瓶颈。序列并行（Sequence Parallelism, SP）将序列维度切分到不同 GPU 上：每张 GPU 只处理序列的一段。</span>
+<span id="cb5-463"><a href="#cb5-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-464"><a href="#cb5-464" aria-hidden="true" tabindex="-1"></a>Megatron-LM 的序列并行与张量并行协同工作：在非张量并行的操作（如 LayerNorm 和 Dropout）上，沿序列维度切分计算。这样可以将这些操作的激活值内存分散到多张 GPU 上，进一步降低峰值内存。</span>
+<span id="cb5-465"><a href="#cb5-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-466"><a href="#cb5-466" aria-hidden="true" tabindex="-1"></a><span class="fu">## 工程实践</span></span>
+<span id="cb5-467"><a href="#cb5-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-468"><a href="#cb5-468" aria-hidden="true" tabindex="-1"></a><span class="fu">### 使用 DeepSpeed ZeRO 训练模型</span></span>
+<span id="cb5-469"><a href="#cb5-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-470"><a href="#cb5-470" aria-hidden="true" tabindex="-1"></a>DeepSpeed 是微软开源的分布式训练框架，内置了 ZeRO 的完整实现。使用 DeepSpeed 只需要少量代码修改。</span>
+<span id="cb5-471"><a href="#cb5-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-472"><a href="#cb5-472" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb5-473"><a href="#cb5-473" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> deepspeed</span>
+<span id="cb5-474"><a href="#cb5-474" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb5-475"><a href="#cb5-475" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+<span id="cb5-476"><a href="#cb5-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-477"><a href="#cb5-477" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: 定义 DeepSpeed 配置</span></span>
+<span id="cb5-478"><a href="#cb5-478" aria-hidden="true" tabindex="-1"></a>ds_config <span class="op">=</span> {</span>
+<span id="cb5-479"><a href="#cb5-479" aria-hidden="true" tabindex="-1"></a>    <span class="st">"train_batch_size"</span>: <span class="dv">32</span>,</span>
+<span id="cb5-480"><a href="#cb5-480" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gradient_accumulation_steps"</span>: <span class="dv">4</span>,</span>
+<span id="cb5-481"><a href="#cb5-481" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fp16"</span>: {<span class="st">"enabled"</span>: <span class="va">True</span>},</span>
+<span id="cb5-482"><a href="#cb5-482" aria-hidden="true" tabindex="-1"></a>    <span class="st">"zero_optimization"</span>: {</span>
+<span id="cb5-483"><a href="#cb5-483" aria-hidden="true" tabindex="-1"></a>        <span class="st">"stage"</span>: <span class="dv">2</span>,               <span class="co"># ZeRO Stage 2</span></span>
+<span id="cb5-484"><a href="#cb5-484" aria-hidden="true" tabindex="-1"></a>        <span class="st">"offload_optimizer"</span>: {     <span class="co"># 可选：卸载优化器到 CPU</span></span>
+<span id="cb5-485"><a href="#cb5-485" aria-hidden="true" tabindex="-1"></a>            <span class="st">"device"</span>: <span class="st">"cpu"</span>,</span>
+<span id="cb5-486"><a href="#cb5-486" aria-hidden="true" tabindex="-1"></a>            <span class="st">"pin_memory"</span>: <span class="va">True</span></span>
+<span id="cb5-487"><a href="#cb5-487" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb5-488"><a href="#cb5-488" aria-hidden="true" tabindex="-1"></a>        <span class="st">"allgather_partitions"</span>: <span class="va">True</span>,</span>
+<span id="cb5-489"><a href="#cb5-489" aria-hidden="true" tabindex="-1"></a>        <span class="st">"allgather_bucket_size"</span>: <span class="fl">2e8</span>,</span>
+<span id="cb5-490"><a href="#cb5-490" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reduce_scatter"</span>: <span class="va">True</span>,</span>
+<span id="cb5-491"><a href="#cb5-491" aria-hidden="true" tabindex="-1"></a>        <span class="st">"reduce_bucket_size"</span>: <span class="fl">2e8</span>,</span>
+<span id="cb5-492"><a href="#cb5-492" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb5-493"><a href="#cb5-493" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-494"><a href="#cb5-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-495"><a href="#cb5-495" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: 初始化模型</span></span>
+<span id="cb5-496"><a href="#cb5-496" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"gpt2-large"</span>)</span>
+<span id="cb5-497"><a href="#cb5-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-498"><a href="#cb5-498" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: 用 DeepSpeed 包装模型和优化器</span></span>
+<span id="cb5-499"><a href="#cb5-499" aria-hidden="true" tabindex="-1"></a>model_engine, optimizer, _, _ <span class="op">=</span> deepspeed.initialize(</span>
+<span id="cb5-500"><a href="#cb5-500" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb5-501"><a href="#cb5-501" aria-hidden="true" tabindex="-1"></a>    config<span class="op">=</span>ds_config,</span>
+<span id="cb5-502"><a href="#cb5-502" aria-hidden="true" tabindex="-1"></a>    model_parameters<span class="op">=</span>model.parameters(),</span>
+<span id="cb5-503"><a href="#cb5-503" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-504"><a href="#cb5-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-505"><a href="#cb5-505" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: 训练循环——和单 GPU 几乎一样！</span></span>
+<span id="cb5-506"><a href="#cb5-506" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch <span class="kw">in</span> dataloader:</span>
+<span id="cb5-507"><a href="#cb5-507" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> model_engine(batch[<span class="st">"input_ids"</span>], labels<span class="op">=</span>batch[<span class="st">"labels"</span>]).loss</span>
+<span id="cb5-508"><a href="#cb5-508" aria-hidden="true" tabindex="-1"></a>    model_engine.backward(loss)       <span class="co"># 替代 loss.backward()</span></span>
+<span id="cb5-509"><a href="#cb5-509" aria-hidden="true" tabindex="-1"></a>    model_engine.step()               <span class="co"># 替代 optimizer.step()</span></span>
+<span id="cb5-510"><a href="#cb5-510" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-511"><a href="#cb5-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-512"><a href="#cb5-512" aria-hidden="true" tabindex="-1"></a><span class="fu">### 使用 PyTorch FSDP 训练模型</span></span>
+<span id="cb5-513"><a href="#cb5-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-514"><a href="#cb5-514" aria-hidden="true" tabindex="-1"></a>PyTorch 原生的 FSDP 提供了更加 Pythonic 的 API：</span>
+<span id="cb5-515"><a href="#cb5-515" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-516"><a href="#cb5-516" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb5-517"><a href="#cb5-517" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb5-518"><a href="#cb5-518" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributed.fsdp <span class="im">import</span> fully_shard</span>
+<span id="cb5-519"><a href="#cb5-519" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM</span>
+<span id="cb5-520"><a href="#cb5-520" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-521"><a href="#cb5-521" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: 加载模型</span></span>
+<span id="cb5-522"><a href="#cb5-522" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"meta-llama/Llama-2-7b-hf"</span>)</span>
+<span id="cb5-523"><a href="#cb5-523" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-524"><a href="#cb5-524" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: 对每个 Transformer 层应用 FSDP 分片</span></span>
+<span id="cb5-525"><a href="#cb5-525" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.model.layers:</span>
+<span id="cb5-526"><a href="#cb5-526" aria-hidden="true" tabindex="-1"></a>    fully_shard(layer)       <span class="co"># 每层独立分片</span></span>
+<span id="cb5-527"><a href="#cb5-527" aria-hidden="true" tabindex="-1"></a>fully_shard(model)           <span class="co"># 整体模型也分片</span></span>
+<span id="cb5-528"><a href="#cb5-528" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-529"><a href="#cb5-529" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: 标准 PyTorch 训练循环</span></span>
+<span id="cb5-530"><a href="#cb5-530" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb5-531"><a href="#cb5-531" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch <span class="kw">in</span> dataloader:</span>
+<span id="cb5-532"><a href="#cb5-532" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> model(<span class="op">**</span>batch).loss</span>
+<span id="cb5-533"><a href="#cb5-533" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb5-534"><a href="#cb5-534" aria-hidden="true" tabindex="-1"></a>    optimizer.step()</span>
+<span id="cb5-535"><a href="#cb5-535" aria-hidden="true" tabindex="-1"></a>    optimizer.zero_grad()</span>
+<span id="cb5-536"><a href="#cb5-536" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-537"><a href="#cb5-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-538"><a href="#cb5-538" aria-hidden="true" tabindex="-1"></a><span class="fu">### 如何选择并行策略？</span></span>
+<span id="cb5-539"><a href="#cb5-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-540"><a href="#cb5-540" aria-hidden="true" tabindex="-1"></a>选择并行策略取决于模型大小、GPU 数量和硬件拓扑。以下是一个决策流程：</span>
+<span id="cb5-541"><a href="#cb5-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-542"><a href="#cb5-542" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 场景 <span class="pp">|</span> 推荐策略 <span class="pp">|</span> 原因 <span class="pp">|</span></span>
+<span id="cb5-543"><a href="#cb5-543" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|----------|------|</span></span>
+<span id="cb5-544"><a href="#cb5-544" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 模型 &lt; 10B, GPU 1-8 <span class="pp">|</span> 数据并行（DDP） <span class="pp">|</span> 模型单卡装得下，DP 最简单 <span class="pp">|</span></span>
+<span id="cb5-545"><a href="#cb5-545" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 模型 &lt; 10B, GPU 8-64 <span class="pp">|</span> ZeRO Stage 2 + DP <span class="pp">|</span> 节省优化器内存，通信无增加 <span class="pp">|</span></span>
+<span id="cb5-546"><a href="#cb5-546" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 模型 10-70B, GPU 8-64 <span class="pp">|</span> ZeRO Stage 3 / FSDP <span class="pp">|</span> 模型单卡装不下，需要分片 <span class="pp">|</span></span>
+<span id="cb5-547"><a href="#cb5-547" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 模型 70B+, GPU 64+ <span class="pp">|</span> 3D 并行（TP + PP + DP） <span class="pp">|</span> 充分利用硬件拓扑 <span class="pp">|</span></span>
+<span id="cb5-548"><a href="#cb5-548" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 资源有限, 微调 <span class="pp">|</span> ZeRO-Offload + QLoRA <span class="pp">|</span> 卸载到 CPU，最低显存要求 <span class="pp">|</span></span>
+<span id="cb5-549"><a href="#cb5-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-550"><a href="#cb5-550" aria-hidden="true" tabindex="-1"></a><span class="fu">### 复现论文的关键细节</span></span>
+<span id="cb5-551"><a href="#cb5-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-552"><a href="#cb5-552" aria-hidden="true" tabindex="-1"></a>复现大模型分布式训练时，有几个经常被忽略但至关重要的细节。第一是**梯度累积与有效 batch size 的计算**：有效 batch size = micro-batch size × 梯度累积步数 × 数据并行度。许多论文报告的 batch size 是有效 batch size，直接使用会导致 GPU OOM。</span>
+<span id="cb5-553"><a href="#cb5-553" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-554"><a href="#cb5-554" aria-hidden="true" tabindex="-1"></a>第二是**通信与计算的重叠**。高效的实现应该在 GPU 计算当前层的同时，预取下一层的参数（ZeRO Stage 3）或传输上一层的梯度。这种重叠对吞吐量的影响可达 20-30%。</span>
+<span id="cb5-555"><a href="#cb5-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-556"><a href="#cb5-556" aria-hidden="true" tabindex="-1"></a>第三是**激活检查点（Activation Checkpointing）** 的使用。大模型训练几乎必须使用激活检查点来减少激活值的内存占用，代价是前向传播需要重新计算一次（约增加 33% 的计算量）。</span>
+<span id="cb5-557"><a href="#cb5-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-558"><a href="#cb5-558" aria-hidden="true" tabindex="-1"></a><span class="fu">## 深入理解</span></span>
+<span id="cb5-559"><a href="#cb5-559" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-560"><a href="#cb5-560" aria-hidden="true" tabindex="-1"></a><span class="fu">### 为什么有效？——通信复杂度的视角</span></span>
+<span id="cb5-561"><a href="#cb5-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-562"><a href="#cb5-562" aria-hidden="true" tabindex="-1"></a>分布式训练的效率最终取决于"计算-通信比"。当 GPU 花在通信上的时间远小于计算时间时，系统的扩展效率就接近理想值。让我们定量分析不同并行策略的通信复杂度。</span>
+<span id="cb5-563"><a href="#cb5-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-564"><a href="#cb5-564" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 策略 <span class="pp">|</span> 每步通信量 <span class="pp">|</span> 通信类型 <span class="pp">|</span> 适用互连 <span class="pp">|</span></span>
+<span id="cb5-565"><a href="#cb5-565" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|-----------|---------|---------|</span></span>
+<span id="cb5-566"><a href="#cb5-566" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 数据并行 <span class="pp">|</span> $O(2 \times <span class="pp">|</span>\theta<span class="pp">|</span>)$ <span class="pp">|</span> AllReduce <span class="pp">|</span> 任意（带宽够即可） <span class="pp">|</span></span>
+<span id="cb5-567"><a href="#cb5-567" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 张量并行 <span class="pp">|</span> $O(4 \times b \times s \times d)$ per layer <span class="pp">|</span> AllReduce <span class="pp">|</span> NVLink（低延迟） <span class="pp">|</span></span>
+<span id="cb5-568"><a href="#cb5-568" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 流水线并行 <span class="pp">|</span> $O(b \times s \times d)$ per micro-batch <span class="pp">|</span> 点对点 <span class="pp">|</span> InfiniBand <span class="pp">|</span></span>
+<span id="cb5-569"><a href="#cb5-569" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ZeRO-3 <span class="pp">|</span> $O(3 \times <span class="pp">|</span>\theta<span class="pp">|</span>)$ <span class="pp">|</span> AllGather + ReduceScatter <span class="pp">|</span> 任意 <span class="pp">|</span></span>
+<span id="cb5-570"><a href="#cb5-570" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-571"><a href="#cb5-571" aria-hidden="true" tabindex="-1"></a>一个关键的理论结果是：**数据并行的通信量与 GPU 数量 $N$ 无关**（Ring AllReduce 的性质），而张量并行的通信延迟与 $N$ 线性相关（AllReduce 的 latency 瓶颈）。这就是为什么数据并行可以扩展到数千张 GPU，而张量并行通常限制在 4-8 张。</span>
+<span id="cb5-572"><a href="#cb5-572" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-573"><a href="#cb5-573" aria-hidden="true" tabindex="-1"></a><span class="fu">### 方法的边界条件</span></span>
+<span id="cb5-574"><a href="#cb5-574" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-575"><a href="#cb5-575" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 张量并行的限制</span></span>
+<span id="cb5-576"><a href="#cb5-576" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-577"><a href="#cb5-577" aria-hidden="true" tabindex="-1"></a>张量并行对 GPU 之间的通信延迟非常敏感。Megatron-LM 的实验表明，8 路 NVLink 张量并行的效率约为 85-90%，但在跨节点（InfiniBand）上使用 8 路张量并行时效率会降至 50% 以下。这是因为 Transformer 每层有 4 次 AllReduce，它们位于计算的关键路径上，无法被掩盖。</span>
+<span id="cb5-578"><a href="#cb5-578" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-579"><a href="#cb5-579" aria-hidden="true" tabindex="-1"></a><span class="fu">#### 流水线气泡的不可消除性</span></span>
+<span id="cb5-580"><a href="#cb5-580" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-581"><a href="#cb5-581" aria-hidden="true" tabindex="-1"></a>GPipe 和 1F1B 的气泡比例 $(K-1)/M$ 是一个理论下界——它假设所有阶段的计算时间完全相同。实际中，由于 embedding 层和输出层的参数量不同于中间 Transformer 层，各阶段的计算时间很难完美均衡，实际气泡会更大。Narayanan et al. (2021) 提出了交错流水线调度（Interleaved Pipeline Schedule），通过让每个 GPU 负责多个不连续的层来缓解负载不均衡，但代价是更复杂的实现和更多的通信。</span>
+<span id="cb5-582"><a href="#cb5-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-583"><a href="#cb5-583" aria-hidden="true" tabindex="-1"></a><span class="fu">#### ZeRO-3 的通信开销</span></span>
+<span id="cb5-584"><a href="#cb5-584" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-585"><a href="#cb5-585" aria-hidden="true" tabindex="-1"></a>ZeRO-3 在每层的前向和反向传播中都需要 All-Gather 完整参数，总通信量约为标准数据并行的 1.5 倍。当网络带宽有限时，这会成为瓶颈。ZeRO++ 通过量化通信（INT4/INT8）和分层通信来缓解这一问题。</span>
+<span id="cb5-586"><a href="#cb5-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-587"><a href="#cb5-587" aria-hidden="true" tabindex="-1"></a><span class="fu">### 隐含假设与失效条件</span></span>
+<span id="cb5-588"><a href="#cb5-588" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-589"><a href="#cb5-589" aria-hidden="true" tabindex="-1"></a>所有并行策略都隐含地假设了**同步训练**——每一步所有 GPU 必须完成计算并同步梯度后才能进入下一步。这意味着最慢的 GPU 决定了整个系统的速度（"straggler 问题"）。异步训练可以避免等待，但会引入"陈旧梯度"（stale gradients），可能影响收敛。在实践中，大模型训练几乎都使用同步策略，因为异步策略在超大规模下的收敛行为难以预测。</span>
+<span id="cb5-590"><a href="#cb5-590" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-591"><a href="#cb5-591" aria-hidden="true" tabindex="-1"></a>另一个隐含假设是**网络的可靠性**。在数千张 GPU 的集群上，单个 GPU 或网络链路的故障概率不可忽略。现代训练框架需要支持故障恢复（从最近的 checkpoint 重启），以及 elastic training（GPU 数量动态变化）。</span>
+<span id="cb5-592"><a href="#cb5-592" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-593"><a href="#cb5-593" aria-hidden="true" tabindex="-1"></a><span class="fu">### 开放研究问题</span></span>
+<span id="cb5-594"><a href="#cb5-594" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-595"><a href="#cb5-595" aria-hidden="true" tabindex="-1"></a>**异步与半同步并行**仍然是一个活跃的研究方向。Local SGD（每几步才同步一次）可以大幅减少通信，但其理论收敛保证和实际效果仍有争议。</span>
+<span id="cb5-596"><a href="#cb5-596" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-597"><a href="#cb5-597" aria-hidden="true" tabindex="-1"></a>**自动并行策略搜索**也是一个重要问题。手动选择 TP/PP/DP 的组合需要丰富的经验。AlPA（Zheng et al., 2022）尝试用 ILP（整数线性规划）自动搜索最优并行策略，但搜索空间随模型和集群规模指数增长。</span>
+<span id="cb5-598"><a href="#cb5-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-599"><a href="#cb5-599" aria-hidden="true" tabindex="-1"></a>**通信压缩**的理论基础也尚不完善。梯度量化、稀疏化通信在实践中效果显著，但它们对收敛速度的影响缺乏紧致的理论界。</span>
+<span id="cb5-600"><a href="#cb5-600" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-601"><a href="#cb5-601" aria-hidden="true" tabindex="-1"></a><span class="fu">## 局限性与未解决的问题</span></span>
+<span id="cb5-602"><a href="#cb5-602" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-603"><a href="#cb5-603" aria-hidden="true" tabindex="-1"></a><span class="fu">### 工程复杂度的爆炸</span></span>
+<span id="cb5-604"><a href="#cb5-604" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-605"><a href="#cb5-605" aria-hidden="true" tabindex="-1"></a>3D 并行的配置涉及大量的超参数——TP 度、PP 度、DP 度、micro-batch 数量、激活检查点策略、通信 bucket 大小等。这些超参数之间存在复杂的交互关系，最优配置依赖于具体的模型架构、硬件拓扑和网络带宽。目前还没有通用的自动化工具能可靠地找到最优配置。</span>
+<span id="cb5-606"><a href="#cb5-606" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-607"><a href="#cb5-607" aria-hidden="true" tabindex="-1"></a><span class="fu">### 硬件异构性</span></span>
+<span id="cb5-608"><a href="#cb5-608" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-609"><a href="#cb5-609" aria-hidden="true" tabindex="-1"></a>真实的 GPU 集群很少是完全均质的。不同节点之间的网络带宽可能不同，GPU 的型号可能混合。现有的并行策略大多假设同构环境，在异构环境中的效率和正确性需要更多研究。</span>
+<span id="cb5-610"><a href="#cb5-610" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-611"><a href="#cb5-611" aria-hidden="true" tabindex="-1"></a><span class="fu">### 故障容错的代价</span></span>
+<span id="cb5-612"><a href="#cb5-612" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-613"><a href="#cb5-613" aria-hidden="true" tabindex="-1"></a>万卡集群上的训练不可避免地会遇到硬件故障。每次故障都意味着从最近的 checkpoint 重新加载和恢复，这可能浪费数小时的训练进度。如何设计更高效的故障恢复机制——比如冗余计算、在线替换故障 GPU——仍然是一个活跃的工程挑战。</span>
+<span id="cb5-614"><a href="#cb5-614" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-615"><a href="#cb5-615" aria-hidden="true" tabindex="-1"></a><span class="fu">### 从"能训练"到"能用"</span></span>
+<span id="cb5-616"><a href="#cb5-616" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-617"><a href="#cb5-617" aria-hidden="true" tabindex="-1"></a>分布式训练解决了"如何训练一个超大模型"的工程问题，但训练出来的模型是否真的比小模型好？规模的增长是否带来了质变而非只是量变？这正是下一章的主题——GPT-3 的 175B 参数不仅带来了更低的困惑度，还涌现出了一种全新的能力：In-Context Learning。</span>
+<span id="cb5-618"><a href="#cb5-618" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-619"><a href="#cb5-619" aria-hidden="true" tabindex="-1"></a><span class="fu">## 本章小结</span></span>
+<span id="cb5-620"><a href="#cb5-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-621"><a href="#cb5-621" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心要点回顾</span></span>
+<span id="cb5-622"><a href="#cb5-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-623"><a href="#cb5-623" aria-hidden="true" tabindex="-1"></a>本章系统讲述了大模型分布式训练的四种核心策略及其组合。</span>
+<span id="cb5-624"><a href="#cb5-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-625"><a href="#cb5-625" aria-hidden="true" tabindex="-1"></a>**第一，数据并行**是最基础的策略——每张 GPU 持有完整模型，处理不同数据，通过 Ring AllReduce 同步梯度。它实现简单、计算高效，但无法突破单卡内存限制。</span>
+<span id="cb5-626"><a href="#cb5-626" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-627"><a href="#cb5-627" aria-hidden="true" tabindex="-1"></a>**第二，张量并行**将单个 Transformer 层内的矩阵运算切分到多个 GPU 上。Megatron-LM 的列切分-行切分方案巧妙地将通信最小化为每层 4 次 AllReduce，但受限于节点内高带宽互连。</span>
+<span id="cb5-628"><a href="#cb5-628" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-629"><a href="#cb5-629" aria-hidden="true" tabindex="-1"></a>**第三，流水线并行**将模型的不同层分配到不同 GPU 上，通过微批次流水线化来提高利用率。GPipe 和 1F1B 调度将气泡比例控制在 $(K-1)/M$，在 $M \geq 4K$ 时可达 80%+ 利用率。</span>
+<span id="cb5-630"><a href="#cb5-630" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-631"><a href="#cb5-631" aria-hidden="true" tabindex="-1"></a>**第四，ZeRO** 消除数据并行中的内存冗余，通过分区优化器状态（Stage 1）、梯度（Stage 2）和参数（Stage 3），将内存需求从 $16\Psi$ 降低到 $16\Psi / N_d$，同时通信增加有限。</span>
+<span id="cb5-632"><a href="#cb5-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-633"><a href="#cb5-633" aria-hidden="true" tabindex="-1"></a>将三种并行组合为 3D 并行——节点内张量并行、节点间流水线并行、最外层数据并行——再配合 ZeRO 的内存优化，使得万亿参数模型的训练成为可能。</span>
+<span id="cb5-634"><a href="#cb5-634" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-635"><a href="#cb5-635" aria-hidden="true" tabindex="-1"></a><span class="fu">### 关键公式速查</span></span>
+<span id="cb5-636"><a href="#cb5-636" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-637"><a href="#cb5-637" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ring AllReduce 通信量**：$2 \cdot (N-1)/N \cdot D \approx 2D$</span>
+<span id="cb5-638"><a href="#cb5-638" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ZeRO 每张 GPU 内存**：Stage 1 = $4\Psi + 12\Psi/N_d$，Stage 2 = $2\Psi + 14\Psi/N_d$，Stage 3 = $16\Psi/N_d$</span>
+<span id="cb5-639"><a href="#cb5-639" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**流水线气泡比例**：$(K-1)/(M+K-1)$</span>
+<span id="cb5-640"><a href="#cb5-640" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**3D 并行 GPU 总数**：$N = D \times T \times P$</span>
+<span id="cb5-641"><a href="#cb5-641" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**有效 batch size**：$B_{\text{eff}} = b_{\text{micro}} \times M \times D$</span>
+<span id="cb5-642"><a href="#cb5-642" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-643"><a href="#cb5-643" aria-hidden="true" tabindex="-1"></a><span class="fu">### 思考题</span></span>
+<span id="cb5-644"><a href="#cb5-644" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-645"><a href="#cb5-645" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**[概念理解]** 为什么张量并行通常限制在 4-8 张 GPU，而数据并行可以扩展到数千张？从通信模式的角度解释两者的根本区别。</span>
+<span id="cb5-646"><a href="#cb5-646" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-647"><a href="#cb5-647" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**[数学推导]** 推导 ZeRO Stage 2 的精确内存公式。假设模型参数量为 $\Psi$，使用 Adam 优化器 + 混合精度训练，数据并行度为 $N_d$。考虑 FP16 参数、FP16 梯度（分区）、FP32 主参数（分区）和 Adam 状态（分区）四部分。</span>
+<span id="cb5-648"><a href="#cb5-648" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-649"><a href="#cb5-649" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**[工程实践]** 使用 PyTorch FSDP 在多 GPU 环境下微调一个 7B 模型（如 Llama-2-7B）。比较不同分片策略（FULL_SHARD vs SHARD_GRAD_OP）对显存占用和训练速度的影响。</span>
+<span id="cb5-650"><a href="#cb5-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-651"><a href="#cb5-651" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**[开放思考]** 如果要在一个 1024 张 H100 的集群上训练一个 500B 参数的模型，你会如何选择 TP/PP/DP 的配置？需要考虑哪些因素？如果集群中有 10% 的节点网络带宽只有其余节点的一半，你的策略会如何调整？</span>
+<span id="cb5-652"><a href="#cb5-652" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-653"><a href="#cb5-653" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb5-654"><a href="#cb5-654" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-655"><a href="#cb5-655" aria-hidden="true" tabindex="-1"></a><span class="fu">## 延伸阅读</span></span>
+<span id="cb5-656"><a href="#cb5-656" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-657"><a href="#cb5-657" aria-hidden="true" tabindex="-1"></a><span class="fu">### 核心论文（必读）</span></span>
+<span id="cb5-658"><a href="#cb5-658" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-659"><a href="#cb5-659" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ZeRO: Memory Optimizations Toward Training Trillion Parameter Models (Rajbhandari et al., 2020)**：ZeRO 三阶段设计的原始论文</span>
+<span id="cb5-660"><a href="#cb5-660" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>重点读：Section 3（ZeRO-DP 设计）、Section 5（实验）</span>
+<span id="cb5-661"><a href="#cb5-661" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>可跳过：Section 4（ZeRO-R，关于激活值和碎片优化）</span>
+<span id="cb5-662"><a href="#cb5-662" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-663"><a href="#cb5-663" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism (Shoeybi et al., 2019)**：张量并行的经典设计</span>
+<span id="cb5-664"><a href="#cb5-664" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>重点读：Section 3（张量并行方案）、Figure 3（MLP/Attention 切分）</span>
+<span id="cb5-665"><a href="#cb5-665" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>可跳过：Section 4 的部分实验细节</span>
+<span id="cb5-666"><a href="#cb5-666" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-667"><a href="#cb5-667" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism (Huang et al., 2019)**：流水线并行的里程碑</span>
+<span id="cb5-668"><a href="#cb5-668" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>重点读：Section 2（流水线设计）、Figure 2（气泡分析）</span>
+<span id="cb5-669"><a href="#cb5-669" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>可跳过：Section 4 的 AmoebaNet 实验</span>
+<span id="cb5-670"><a href="#cb5-670" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-671"><a href="#cb5-671" aria-hidden="true" tabindex="-1"></a><span class="fu">### 理论基础</span></span>
+<span id="cb5-672"><a href="#cb5-672" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-673"><a href="#cb5-673" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM (Narayanan et al., 2021)**：3D 并行的系统化研究，交错流水线调度</span>
+<span id="cb5-674"><a href="#cb5-674" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PipeDream: Fast and Efficient Pipeline Parallel DNN Training (Harlap et al., 2018)**：1F1B 调度的提出者</span>
+<span id="cb5-675"><a href="#cb5-675" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-676"><a href="#cb5-676" aria-hidden="true" tabindex="-1"></a><span class="fu">### 后续发展</span></span>
+<span id="cb5-677"><a href="#cb5-677" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-678"><a href="#cb5-678" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ZeRO++ (Wang et al., 2023)**：通过量化通信和分层通信减少 ZeRO 的通信开销</span>
+<span id="cb5-679"><a href="#cb5-679" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PyTorch FSDP (Zhao et al., 2023)**：ZeRO Stage 3 的 PyTorch 原生工业级实现</span>
+<span id="cb5-680"><a href="#cb5-680" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-681"><a href="#cb5-681" aria-hidden="true" tabindex="-1"></a><span class="fu">### 综述与教程</span></span>
+<span id="cb5-682"><a href="#cb5-682" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-683"><a href="#cb5-683" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**DeepSpeed 官方教程**：<span class="co">[</span><span class="ot">deepspeed.ai/tutorials</span><span class="co">](https://www.deepspeed.ai/tutorials/)</span></span>
+<span id="cb5-684"><a href="#cb5-684" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PyTorch FSDP2 教程**：<span class="co">[</span><span class="ot">docs.pytorch.org/tutorials/intermediate/FSDP_tutorial</span><span class="co">](https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html)</span></span>
+<span id="cb5-685"><a href="#cb5-685" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CMU 11-868 LLM Systems 课程**：系统化的分布式训练教学，slides 公开</span>
+<span id="cb5-686"><a href="#cb5-686" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-687"><a href="#cb5-687" aria-hidden="true" tabindex="-1"></a><span class="fu">### 代码资源</span></span>
+<span id="cb5-688"><a href="#cb5-688" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-689"><a href="#cb5-689" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">DeepSpeed GitHub</span><span class="co">](https://github.com/microsoft/DeepSpeed)</span>：ZeRO 的参考实现</span>
+<span id="cb5-690"><a href="#cb5-690" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Megatron-LM GitHub</span><span class="co">](https://github.com/NVIDIA/Megatron-LM)</span>：张量并行 + 流水线并行</span>
+<span id="cb5-691"><a href="#cb5-691" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">PyTorch FSDP</span><span class="co">](https://docs.pytorch.org/docs/stable/distributed.fsdp.fully_shard.html)</span>：原生分片数据并行</span>
+<span id="cb5-692"><a href="#cb5-692" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-693"><a href="#cb5-693" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb5-694"><a href="#cb5-694" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-695"><a href="#cb5-695" aria-hidden="true" tabindex="-1"></a><span class="fu">## 历史注脚</span></span>
+<span id="cb5-696"><a href="#cb5-696" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-697"><a href="#cb5-697" aria-hidden="true" tabindex="-1"></a>分布式训练的历史远比深度学习更悠久。早在 2012 年，Jeff Dean 和 Andrew Ng 的 Google Brain 团队就用 16,000 个 CPU 核心训练了一个能识别猫的神经网络——这或许是深度学习领域第一次真正意义上的大规模分布式训练。但那时的分布式训练主要使用参数服务器（Parameter Server）架构，一个中心节点负责汇总所有 worker 的梯度。这种架构的带宽瓶颈在 AllReduce 被广泛采用后才得到解决。</span>
+<span id="cb5-698"><a href="#cb5-698" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-699"><a href="#cb5-699" aria-hidden="true" tabindex="-1"></a>一个有趣的细节是，ZeRO 论文的标题提到了"Trillion Parameter Models"——2020 年时万亿参数还只是一个理论目标。仅仅两年后，Switch Transformer（1.6 万亿参数，虽然是稀疏激活）就让这个目标变成了现实。ZeRO 的核心思想如此简单——"别在每张卡上重复存储一样的东西"——但它的影响是深远的：DeepSpeed 成为了开源大模型训练的事实标准，FSDP 则将这种思想融入了 PyTorch 的核心。</span>
+<span id="cb5-700"><a href="#cb5-700" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-701"><a href="#cb5-701" aria-hidden="true" tabindex="-1"></a>Megatron-LM 的名字来自变形金刚（Transformers）系列中的反派角色——考虑到它训练的正是 Transformer 模型，这个命名颇有几分黑色幽默。</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

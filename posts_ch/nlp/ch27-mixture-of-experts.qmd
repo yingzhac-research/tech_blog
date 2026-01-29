@@ -1,0 +1,969 @@
+---
+title: "第27章：Mixture of Experts——稀疏激活的智慧"
+subtitle: "Conditional Computation: Scaling Parameters Without Scaling Compute"
+author: "Ying Zha"
+date: "2026-01-28"
+categories: [NLP, Deep Learning, LLM, MoE, 稀疏模型, 条件计算]
+tags: [MoE, Mixture of Experts, Switch Transformer, Mixtral, DeepSeek, GShard, 稀疏激活, 路由, Expert, 负载均衡]
+description: "Dense Transformer有一个根本性的浪费：对于每一个token，所有参数都会被激活。一个关于烹饪的token真的需要激活'数学知识'的参数吗？Mixture of Experts (MoE) 提供了一种优雅的解决方案：将FFN层拆分为多个Expert，让Router动态选择每个token应该走哪几个Expert。这种稀疏激活让模型可以拥有数千亿的总参数，但每次推理只激活其中一小部分——实现了参数量与计算量的解耦。从Shazeer 2017的开创性工作，到Switch Transformer的简化设计，再到Mixtral 8x7B和DeepSeek-V3的工业级成功，MoE正在成为大语言模型的标准架构选择。"
+image: "figures/chapter-27/original/fig-switch-transformer-architecture.png"
+toc: true
+toc-depth: 3
+number-sections: true
+code-fold: true
+code-tools: true
+format:
+  html:
+    fig-cap-location: bottom
+bibliography: references.bib
+---
+
+> **核心问题**：Dense Transformer对每个token激活所有参数，这种"大锅饭"式的计算是否存在浪费？能否让不同的token使用不同的参数子集，从而在保持计算量的同时大幅提升模型容量？
+>
+> **历史坐标**：2017–2024 | Shazeer (2017) → GShard (2020) → Switch Transformer (2021) → ST-MoE (2022) → Mixtral (2023) → DeepSeek-V3 (2024) | 从研究原型到工业级部署
+
+::: {.callout-tip collapse="true"}
+## 本章参考来源
+
+### 论文
+- **Shazeer et al. (2017)** "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer" ([arXiv:1701.06538](https://arxiv.org/abs/1701.06538)) — 参考了 Section 2-3 (MoE架构设计、门控机制)；ICLR 2017，现代MoE的奠基之作
+- **Lepikhin et al. (2020)** "GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding" ([arXiv:2006.16668](https://arxiv.org/abs/2006.16668)) — 参考了 Section 2-3 (大规模MoE训练、专家容量限制)；第一个600B参数的MoE模型
+- **Fedus et al. (2021)** "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity" ([arXiv:2101.03961](https://arxiv.org/abs/2101.03961)) — 参考了 Section 2-4 (Top-1路由简化、训练稳定性技巧)、Figure 1-4；JMLR 2022
+- **Zoph et al. (2022)** "ST-MoE: Designing Stable and Transferable Sparse Expert Models" ([arXiv:2202.08906](https://arxiv.org/abs/2202.08906)) — 参考了 Section 2-4 (训练稳定性最佳实践、微调策略)
+- **Jiang et al. (2024)** "Mixtral of Experts" ([arXiv:2401.04088](https://arxiv.org/abs/2401.04088)) — 参考了 Section 2-3 (Mixtral架构细节、性能评估)；开源MoE的里程碑
+- **Dai et al. (2024)** "DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models" ([arXiv:2401.06066](https://arxiv.org/abs/2401.06066)) — 参考了 Section 2-3 (细粒度专家分割、共享专家隔离)
+- **DeepSeek-AI (2024)** "DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model" ([arXiv:2405.04434](https://arxiv.org/abs/2405.04434)) — 参考了架构设计
+- **DeepSeek-AI (2024)** "DeepSeek-V3 Technical Report" ([arXiv:2412.19437](https://arxiv.org/abs/2412.19437)) — 参考了 Section 2-3 (无辅助损失负载均衡、多token预测)
+
+### 教材与教程
+- **Hugging Face Blog** "Mixture of Experts Explained" — 参考了MoE基础概念的可视化解释
+- **Maarten Grootendorst** "A Visual Guide to Mixture of Experts (MoE)" — 参考了MoE可视化图解
+
+### 课程
+- **Stanford CS25** "Mixture of Experts Paradigm and the Switch Transformer" — Barret Zoph 的 MoE 讲座
+:::
+
+---
+
+## 从上一章说起
+
+上一章我们深入探讨了长上下文与高效推理的完整技术栈——从位置编码的演进（RoPE、ALiBi）到长度外推技术（Position Interpolation、YaRN），从 FlashAttention 对注意力计算的 IO 感知革命到 PagedAttention 的 KV Cache 内存管理。这些技术突破了 $O(n^2)$ 的瓶颈，让大语言模型能够处理从 512 token 到百万 token 的超长序列。
+
+然而，长上下文解决的是"如何让模型看得更远"的问题，它假设模型本身已经足够强大。但模型的能力来自哪里？答案是**参数**——更多的参数意味着更大的模型容量，能够存储更多的知识和学习更复杂的模式。
+
+这里存在一个根本性的矛盾：**参数越多，计算越慢**。
+
+一个 70B 参数的模型在推理时，每个 token 都需要经过所有 70B 参数的计算。如果我们想要 700B 参数的模型呢？计算量直接增加 10 倍。如果我们想要 7T（万亿）参数呢？这在传统架构下几乎是不可能的。
+
+但这种"所有参数服务每个 token"的设计真的合理吗？让我们仔细思考一下。
+
+当模型处理一个关于"如何做番茄炒蛋"的 token 时，它真的需要激活那些编码了微积分公式的参数吗？当模型在翻译一句法语句子时，它真的需要激活那些专门处理代码语法的参数吗？直觉告诉我们，不同类型的输入可能需要不同的"专业知识"——而模型中大量的参数可能在处理特定输入时是"冗余"的。
+
+这就是 **Dense Transformer 的第一个根本挑战：所有参数对每个 token 都激活，存在巨大的计算浪费**。
+
+2017 年，Google 的 Noam Shazeer 等人提出了一个大胆的想法：**让不同的 token 使用不同的参数子集**。他们将模型中的一部分参数（具体来说是 FFN 层）拆分成多个"专家"（Expert），然后用一个"门控网络"（Gating Network）来决定每个 token 应该被发送到哪个专家处理。
+
+这就是 **Mixture of Experts（MoE）** 的核心思想：用条件计算（conditional computation）实现稀疏激活（sparse activation），从而在不增加计算量的情况下大幅提升模型容量。
+
+> 💡 **本章核心洞察**：MoE 实现了参数量与计算量的解耦——模型可以拥有数千亿甚至万亿参数，但每次推理只激活其中一小部分。这种"专家分工"的设计让我们能够以相对较低的计算成本训练出容量巨大的模型，为大语言模型的规模化提供了一条全新的路径。
+
+---
+
+## 问题的本质是什么？
+
+### Dense Model 的参数效率困境
+
+让我们用具体数字来理解 Dense Transformer 的问题。
+
+一个标准的 Transformer 层包含两个主要组件：自注意力（Self-Attention）和前馈网络（FFN）。对于一个隐藏维度为 $d$ 的模型，典型的 FFN 设计是：
+
+$$
+\text{FFN}(x) = W_2 \cdot \text{ReLU}(W_1 \cdot x + b_1) + b_2
+$$
+
+其中 $W_1 \in \mathbb{R}^{4d \times d}$，$W_2 \in \mathbb{R}^{d \times 4d}$。这意味着 FFN 层的参数量约为 $8d^2$，在一个标准 Transformer 层中占据约 2/3 的参数。
+
+以 LLaMA-2 70B 为例：
+
+- 隐藏维度 $d = 8192$
+- FFN 中间维度 $d_{ff} = 28672$（约 3.5 倍）
+- 80 层 Transformer
+- **每层 FFN 参数量**：$2 \times 8192 \times 28672 \approx 470M$
+- **全部 FFN 参数量**：$470M \times 80 \approx 37.6B$
+
+这 37.6B 参数中的每一个，在处理每一个 token 时都会参与计算。一个关于"法国首都是巴黎"的 token，和一个关于"Python 列表推导式语法"的 token，使用的是**完全相同**的 37.6B 参数。
+
+这合理吗？
+
+### 条件计算的直觉
+
+条件计算（Conditional Computation）的核心思想是：**让输入决定使用哪些参数**。
+
+最极端的例子是决策树：每个输入沿着一条从根到叶的路径，只使用路径上的参数，完全不接触其他分支的参数。决策树是 100% 稀疏的——每个样本只用到整个模型的一小部分。
+
+但决策树的问题是它的表达能力有限，而且是"硬决策"——一旦选择了某个分支就不能回头。
+
+神经网络的优势在于它的"软决策"——每一层都可以做连续的、可微分的变换。那么，能否设计一种既保留神经网络的表达能力，又实现部分稀疏激活的架构呢？
+
+这就是 Mixture of Experts 的出发点。
+
+### MoE 的核心思想
+
+Mixture of Experts 的基本思想可以追溯到 1991 年 Robert Jacobs 等人的工作，但真正将 MoE 带入深度学习时代的是 Shazeer 2017 年的论文。
+
+核心设计如下：
+
+1. **将 FFN 层替换为多个"专家"**：不再使用单个 FFN，而是使用 $n$ 个并行的 FFN（称为 Expert），每个 Expert 的结构与原 FFN 相同
+2. **添加一个"路由器"**：一个轻量级的门控网络（Router / Gating Network），根据输入决定将每个 token 发送到哪个（些）Expert
+3. **稀疏激活**：每个 token 只被发送到 $k$ 个 Expert（$k \ll n$），其他 Expert 完全不参与这个 token 的计算
+
+假设我们有 8 个 Expert，每个 token 只选择 2 个。那么：
+
+- **总参数量**：8 倍于原始 FFN
+- **每个 token 的计算量**：只有 2/8 = 25% 的增加（2 个 Expert 替代 1 个 FFN）
+- **有效模型容量**：8 倍
+
+这就是 MoE 的魔法：**参数量可以任意扩展，而计算量只与激活的专家数有关**。
+
+### 我们需要解决什么问题？
+
+MoE 的概念听起来简单优雅，但实际实现中有几个关键问题需要解决。
+
+**路由机制设计**：如何决定每个 token 应该被发送到哪个 Expert？最直接的方法是用一个小型神经网络（门控网络）来预测每个 Expert 的"适合度"得分，然后选择得分最高的 $k$ 个。但这个选择是离散的，如何让它可微分？如何保证梯度能够回传？
+
+**负载均衡**：如果让模型自由学习路由，它会倾向于把大多数 token 都发送到少数几个"热门" Expert，导致这些 Expert 过载，而其他 Expert 几乎从未被使用——这被称为"路由崩塌"（Routing Collapse）。如何确保所有 Expert 都能得到均匀的训练？
+
+**训练稳定性**：稀疏模型的训练比 Dense 模型更不稳定。当某些 Expert 处理的 token 数量波动剧烈时，梯度的方差会很大。如何保证训练过程的稳定性？
+
+**通信开销**：在分布式训练中，不同的 Expert 可能位于不同的 GPU 上。当一个 token 需要被路由到某个 Expert 时，可能需要跨 GPU 通信。如何设计高效的通信模式？
+
+这些问题在过去 7 年的 MoE 研究中被逐步解决，形成了今天我们看到的成熟技术方案。
+
+---
+
+## 核心思想与直觉
+
+### 从"通才"到"专家分工"
+
+理解 MoE 的最好方式是用一个现实世界的类比。
+
+想象一家医院。传统的做法是培养"全科医生"——每个医生都掌握所有医学知识，能够处理所有类型的疾病。这意味着每个医生需要学习的东西非常多（参数量大），每次问诊都需要调动全部知识（计算量大）。
+
+MoE 的做法是引入"专科分诊"制度：
+
+- **专家（Expert）**：医院有内科、外科、儿科、眼科等多个专科，每个专科只专注于自己的领域
+- **路由器（Router）**：相当于"分诊台"，根据病人的症状决定将病人发送到哪个专科
+- **稀疏激活**：每个病人只需要看 1-2 个专科医生，不需要每个专科都走一遍
+
+这样设计的好处是：
+
+- **总容量大**：医院可以拥有各个领域的顶级专家，覆盖所有可能的疾病
+- **单次效率高**：每个病人只需要看相关的专家，不需要浪费时间在无关的科室
+- **专业化深入**：每个专家只专注于自己的领域，可以积累更深的专业知识
+
+### Token 级别的专家选择
+
+MoE 的一个关键设计决策是：**路由发生在 token 级别，而不是 sequence 级别**。
+
+这意味着同一个句子中的不同 token 可能被路由到完全不同的 Expert。比如在处理"我用 Python 写了一个冒泡排序算法"这句话时：
+
+- "我"、"用"、"写"、"了"、"一个" 可能被路由到通用语言理解的 Expert
+- "Python"、"冒泡排序"、"算法" 可能被路由到编程相关的 Expert
+
+这种 token 级别的细粒度路由让模型能够灵活地组合不同 Expert 的能力来处理复杂的输入。
+
+### 门控机制的数学形式
+
+让我们用数学语言精确描述 MoE 层的工作方式。
+
+假设我们有 $n$ 个 Expert，分别记为 $E_1, E_2, \ldots, E_n$。对于输入 token 的表示 $x \in \mathbb{R}^d$：
+
+**Step 1：计算路由得分**
+
+门控网络 $G$ 计算每个 Expert 的"适合度"得分：
+
+$$
+h = W_g \cdot x, \quad h \in \mathbb{R}^n
+$$
+
+其中 $W_g \in \mathbb{R}^{n \times d}$ 是门控网络的参数（一个简单的线性层）。
+
+**Step 2：选择 Top-k Expert**
+
+从 $n$ 个得分中选择最高的 $k$ 个：
+
+$$
+\text{TopK}(h) = \{i_1, i_2, \ldots, i_k\} \quad \text{where } h_{i_1} \geq h_{i_2} \geq \cdots \geq h_{i_k}
+$$
+
+**Step 3：计算门控权重**
+
+对选中的 $k$ 个 Expert 的得分做 Softmax，得到归一化的权重：
+
+$$
+g_j = \frac{\exp(h_{i_j})}{\sum_{l=1}^{k} \exp(h_{i_l})}, \quad j = 1, \ldots, k
+$$
+
+**Step 4：加权组合 Expert 输出**
+
+将 token 发送到选中的 $k$ 个 Expert，用门控权重加权组合它们的输出：
+
+$$
+y = \sum_{j=1}^{k} g_j \cdot E_{i_j}(x)
+$$
+
+整个过程可以写成一个统一的公式：
+
+$$
+\text{MoE}(x) = \sum_{i=1}^{n} G(x)_i \cdot E_i(x)
+$$
+
+其中 $G(x)_i$ 在 $i \notin \text{TopK}(h)$ 时为 0，实现了稀疏激活。
+
+![Mixture of Experts Layer 架构：输入经过 Router 后被路由到多个 Expert 中的 Top-k 个，各 Expert 的输出由 gating weights 加权求和得到最终输出。](figures/chapter-27/original/fig-mixtral-moe-layer.png){#fig-moe-layer width=85%}
+
+::: {.figure-caption}
+*Source: Jiang et al. (2024) "Mixtral of Experts", Figure 1*
+:::
+
+---
+
+## 技术细节
+
+### 门控网络的设计
+
+#### 简单线性门控
+
+最简单的门控网络就是一个线性层加 Softmax：
+
+$$
+G(x) = \text{Softmax}(W_g \cdot x)
+$$
+
+然后取 Top-k。这是 Switch Transformer 采用的设计，简单有效。
+
+#### 带噪声的门控
+
+Shazeer 2017 的原始设计在门控得分中加入可学习的噪声：
+
+$$
+H(x) = W_g \cdot x + \epsilon \cdot \text{Softplus}(W_{noise} \cdot x)
+$$
+
+其中 $\epsilon \sim \mathcal{N}(0, 1)$ 是标准高斯噪声。
+
+噪声的作用是增加探索性：即使某个 Expert 的得分略低，也有一定概率被选中。这有助于防止路由崩塌。
+
+#### Top-k 选择的变体
+
+**Top-1 路由（Switch Transformer）**：
+
+每个 token 只选择 1 个 Expert。这是最极端的稀疏形式，计算效率最高，但表达能力可能受限。
+
+$$
+\text{Switch}(x) = G(x)_{i^*} \cdot E_{i^*}(x), \quad i^* = \arg\max_i (W_g \cdot x)_i
+$$
+
+**Top-2 路由（GShard, Mixtral）**：
+
+每个 token 选择 2 个 Expert。这是目前最流行的选择，在效率和表达能力之间取得了良好平衡。
+
+**Expert Choice 路由**：
+
+一种反转的思路：不是让 token 选择 Expert，而是让 Expert 选择 token。每个 Expert 选择得分最高的若干个 token 来处理。这自动保证了负载均衡，但打破了因果顺序，只能用于编码器。
+
+### 负载均衡机制
+
+#### 为什么需要负载均衡？
+
+如果让路由器自由学习，它会倾向于将 token 都发送到少数"明星" Expert：
+
+1. 某些 Expert 在早期训练中偶然获得了优势
+2. 更多 token 被路由到这些 Expert，它们得到更多训练
+3. 它们变得更强，吸引更多 token
+4. 形成正反馈循环，最终导致路由崩塌
+
+路由崩塌的后果是灾难性的：大多数 Expert 几乎从未被使用，模型的有效容量退化到只有几个 Expert 的水平。
+
+#### 辅助损失（Auxiliary Loss）
+
+最经典的解决方案是在训练损失中加入一个辅助项，惩罚不均匀的 Expert 负载：
+
+$$
+\mathcal{L}_{aux} = \alpha \cdot n \cdot \sum_{i=1}^{n} f_i \cdot p_i
+$$
+
+其中：
+
+- $f_i$ = Expert $i$ 被选中的比例（实际负载）
+- $p_i$ = Expert $i$ 的平均路由概率
+- $\alpha$ 是超参数（通常设为 0.01-0.1）
+- $n$ 是 Expert 数量
+
+这个损失在所有 Expert 被均匀使用时最小。
+
+::: {.callout-note}
+## 辅助损失的直觉
+
+$f_i \cdot p_i$ 的巧妙之处在于：
+
+- $f_i$ 衡量"实际"负载，受 Top-k 选择的离散决策影响
+- $p_i$ 衡量"意愿"负载，是 Softmax 输出的连续值，可微分
+
+最小化 $\sum f_i \cdot p_i$ 就是要让高负载的 Expert（$f_i$ 大）降低其吸引力（$p_i$ 小），实现负载再平衡。
+:::
+
+#### Expert 容量限制
+
+除了辅助损失，GShard 还引入了"Expert 容量"（Expert Capacity）的概念：
+
+$$
+\text{capacity} = \left\lceil \frac{T \cdot k}{n} \cdot \text{capacity\_factor} \right\rceil
+$$
+
+其中：
+
+- $T$ = batch 中的 token 总数
+- $k$ = 每个 token 选择的 Expert 数
+- $n$ = Expert 总数
+- capacity_factor = 1.0 到 2.0 的超参数
+
+每个 Expert 最多只能处理 `capacity` 个 token。如果超过这个限制，多余的 token 会"溢出"：
+
+- 直接丢弃（通过残差连接保留原始表示）
+- 或发送到备选 Expert
+
+容量限制有两个作用：
+
+1. 防止单个 Expert 过载，保证内存使用可预测
+2. 强制路由器学会分散 token，减少溢出
+
+![Expert Capacity 和 Token Routing 示意图。左侧展示了术语定义（Experts、Expert Capacity、Capacity Factor）；中间和右侧对比了 Capacity Factor = 1.0 和 1.5 时的 token 分配情况——当容量不足时（左图），溢出的 token（红色虚线）会被丢弃；增大 capacity factor（右图）可以缓解溢出问题。](figures/chapter-27/original/fig-switch-token-routing.png){#fig-token-routing width=95%}
+
+::: {.figure-caption}
+*Source: Fedus et al. (2021) "Switch Transformers", Figure 3*
+:::
+
+#### 无辅助损失的负载均衡（DeepSeek-V3）
+
+辅助损失虽然有效，但会引入额外的梯度干扰，可能损害模型性能。DeepSeek-V3 提出了一种"无辅助损失"的负载均衡策略：
+
+$$
+g_i' = g_i + b_i
+$$
+
+在路由得分上添加一个 Expert 级别的偏置 $b_i$，根据每个 Expert 的历史负载动态调整：
+
+- 负载过高的 Expert：降低偏置，减少未来被选中的概率
+- 负载过低的 Expert：提高偏置，增加未来被选中的概率
+
+这种方法不需要修改训练损失，完全通过推理时的偏置调整来实现平衡。
+
+### 训练稳定性技巧
+
+稀疏模型比 Dense 模型更容易出现训练不稳定问题。以下是一些关键技巧：
+
+#### 使用较低精度训练
+
+Switch Transformer 首次证明了可以用 BF16 训练大规模 MoE 模型。关键是将路由器的计算保持在高精度（FP32），而 Expert 的计算可以用低精度。
+
+#### 更小的参数初始化
+
+MoE 层的输出是多个 Expert 输出的加权和。如果每个 Expert 的输出方差与 Dense 层相同，加权和的方差会更大。因此需要更小的初始化：
+
+$$
+\text{std} = \text{std}_{dense} / \sqrt{k}
+$$
+
+其中 $k$ 是每个 token 选择的 Expert 数。
+
+#### Router Z-Loss
+
+ST-MoE 提出了一种额外的正则化损失，惩罚路由器输出的 logits 过大：
+
+$$
+\mathcal{L}_z = \frac{1}{B} \sum_{i=1}^{B} \left( \log \sum_{j=1}^{n} e^{h_{ij}} \right)^2
+$$
+
+这防止了 Softmax 输入过大导致的数值不稳定。
+
+### 数值示例：Top-2 路由计算
+
+让我们用一个具体的数值示例来展示 MoE 的完整计算流程。
+
+**设定**：
+
+- 4 个 Expert：$E_1, E_2, E_3, E_4$
+- Top-k = 2
+- 输入 token 表示：$x \in \mathbb{R}^4$
+- 门控网络权重：$W_g \in \mathbb{R}^{4 \times 4}$
+
+**Step 1：输入和门控**
+
+$$
+x = [0.5, -0.2, 0.8, 0.1]
+$$
+
+$$
+W_g = \begin{bmatrix}
+0.3 & -0.1 & 0.5 & 0.2 \\
+-0.2 & 0.4 & 0.1 & -0.3 \\
+0.1 & 0.2 & -0.4 & 0.6 \\
+0.4 & -0.3 & 0.2 & 0.1
+\end{bmatrix}
+$$
+
+**Step 2：计算路由得分**
+
+$$
+h = W_g \cdot x = \begin{bmatrix}
+0.3 \times 0.5 + (-0.1) \times (-0.2) + 0.5 \times 0.8 + 0.2 \times 0.1 \\
+-0.2 \times 0.5 + 0.4 \times (-0.2) + 0.1 \times 0.8 + (-0.3) \times 0.1 \\
+0.1 \times 0.5 + 0.2 \times (-0.2) + (-0.4) \times 0.8 + 0.6 \times 0.1 \\
+0.4 \times 0.5 + (-0.3) \times (-0.2) + 0.2 \times 0.8 + 0.1 \times 0.1
+\end{bmatrix}
+= \begin{bmatrix}
+0.59 \\
+-0.11 \\
+-0.21 \\
+0.43
+\end{bmatrix}
+$$
+
+**Step 3：Top-2 选择**
+
+得分排序：$h_1 = 0.59 > h_4 = 0.43 > h_2 = -0.11 > h_3 = -0.21$
+
+选中：**Expert 1** 和 **Expert 4**
+
+**Step 4：计算门控权重**
+
+对选中 Expert 的得分做 Softmax：
+
+$$
+g_1 = \frac{e^{0.59}}{e^{0.59} + e^{0.43}} = \frac{1.80}{1.80 + 1.54} = 0.54
+$$
+
+$$
+g_4 = \frac{e^{0.43}}{e^{0.59} + e^{0.43}} = \frac{1.54}{1.80 + 1.54} = 0.46
+$$
+
+**Step 5：加权组合输出**
+
+假设两个 Expert 的输出分别为：
+
+$$
+E_1(x) = [1.2, -0.3, 0.7, 0.4]
+$$
+
+$$
+E_4(x) = [0.8, 0.5, -0.2, 0.9]
+$$
+
+最终 MoE 层输出：
+
+$$
+y = 0.54 \times E_1(x) + 0.46 \times E_4(x) = [1.02, 0.07, 0.29, 0.63]
+$$
+
+**关键观察**：
+
+- Expert 2 和 Expert 3 完全没有参与计算
+- 计算量只有完整 4 个 Expert 的 50%
+- 但模型仍然拥有 4 个 Expert 的参数容量
+
+---
+
+## MoE 的演进历程
+
+### 早期探索：Jacobs 1991 与 Shazeer 2017
+
+MoE 的思想最早可追溯到 1991 年 Jacobs 等人的工作，他们将其用于监督学习任务中的函数拟合。但真正让 MoE 在深度学习时代焕发生机的是 Shazeer 2017 的论文。
+
+Shazeer 团队将 MoE 应用于语言建模和机器翻译任务，在 LSTM 层之间插入 MoE 层。他们的关键贡献包括：
+
+1. **稀疏门控机制**：只激活 Top-k 个 Expert
+2. **1000 倍容量扩展**：在保持计算量可控的情况下，将模型容量提升到 1370 亿参数
+3. **辅助损失**：解决负载均衡问题
+
+这篇论文证明了 MoE 在大规模语言模型中的可行性，为后续工作奠定了基础。
+
+### GShard (2020)：工业级规模化
+
+Google 的 GShard 是第一个将 MoE 扩展到 600B 参数规模的工作。
+
+**关键贡献**：
+
+1. **自动分片**：GShard 是一个编程框架，能够自动将 MoE 模型分布到数千个 TPU 上
+2. **Top-2 路由**：选择 2 个 Expert 而非更多，在效率和性能之间取得平衡
+3. **Expert 容量限制**：引入 capacity factor 概念，防止 Expert 过载
+4. **多语言翻译**：在 100 种语言到英语的翻译任务上取得了显著提升
+
+GShard 证明了 MoE 可以在工业规模下稳定训练，是从研究原型到实际应用的关键一步。
+
+### Switch Transformer (2021)：简化与极致稀疏
+
+Switch Transformer 是 MoE 发展史上的另一个里程碑。它的核心理念是**简化**：
+
+![Switch Transformer 架构对比。左侧是标准 Transformer 层结构（将 FFN 替换为 Switching FFN Layer）；右侧展示了 Switch FFN Layer 的内部细节——Router 根据输入为每个 token 选择一个 Expert（如 FFN 2），并用路由概率（如 p=0.65）对 Expert 输出进行加权。](figures/chapter-27/original/fig-switch-transformer-architecture.png){#fig-switch-arch width=95%}
+
+::: {.figure-caption}
+*Source: Fedus et al. (2021) "Switch Transformers", Figure 2*
+:::
+
+**Top-1 路由**：每个 token 只选择 1 个 Expert（而非 Top-2 或 Top-4）。
+
+这看起来是一个激进的简化，但论文证明了它不仅不损害质量，还带来了多重好处：
+
+- 路由计算量减少
+- 通信模式更简单
+- 训练更稳定
+
+**预训练加速**：相比同等计算量的 T5 模型，Switch Transformer 实现了：
+
+- T5-Base/Large 配置下 7 倍预训练加速
+- T5-XXL 配置下 4 倍加速
+
+**训练稳定性技巧**：
+
+- BF16 训练（路由器保持 FP32）
+- 更小的初始化
+- 更高的 Expert dropout
+
+**万亿参数模型**：成功训练了 1.6 万亿参数的模型，证明了 MoE 的极限扩展能力。
+
+::: {.callout-note}
+## Algorithm 1: Simplified Routing in Switch Transformer
+
+```python
+def switch_routing(x, W_gate, experts, capacity):
+    """
+    Switch Transformer 的 Top-1 路由
+
+    Args:
+        x: [batch_size, seq_len, d_model] 输入表示
+        W_gate: [d_model, n_experts] 门控权重
+        experts: n 个 Expert 网络
+        capacity: 每个 Expert 的最大 token 容量
+
+    Returns:
+        y: [batch_size, seq_len, d_model] 输出
+    """
+    # Step 1: 计算路由得分
+    router_logits = x @ W_gate  # [batch_size, seq_len, n_experts]
+    router_probs = softmax(router_logits, dim=-1)
+
+    # Step 2: Top-1 选择
+    expert_index = argmax(router_probs, dim=-1)  # [batch_size, seq_len]
+    expert_gate = max(router_probs, dim=-1)       # 对应的门控值
+
+    # Step 3: 按 Expert 分组 token
+    for i in range(n_experts):
+        # 找到被路由到 Expert i 的所有 token
+        mask = (expert_index == i)
+        tokens_for_expert_i = x[mask]
+
+        # 容量检查
+        if len(tokens_for_expert_i) > capacity:
+            # 超出容量的 token 被丢弃（通过残差连接处理）
+            tokens_for_expert_i = tokens_for_expert_i[:capacity]
+            overflow_mask = create_overflow_mask(mask, capacity)
+
+        # Step 4: Expert 计算
+        expert_output = experts[i](tokens_for_expert_i)
+
+        # Step 5: 加权并放回原位置
+        y[mask] = expert_gate[mask] * expert_output
+
+    return y
+```
+
+*Source: Adapted from Fedus et al. (2021) "Switch Transformers", Algorithm 1*
+:::
+
+### ST-MoE (2022)：稳定性与可迁移性
+
+ST-MoE（Stable and Transferable MoE）专注于解决 MoE 模型的两个实际问题：
+
+1. **训练稳定性**：如何让 MoE 训练更稳定，减少 loss spike
+2. **迁移学习**：如何让预训练的 MoE 模型更好地微调到下游任务
+
+**关键发现**：
+
+- **Router Z-Loss**：正则化路由器的 logits 大小，防止数值溢出
+- **Expert dropout**：在训练时随机丢弃整个 Expert，增强鲁棒性
+- **微调策略**：MoE 模型在微调时容易过拟合，需要更强的正则化
+
+ST-MoE-32B（269B 参数，32B 激活参数）在多个 NLP 基准上首次让稀疏模型超越了同等计算量的 Dense 模型。
+
+### Mixtral 8x7B (2023)：开源 MoE 的里程碑
+
+Mixtral 由 Mistral AI 发布，是开源 MoE 模型的标杆。
+
+**架构设计**：
+
+- 基于 Mistral 7B 架构
+- 每层 8 个 Expert（替代原 FFN）
+- Top-2 路由
+- 32K 上下文窗口
+- **总参数**：46.7B
+- **激活参数**：12.9B（每个 token）
+
+**性能表现**：
+
+- 在大多数基准上匹配或超越 LLaMA-2 70B
+- 在数学、代码生成、多语言任务上显著优于 LLaMA-2 70B
+- 推理成本只有 LLaMA-2 70B 的 ~18%（12.9B vs 70B 激活参数）
+
+**开源影响**：
+
+Mixtral 以 Apache 2.0 许可开源，让开发者可以自由使用和修改。这大大推动了 MoE 技术的普及和社区研究。
+
+### DeepSeek-V2/V3 (2024)：极致效率
+
+DeepSeek 系列代表了 MoE 技术的最新进展，特别是在**计算效率**和**训练成本**上的突破。
+
+#### DeepSeekMoE：细粒度专家分割
+
+传统 MoE 使用与原 FFN 相同规模的 Expert。DeepSeekMoE 提出将 Expert 分割得更细：
+
+- **原方案**：8 个 Expert，每个与原 FFN 等大，Top-2 激活
+- **细粒度方案**：64 个更小的 Expert，Top-6 激活
+
+细粒度 Expert 的好处：
+
+- 更灵活的专家组合
+- 每个 Expert 可以更专业化
+- 路由决策的粒度更细
+
+#### 共享专家隔离
+
+DeepSeek 将 Expert 分为两类：
+
+1. **共享专家（Shared Expert）**：每个 token 都会经过，处理通用知识
+2. **路由专家（Routed Expert）**：根据 token 内容选择性激活，处理专业知识
+
+这种设计让模型既有"基础常识"，又有"专业技能"。
+
+#### DeepSeek-V3 的规模与效率
+
+DeepSeek-V3 是目前最强的开源 MoE 模型之一：
+
+- **总参数**：671B
+- **激活参数**：37B
+- **训练成本**：2.788M H800 GPU hours（约 5.58M 美元）
+
+相比之下，类似能力的 Dense 模型（如 LLaMA-3 405B）需要更高的训练成本和推理成本。
+
+DeepSeek-V3 还引入了两项创新：
+
+1. **无辅助损失负载均衡**：通过动态偏置而非损失项来平衡负载
+2. **多 Token 预测**：训练目标从预测下一个 token 扩展到预测多个 token
+
+---
+
+## MoE 的核心挑战
+
+### 负载均衡的根本困难
+
+尽管有辅助损失和容量限制，负载均衡仍然是 MoE 最棘手的问题。
+
+**问题本质**：
+
+- 辅助损失太强 → 路由过于均匀，牺牲了专业化（Expert 变成了"通才"）
+- 辅助损失太弱 → 路由崩塌，只有少数 Expert 被使用
+
+这是一个根本性的权衡：**负载均衡与专家专业化之间的矛盾**。
+
+**Token 溢出问题**：
+
+在实际训练中，即使有负载均衡策略，某些 Expert 仍可能超过容量限制。溢出的 token 会被丢弃或降级处理，导致：
+
+- 信息损失
+- 训练信号不稳定
+- 下游任务性能波动
+
+**研究方向**：
+
+- Expert Choice 路由（让 Expert 选择 token 而非反过来）
+- 动态容量调整
+- 无辅助损失方法（如 DeepSeek-V3 的偏置调整）
+
+### 训练不稳定性
+
+MoE 模型的训练比 Dense 模型更容易出现以下问题：
+
+1. **Loss Spike**：训练过程中突然出现的损失飙升，可能需要从 checkpoint 回退
+2. **梯度方差大**：由于稀疏激活，每个 Expert 的梯度来自不同子集的 token，方差更大
+3. **Expert 退化**：某些 Expert 可能在训练过程中逐渐失去作用
+
+**缓解策略**：
+
+- 更保守的学习率
+- 更强的梯度裁剪
+- Router Z-Loss
+- 更长的 warmup
+- FP32 路由器 + BF16 Expert
+
+### 工程复杂性
+
+#### 分布式通信
+
+在多 GPU 训练中，Expert 通常分布在不同的设备上（Expert Parallelism）。当一个 token 需要被路由到某个 Expert 时：
+
+1. Token 的表示需要发送到 Expert 所在的 GPU
+2. Expert 计算完成后，输出需要发送回原 GPU
+
+这涉及 All-to-All 通信模式，通信开销与 Expert 数量和 GPU 数量成正比。
+
+**优化策略**：
+
+- **Expert Parallelism + Data Parallelism 混合**：每组 GPU 内共享 Expert，组间做数据并行
+- **批量通信**：收集多个 token 后一次性发送，减少通信次数
+- **本地 Expert 优先**：设计路由偏向于选择同 GPU 上的 Expert
+
+#### 推理时的 Expert 缓存
+
+在推理时，不同的请求可能需要不同的 Expert。如果 Expert 分布在多个 GPU 上，需要仔细管理 Expert 的加载和缓存。
+
+---
+
+## 深入理解
+
+### 为什么有效？——理论视角
+
+#### MoE 的表达能力
+
+从理论角度，MoE 可以被理解为一种**条件计算**的形式。对于输入 $x$，MoE 的输出是：
+
+$$
+f_{MoE}(x) = \sum_{i=1}^{n} G(x)_i \cdot E_i(x)
+$$
+
+这是一个**混合模型**（Mixture Model）的形式。不同的是：
+
+- 传统混合模型的混合权重是固定的或简单的
+- MoE 的混合权重 $G(x)$ 是输入的复杂函数
+
+这让 MoE 能够根据输入自适应地选择"计算路径"，理论上可以表达比 Dense 模型更复杂的函数族。
+
+#### Scaling Law 的差异
+
+Dense 模型遵循经典的 Scaling Law：
+
+$$
+L \propto N^{-\alpha}
+$$
+
+其中 $L$ 是损失，$N$ 是参数量，$\alpha$ 约为 0.07。
+
+MoE 模型的 Scaling Law 有所不同。由于参数量和计算量解耦，需要分别考虑：
+
+- **总参数量**：决定模型的"容量"
+- **激活参数量**：决定每次推理的"计算量"
+- **训练 Token 数**：决定模型看过多少数据
+
+研究表明，MoE 模型在相同计算预算下可以达到更低的损失，但这种优势随着规模增大而逐渐减弱。
+
+### 为什么有效？——实证视角
+
+#### Expert 专业化的证据
+
+通过分析 MoE 模型中不同 Expert 的激活模式，研究者发现：
+
+1. **领域专业化**：某些 Expert 更多处理特定领域的 token（如代码、数学、法语）
+2. **语法专业化**：某些 Expert 更多处理特定语法角色的 token（如动词、名词）
+3. **位置专业化**：某些 Expert 更多处理特定位置的 token（如句首、句尾）
+
+但这种专业化程度因模型和训练策略而异，并非总是清晰可辨。
+
+#### 消融实验的发现
+
+Switch Transformer 论文中的消融实验揭示：
+
+- **Expert 数量**：增加 Expert 数量带来的收益逐渐递减
+- **Top-k 选择**：Top-1 与 Top-2 在质量上差异不大，但 Top-1 效率更高
+- **容量因子**：1.25 到 2.0 之间较优，太小导致溢出，太大浪费计算
+
+### 方法的边界条件
+
+#### 什么时候 MoE 不如 Dense？
+
+1. **小规模场景**：当模型规模较小时，MoE 的路由开销可能超过收益
+2. **极端稀疏**：Top-1 路由在某些任务上可能损失表达能力
+3. **微调场景**：MoE 模型在微调时更容易过拟合，需要更强的正则化
+4. **延迟敏感场景**：Expert Parallelism 引入的通信延迟可能不可接受
+
+#### 负载不均的根本困境
+
+目前的负载均衡方法都无法完美解决这个问题。辅助损失是一种妥协：
+
+- 它确保了 Expert 被均匀使用
+- 但可能阻止了最优的专业化分工
+
+理想的路由应该是：让每个 Expert 专注于自己擅长的 token 类型，同时保证整体负载均衡。这两个目标之间存在内在张力。
+
+### 开放研究问题
+
+1. **最优路由策略**：目前的 Top-k 路由是最优的吗？是否存在更好的路由方式？
+
+2. **Expert 的可解释性**：每个 Expert 到底学到了什么？如何可视化和理解 Expert 的专业化？
+
+3. **MoE 与其他稀疏技术的结合**：MoE + 稀疏注意力？MoE + 剪枝？
+
+4. **动态 Expert 数量**：能否根据输入复杂度动态决定激活多少 Expert？
+
+5. **MoE 的涌现能力**：MoE 是否有与 Dense 模型不同的涌现行为？
+
+---
+
+## 局限性与未解决的问题
+
+### 本方法的局限
+
+**负载均衡仍是难题**
+
+尽管有多种技术，在实际训练中仍难以实现完美的负载均衡。这影响了：
+
+- 训练效率（某些 Expert 闲置）
+- 模型质量（某些 Expert 欠训练）
+- 推理效率（需要为最差情况预留资源）
+
+**工程复杂度高**
+
+相比 Dense 模型，MoE 的训练和部署都更复杂：
+
+- 需要 Expert Parallelism 支持
+- 通信模式更复杂
+- Debug 更困难
+- 推理时需要加载所有 Expert（即使只激活一部分）
+
+**微调不稳定**
+
+MoE 模型在微调时表现不如 Dense 模型稳定。原因可能是：
+
+- 稀疏激活导致部分 Expert 在微调数据上得不到充分更新
+- 路由器需要适应新的数据分布
+
+### 这些局限导向了什么？
+
+MoE 解决了"参数效率"的问题，但引入了新的复杂性。这促使我们思考：
+
+**是否有比 MoE 更优雅的条件计算方式？**
+
+MoE 的路由是在 FFN 层级别的"粗粒度"选择。能否设计更细粒度的条件计算，比如在神经元级别动态激活？
+
+**是否有完全不同的大模型扩展路径？**
+
+除了让模型"更大"（更多参数），还有其他方向：
+
+- 让模型"更深入思考"（Test-time compute scaling）
+- 让模型"更好地利用外部知识"（RAG）
+- 让模型"更高效地利用参数"（下一章将讨论的状态空间模型）
+
+---
+
+## 本章小结
+
+### 核心要点回顾
+
+1. **问题**：Dense Transformer 对每个 token 激活所有参数，存在巨大的计算浪费。模型容量和计算量紧密耦合，难以单独扩展。
+
+2. **洞察**：不同的 token 可能需要不同的"专业知识"。通过让路由器动态选择 Expert，可以实现**稀疏激活**——用小比例的计算访问大规模的参数。
+
+3. **方法**：
+   - 将 FFN 替换为多个 Expert
+   - 用门控网络进行 Top-k 路由
+   - 用辅助损失和容量限制保证负载均衡
+   - 用多种技巧保证训练稳定性
+
+4. **意义**：MoE 实现了**参数量与计算量的解耦**，让我们能够以相对较低的成本训练出参数规模达到万亿级别的模型。这为大语言模型的规模化提供了一条切实可行的路径。
+
+### 关键公式速查
+
+**MoE 层输出**：
+
+$$
+\text{MoE}(x) = \sum_{i=1}^{n} G(x)_i \cdot E_i(x)
+$$
+
+**门控网络**：
+
+$$
+G(x) = \text{TopK-Softmax}(W_g \cdot x)
+$$
+
+**辅助损失（负载均衡）**：
+
+$$
+\mathcal{L}_{aux} = \alpha \cdot n \cdot \sum_{i=1}^{n} f_i \cdot p_i
+$$
+
+**Expert 容量**：
+
+$$
+\text{capacity} = \left\lceil \frac{T \cdot k}{n} \cdot \text{capacity\_factor} \right\rceil
+$$
+
+### 思考题
+
+1. **[概念理解]** 为什么 MoE 的辅助损失使用 $f_i \cdot p_i$ 而不是简单地最小化 $\text{Var}(f_1, \ldots, f_n)$？这两种设计有什么区别？
+
+2. **[数学推导]** 假设一个 MoE 层有 8 个 Expert，每个 Expert 的参数量与原 FFN 相同。如果使用 Top-2 路由，计算：(a) 总参数量相对于原 FFN 的倍数；(b) 每个 token 的计算量相对于原 FFN 的倍数。
+
+3. **[工程实践]** 使用 Hugging Face 的 `transformers` 库加载 Mixtral 8x7B 模型，分析不同输入（代码、数学、自然语言）激活的 Expert 分布是否有差异。
+
+4. **[开放思考]** MoE 通过路由实现稀疏激活，但路由本身也需要计算。如果我们想进一步扩展到数万个 Expert，路由计算本身会成为瓶颈吗？如何解决？
+
+---
+
+## 延伸阅读
+
+### 核心论文（必读）
+
+- **Shazeer et al. (2017)** "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer"
+  - 重点读：Section 2 (MoE 架构)、Section 3 (门控机制)
+  - 现代 MoE 的奠基之作
+
+- **Fedus et al. (2021)** "Switch Transformers: Scaling to Trillion Parameter Models"
+  - 重点读：Section 2 (简化设计)、Section 4 (训练稳定性)
+  - Top-1 路由的简化与万亿参数模型
+
+- **Jiang et al. (2024)** "Mixtral of Experts"
+  - 重点读：Section 2 (架构细节)、Section 3 (性能评估)
+  - 开源 MoE 的里程碑
+
+### 后续发展
+
+- **Zhou et al. (2022)** "Mixture-of-Experts with Expert Choice Routing"
+  - 反转路由方向：让 Expert 选择 token
+
+- **DeepSeek-AI (2024)** "DeepSeek-V3 Technical Report"
+  - 无辅助损失负载均衡、多 token 预测
+
+### 综述与教程
+
+- **Hugging Face Blog** "Mixture of Experts Explained" — 优秀的入门教程
+- **Maarten Grootendorst** "A Visual Guide to Mixture of Experts" — 可视化图解
+
+### 代码资源
+
+- **Hugging Face Transformers**：Mixtral 官方实现
+- **DeepSpeed-MoE**：微软的 MoE 训练框架
+- **Megablocks**：高效 MoE 实现
+
+---
+
+## 历史注脚
+
+MoE 的思想最早可追溯到 1991 年 Robert Jacobs、Michael Jordan 等人的论文 "Adaptive Mixtures of Local Experts"。他们在监督学习的背景下提出了这个概念，用于函数逼近任务。
+
+有趣的是，这篇 1991 年的论文直到 2017 年才被 Noam Shazeer 重新发现并应用于深度学习。Shazeer 在 Google Brain 工作期间，正在思考如何扩展神经网络的规模而不线性增加计算量。他在阅读经典文献时发现了 MoE，意识到这正是他需要的思路。
+
+Shazeer 2017 的论文标题 "Outrageously Large Neural Networks"（大得离谱的神经网络）本身就是一个宣言：他们要证明，通过稀疏激活，神经网络可以拥有比当时任何人想象的都要多得多的参数。这篇论文训练了 1370 亿参数的模型——在 2017 年，这个规模几乎是不可想象的。
+
+Shazeer 后来又参与了 Transformer 的发明（他是 "Attention Is All You Need" 的作者之一），并继续推动 MoE 技术的发展。2021 年的 Switch Transformer 正是他与 William Fedus 等人的合作成果。
+
+如今，MoE 已经从一个研究概念变成了大语言模型的标准架构选择。Mixtral、DeepSeek、Grok（xAI）等模型都采用了 MoE 架构，证明了这条技术路线的成熟和实用性。
+
+从 1991 到 2024，MoE 的演进跨越了 33 年——这再次提醒我们，很多"新"技术其实有着深厚的历史根源，关键是在合适的时机用合适的方式重新发现和应用它们。
